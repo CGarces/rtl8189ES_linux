@@ -552,7 +552,11 @@ ODM_SetTimer(
 	)
 {
 #if (DM_ODM_SUPPORT_TYPE & ODM_AP)
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+	mod_timer(&pTimer->_timer, jiffies + RTL_MILISECONDS_TO_JIFFIES(msDelay));
+#else
 	mod_timer(pTimer, jiffies + RTL_MILISECONDS_TO_JIFFIES(msDelay));
+#endif
 #elif(DM_ODM_SUPPORT_TYPE & ODM_CE)
 	_set_timer(pTimer,msDelay ); //ms
 #elif(DM_ODM_SUPPORT_TYPE & ODM_WIN)
@@ -575,7 +579,11 @@ ODM_InitializeTimer(
 	init_timer(pTimer);
 	pTimer->function = CallBackFunc;
 	pTimer->data = (unsigned long)pDM_Odm;
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+	mod_timer(&pTimer->_timer, jiffies+RTL_MILISECONDS_TO_JIFFIES(10));	
+#else
 	mod_timer(pTimer, jiffies+RTL_MILISECONDS_TO_JIFFIES(10));	
+#endif
 #elif(DM_ODM_SUPPORT_TYPE & ODM_CE)
 	PADAPTER Adapter = pDM_Odm->Adapter;
 	_init_timer(pTimer,Adapter->pnetdev,CallBackFunc,pDM_Odm);
@@ -593,7 +601,11 @@ ODM_CancelTimer(
 	)
 {
 #if (DM_ODM_SUPPORT_TYPE & ODM_AP)
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+	del_timer(&pTimer->_timer);
+#else
 	del_timer(pTimer);
+#endif
 #elif (DM_ODM_SUPPORT_TYPE & ODM_CE)
 	_cancel_timer_ex(pTimer);
 #elif (DM_ODM_SUPPORT_TYPE & ODM_WIN)

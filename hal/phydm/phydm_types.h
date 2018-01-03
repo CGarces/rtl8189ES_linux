@@ -152,7 +152,12 @@ typedef enum _RT_SPINLOCK_TYPE{
 
 	typedef struct rtl8192cd_priv	*prtl8192cd_priv;
 	typedef struct stat_info		STA_INFO_T,*PSTA_INFO_T;
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+	typedef struct __timer_list		RT_TIMER, *PRT_TIMER;
+#else
 	typedef struct timer_list		RT_TIMER, *PRT_TIMER;
+#endif
 	typedef  void *				RT_TIMER_CALL_BACK;
 
 #ifdef CONFIG_PCI_HCI
@@ -221,8 +226,11 @@ typedef enum _RT_SPINLOCK_TYPE{
 	#elif defined (CONFIG_BIG_ENDIAN)
 		#define	ODM_ENDIAN_TYPE			ODM_ENDIAN_BIG
 	#endif
-	
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+	typedef struct __timer_list		RT_TIMER, *PRT_TIMER;
+#else
 	typedef struct timer_list		RT_TIMER, *PRT_TIMER;
+#endif
 	typedef  void *				RT_TIMER_CALL_BACK;
 	#define	STA_INFO_T			struct sta_info
 	#define	PSTA_INFO_T		struct sta_info *
