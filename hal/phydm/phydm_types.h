@@ -26,6 +26,7 @@
 #define	ODM_ADSL		0x02
 #define	ODM_CE			0x04	/*BIT2*/
 #define	ODM_WIN		0x08	/*BIT3*/
+#define	ODM_IOT		0x20	/*BIT5*/
 
 /*Deifne HW endian support*/
 #define	ODM_ENDIAN_BIG	0
@@ -152,9 +153,8 @@ typedef enum _RT_SPINLOCK_TYPE{
 
 	typedef struct rtl8192cd_priv	*prtl8192cd_priv;
 	typedef struct stat_info		STA_INFO_T,*PSTA_INFO_T;
-
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
-	typedef struct __timer_list		RT_TIMER, *PRT_TIMER;
+#if defined (LINUX_VERSION_CODE) && (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
+	typedef struct legacy_timer_emu		RT_TIMER, *PRT_TIMER;
 #else
 	typedef struct timer_list		RT_TIMER, *PRT_TIMER;
 #endif
@@ -226,8 +226,9 @@ typedef enum _RT_SPINLOCK_TYPE{
 	#elif defined (CONFIG_BIG_ENDIAN)
 		#define	ODM_ENDIAN_TYPE			ODM_ENDIAN_BIG
 	#endif
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
-	typedef struct __timer_list		RT_TIMER, *PRT_TIMER;
+	
+#if defined (LINUX_VERSION_CODE) && (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
+	typedef struct legacy_timer_emu		RT_TIMER, *PRT_TIMER;
 #else
 	typedef struct timer_list		RT_TIMER, *PRT_TIMER;
 #endif

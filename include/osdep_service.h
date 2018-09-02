@@ -21,9 +21,14 @@
 #define __OSDEP_SERVICE_H_
 
 
-#define _FAIL		0
-#define _SUCCESS	1
-#define RTW_RX_HANDLED 2
+#define _FAIL					0
+#define _SUCCESS				1
+#define RTW_RX_HANDLED			2
+#define RTW_RFRAME_UNAVAIL		3
+#define RTW_RFRAME_PKT_UNAVAIL	4
+#define RTW_RBUF_UNAVAIL		5
+#define RTW_RBUF_PKT_UNAVAIL	6
+
 //#define RTW_STATUS_TIMEDOUT -110
 
 #undef _TRUE
@@ -258,7 +263,7 @@ extern void	rtw_mfree2d(void *pbuf, int h, int w, int size);
 
 extern void	_rtw_memcpy(void *dec, const void *sour, u32 sz);
 extern void _rtw_memmove(void *dst, const void *src, u32 sz);
-extern int	_rtw_memcmp(void *dst, void *src, u32 sz);
+extern int	_rtw_memcmp(const void *dst, const void *src, u32 sz);
 extern void	_rtw_memset(void *pbuf, int c, u32 sz);
 
 extern void	_rtw_init_listhead(_list *list);
@@ -321,8 +326,8 @@ extern void rtw_init_timer(_timer *ptimer, void *padapter, void *pfunc);
 __inline static unsigned char _cancel_timer_ex(_timer *ptimer)
 {
 #ifdef PLATFORM_LINUX
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
-	return del_timer_sync(&ptimer->_timer);
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
+	return del_timer_sync(&ptimer->t);
 #else
 	return del_timer_sync(ptimer);
 #endif
