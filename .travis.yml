@@ -56,6 +56,7 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - gcc-5
+            - libelf-dev
       env: COMPILER=gcc-5 KVER=4.14.67
     - compiler: gcc
       addons:
