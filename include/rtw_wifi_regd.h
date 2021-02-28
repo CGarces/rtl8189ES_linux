@@ -28,7 +28,7 @@ enum country_code_type_t {
 }; 
 
 void rtw_regd_init(struct wiphy *wiphy);
-void rtw_reg_notify_by_driver(_adapter *adapter);
+void rtw_reg_notify_by_driver(struct wiphy *wiphy);
 
 #endif /* __RTW_WIFI_REGD_H__ */
 
