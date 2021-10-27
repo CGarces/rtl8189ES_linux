@@ -1413,17 +1413,9 @@ u8 hal_mpt_ReadRFThermalMeter(PADAPTER pAdapter)
 
 void hal_mpt_GetThermalMeter(PADAPTER pAdapter, u8 *value)
 {
-#if 0
-	fw_cmd(pAdapter, IOCMD_GET_THERMAL_METER);
-	rtw_msleep_os(1000);
-	fw_cmd_data(pAdapter, value, 1);
-	*value &= 0xFF;
-#else
 	hal_mpt_TriggerRFThermalMeter(pAdapter);
 	rtw_msleep_os(1000);
 	*value = hal_mpt_ReadRFThermalMeter(pAdapter);
-#endif
-
 }
 
 
@@ -1979,17 +1971,6 @@ VOID mpt_ProSetPMacTx(PADAPTER	Adapter)
 
 	DbgPrint("SGI %d bSPreamble %d bSTBC %d bLDPC %d NDP_sound %d\n", PMacTxInfo.bSGI, PMacTxInfo.bSPreamble, PMacTxInfo.bSTBC, PMacTxInfo.bLDPC, PMacTxInfo.NDP_sound);
 	DbgPrint("TXSC %d BandWidth %d PacketPeriod %d PacketCount %d PacketLength %d PacketPattern %d\n", PMacTxInfo.TX_SC, PMacTxInfo.BandWidth, PMacTxInfo.PacketPeriod, PMacTxInfo.PacketCount, PMacTxInfo.PacketLength, PMacTxInfo.PacketPattern);
-#if 0
-	PRINT_DATA("LSIG ", PMacTxInfo.LSIG, 3);
-	PRINT_DATA("HT_SIG", PMacTxInfo.HT_SIG, 6);
-	PRINT_DATA("VHT_SIG_A", PMacTxInfo.VHT_SIG_A, 6);
-	PRINT_DATA("VHT_SIG_B", PMacTxInfo.VHT_SIG_B, 4);
-	DbgPrint("VHT_SIG_B_CRC %x\n", PMacTxInfo.VHT_SIG_B_CRC);
-	PRINT_DATA("VHT_Delimiter", PMacTxInfo.VHT_Delimiter, 4);
-
-	PRINT_DATA("Src Address", Adapter->mac_addr, 6);
-	PRINT_DATA("Dest Address", PMacTxInfo.MacAddress, 6);
-#endif
 
 	if (PMacTxInfo.bEnPMacTx == FALSE) {
 		if (PMacTxInfo.Mode == CONTINUOUS_TX) {

@@ -743,11 +743,6 @@ void _InitOperationMode(PADAPTER padapter)
 			break;
 		case WIRELESS_MODE_A:
 //			RT_ASSERT(FALSE,("Error wireless a mode\n"));
-#if 0
-			regBwOpMode = BW_OPMODE_5G |BW_OPMODE_20MHZ;
-			regRATR = RATE_ALL_OFDM_AG;
-			regRRSR = RATE_ALL_OFDM_AG;
-#endif
 			break;
 		case WIRELESS_MODE_G:
 			regBwOpMode = BW_OPMODE_20MHZ;
@@ -755,20 +750,9 @@ void _InitOperationMode(PADAPTER padapter)
 			regRRSR = RATE_ALL_CCK | RATE_ALL_OFDM_AG;
 			break;
 		case WIRELESS_MODE_AUTO:
-#if 0
-			if (padapter->bInHctTest)
-			{
-				regBwOpMode = BW_OPMODE_20MHZ;
-				regRATR = RATE_ALL_CCK | RATE_ALL_OFDM_AG;
-				regRRSR = RATE_ALL_CCK | RATE_ALL_OFDM_AG;
-			}
-			else
-#endif
-			{
-				regBwOpMode = BW_OPMODE_20MHZ;
-				regRATR = RATE_ALL_CCK | RATE_ALL_OFDM_AG | RATE_ALL_OFDM_1SS | RATE_ALL_OFDM_2SS;
-				regRRSR = RATE_ALL_CCK | RATE_ALL_OFDM_AG;
-			}
+			regBwOpMode = BW_OPMODE_20MHZ;
+			regRATR = RATE_ALL_CCK | RATE_ALL_OFDM_AG | RATE_ALL_OFDM_1SS | RATE_ALL_OFDM_2SS;
+			regRRSR = RATE_ALL_CCK | RATE_ALL_OFDM_AG;
 			break;
 		case WIRELESS_MODE_N_24G:
 			// It support CCK rate by default.
@@ -779,11 +763,6 @@ void _InitOperationMode(PADAPTER padapter)
 			break;
 		case WIRELESS_MODE_N_5G:
 //			RT_ASSERT(FALSE,("Error wireless mode"));
-#if 0
-			regBwOpMode = BW_OPMODE_5G;
-			regRATR = RATE_ALL_OFDM_AG | RATE_ALL_OFDM_1SS | RATE_ALL_OFDM_2SS;
-			regRRSR = RATE_ALL_OFDM_AG;
-#endif
 			break;
 
 		default: //for MacOSX compiler warning.
@@ -1209,11 +1188,7 @@ static u32 rtl8188fs_hal_init(PADAPTER padapter)
 	* 2015.03.19.
 	*/
 	u4Tmp = rtw_read32(padapter, SDIO_LOCAL_BASE|SDIO_REG_TX_CTRL);
-	#if 0
-	u4Tmp &= 0xFFFFFFF8;
-	#else
 	u4Tmp &= 0x0000FFF8;
-	#endif
 	rtw_write32(padapter, SDIO_LOCAL_BASE|SDIO_REG_TX_CTRL, u4Tmp);
 
 	_RfPowerSave(padapter);

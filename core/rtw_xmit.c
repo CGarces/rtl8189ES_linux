@@ -448,11 +448,6 @@ void rtw_get_adapter_tx_rate_bmp_by_bw(_adapter *adapter, u8 bw, u16 *r_bmp_cck_
 	u32 bmp_vht = 0;
 	int i;
 
-	#if 0
-	if (adapter->fix_rate != 0xFF && adapter->fix_bw != 0xFF)
-		fix_bw = adapter->fix_bw;
-	#endif
-
 	/* TODO: adapter->fix_rate */
 
 	for (i = 0; i < macid_ctl->num; i++) {
@@ -794,22 +789,6 @@ static void update_attrib_vcs_info(_adapter *padapter, struct xmit_frame *pxmitf
 	{
 		while (_TRUE)
 		{
-#if 0 //Todo
-			//check IOT action
-			if(pHTInfo->IOTAction & HT_IOT_ACT_FORCED_CTS2SELF)
-			{
-				pattrib->vcs_mode = CTS_TO_SELF;
-				pattrib->rts_rate = MGN_24M;
-				break;
-			}
-			else if(pHTInfo->IOTAction & (HT_IOT_ACT_FORCED_RTS|HT_IOT_ACT_PURE_N_MODE))
-			{
-				pattrib->vcs_mode = RTS_CTS;
-				pattrib->rts_rate = MGN_24M;
-				break;
-			}
-#endif
-
 			//IOT action
 			if((pmlmeinfo->assoc_AP_vendor == HT_IOT_PEER_ATHEROS) && (pattrib->ampdu_en==_TRUE) &&
 				(padapter->securitypriv.dot11PrivacyAlgrthm == _AES_ ))
@@ -1181,9 +1160,6 @@ u8 rtw_check_tdls_established(_adapter *padapter, struct pkt_attrib *pattrib)
 		if (pattrib->ptdls_sta != NULL &&
 			pattrib->ptdls_sta->tdls_sta_state & TDLS_LINKED_STATE) {
 				pattrib->direct_link = _TRUE;
-				#if 0
-				DBG_871X("send ptk to "MAC_FMT" using direct link\n", MAC_ARG(pattrib->dst));
-				#endif
 		}
 
 		/* ARP frame may be helped by AP*/
@@ -1380,8 +1356,6 @@ static s32 update_attrib(_adapter *padapter, _pkt *pkt, struct pkt_attrib *pattr
 				if (pattrib->pktlen > 282) { /* MINIMUM_DHCP_PACKET_SIZE */
 					pattrib->dhcp_pkt = 1;
 					DBG_COUNTER(padapter->tx_logs.core_tx_upd_attrib_dhcp);
-					if (0)
-						DBG_871X("send DHCP packet\n");
 				}
 			}
 
@@ -1428,16 +1402,12 @@ static s32 update_attrib(_adapter *padapter, _pkt *pkt, struct pkt_attrib *pattr
 #ifdef CONFIG_WAPI_SUPPORT
 	if ( (pattrib->ether_type == 0x88B4) || (pattrib->ether_type == 0x0806) || (pattrib->ether_type == 0x888e) || (pattrib->dhcp_pkt == 1) )
 #else //!CONFIG_WAPI_SUPPORT
-#if 0
-	if ( (pattrib->ether_type == 0x0806) || (pattrib->ether_type == 0x888e) || (pattrib->dhcp_pkt == 1) )
-#else // only ICMP/DHCP packets is as SPECIAL_PACKET, and leave LPS when tx IMCP/DHCP packets.
 	//if ((pattrib->ether_type == 0x888e) || (pattrib->dhcp_pkt == 1) )
 	if (pattrib->icmp_pkt==1)
 	{
 		rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_LEAVE, 1);
 	}
 	else if(pattrib->dhcp_pkt==1)
-#endif 
 #endif
 	{
 		DBG_COUNTER(padapter->tx_logs.core_tx_upd_attrib_active);
@@ -3406,15 +3376,6 @@ _func_enter_;
 	{
 		int j, tmp, acirp_cnt[4];
 
-#if 0
-		if(flags<XMIT_QUEUE_ENTRY)
-		{
-			//priority exchange according to the completed xmitbuf flags.
-			inx[flags] = 0;
-			inx[0] = flags;
-		}
-#endif	
-
 		for(j=0; j<4; j++)
 			inx[j] = pxmitpriv->wmm_para_seq[j];
 
@@ -3899,25 +3860,6 @@ int rtw_br_client_tx(_adapter *padapter, struct sk_buff **pskb)
 				*((unsigned short *)(skb->data+MACADDRLEN*2+2)) = vlan_hdr;
 			}
 		}
-#if 0		
-		else{
-			if (*((unsigned short *)(skb->data+MACADDRLEN*2)) == __constant_htons(ETH_P_8021Q)) {
-				is_vlan_tag = 1;
-			}
-				
-			if(is_vlan_tag){
-				if(ICMPV6_MCAST_MAC(skb->data) && ICMPV6_PROTO1A_VALN(skb->data)){
-                                        memcpy(skb->data+MACADDRLEN, GET_MY_HWADDR(padapter), MACADDRLEN);
-				}
-			}else
-			{
-				if(ICMPV6_MCAST_MAC(skb->data) && ICMPV6_PROTO1A(skb->data)){
-                                        memcpy(skb->data+MACADDRLEN, GET_MY_HWADDR(padapter), MACADDRLEN);
-				}
-			}	
-		}
-#endif	// 0
-
 		// check if SA is equal to our MAC
 		if (memcmp(skb->data+MACADDRLEN, GET_MY_HWADDR(padapter), MACADDRLEN)) {
 			//priv->ext_stats.tx_drops++;
@@ -4338,9 +4280,6 @@ if (rtw_get_intf_type(adapter) != RTW_PCIE) {
 			#endif
 			|| attrib->dhcp_pkt
 		) {
-			if (0)
-				DBG_871X(FUNC_ADPT_FMT" ether_type:0x%04x%s\n", FUNC_ADPT_ARG(xmitframe->padapter)
-					, attrib->ether_type, attrib->dhcp_pkt?" DHCP":"");
 			allow = _TRUE;
 		}
 	}

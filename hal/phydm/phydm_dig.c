@@ -1437,15 +1437,6 @@ odm_FalseAlarmCounterStatistics(
 	PFALSE_ALARM_STATISTICS 	FalseAlmCnt = (PFALSE_ALARM_STATISTICS)PhyDM_Get_Structure( pDM_Odm, PHYDM_FALSEALMCNT);
 	u4Byte 						ret_value;
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_AP)
-//Mark there, and check this in odm_DMWatchDog
-#if 0 //(DM_ODM_SUPPORT_TYPE == ODM_AP)
-	prtl8192cd_priv priv		= pDM_Odm->priv;
-	if( (priv->auto_channel != 0) && (priv->auto_channel != 2) )
-		return;
-#endif
-#endif
-
 	if(!(pDM_Odm->SupportAbility & ODM_BB_FA_CNT))
 		return;
 

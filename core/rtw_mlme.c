@@ -884,41 +884,6 @@ _func_enter_;
 	}
 	#endif
 
-#if 0 // old codes, may be useful one day...
-//	DBG_871X("update_network: rssi=0x%lx dst->Rssi=%d ,dst->Rssi=0x%lx , src->Rssi=0x%lx",(dst->Rssi+src->Rssi)/2,dst->Rssi,dst->Rssi,src->Rssi);
-	if (check_fwstate(&padapter->mlmepriv, _FW_LINKED) && is_same_network(&(padapter->mlmepriv.cur_network.network), src))
-	{
-	
-		//DBG_871X("b:ssid=%s update_network: src->rssi=0x%d padapter->recvpriv.ui_rssi=%d\n",src->Ssid.Ssid,src->Rssi,padapter->recvpriv.signal);
-		if(padapter->recvpriv.signal_qual_data.total_num++ >= PHY_LINKQUALITY_SLID_WIN_MAX)
-	        {
-	              padapter->recvpriv.signal_qual_data.total_num = PHY_LINKQUALITY_SLID_WIN_MAX;
-	              last_evm = padapter->recvpriv.signal_qual_data.elements[padapter->recvpriv.signal_qual_data.index];
-	              padapter->recvpriv.signal_qual_data.total_val -= last_evm;
-	        }
-               	padapter->recvpriv.signal_qual_data.total_val += query_rx_pwr_percentage(src->Rssi);
-
-              	padapter->recvpriv.signal_qual_data.elements[padapter->recvpriv.signal_qual_data.index++] = query_rx_pwr_percentage(src->Rssi);
-                if(padapter->recvpriv.signal_qual_data.index >= PHY_LINKQUALITY_SLID_WIN_MAX)
-                       padapter->recvpriv.signal_qual_data.index = 0;
-
-		//DBG_871X("Total SQ=%d  pattrib->signal_qual= %d\n", padapter->recvpriv.signal_qual_data.total_val, src->Rssi);
-
-		// <1> Showed on UI for user,in percentage.
-		tmpVal = padapter->recvpriv.signal_qual_data.total_val/padapter->recvpriv.signal_qual_data.total_num;
-                padapter->recvpriv.signal=(u8)tmpVal;//Link quality
-
-		src->Rssi= translate_percentage_to_dbm(padapter->recvpriv.signal) ;
-	}
-	else{
-//	DBG_871X("ELSE:ssid=%s update_network: src->rssi=0x%d dst->rssi=%d\n",src->Ssid.Ssid,src->Rssi,dst->Rssi);
-		src->Rssi=(src->Rssi +dst->Rssi)/2;//dBM
-	}	
-
-//	DBG_871X("a:update_network: src->rssi=0x%d padapter->recvpriv.ui_rssi=%d\n",src->Rssi,padapter->recvpriv.signal);
-
-#endif
-
 _func_exit_;		
 }
 
@@ -1901,18 +1866,6 @@ static struct sta_info *rtw_joinbss_update_stainfo(_adapter *padapter, struct wl
 	
 		psta->aid  = pnetwork->join_res;
 
-#if 0 //alloc macid when call rtw_alloc_stainfo(), and release macid when call rtw_free_stainfo()
-#ifdef CONFIG_CONCURRENT_MODE	
-
-		if(PRIMARY_ADAPTER == padapter->adapter_type)
-			psta->mac_id=0;
-		else
-			psta->mac_id=2;
-#else
-		psta->mac_id=0;
-#endif
-#endif //removed
-
 		update_sta_info(padapter, psta);
 
 		//update station supportRate
@@ -2789,13 +2742,6 @@ void _rtw_join_timeout_handler (_adapter *adapter)
 	_irqL irqL;
 	struct	mlme_priv *pmlmepriv = &adapter->mlmepriv;
 
-#if 0
-	if (rtw_is_drv_stopped(adapter)) {
-		_rtw_up_sema(&pmlmepriv->assoc_terminate);
-		return;
-	}
-#endif	
-
 _func_enter_;		
 
 
@@ -3112,8 +3058,6 @@ inline void rtw_clear_scan_deny(_adapter *adapter)
 {
 	struct mlme_priv *mlmepriv = &adapter->mlmepriv;
 	ATOMIC_SET(&mlmepriv->set_scan_deny, 0);
-	if (0)
-		DBG_871X(FUNC_ADPT_FMT"\n", FUNC_ADPT_ARG(adapter));
 }
 
 void rtw_set_scan_deny_timer_hdl(_adapter *adapter)
@@ -3128,8 +3072,6 @@ void rtw_set_scan_deny(_adapter *adapter, u32 ms)
 	struct mlme_priv *b_mlmepriv;
 #endif
 
-	if (0)
-		DBG_871X(FUNC_ADPT_FMT"\n", FUNC_ADPT_ARG(adapter));
 	ATOMIC_SET(&mlmepriv->set_scan_deny, 1);
 	_set_timer(&mlmepriv->set_scan_deny_timer, ms);
 	
@@ -3137,8 +3079,6 @@ void rtw_set_scan_deny(_adapter *adapter, u32 ms)
 	if (!adapter->pbuddy_adapter)
 		return;
 
-	if (0)
-		DBG_871X(FUNC_ADPT_FMT"\n", FUNC_ADPT_ARG(adapter->pbuddy_adapter));
  	b_mlmepriv = &adapter->pbuddy_adapter->mlmepriv;
 	ATOMIC_SET(&b_mlmepriv->set_scan_deny, 1);
 	_set_timer(&b_mlmepriv->set_scan_deny_timer, ms);	
@@ -3236,14 +3176,6 @@ _func_enter_;
 		}
 		
 		mlme->pscanned = get_next(mlme->pscanned);
-
-		if (0)
-			DBG_871X("%s("MAC_FMT", ch%u) rssi:%d\n"
-				, pnetwork->network.Ssid.Ssid
-				, MAC_ARG(pnetwork->network.MacAddress)
-				, pnetwork->network.Configuration.DSConfig
-				, (int)pnetwork->network.Rssi);
-
 		rtw_check_roaming_candidate(mlme, &candidate, pnetwork);
  
  	}
@@ -3382,13 +3314,6 @@ _func_enter_;
 		
 		pmlmepriv->pscanned = get_next(pmlmepriv->pscanned);
 
-		if (0)
-			DBG_871X("%s("MAC_FMT", ch%u) rssi:%d\n"
-				, pnetwork->network.Ssid.Ssid
-				, MAC_ARG(pnetwork->network.MacAddress)
-				, pnetwork->network.Configuration.DSConfig
-				, (int)pnetwork->network.Rssi);
-
 		rtw_check_join_candidate(pmlmepriv, &candidate, pnetwork);
  
  	}
@@ -3414,23 +3339,9 @@ candidate_exist:
 	{
 		DBG_871X("%s: _FW_LINKED while ask_for_joinbss!!!\n", __FUNCTION__);
 
-		#if 0 // for WPA/WPA2 authentication, wpa_supplicant will expect authentication from AP, it is needed to reconnect AP...
-		if(is_same_network(&pmlmepriv->cur_network.network, &candidate->network))
-		{
-			DBG_871X("%s: _FW_LINKED and is same network, it needn't join again\n", __FUNCTION__);
-
-			rtw_indicate_connect(adapter);//rtw_indicate_connect again
-				
-			ret = 2;
-			goto exit;
-		}
-		else
-		#endif
-		{
-			rtw_disassoc_cmd(adapter, 0, _TRUE);
-			rtw_indicate_disconnect(adapter, 0, _FALSE);
-			rtw_free_assoc_resources(adapter, 0);
-		}
+		rtw_disassoc_cmd(adapter, 0, _TRUE);
+		rtw_indicate_disconnect(adapter, 0, _FALSE);
+		rtw_free_assoc_resources(adapter, 0);
 	}
 	
 	#ifdef CONFIG_ANTENNA_DIVERSITY
@@ -3862,16 +3773,6 @@ void rtw_update_registrypriv_dev_network(_adapter* adapter)
 	struct mlme_ext_priv	*pmlmeext = &adapter->mlmeextpriv;
 
 _func_enter_;
-
-#if 0
-	pxmitpriv->vcs_setting = pregistrypriv->vrtl_carrier_sense;
-	pxmitpriv->vcs = pregistrypriv->vcs_type;
-	pxmitpriv->vcs_type = pregistrypriv->vcs_type;
-	//pxmitpriv->rts_thresh = pregistrypriv->rts_thresh;
-	pxmitpriv->frag_len = pregistrypriv->frag_thresh;
-	
-	adapter->qospriv.qos_option = pregistrypriv->wmm_enable;
-#endif	
 
 	pdev_network->Privacy = (psecuritypriv->dot11PrivacyAlgrthm > 0 ? 1 : 0) ; // adhoc no 802.1x
 
@@ -4433,49 +4334,6 @@ void rtw_update_ht_cap(_adapter *padapter, u8 *pie, uint ie_len, u8 channel)
 	// Config current HT Protection mode.
 	//
 	pmlmeinfo->HT_protection = pmlmeinfo->HT_info.infos[1] & 0x3;
-
-	
-	
-#if 0 //move to rtw_update_sta_info_client()
-	//for A-MPDU Rx reordering buffer control for bmc_sta & sta_info
-	//if A-MPDU Rx is enabled, reseting  rx_ordering_ctrl wstart_b(indicate_seq) to default value=0xffff
-	//todo: check if AP can send A-MPDU packets
-	bmc_sta = rtw_get_bcmc_stainfo(padapter);
-	if(bmc_sta)
-	{
-		for(i=0; i < 16 ; i++)
-		{
-			//preorder_ctrl = &precvpriv->recvreorder_ctrl[i];
-			preorder_ctrl = &bmc_sta->recvreorder_ctrl[i];
-			preorder_ctrl->enable = _FALSE;
-			preorder_ctrl->indicate_seq = 0xffff;
-			#ifdef DBG_RX_SEQ
-			DBG_871X("DBG_RX_SEQ %s:%d indicate_seq:%u \n", __FUNCTION__, __LINE__,
-				preorder_ctrl->indicate_seq);
-			#endif
-			preorder_ctrl->wend_b= 0xffff;
-			preorder_ctrl->wsize_b = 64;//max_ampdu_sz;//ex. 32(kbytes) -> wsize_b=32
-		}
-	}
-
-	psta = rtw_get_stainfo(&padapter->stapriv, pcur_network->network.MacAddress);
-	if(psta)
-	{
-		for(i=0; i < 16 ; i++)
-		{
-			//preorder_ctrl = &precvpriv->recvreorder_ctrl[i];
-			preorder_ctrl = &psta->recvreorder_ctrl[i];
-			preorder_ctrl->enable = _FALSE;
-			preorder_ctrl->indicate_seq = 0xffff;
-			#ifdef DBG_RX_SEQ
-			DBG_871X("DBG_RX_SEQ %s:%d indicate_seq:%u \n", __FUNCTION__, __LINE__,
-				preorder_ctrl->indicate_seq);
-			#endif
-			preorder_ctrl->wend_b= 0xffff;
-			preorder_ctrl->wsize_b = 64;//max_ampdu_sz;//ex. 32(kbytes) -> wsize_b=32
-		}
-	}
-#endif	
 
 }
 

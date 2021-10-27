@@ -917,13 +917,6 @@ void rtl8188f_Add_RateATid(PADAPTER pAdapter, u64 rate_bitmap, u8 *arg, u8 rssi_
 	rtw_update_tx_rate_bmp(adapter_to_dvobj(pAdapter));
 }
 
-#if 0
-void rtl8188f_fw_try_ap_cmd(PADAPTER padapter, u32 need_ack)
-{
-	rtl8188f_set_FwAPReqRPT_cmd(padapter, need_ack);
-}
-#endif
-
 #ifdef CONFIG_BT_COEXIST
 static void ConstructBtNullFunctionData(
 	PADAPTER padapter,

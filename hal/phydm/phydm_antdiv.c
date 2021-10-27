@@ -1234,67 +1234,6 @@ ODM_UpdateRxIdleAnt_8723B(
 		return;
 	}
 
-#if 0
-	// Send H2C command to FW
-	// Enable wifi calibration
-	H2C_Parameter = TRUE;
-	ODM_FillH2CCmd(pDM_Odm, ODM_H2C_WIFI_CALIBRATION, 1, &H2C_Parameter);
-
-	// Check if H2C command sucess or not (0x1e6)
-	u1Temp = ODM_Read1Byte(pDM_Odm, 0x1e6);
-	while((u1Temp != 0x1) && (count < 100))
-	{
-		ODM_delay_us(10);	
-		u1Temp = ODM_Read1Byte(pDM_Odm, 0x1e6);
-		count++;
-	}
-	ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("[ Update Rx-Idle-Ant ] 8723B: H2C command status = %d, count = %d\n", u1Temp, count));
-
-	if(u1Temp == 0x1)
-	{
-		// Check if BT is doing IQK (0x1e7)
-		count = 0;
-		u1Temp = ODM_Read1Byte(pDM_Odm, 0x1e7);
-		while((!(u1Temp & BIT0))  && (count < 100))
-		{
-			ODM_delay_us(50);	
-			u1Temp = ODM_Read1Byte(pDM_Odm, 0x1e7);
-			count++;
-		}
-		ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("[ Update Rx-Idle-Ant ] 8723B: BT IQK status = %d, count = %d\n", u1Temp, count));
-
-		if(u1Temp & BIT0)
-		{
-			ODM_SetBBReg(pDM_Odm, 0x948 , BIT6, 0x1);
-			ODM_SetBBReg(pDM_Odm, 0x948 , BIT9, DefaultAnt);	
-			ODM_SetBBReg(pDM_Odm, 0x864 , BIT5|BIT4|BIT3, DefaultAnt);	//Default RX
-			ODM_SetBBReg(pDM_Odm, 0x864 , BIT8|BIT7|BIT6, OptionalAnt);	//Optional RX
-			ODM_SetBBReg(pDM_Odm, 0x860, BIT14|BIT13|BIT12, DefaultAnt); //Default TX	
-			pDM_FatTable->RxIdleAnt = Ant;
-
-			// Set TX AGC by S0/S1
-			// Need to consider Linux driver
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-			 pAdapter->HalFunc.SetTxPowerLevelHandler(pAdapter, pHalData->CurrentChannel);
-#elif(DM_ODM_SUPPORT_TYPE == ODM_CE)
-			rtw_hal_set_tx_power_level(pAdapter, pHalData->CurrentChannel);
-#endif
-
-			// Set IQC by S0/S1
-			ODM_SetIQCbyRFpath(pDM_Odm,DefaultAnt);
-			ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("[ Update Rx-Idle-Ant ] 8723B: Sucess to set RX antenna\n"));
-		}
-		else
-			ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("[ Update Rx-Idle-Ant ] 8723B: Fail to set RX antenna due to BT IQK\n"));
-	}
-	else
-		ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("[ Update Rx-Idle-Ant ] 8723B: Fail to set RX antenna due to H2C command fail\n"));
-
-	// Send H2C command to FW
-	// Disable wifi calibration
-	H2C_Parameter = FALSE;
-	ODM_FillH2CCmd(pDM_Odm, ODM_H2C_WIFI_CALIBRATION, 1, &H2C_Parameter);
-#else
 
 	ODM_SetBBReg(pDM_Odm, 0x948 , BIT6, 0x1);
 	ODM_SetBBReg(pDM_Odm, 0x948 , BIT9, DefaultAnt);	
@@ -1314,8 +1253,6 @@ ODM_UpdateRxIdleAnt_8723B(
 	/* Set IQC by S0/S1 */
 	ODM_SetIQCbyRFpath(pDM_Odm, DefaultAnt);
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("[ Update Rx-Idle-Ant ] 8723B: Success to set RX antenna\n"));
-
-#endif
 }
 
 BOOLEAN
@@ -2752,11 +2689,7 @@ ODM_SW_AntDiv_Callback(void *FunctionContext)
 	if(padapter->net_closed == _TRUE)
 		return;
 	
-	#if 0 /* Can't do I/O in timer callback*/
-	odm_S0S1_SwAntDiv(pDM_Odm, SWAW_STEP_DETERMINE);
-	#else
 	rtw_run_in_thread_cmd(padapter, ODM_SW_AntDiv_WorkitemCallback, padapter);
-	#endif
 }
 
 
@@ -2935,47 +2868,6 @@ odm_SetNextMACAddrTarget(
 			}
 		}
 	}
-
-#if 0
-	//
-	//2012.03.26 LukeLee: This should be removed later, the MAC address is changed according to MACID in turn
-	//
-	#if( DM_ODM_SUPPORT_TYPE & ODM_WIN)
-	{		
-		PADAPTER	Adapter =  pDM_Odm->Adapter;
-		PMGNT_INFO	pMgntInfo = &Adapter->MgntInfo;
-
-		for (i=0; i<6; i++)
-		{
-			Bssid[i] = pMgntInfo->Bssid[i];
-			//DbgPrint("Bssid[%d]=%x\n", i, Bssid[i]);
-		}
-	}
-	#endif
-
-	//odm_SetNextMACAddrTarget(pDM_Odm);
-	
-	//1 Select MAC Address Filter
-	for (i=0; i<6; i++)
-	{
-		if(Bssid[i] != pDM_FatTable->Bssid[i])
-		{
-			bMatchBSSID = FALSE;
-			break;
-		}
-	}
-	if(bMatchBSSID == FALSE)
-	{
-		//Match MAC ADDR
-		value32 = (Bssid[5]<<8)|Bssid[4];
-		ODM_SetMACReg(pDM_Odm, 0x7b4, 0xFFFF, value32);
-		value32 = (Bssid[3]<<24)|(Bssid[2]<<16) |(Bssid[1]<<8) |Bssid[0];
-		ODM_SetMACReg(pDM_Odm, 0x7b0, bMaskDWord, value32);
-	}
-
-	return bMatchBSSID;
-#endif
-				
 }
 
 #if (defined(CONFIG_5G_CG_SMART_ANT_DIVERSITY)) || (defined(CONFIG_2G_CG_SMART_ANT_DIVERSITY))

@@ -422,8 +422,6 @@ int rtw_cmd_filter(struct cmd_priv *pcmdpriv, struct cmd_obj *cmd_obj)
 		if (DBG_CMD_EXECUTE)
 			DBG_871X(ADPT_FMT" drop "CMD_FMT" hw_init_completed:%u, cmdthd_running:%u\n", ADPT_ARG(cmd_obj->padapter)
 				, CMD_ARG(cmd_obj), rtw_get_hw_init_completed(cmd_obj->padapter), ATOMIC_READ(&pcmdpriv->cmdthd_running));
-		if (0)
-			rtw_warn_on(1);
 
 		return _FAIL;
 	}
@@ -678,8 +676,6 @@ post_process:
 
 		_enter_critical_mutex(&(pcmd->padapter->cmdpriv.sctx_mutex), NULL);
 		if (pcmd->sctx) {
-			if (0)
-				DBG_871X_LEVEL(_drv_always_, FUNC_ADPT_FMT" pcmd->sctx\n", FUNC_ADPT_ARG(pcmd->padapter));
 			if (pcmd->res == H2C_SUCCESS)
 				rtw_sctx_done(&pcmd->sctx);
 			else
@@ -690,8 +686,6 @@ post_process:
 		cmd_process_time = rtw_get_passing_time_ms(cmd_start_time);
 		if (cmd_process_time > 1000) {
 			DBG_871X(ADPT_FMT" "CMD_FMT" process_time=%d\n", ADPT_ARG(pcmd->padapter), CMD_ARG(pcmd), cmd_process_time);
-			if (0)
-				rtw_warn_on(1);
 		}
 
 		//call callback function for post-processed
@@ -731,9 +725,6 @@ post_process:
 		if (pcmd == NULL)
 			break;
 
-		if (0)
-			DBG_871X("%s: leaving... drop "CMD_FMT"\n", __func__, CMD_ARG(pcmd));
-
 		if (pcmd->cmdcode == GEN_CMD_CODE(_Set_Drv_Extra)) {
 			extra_parm = (struct drvextra_cmd_parm *)pcmd->parmbuf;
 			if(extra_parm->pbuf && extra_parm->size > 0) {
@@ -743,8 +734,6 @@ post_process:
 
 		_enter_critical_mutex(&(pcmd->padapter->cmdpriv.sctx_mutex), NULL);
 		if (pcmd->sctx) {
-			if (0)
-				DBG_871X_LEVEL(_drv_always_, FUNC_ADPT_FMT" pcmd->sctx\n", FUNC_ADPT_ARG(pcmd->padapter));
 			rtw_sctx_done_err(&pcmd->sctx, RTW_SCTX_DONE_CMD_DROP);
 		}
 		_exit_critical_mutex(&(pcmd->padapter->cmdpriv.sctx_mutex), NULL);
@@ -935,9 +924,6 @@ _func_enter_;
 			if (ssid[i].SsidLength) {
 				_rtw_memcpy(&psurveyPara->ssid[i], &ssid[i], sizeof(NDIS_802_11_SSID));
 				psurveyPara->ssid_num++;
-				if (0)
-					DBG_871X(FUNC_ADPT_FMT" ssid:(%s, %d)\n", FUNC_ADPT_ARG(padapter),
-						psurveyPara->ssid[i].Ssid, psurveyPara->ssid[i].SsidLength);
 			}
 		}
 	}
@@ -949,9 +935,6 @@ _func_enter_;
 			if (ch[i].hw_value && !(ch[i].flags & RTW_IEEE80211_CHAN_DISABLED)) {
 				_rtw_memcpy(&psurveyPara->ch[i], &ch[i], sizeof(struct rtw_ieee80211_channel));
 				psurveyPara->ch_num++;
-				if (0)
-					DBG_871X(FUNC_ADPT_FMT" ch:%u\n", FUNC_ADPT_ARG(padapter),
-						psurveyPara->ch[i].hw_value);
 			}
 		}
 	}
@@ -1571,19 +1554,6 @@ _func_enter_;
 
 #endif //CONFIG_80211N_HT
 
-	#if 0
-	psecuritypriv->supplicant_ie[0]=(u8)psecnetwork->IELength;
-
-	if(psecnetwork->IELength < (256-1))
-	{
-		_rtw_memcpy(&psecuritypriv->supplicant_ie[1], &psecnetwork->IEs[0], psecnetwork->IELength);
-	}
-	else
-	{
-		_rtw_memcpy(&psecuritypriv->supplicant_ie[1], &psecnetwork->IEs[0], (256-1));
-	}
-	#endif
-	
 	pcmd->cmdsz = sizeof(WLAN_BSSID_EX);
 
 #ifdef CONFIG_RTL8712
@@ -4186,10 +4156,6 @@ void session_tracker_chk_for_sta(_adapter *adapter, struct sta_info *sta)
 			continue;
 
 		#ifdef CONFIG_WFD
-		if (0)
-			DBG_871X(FUNC_ADPT_FMT" local:%u, remote:%u, rtsp:%u, %u, %u\n", FUNC_ADPT_ARG(adapter)
-				, ntohs(st->local_port), ntohs(st->remote_port), adapter->wfd_info.rtsp_ctrlport, adapter->wfd_info.tdls_rtsp_ctrlport
-				, adapter->wfd_info.peer_rtsp_ctrlport);
 		if (ntohs(st->local_port) == adapter->wfd_info.rtsp_ctrlport)
 			op_wfd_mode |= MIRACAST_SINK;
 		if (ntohs(st->local_port) == adapter->wfd_info.tdls_rtsp_ctrlport)
@@ -4599,11 +4565,6 @@ void rtw_create_ibss_post_hdl(_adapter *padapter, int status)
 
 		/* copy pdev_network information to pmlmepriv->cur_network */
 		_rtw_memcpy(&mlme_cur_network->network, pdev_network, (get_WLAN_BSSID_EX_sz(pdev_network)));
-
-		#if 0
-		/* reset DSConfig */
-		mlme_cur_network->network.Configuration.DSConfig = (u32)rtw_ch2freq(pdev_network->Configuration.DSConfig);
-		#endif
 
 		_clr_fwstate_(pmlmepriv, _FW_UNDER_LINKING);
 

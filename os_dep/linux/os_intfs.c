@@ -1796,11 +1796,6 @@ void rtw_cancel_all_timer(_adapter *padapter)
 	_cancel_timer_ex(&padapter->mlmepriv.assoc_timer);
 	RT_TRACE(_module_os_intfs_c_, _drv_info_, ("rtw_cancel_all_timer:cancel association timer complete!\n"));
 
-	#if 0
-	_cancel_timer_ex(&padapter->securitypriv.tkip_timer);
-	RT_TRACE(_module_os_intfs_c_, _drv_info_, ("rtw_cancel_all_timer:cancel tkip_timer!\n"));
-	#endif
-
 	_cancel_timer_ex(&padapter->mlmepriv.scan_to_timer);
 	RT_TRACE(_module_os_intfs_c_, _drv_info_, ("rtw_cancel_all_timer:cancel scan_to_timer!\n"));
 
@@ -2076,16 +2071,9 @@ _adapter *rtw_drv_add_vir_if(_adapter *primary_padapter,
 	padapter->isprimary = _FALSE;
 	padapter->adapter_type = MAX_ADAPTER;
 	padapter->pbuddy_adapter = primary_padapter;
-#if 0
-#ifndef CONFIG_HWPORT_SWAP	//Port0 -> Pri , Port1 -> Sec
-	padapter->iface_type = IFACE_PORT1;
-#else
-	padapter->iface_type = IFACE_PORT0;
-#endif  //CONFIG_HWPORT_SWAP
-#else
+
 	//extended virtual interfaces always are set to port0
 	padapter->iface_type = IFACE_PORT0;
-#endif
 
 	/****** hook vir if into dvobj ******/
 	pdvobjpriv = adapter_to_dvobj(padapter);

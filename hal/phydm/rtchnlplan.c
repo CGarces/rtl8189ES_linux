@@ -48,21 +48,21 @@
 	3		2G_FCC1		5G_NULL		22h		US 2G			NA	
 	4		2G_MKK1		5G_NULL		23h		Japan 2G		NA	
 	5		2G_ETSI2	5G_NULL		24h		France 2G		NA	
-	6		2G_FCC1		5G_FCC1		25h		US 2G			US 5G					¤K¤j°ê»{ÃÒ
-	7		2G_WORLD	5G_ETSI1	26h		Worldwird 13	Europe					¤K¤j°ê»{ÃÒ
-	8		2G_MKK1		5G_MKK1		27h		Japan 2G		Japan 5G				¤K¤j°ê»{ÃÒ
-	9		2G_WORLD	5G_KCC1		28h		Worldwird 13	Korea					¤K¤j°ê»{ÃÒ
+	6		2G_FCC1		5G_FCC1		25h		US 2G			US 5G					ï¿½Kï¿½jï¿½ï¿½{ï¿½ï¿½
+	7		2G_WORLD	5G_ETSI1	26h		Worldwird 13	Europe					ï¿½Kï¿½jï¿½ï¿½{ï¿½ï¿½
+	8		2G_MKK1		5G_MKK1		27h		Japan 2G		Japan 5G				ï¿½Kï¿½jï¿½ï¿½{ï¿½ï¿½
+	9		2G_WORLD	5G_KCC1		28h		Worldwird 13	Korea					ï¿½Kï¿½jï¿½ï¿½{ï¿½ï¿½
 	10		2G_WORLD	5G_FCC2		29h		Worldwird 13	US o/w DFS Channels		
 	11		2G_WORLD	5G_FCC3		30h		Worldwird 13	India, Mexico	    	
 	12		2G_WORLD	5G_FCC4		31h		Worldwird 13	Venezuela	        	
 	13		2G_WORLD	5G_FCC5		32h		Worldwird 13	China	            	
 	14		2G_WORLD	5G_FCC6		33h		Worldwird 13	Israel	            	
-	15		2G_FCC1		5G_FCC7		34h		US 2G			US/Canada				¤K¤j°ê»{ÃÒ
-	16		2G_WORLD	5G_ETSI2	35h		Worldwird 13	Australia, New Zealand	¤K¤j°ê»{ÃÒ
+	15		2G_FCC1		5G_FCC7		34h		US 2G			US/Canada				ï¿½Kï¿½jï¿½ï¿½{ï¿½ï¿½
+	16		2G_WORLD	5G_ETSI2	35h		Worldwird 13	Australia, New Zealand	ï¿½Kï¿½jï¿½ï¿½{ï¿½ï¿½
 	17		2G_WORLD	5G_ETSI3	36h		Worldwird 13	Russia	
 	18		2G_MKK1		5G_MKK2		37h		Japan 2G		Japan (W52, W53)	
 	19		2G_MKK1		5G_MKK3		38h		Japan 2G		Japan (W56)	
-	20		2G_FCC1		5G_NCC1		39h		US 2G			Taiwan					¤K¤j°ê»{ÃÒ
+	20		2G_FCC1		5G_NCC1		39h		US 2G			Taiwan					ï¿½Kï¿½jï¿½ï¿½{ï¿½ï¿½
 						
 	NA		2G_WORLD	5G_FCC1		7F		FCC	FCC DFS Channels	Realtek Define
 						
@@ -227,10 +227,10 @@
 	173	5865	P	P	P			P												
 	177	5885	P	P				P												
 Channel Count			28	28	14	7	0	28	24	20	24	19	5	13	8	19	20	22	15	12
-			E: FCC accepted the ask for CH144 from Accord.					PS: 160MHz ¥Î 80MHz+80MHz¹ê²{¡H			Argentina	Belgium (¤ñ§Q®É)		India	Israel			Russia		
-			P: Customer's requirement from James.								Australia	The Netherlands (²üÄõ)		Mexico	Turkey			Ukraine		
-											New Zealand	UK (­^°ê)		Singapore						
-											Brazil	Switzerland (·ç¤h)								
+			E: FCC accepted the ask for CH144 from Accord.					PS: 160MHz ï¿½ï¿½ 80MHz+80MHzï¿½ï¿½{ï¿½H			Argentina	Belgium (ï¿½ï¿½Qï¿½ï¿½)		India	Israel			Russia		
+			P: Customer's requirement from James.								Australia	The Netherlands (ï¿½ï¿½ï¿½ï¿½)		Mexico	Turkey			Ukraine		
+											New Zealand	UK (ï¿½^ï¿½ï¿½)		Singapore						
+											Brazil	Switzerland (ï¿½ï¿½h)								
 
 
 */
@@ -376,103 +376,15 @@ RT_CHNL_CTRY_TBL	RtCtryChnlTbl[] =
 {
 
 	{
-		RT_CTRY_AL,							//	"Albaniaªüº¸¤Ú¥§¨È"					
+		RT_CTRY_AL,							//	"Albaniaï¿½ï¿½ï¿½ï¿½ï¿½Ú¥ï¿½ï¿½ï¿½"					
 		"AL",
 		RT_2G_WORLD,
 		RT_5G_WORLD,		
 		RT_CHANNEL_DOMAIN_UNDEFINED			// 2G/5G world.
 	},
-#if 0	
-	{
-		RT_CTRY_BB,							//  "Barbados¤Ú¤Ú¦h´µ"				
-		"BB",
-		RT_2G_WORLD,
-		RT_5G_NULL,		
-		RT_CHANNEL_DOMAIN_EFUSE_0x20		// 2G world. 5G_NULL
-	},
-	
-	{
-		RT_CTRY_DE,							//  "Germany¼w°ê"					
-		"DE",
-		RT_2G_WORLD,
-		RT_5G_ETSI1,		
-		RT_CHANNEL_DOMAIN_EFUSE_0x26
-	},
-	
-	{
-		RT_CTRY_US,							//  "Germany¼w°ê"					
-		"US",
-		RT_2G_FCC1,
-		RT_5G_FCC7,		
-		RT_CHANNEL_DOMAIN_EFUSE_0x34
-	},
-
-	{
-		RT_CTRY_JP,							//  "Germany¼w°ê"					
-		"JP",
-		RT_2G_MKK1,
-		RT_5G_MKK1,		
-		RT_CHANNEL_DOMAIN_EFUSE_0x34
-	},
-		
-	{
-		RT_CTRY_TW,							//  "Germany¼w°ê"					
-		"TW",
-		RT_2G_FCC1,
-		RT_5G_NCC1,		
-		RT_CHANNEL_DOMAIN_EFUSE_0x39
-	},	
-#endif
 
 };	// RtCtryChnlTbl
 
-//
-// Realtek Defined Channel plan.
-//
-#if 0
-
-static	RT_CHANNEL_PLAN_NEW		RtChnlPlan[] =
-{
-	// Channel Plan   0x20.
-	{
-		&RtCtryChnlTbl[1],					// RT_CHNL_CTRY_TBL Country & channel plan transfer table.		
-		RT_CHANNEL_DOMAIN_EFUSE_0x20,		// RT_CHANNEL_DOMAIN RT Channel Plan Define 
-		RT_2G_WORLD,						// RT_REGULATION_2G
-		RT_5G_NULL,							// RT_REGULATION_5G
-		RT_WORLD,							// RT_REGULATION_CMN RT Regulatory domain definition.
-		RT_SREQ_NA,							// RT Channel plan special & customerize requirement.
-		
-		CHNL_RT_2G_WORLD,
-		CHNL_RT_2G_WORLD_SCAN_TYPE,
-		&ChnlPlanPwrMax_2G[0],
-
-		CHNL_RT_5G_NULL,
-		CHNL_RT_5G_NULL_SCAN_TYPE,
-
-		
-	},
-	
-	// Channel Plan   0x26.
-	{
-		&RtCtryChnlTbl[1],					// RT_CHNL_CTRY_TBL Country & channel plan transfer table.		
-		RT_CHANNEL_DOMAIN_EFUSE_0x26,		// RT_CHANNEL_DOMAIN RT Channel Plan Define 
-		RT_2G_WORLD,						// RT_REGULATION_2G
-		RT_5G_ETSI1,						// RT_REGULATION_5G
-		RT_WORLD,							// RT_REGULATION_CMN RT Regulatory domain definition.
-		RT_SREQ_NA,							// RT Channel plan special & customerize requirement.
-		
-		CHNL_RT_2G_WORLD,					// 2G workd cannel
-		CHNL_RT_2G_WORLD_SCAN_TYPE,
-		&ChnlPlanPwrMax_2G[1],
-		
-		CHNL_RT_5G_ETSI1,
-		CHNL_RT_5G_ETSI1_SCAN_TYPE,
-		
-	}
-	
-	
-};
-#endif
 
 
 

@@ -1540,14 +1540,6 @@ int retriveAdaptorInfoFile(char *path, u8* efuse_data)
 			ret = _SUCCESS;
 		else
 			ret = _FAIL;
-
-		#if 0
-		if(isAdaptorInfoFileValid()) {	
-			return 0;
-		} else {
-			return _FAIL;
-		}
-		#endif
 		
 	} else {
 		DBG_871X("%s NULL pointer\n",__FUNCTION__);

@@ -1949,11 +1949,6 @@ phydm_fw_trace_handler_8051(
 )
 {
 	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
-#if 0
-	if (CmdLen >= 3)
-		CmdBuf[CmdLen - 1] = '\0';
-	ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("[FW DBG Msg] %s\n", &(CmdBuf[3])));
-#else
 
 	int i = 0;
 	u1Byte	Extend_c2hSubID = 0, Extend_c2hDbgLen = 0, Extend_c2hDbgSeq = 0;
@@ -1998,7 +1993,6 @@ GoBackforAggreDbgPkt:
 	}
 
 
-#endif
 }
 
 

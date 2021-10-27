@@ -481,30 +481,9 @@ typedef struct _MP_FIRMWARE {
 #define RAISE	_FALSE
 
 /* Hardware Registers */
-#if 0
-#if 0
-#define IOCMD_CTRL_REG			0x102502C0
-#define IOCMD_DATA_REG			0x102502C4
-#else
-#define IOCMD_CTRL_REG			0x10250370
-#define IOCMD_DATA_REG			0x10250374
-#endif
-
-#define IOCMD_GET_THERMAL_METER		0xFD000028
-
-#define IOCMD_CLASS_BB_RF		0xF0
-#define IOCMD_BB_READ_IDX		0x00
-#define IOCMD_BB_WRITE_IDX		0x01
-#define IOCMD_RF_READ_IDX		0x02
-#define IOCMD_RF_WRIT_IDX		0x03
-#endif
 #define BB_REG_BASE_ADDR		0x800
 
 /* MP variables */
-#if 0
-#define _2MAC_MODE_	0
-#define _LOOPBOOK_MODE_	1
-#endif
 typedef enum _MP_MODE_ {
 	MP_OFF,
 	MP_ON,

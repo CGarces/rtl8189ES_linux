@@ -474,42 +474,6 @@ Beamforming_AddBFerEntry(
 		return NULL;
 }
 
-#if 0
-BOOLEAN
-Beamforming_RemoveEntry(
-	IN	PADAPTER			Adapter,
-	IN	pu1Byte		RA,
-	OUT	pu1Byte		Idx
-	)
-{
-	HAL_DATA_TYPE			*pHalData = GET_HAL_DATA(Adapter);
-	PDM_ODM_T				pDM_Odm = &pHalData->DM_OutSrc;
-
-	PRT_BEAMFORMER_ENTRY	pBFerEntry = phydm_Beamforming_GetBFerEntryByAddr(pDM_Odm, RA, Idx);
-	PRT_BEAMFORMEE_ENTRY	pEntry = phydm_Beamforming_GetBFeeEntryByAddr(pDM_Odm, RA, Idx);
-	BOOLEAN ret = FALSE;
-    
-	RT_DISP(FBEAM, FBEAM_FUN, ("[Beamforming]@%s Start!\n", __func__));
-	RT_DISP(FBEAM, FBEAM_FUN, ("[Beamforming]@%s, pBFerEntry=0x%x\n", __func__, pBFerEntry));
-	RT_DISP(FBEAM, FBEAM_FUN, ("[Beamforming]@%s, pEntry=0x%x\n", __func__, pEntry));
-	
-	if (pEntry != NULL) {	
-		pEntry->bUsed = FALSE;
-		pEntry->BeamformEntryCap = BEAMFORMING_CAP_NONE;
-		/*pEntry->BeamformEntryState = BEAMFORMING_ENTRY_STATE_UNINITIALIZE;*/
-		pEntry->bBeamformingInProgress = FALSE;
-		ret = TRUE;
-	} 
-	if (pBFerEntry != NULL) {
-		pBFerEntry->bUsed = FALSE;
-		pBFerEntry->BeamformEntryCap = BEAMFORMING_CAP_NONE;
-		ret = TRUE;
-	}
-	return ret;
-
-}
-#endif
-
 /* Used for BeamformingStart_V1  */
 VOID
 phydm_Beamforming_NDPARate(
@@ -1779,34 +1743,6 @@ Beamforming_Leave(
 
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] End!!\n", __func__));
 }
-
-#if 0
-//Nobody calls this function
-VOID
-phydm_Beamforming_SetTxBFen(
-	IN	PVOID		pDM_VOID,
-	u1Byte			MacId,
-	BOOLEAN			bTxBF
-	)
-{
-	PDM_ODM_T				pDM_Odm = (PDM_ODM_T)pDM_VOID;
-	u1Byte					Idx = 0;
-	PRT_BEAMFORMEE_ENTRY	pEntry;
-
-	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s Start!\n", __func__));
-
-	pEntry = phydm_Beamforming_GetEntryByMacId(pDM_Odm, MacId, &Idx);
-
-	if(pEntry == NULL)
-		return;
-	else
-		pEntry->bTxBF = bTxBF;
-
-	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s MacId %d TxBF %d\n", __func__, pEntry->MacId, pEntry->bTxBF));
-
-	phydm_Beamforming_Notify(pDM_Odm);
-}
-#endif
 
 BEAMFORMING_CAP
 phydm_Beamforming_GetBeamCap(

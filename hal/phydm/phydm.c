@@ -1808,12 +1808,6 @@ void odm_dtc(PDM_ODM_T pDM_Odm)
 	u8 sign;
 	u8 resp_txagc=0;
 
-	#if 0
-	/* As DIG is disabled, DTC is also disable */
-	if(!(pDM_Odm->SupportAbility & ODM_XXXXXX))
-		return;
-	#endif
-
 	if (DTC_BASE < pDM_Odm->RSSI_Min) {
 		/* need to decade the CTS TX power */
 		sign = 1;
@@ -1824,24 +1818,7 @@ void odm_dtc(PDM_ODM_T pDM_Odm)
 			else
 				dtc_steps++;
 		}
-	}
-#if 0
-	else if (DTC_DWN_BASE > pDM_Odm->RSSI_Min)
-	{
-		/* needs to increase the CTS TX power */
-		sign = 0;
-		dtc_steps = 1;
-		for (i=0;i<ARRAY_SIZE(dtc_table_up);i++)
-		{
-			if ((dtc_table_up[i] <= pDM_Odm->RSSI_Min) || (dtc_steps>=10))
-				break;
-			else
-				dtc_steps++;
-		}
-	}
-#endif
-	else
-	{
+	} else {
 		sign = 0;
 		dtc_steps = 0;
 	}

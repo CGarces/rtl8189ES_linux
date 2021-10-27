@@ -408,32 +408,6 @@ static void rtl8188fs_recv_tasklet(void *priv)
 
 			rtl8188f_query_rx_desc_status(precvframe, ptr);
 
-#if 0
-			{
-				int i, len = 64;
-				u8 *pptr = ptr;
-
-				if((*(pptr + RXDESC_SIZE + pattrib->drvinfo_sz) != 0x80) && (*(pptr + RXDESC_SIZE + pattrib->drvinfo_sz) != 0x40))
-				{
-					DBG_871X("##############RxDESC############### \n");
-					for(i=0; i<32;i=i+16)
-						DBG_871X("%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:\n", *(pptr+i),
-						*(pptr+i+1), *(pptr+i+2) ,*(pptr+i+3) ,*(pptr+i+4),*(pptr+i+5), *(pptr+i+6), *(pptr+i+7), *(pptr+i+8), *(pptr+i+9), *(pptr+i+10),
-						 *(pptr+i+11), *(pptr+i+12), *(pptr+i+13), *(pptr+i+14), *(pptr+i+15));
-					
-					if(pattrib->pkt_len < 100)
-						len = pattrib->pkt_len;
-					pptr = ptr + RXDESC_SIZE + pattrib->drvinfo_sz;
-					DBG_871X("##############Len=%d############### \n", pattrib->pkt_len);
-					for(i=0; i<len;i=i+16)
-						DBG_871X("%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:\n", *(pptr+i),
-						*(pptr+i+1), *(pptr+i+2) ,*(pptr+i+3) ,*(pptr+i+4),*(pptr+i+5), *(pptr+i+6), *(pptr+i+7), *(pptr+i+8), *(pptr+i+9), *(pptr+i+10),
-						 *(pptr+i+11), *(pptr+i+12), *(pptr+i+13), *(pptr+i+14), *(pptr+i+15));
-					DBG_871X("############################# \n");
-				}
-			}
-#endif
-
 			// fix Hardware RX data error, drop whole recv_buffer
 			if ((!(pHalData->ReceiveConfig & RCR_ACRC32)) && pattrib->crc_err)
 			{
@@ -443,15 +417,6 @@ static void rtl8188fs_recv_tasklet(void *priv)
 			}
 
 			pkt_offset = RXDESC_SIZE + pattrib->drvinfo_sz + pattrib->pkt_len;
-#if 0 // reduce check to speed up
-			if ((ptr + pkt_offset) > precvbuf->ptail) {
-				RT_TRACE(_module_rtl871x_recv_c_, _drv_err_,
-						("%s: next pkt len(%p,%d) exceed ptail(%p)!\n",
-						__FUNCTION__, ptr, pkt_offset, precvbuf->ptail));
-				rtw_free_recvframe(precvframe, &precvpriv->free_recv_queue);
-				break;
-			}
-#endif
 
 			if ((pattrib->crc_err) || (pattrib->icv_err))
 			{

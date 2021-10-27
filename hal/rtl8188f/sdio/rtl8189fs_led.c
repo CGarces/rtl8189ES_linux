@@ -93,18 +93,6 @@ rtl8188fs_InitSwLeds(
 	_adapter	*padapter
 	)
 {
-#if 0
-	struct led_priv *pledpriv = &(padapter->ledpriv);
-
-	pledpriv->LedControlHandler = LedControlSDIO;
-
-	pledpriv->SwLedOn = SwLedOn_8188FS;
-	pledpriv->SwLedOff = SwLedOff_8188FS;
-	
-	InitLed871x(padapter, &(pledpriv->SwLed0), LED_PIN_LED0);
-
-	InitLed871x(padapter,&(pledpriv->SwLed1), LED_PIN_LED1);
-#endif
 }
 
 
@@ -117,11 +105,6 @@ rtl8188fs_DeInitSwLeds(
 	_adapter	*padapter
 	)
 {
-#if 0
-	struct led_priv	*ledpriv = &(padapter->ledpriv);
 
-	DeInitLed871x( &(ledpriv->SwLed0) );
-	DeInitLed871x( &(ledpriv->SwLed1) );
-#endif
 }
 

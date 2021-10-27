@@ -801,12 +801,7 @@ void _rtw_memset(void *pbuf, int c, u32 sz)
 #endif
 
 #ifdef PLATFORM_WINDOWS
-#if 0
-	NdisZeroMemory(pbuf, sz);
-	if (c != 0) memset(pbuf, c, sz);
-#else
 	NdisFillMemory(pbuf, sz, c);
-#endif
 #endif
 
 }
@@ -1405,14 +1400,6 @@ void rtw_usleep_os(int us)
 #ifdef DBG_DELAY_OS
 void _rtw_mdelay_os(int ms, const char *func, const int line)
 {
-	#if 0
-	if(ms>10)
-		DBG_871X("%s:%d %s(%d)\n", func, line, __FUNCTION__, ms);
-		rtw_msleep_os(ms);
-	return;
-	#endif
-
-
 	DBG_871X("%s:%d %s(%d)\n", func, line, __FUNCTION__, ms);
 
 #if defined(PLATFORM_LINUX)
@@ -1429,15 +1416,6 @@ void _rtw_mdelay_os(int ms, const char *func, const int line)
 }
 void _rtw_udelay_os(int us, const char *func, const int line)
 {
-
-	#if 0
-	if(us > 1000) {
-	DBG_871X("%s:%d %s(%d)\n", func, line, __FUNCTION__, us);
-		rtw_usleep_os(us);
-		return;
-	}
-	#endif 
-
 
 	DBG_871X("%s:%d %s(%d)\n", func, line, __FUNCTION__, us);
 	
@@ -2344,8 +2322,6 @@ bool rtw_cbuf_push(struct rtw_cbuf *cbuf, void *buf)
 	if (rtw_cbuf_full(cbuf))
 		return _FAIL;
 
-	if (0)
-		DBG_871X("%s on %u\n", __func__, cbuf->write);
 	cbuf->bufs[cbuf->write] = buf;
 	cbuf->write = (cbuf->write+1)%cbuf->size;
 
@@ -2365,8 +2341,6 @@ void *rtw_cbuf_pop(struct rtw_cbuf *cbuf)
 	if (rtw_cbuf_empty(cbuf))
 		return NULL;
 
-	if (0)
-		DBG_871X("%s on %u\n", __func__, cbuf->read);
 	buf = cbuf->bufs[cbuf->read];
 	cbuf->read = (cbuf->read+1)%cbuf->size;
 

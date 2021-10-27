@@ -447,9 +447,6 @@ BOOLEAN rtw_odm_radar_detect(_adapter *adapter)
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD
 		, ("Radar detect: enable_DFS:%d, radar_detected:%d, bypass:%d\n"
 			, enable_DFS, radar_detected, bypass));
-	if (0)
-		DBG_871X("Radar detect: enable_DFS:%d, radar_detected:%d, bypass:%d(throughput:%llu, tp_th:%d)\n"
-			, enable_DFS, radar_detected, bypass, throughput, tp_th);
 
 	if (enable_DFS && radar_detected)
 		rtw_odm_radar_detect_reset(adapter);

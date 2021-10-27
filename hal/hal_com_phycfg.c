@@ -3077,11 +3077,6 @@ phy_CrossReferenceHTAndVHTTxPowerLimit(
 						else if (IS_VHT_RATE_SECTION(rs) && IS_HT_RATE_SECTION(ref_rs))
 							vht_ref_ht_5g_20_40++;
 
-						if (0)
-							DBG_871X("reg:%u, bw:%u, ch:%u, %s ref %s\n"
-								, regulation, bw, channel
-								, rate_section_str(rs), rate_section_str(ref_rs));
-
 						pHalData->TxPwrLimit_5G[regulation][bw][rs][channel][RF_PATH_A] =
 							pHalData->TxPwrLimit_5G[regulation][bw][ref_rs][channel][RF_PATH_A];
 					}
@@ -3089,11 +3084,6 @@ phy_CrossReferenceHTAndVHTTxPowerLimit(
 				}
 			}
 		}
-	}
-
-	if (0) {
-		DBG_871X("ht_ref_vht_5g_20_40:%d, ht_has_ref_5g_20_40:%d\n", ht_ref_vht_5g_20_40, ht_has_ref_5g_20_40);
-		DBG_871X("vht_ref_hht_5g_20_40:%d, vht_has_ref_5g_20_40:%d\n", vht_ref_ht_5g_20_40, vht_has_ref_5g_20_40);
 	}
 
 	/* 5G 20M&40M HT all come from VHT*/
@@ -3217,10 +3207,6 @@ PHY_SetTxPowerLimit(
 	u8 regulation = 0, bandwidth = 0, rateSection = 0, channel;
 	s8 powerLimit = 0, prevPowerLimit, channelIndex;
 
-	if (0)
-		DBG_871X("Index of power limit table [band %s][regulation %s][bw %s][rate section %s][rf path %s][chnl %s][val %s]\n"
-			, Band, Regulation, Bandwidth, RateSection, RfPath, Channel, PowerLimit);
-
 	if (GetU1ByteIntegerFromStringInDecimal((s8 *)Channel, &channel) == _FALSE
 		|| GetU1ByteIntegerFromStringInDecimal((s8 *)PowerLimit, &powerLimit) == _FALSE
 	){
@@ -3301,9 +3287,6 @@ PHY_SetTxPowerLimit(
 		if (powerLimit < prevPowerLimit)
 			pHalData->TxPwrLimit_2_4G[regulation][bandwidth][rateSection][channelIndex][RF_PATH_A] = powerLimit;
 
-		if (0)
-			DBG_871X("2.4G Band value : [regulation %d][bw %d][rate_section %d][chnl %d][val %d]\n"
-				, regulation, bandwidth, rateSection, channelIndex, pHalData->TxPwrLimit_2_4G[regulation][bandwidth][rateSection][channelIndex][ODM_RF_PATH_A]);
 	} else if (eqNByte(Band, (u8 *)("5G"), 2)) {
 
 		channelIndex = phy_GetChannelIndexOfTxPowerLimit(BAND_ON_5G, channel);
@@ -3322,9 +3305,6 @@ PHY_SetTxPowerLimit(
 		if (powerLimit < prevPowerLimit)
 			pHalData->TxPwrLimit_5G[regulation][bandwidth][rateSection][channelIndex][RF_PATH_A] = powerLimit;
 
-		if (0)
-			DBG_871X("5G Band value : [regulation %d][bw %d][rate_section %d][chnl %d][val %d]\n"
-				, regulation, bandwidth, rateSection, channel, pHalData->TxPwrLimit_5G[regulation][bandwidth][rateSection][channelIndex][RF_PATH_A]);
 	} else {
 		DBG_871X_LEVEL(_drv_always_, "Cannot recognize the band info in %s\n", Band);
 		return;
@@ -5007,27 +4987,6 @@ PHY_ConfigRFWithTxPwrTrackParaFile(
 	{
 		DBG_871X("%s(): No File %s, Load from HWImg Array!\n", __FUNCTION__, pFileName);
 	}
-#if 0
-	for (i = 0; i < DELTA_SWINGIDX_SIZE; ++i)
-	{
-		DBG_871X("pRFCalibrateInfo->DeltaSwingTableIdx_2GA_P[%d] = %d\n", i, pRFCalibrateInfo->DeltaSwingTableIdx_2GA_P[i]);
-		DBG_871X("pRFCalibrateInfo->DeltaSwingTableIdx_2GA_N[%d] = %d\n", i, pRFCalibrateInfo->DeltaSwingTableIdx_2GA_N[i]);
-		DBG_871X("pRFCalibrateInfo->DeltaSwingTableIdx_2GB_P[%d] = %d\n", i, pRFCalibrateInfo->DeltaSwingTableIdx_2GB_P[i]);
-		DBG_871X("pRFCalibrateInfo->DeltaSwingTableIdx_2GB_N[%d] = %d\n", i, pRFCalibrateInfo->DeltaSwingTableIdx_2GB_N[i]);
-		DBG_871X("pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKA_P[%d] = %d\n", i, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKA_P[i]);
-		DBG_871X("pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKA_N[%d] = %d\n", i, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKA_N[i]);
-		DBG_871X("pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKB_P[%d] = %d\n", i, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKB_P[i]);
-		DBG_871X("pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKB_N[%d] = %d\n", i, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKB_N[i]);
-
-		for (j = 0; j < 3; ++j)
-		{
-		    DBG_871X("pRFCalibrateInfo->DeltaSwingTableIdx_5GA_P[%d][%d] = %d\n", j, i, pRFCalibrateInfo->DeltaSwingTableIdx_5GA_P[j][i]);
-		    DBG_871X("pRFCalibrateInfo->DeltaSwingTableIdx_5GA_N[%d][%d] = %d\n", j, i, pRFCalibrateInfo->DeltaSwingTableIdx_5GA_N[j][i]);
-		    DBG_871X("pRFCalibrateInfo->DeltaSwingTableIdx_5GB_P[%d][%d] = %d\n", j, i, pRFCalibrateInfo->DeltaSwingTableIdx_5GB_P[j][i]);
-		    DBG_871X("pRFCalibrateInfo->DeltaSwingTableIdx_5GB_N[%d][%d] = %d\n", j, i, pRFCalibrateInfo->DeltaSwingTableIdx_5GB_N[j][i]);
-		}
-	}
-#endif
 	return rtStatus;
 }
 

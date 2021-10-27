@@ -226,10 +226,6 @@ void Hal_EfuseParseXtal_8188F(PADAPTER pAdapter, u8 *hwinfo, u8 AutoLoadFail);
 void Hal_EfuseParseThermalMeter_8188F(PADAPTER padapter, u8 *hwinfo, u8 AutoLoadFail);
 void Hal_EfuseParseKFreeData_8188F(PADAPTER pAdapter, u8 *hwinfo, BOOLEAN AutoLoadFail);
 
-#if 0 /* Do not need for rtl8188f */
-VOID Hal_EfuseParseVoltage_8188F(PADAPTER pAdapter,u8* hwinfo,BOOLEAN 	AutoLoadFail); 
-#endif
-
 #ifdef CONFIG_C2H_PACKET_EN
 void rtl8188f_c2h_packet_handler(PADAPTER padapter, u8 *pbuf, u16 length);
 #endif

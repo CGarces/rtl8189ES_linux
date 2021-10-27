@@ -41,23 +41,7 @@ dm_CheckProtection(
 	IN	PADAPTER	Adapter
 )
 {
-#if 0
-	PMGNT_INFO		pMgntInfo = &(Adapter->MgntInfo);
-	u1Byte			CurRate, RateThreshold;
 
-	if (pMgntInfo->pHTInfo->bCurBW40MHz)
-		RateThreshold = MGN_MCS1;
-	else
-		RateThreshold = MGN_MCS3;
-
-	if (Adapter->TxStats.CurrentInitTxRate <= RateThreshold) {
-		pMgntInfo->bDmDisableProtect = TRUE;
-		DbgPrint("Forced disable protect: %x\n", Adapter->TxStats.CurrentInitTxRate);
-	} else {
-		pMgntInfo->bDmDisableProtect = FALSE;
-		DbgPrint("Enable protect: %x\n", Adapter->TxStats.CurrentInitTxRate);
-	}
-#endif
 }
 
 static VOID
@@ -65,20 +49,7 @@ dm_CheckStatistics(
 	IN	PADAPTER	Adapter
 )
 {
-#if 0
-	if (!Adapter->MgntInfo.bMediaConnect)
-		return;
 
-	/*2008.12.10 tynli Add for getting Current_Tx_Rate_Reg flexibly. */
-	rtw_hal_get_hwreg(Adapter, HW_VAR_INIT_TX_RATE, (pu1Byte)(&Adapter->TxStats.CurrentInitTxRate));
-
-	/* Calculate current Tx Rate(Successful transmited!!) */
-
-	/* Calculate current Rx Rate(Successful received!!) */
-
-	/*for tx tx retry count */
-	rtw_hal_get_hwreg(Adapter, HW_VAR_RETRY_COUNT, (pu1Byte)(&Adapter->TxStats.NumTxRetryCount));
-#endif
 }
 #ifdef CONFIG_SUPPORT_HW_WPS_PBC
 static void dm_CheckPbcGPIO(_adapter *padapter)
@@ -223,80 +194,6 @@ rtl8188f_InitHalDm(
 	ODM_DMInit(pDM_Odm);
 
 }
-
-#if 0 /* function never used */
-static void
-FindMinimumRSSI_8188f(
-	IN	PADAPTER	pAdapter
-)
-{
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
-	struct mlme_priv	*pmlmepriv = &pAdapter->mlmepriv;
-
-	/*1 1.Determine the minimum RSSI */
-
-
-#ifdef CONFIG_CONCURRENT_MODE
-	/*	FindMinimumRSSI()	per-adapter */
-	{
-		PADAPTER pbuddy_adapter = pAdapter->pbuddy_adapter;
-		PHAL_DATA_TYPE	pbuddy_HalData = GET_HAL_DATA(pbuddy_adapter);
-		struct dm_priv *pbuddy_dmpriv = &pbuddy_HalData->dmpriv;
-
-		if ((pHalData->EntryMinUndecoratedSmoothedPWDB != 0) &&
-			(pbuddy_dmpriv->EntryMinUndecoratedSmoothedPWDB != 0)) {
-
-			if (pHalData->EntryMinUndecoratedSmoothedPWDB > pbuddy_dmpriv->EntryMinUndecoratedSmoothedPWDB)
-				pHalData->EntryMinUndecoratedSmoothedPWDB = pbuddy_dmpriv->EntryMinUndecoratedSmoothedPWDB;
-		} else {
-			if (pHalData->EntryMinUndecoratedSmoothedPWDB == 0)
-				pHalData->EntryMinUndecoratedSmoothedPWDB = pbuddy_dmpriv->EntryMinUndecoratedSmoothedPWDB;
-
-		}
-#if 0
-		if ((pHalData->UndecoratedSmoothedPWDB != (-1)) &&
-			(pbuddy_dmpriv->UndecoratedSmoothedPWDB != (-1))) {
-
-			if ((pHalData->UndecoratedSmoothedPWDB > pbuddy_dmpriv->UndecoratedSmoothedPWDB) &&
-				(pbuddy_dmpriv->UndecoratedSmoothedPWDB != 0))
-				pHalData->UndecoratedSmoothedPWDB = pbuddy_dmpriv->UndecoratedSmoothedPWDB;
-		} else {
-			if ((pHalData->UndecoratedSmoothedPWDB == (-1)) && (pbuddy_dmpriv->UndecoratedSmoothedPWDB != 0))
-				pHalData->UndecoratedSmoothedPWDB = pbuddy_dmpriv->UndecoratedSmoothedPWDB;
-		}
-#endif
-	}
-#endif
-
-	if ((check_fwstate(pmlmepriv, _FW_LINKED) == _FALSE) &&
-		(pHalData->EntryMinUndecoratedSmoothedPWDB == 0)) {
-		pHalData->MinUndecoratedPWDBForDM = 0;
-		/*ODM_RT_TRACE(pDM_Odm,COMP_BB_POWERSAVING, DBG_LOUD, ("Not connected to any\n")); */
-	}
-	if (check_fwstate(pmlmepriv, _FW_LINKED) == _TRUE) {	/* Default port */
-#if 0
-		if ((check_fwstate(pmlmepriv, WIFI_AP_STATE) == _TRUE) ||
-			(check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE) == _TRUE) ||
-			(check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) == _TRUE)) {
-			pHalData->MinUndecoratedPWDBForDM = pHalData->EntryMinUndecoratedSmoothedPWDB;
-			/*ODM_RT_TRACE(pDM_Odm,COMP_BB_POWERSAVING, DBG_LOUD, ("AP Client PWDB = 0x%x\n", pHalData->MinUndecoratedPWDBForDM)); */
-		} else { /*for STA mode */
-			pHalData->MinUndecoratedPWDBForDM = pHalData->UndecoratedSmoothedPWDB;
-			/*ODM_RT_TRACE(pDM_Odm,COMP_BB_POWERSAVING, DBG_LOUD, ("STA Default Port PWDB = 0x%x\n", pHalData->MinUndecoratedPWDBForDM)); */
-		}
-#else
-		pHalData->MinUndecoratedPWDBForDM = pHalData->EntryMinUndecoratedSmoothedPWDB;
-#endif
-	} else { /* associated entry pwdb */
-		pHalData->MinUndecoratedPWDBForDM = pHalData->EntryMinUndecoratedSmoothedPWDB;
-		/*ODM_RT_TRACE(pDM_Odm,COMP_BB_POWERSAVING, DBG_LOUD, ("AP Ext Port or disconnect PWDB = 0x%x\n", pHalData->MinUndecoratedPWDBForDM)); */
-	}
-
-	/*odm_FindMinimumRSSI_Dmsp(pAdapter); */
-	/*DBG_8192C("%s=>MinUndecoratedPWDBForDM(%d)\n",__func__,pHalData->MinUndecoratedPWDBForDM); */
-	/*ODM_RT_TRACE(pDM_Odm,COMP_DIG, DBG_LOUD, ("MinUndecoratedPWDBForDM =%d\n",pHalData->MinUndecoratedPWDBForDM)); */
-}
-#endif
 
 VOID
 rtl8188f_HalDmWatchDog(
