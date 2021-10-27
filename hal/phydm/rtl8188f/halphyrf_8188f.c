@@ -1924,7 +1924,6 @@ phy_IQCalibrate_8188F(
 	}
 
 //bypass RXQIK
-#if 1
 
 	for (i = 0; i < retryCount; i++) {
 #if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
@@ -1942,8 +1941,6 @@ phy_IQCalibrate_8188F(
 		} else
 			ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("Path A Rx IQK Fail!!\n"));
 	}
-#endif
-
 
 	if (0x00 == PathAOK)
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("Path A IQK failed!!\n"));

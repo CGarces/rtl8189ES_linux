@@ -622,7 +622,6 @@ odm_BDCcoex_BFeeRxDiv_Arbitration(
 				}
 			}
 
-#if 1
 		if (pDM_Odm->bdc_holdstate==0xff) 
 		{
 			pDM_BdcTable->BDC_state=BDC_DIV_HOLD_STATE;
@@ -630,7 +629,6 @@ odm_BDCcoex_BFeeRxDiv_Arbitration(
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("Force in [ DIV STATE] \n"));	
 			return;
 		}
-#endif
 
 			// Does Client number changed ? -------------------------------
 			if(pDM_BdcTable->num_Client !=pDM_BdcTable->pre_num_Client)
@@ -3205,7 +3203,6 @@ phydm_update_beam_pattern(
 			}
 		}
 		
-		#if 1
 		reg44_tmp_p = reg44_ori & (~(BIT11|BIT10)); /*clean bit 10 & 11*/
 		reg44_tmp_p |= ((1<<11) | (beam_ctrl_signal<<10));
 		reg44_tmp_n = reg44_ori & (~(BIT11|BIT10));
@@ -3213,10 +3210,6 @@ phydm_update_beam_pattern(
 		/*ODM_RT_TRACE(pDM_Odm, ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("reg44_tmp_p =(( 0x%x )), reg44_tmp_n = (( 0x%x ))\n", reg44_tmp_p, reg44_tmp_n));*/
 		ODM_SetMACReg(pDM_Odm, 0x44 , bMaskDWord, reg44_tmp_p);
 		ODM_SetMACReg(pDM_Odm, 0x44 , bMaskDWord, reg44_tmp_n); 
-		#else
-		ODM_SetMACReg(pDM_Odm, 0x44 , BIT11|BIT10, ((1<<1) | beam_ctrl_signal));
-		ODM_SetMACReg(pDM_Odm, 0x44 , BIT11, 0); 
-		#endif
 
 	}
 }

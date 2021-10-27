@@ -7647,14 +7647,12 @@ void rtw_acs_start(_adapter *padapter, bool bStart)
 	} else {		
 		SET_ACS_STATE(padapter, ACS_DISABLE);
 		#ifdef DBG_AUTO_CHNL_SEL_NHM
-		if (1) {
-			u8 best_24g_ch = 0;
-			u8 best_5g_ch = 0;
-			
-			rtw_hal_get_odm_var(padapter, HAL_ODM_AUTO_CHNL_SEL, &(best_24g_ch), &(best_5g_ch));
-			DBG_871X("[ACS-"ADPT_FMT"] Best 2.4G CH:%u\n", ADPT_ARG(padapter), best_24g_ch);
-			DBG_871X("[ACS-"ADPT_FMT"] Best 5G CH:%u\n", ADPT_ARG(padapter), best_5g_ch);
-		}
+		u8 best_24g_ch = 0;
+		u8 best_5g_ch = 0;
+		
+		rtw_hal_get_odm_var(padapter, HAL_ODM_AUTO_CHNL_SEL, &(best_24g_ch), &(best_5g_ch));
+		DBG_871X("[ACS-"ADPT_FMT"] Best 2.4G CH:%u\n", ADPT_ARG(padapter), best_24g_ch);
+		DBG_871X("[ACS-"ADPT_FMT"] Best 5G CH:%u\n", ADPT_ARG(padapter), best_5g_ch);
 		#endif
 	}
 }

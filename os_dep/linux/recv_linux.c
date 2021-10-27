@@ -330,13 +330,8 @@ void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, struct rx_pkt_attri
 				//priv->ext_stats.rx_data_drops++;
 				//DEBUG_ERR("RX DROP: nat25_handle_frame fail!\n");
 				//return FAIL;
-				
-#if 1
+
 				// bypass this frame to upper layer!!
-#else
-				rtw_skb_free(sub_skb);
-				continue;
-#endif
 			}							
 		}
 #endif	// CONFIG_BR_EXT
@@ -625,23 +620,12 @@ int rtw_recv_indicatepkt(_adapter *padapter, union recv_frame *precv_frame)
 		DBG_871X_LEVEL(_drv_always_, "recv eapol packet\n");
 
 #ifdef CONFIG_AUTO_AP_MODE	
-#if 1 //for testing
-#if 1
 	if (0x8899 == pattrib->eth_type)
 	{
 		rtw_os_ksocket_send(padapter, precv_frame);
 
 		//goto _recv_indicatepkt_drop;
 	}
-#else
-	if (0x8899 == pattrib->eth_type)
-	{
-		rtw_auto_ap_mode_rx(padapter, precv_frame);
-		
-		goto _recv_indicatepkt_end;
-	}
-#endif
-#endif
 #endif //CONFIG_AUTO_AP_MODE
 
 	/* TODO: move to core */

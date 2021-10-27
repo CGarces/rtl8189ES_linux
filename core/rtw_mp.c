@@ -820,23 +820,19 @@ end_of_mp_start_test:
 
 	_exit_critical_bh(&pmlmepriv->lock, &irqL);
 
-	if(1) //(res == _SUCCESS)
-	{
-		// set MSR to WIFI_FW_ADHOC_STATE
-		if( mode==WIFI_FW_ADHOC_STATE ){
+	// set MSR to WIFI_FW_ADHOC_STATE
+	if( mode==WIFI_FW_ADHOC_STATE ){
 
-			val8 = rtw_read8(padapter, MSR) & 0xFC; // 0x0102
-			val8 |= WIFI_FW_ADHOC_STATE;
-			rtw_write8(padapter, MSR, val8); // Link in ad hoc network
-		} 
-		else {
-			Set_MSR(padapter, WIFI_FW_STATION_STATE);
+		val8 = rtw_read8(padapter, MSR) & 0xFC; // 0x0102
+		val8 |= WIFI_FW_ADHOC_STATE;
+		rtw_write8(padapter, MSR, val8); // Link in ad hoc network
+	} else {
+		Set_MSR(padapter, WIFI_FW_STATION_STATE);
 
-			DBG_8192C("%s , pmppriv->network_macaddr =%x %x %x %x %x %x\n",__func__,
-						pmppriv->network_macaddr[0],pmppriv->network_macaddr[1],pmppriv->network_macaddr[2],pmppriv->network_macaddr[3],pmppriv->network_macaddr[4],pmppriv->network_macaddr[5]);
+		DBG_8192C("%s , pmppriv->network_macaddr =%x %x %x %x %x %x\n",__func__,
+					pmppriv->network_macaddr[0],pmppriv->network_macaddr[1],pmppriv->network_macaddr[2],pmppriv->network_macaddr[3],pmppriv->network_macaddr[4],pmppriv->network_macaddr[5]);
 
-			rtw_hal_set_hwreg(padapter, HW_VAR_BSSID, pmppriv->network_macaddr);
-		}
+		rtw_hal_set_hwreg(padapter, HW_VAR_BSSID, pmppriv->network_macaddr);
 	}
 
 	return res;

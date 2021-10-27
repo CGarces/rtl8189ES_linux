@@ -822,8 +822,6 @@ Phydm_AdaptivityBSOD(
 	pAdapter->HalFunc.GetHwRegHandler(pAdapter, HW_VAR_AVBL_Q_PAGE_NUM, (pu1Byte)(&u4Value));
 	RT_TRACE(COMP_INIT, DBG_LOUD, ("Available Queue Page Number = 0x%08x\n", u4Value));
 
-#if 1
-
 	/*Standby mode*/
 	Phydm_SetTRxMux(pDM_Odm, PhyDM_STANDBY_MODE, PhyDM_STANDBY_MODE);
 	ODM_Write_DIG(pDM_Odm, 0x20);
@@ -836,49 +834,6 @@ Phydm_AdaptivityBSOD(
 
 	delay_ms(50);
 	count = 5;
-
-#else
-
-	do {
-
-		u8Byte 		diffTime, curTime, oldestTime;
-		u1Byte		queueIdx
-
-		//3 Standby mode
-		Phydm_SetTRxMux(pDM_Odm, PhyDM_STANDBY_MODE, PhyDM_STANDBY_MODE);
-		ODM_Write_DIG(pDM_Odm, 0x20);
-
-		//3 H2C mac id drop
-		MacIdIndicateDisconnect(pAdapter);
-
-		//3 Ignore EDCCA
-		Phydm_MACEDCCAState(pDM_Odm, PhyDM_IGNORE_EDCCA);
-
-		count++;
-		delay_ms(10);
-
-		// Check latest packet
-		curTime = PlatformGetCurrentTime();
-		oldestTime = 0xFFFFFFFFFFFFFFFF;
-
-		for (queueIdx = 0; queueIdx < MAX_TX_QUEUE; queueIdx++) {
-			if (!IS_DATA_QUEUE(queueIdx))
-				continue;
-
-			if (!pAdapter->bTcbBusyQEmpty[queueIdx]) {
-				RT_TRACE(COMP_MLME, DBG_WARNING, ("oldestTime = %llu\n", oldestTime));
-				RT_TRACE(COMP_MLME, DBG_WARNING, ("Q[%d] = %llu\n", queueIdx, pAdapter->firstTcbSysTime[queueIdx]));
-				if (pAdapter->firstTcbSysTime[queueIdx] < oldestTime)
-					oldestTime = pAdapter->firstTcbSysTime[queueIdx];
-			}
-		}
-
-		diffTime = curTime - oldestTime;
-
-		RT_TRACE(COMP_MLME, DBG_WARNING, ("diff s = %llu\n", (diffTime / 1000000)));
-
-	} while (((diffTime / 1000000) >= 4) && (oldestTime != 0xFFFFFFFFFFFFFFFF));
-#endif
 
 	/*Resume EDCCA*/
 	Phydm_MACEDCCAState(pDM_Odm, PhyDM_DONT_IGNORE_EDCCA);

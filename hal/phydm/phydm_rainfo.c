@@ -1157,7 +1157,6 @@ s8 phydm_rssi_report(PDM_ODM_T pDM_Odm, u8 mac_id)
 		first_connect = _TRUE;
 	}
 		
-	#if 1
 	if (first_connect) {
 		DBG_871X("%s mac_id:%u, mac:"MAC_FMT", rssi:%d\n", __func__,
 			pEntry->mac_id, MAC_ARG(pEntry->hwaddr), pEntry->rssi_stat.UndecoratedSmoothedPWDB);
@@ -1166,7 +1165,6 @@ s8 phydm_rssi_report(PDM_ODM_T pDM_Odm, u8 mac_id)
 			(UL_DL_STATE) ? "DL" : "UL", (TxBF_EN) ? "EN" : "DIS", (STBC_TX) ? "EN" : "DIS",
 			(pDM_Odm->NoisyDecision) ? "True" : "False", (first_connect) ? "True" : "False");
 	}
-	#endif
 		
 	if (pHalData->fw_ractrl == _TRUE) {
 		ODM_FillH2CCmd(pDM_Odm, ODM_H2C_RSSI_REPORT, cmdlen, H2C_Parameter);

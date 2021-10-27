@@ -131,7 +131,7 @@ typedef struct _ODM_RA_Info_ {
 	u2Byte RptTime;
 	u1Byte RAWaitingCounter;
 	u1Byte RAPendingCounter;
-#if 1 //POWER_TRAINING_ACTIVE == 1 // For compile  pass only~!
+
 	u1Byte PTActive;  // on or off
 	u1Byte PTTryState;  // 0 trying state, 1 for decision state
 	u1Byte PTStage;  // 0~6
@@ -141,7 +141,7 @@ typedef struct _ODM_RA_Info_ {
 	u1Byte PTModeSS;  // decide whitch rate should do PT
 	u1Byte RAstage;  // StageRA, decide how many times RA will be done between PT
 	u1Byte PTSmoothFactor;
-#endif
+
 #if (DM_ODM_SUPPORT_TYPE == ODM_AP) && ((DEV_BUS_TYPE == RT_USB_INTERFACE) || (DEV_BUS_TYPE == RT_SDIO_INTERFACE))
 	u1Byte RateDownCounter;
 	u1Byte RateUpCounter;

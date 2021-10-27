@@ -1129,7 +1129,6 @@ void mgt_dispatcher(_adapter *padapter, union recv_frame *precv_frame)
 	}
 	ptable += index;
 
-#if 1
 	if (psta != NULL)
 	{
 		if (GetRetry(pframe))
@@ -1144,14 +1143,7 @@ void mgt_dispatcher(_adapter *padapter, union recv_frame *precv_frame)
 		}
 		psta->RxMgmtFrameSeqNum = precv_frame->u.hdr.attrib.seq_num;
 	}
-#else
 
-	if(GetRetry(pframe))
-	{
-		//RT_TRACE(_module_rtl871x_mlme_c_,_drv_err_,("drop due to decache!\n"));
-		//return;
-	}
-#endif
 
 #ifdef CONFIG_AP_MODE
 	switch (GetFrameSubType(pframe)) 
@@ -8686,7 +8678,6 @@ void issue_assocreq(_adapter *padapter)
 
 	//supported rate & extended supported rate
 
-#if 1	// Check if the AP's supported rates are also supported by STA.
 	get_rate_set(padapter, sta_bssrate, &sta_bssrate_len);
 	//DBG_871X("sta_bssrate_len=%d\n", sta_bssrate_len);
 	
@@ -8734,7 +8725,6 @@ void issue_assocreq(_adapter *padapter)
 	bssrate_len = index;
 	DBG_871X("bssrate_len = %d\n", bssrate_len);
 
-#endif	// Check if the AP's supported rates are also supported by STA.
 
 	if ((bssrate_len == 0) && (pmlmeinfo->network.SupportedRates[0] != 0)) {
 		rtw_free_xmitbuf(pxmitpriv, pmgntframe->pxmitbuf);
@@ -14629,11 +14619,10 @@ connect_allow_hdl:
 				&& check_fwstate(mlme, WIFI_ASOC_STATE)
 			) {
 				#ifdef CONFIG_SPCT_CH_SWITCH
-				if (1)
 					rtw_ap_inform_ch_switch(iface, pmlmeext->cur_channel , pmlmeext->cur_ch_offset);
-				else
-				#endif
+				#else
 					rtw_sta_flush(iface, _FALSE);
+				#endif
 
 				rtw_hal_set_hwreg(iface, HW_VAR_CHECK_TXBUF, 0);
 				set_fwstate(mlme, WIFI_OP_CH_SWITCHING);

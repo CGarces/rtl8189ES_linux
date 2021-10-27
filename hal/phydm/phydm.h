@@ -258,7 +258,6 @@ typedef struct _ODM_Mac_Status_Info_
 // 2011/20/20 MH For MP driver RT_WLAN_STA =  STA_INFO_T
 // Please declare below ODM relative info in your STA info structure.
 //
-#if 1
 typedef		struct _ODM_STA_INFO{
 	// Driver Write
 	BOOLEAN		bUsed;				// record the sta status link or not?
@@ -273,7 +272,7 @@ typedef		struct _ODM_STA_INFO{
 	u1Byte		RXSNR[4];
 
 }ODM_STA_INFO_T, *PODM_STA_INFO_T;
-#endif
+
 
 //
 // 2011/10/20 MH Define Common info enum for all team.

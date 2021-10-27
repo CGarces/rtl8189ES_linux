@@ -1197,7 +1197,6 @@ void rtl8188f_set_p2p_ps_offload_cmd(_adapter *padapter, u8 p2p_ps_state)
 
 	_func_enter_;
 
-#if 1
 	switch (p2p_ps_state) {
 	case P2P_PS_DISABLE:
 		DBG_8192C("P2P_PS_DISABLE\n");
@@ -1263,7 +1262,6 @@ void rtl8188f_set_p2p_ps_offload_cmd(_adapter *padapter, u8 p2p_ps_state)
 	}
 
 	FillH2CCmd8188F(padapter, H2C_8188F_P2P_PS_OFFLOAD, 1, (u8 *)p2p_ps_offload);
-#endif
 
 	_func_exit_;
 

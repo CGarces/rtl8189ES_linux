@@ -864,9 +864,8 @@ s8 rtw_rf_get_kfree_tx_gain_offset(_adapter *padapter, u8 path, u8 ch)
 
 	if (kfree_data->flag & KFREE_FLAG_ON) {
 		kfree_offset = kfree_data->bb_gain[bb_gain_sel][path];
-		if (1)
-			DBG_871X("%s path:%u, ch:%u, bb_gain_sel:%d, kfree_offset:%d\n"
-				, __func__, path, ch, bb_gain_sel, kfree_offset);
+		DBG_871X("%s path:%u, ch:%u, bb_gain_sel:%d, kfree_offset:%d\n"
+			, __func__, path, ch, bb_gain_sel, kfree_offset);
 	}
 exit:
 #endif /* CONFIG_RF_GAIN_OFFSET */

@@ -2101,10 +2101,8 @@ _adapter *rtw_drv_add_vir_if(_adapter *primary_padapter,
 	* If the BIT1 is 0, the address is universally administered.
 	* If it is 1, the address is locally administered
 	*/
-#if 1 /* needs enable MBSSID CAM */
 	mac[0] |= BIT(1);
 	mac[0] |= (padapter->iface_id-1)<<4;
-#endif
 
 	_rtw_memcpy(adapter_mac_addr(padapter), mac, ETH_ALEN);
 

@@ -807,7 +807,7 @@ u8 rtw_hal_get_tx_power_index(PADAPTER padapter, u8 rfpath, u8 rate, u8 bandwidt
 u8 rtw_hal_ops_check(_adapter *padapter)
 {	
 	u8 ret = _SUCCESS;
-#if 1
+
 	/*** initialize section ***/
 	if (NULL == padapter->HalFunc.read_chip_version) {
 		rtw_hal_error_msg("read_chip_version");
@@ -1046,7 +1046,6 @@ u8 rtw_hal_ops_check(_adapter *padapter)
 	}
 	#endif  //#ifdef DBG_CONFIG_ERROR_DETECT
 
-#endif
 	return  ret;
 }
 

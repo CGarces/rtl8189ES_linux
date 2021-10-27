@@ -135,13 +135,9 @@ typedef enum _RT_SPINLOCK_TYPE{
 	typedef unsigned short			u2Byte,*pu2Byte;
 	typedef unsigned int			u4Byte,*pu4Byte;
 	typedef unsigned long long		u8Byte,*pu8Byte;
-#if 1
 /* In ARM platform, system would use the type -- "char" as "unsigned char"
  * And we only use s1Byte/ps1Byte as INT8 now, so changes the type of s1Byte.*/
     typedef signed char				s1Byte,*ps1Byte;
-#else
-	typedef char					s1Byte,*ps1Byte;
-#endif
 	typedef short					s2Byte,*ps2Byte;
 	typedef long					s4Byte,*ps4Byte;
 	typedef long long				s8Byte,*ps8Byte;

@@ -507,15 +507,8 @@ struct cfg80211_bss *rtw_cfg80211_inform_bss(_adapter *padapter, struct wlan_net
 	//}
 	//#endif
 
-#if 1	
 	bss = cfg80211_inform_bss_frame(wiphy, notify_channel, (struct ieee80211_mgmt *)pbuf,
 		len, notify_signal, GFP_ATOMIC);
-#else			 
-			
-	bss = cfg80211_inform_bss(wiphy, notify_channel, (const u8 *)pnetwork->network.MacAddress,
-                notify_timestamp, notify_capability, notify_interval, notify_ie,
-                notify_ielen, notify_signal, GFP_ATOMIC/*GFP_KERNEL*/);
-#endif
 
 	if (unlikely(!bss)) {
 		DBG_8192C(FUNC_ADPT_FMT" bss NULL\n", FUNC_ADPT_ARG(padapter));
@@ -2423,14 +2416,13 @@ if (padapter->registrypriv.mp_mode == 1)
 
 	if (pmlmepriv->LinkDetectInfo.bBusyTraffic == _TRUE)
 	{
-#if 1 // Miracast can't do AP scan
+		// Miracast can't do AP scan
 		static u32 lastscantime = 0;
 		u32 passtime;
 
 		passtime = rtw_get_passing_time_ms(lastscantime);
 		lastscantime = rtw_get_current_time();
 		if (passtime > BUSY_TRAFFIC_SCAN_DENY_PERIOD)
-#endif
 		{
 			DBG_871X("%s: bBusyTraffic == _TRUE\n", __FUNCTION__);
 			need_indicate_scan_done = _TRUE;
@@ -2447,7 +2439,7 @@ if (padapter->registrypriv.mp_mode == 1)
 #ifdef CONFIG_CONCURRENT_MODE
 	if(pbuddy_mlmepriv && (pbuddy_mlmepriv->LinkDetectInfo.bBusyTraffic == _TRUE))	
 	{
-#if 1 // Miracast can't do AP scan
+		// Miracast can't do AP scan
 		static u32 buddylastscantime = 0;
 		u32 passtime;
 
@@ -2458,7 +2450,6 @@ if (padapter->registrypriv.mp_mode == 1)
 //			||(!rtw_p2p_chk_state(&padapter->wdinfo, P2P_STATE_NONE))
 //#endif //CONFIG_P2P
 		)
-#endif
 		{
 			DBG_871X("%s: bBusyTraffic == _TRUE at buddy_intf\n", __FUNCTION__);
 			need_indicate_scan_done = _TRUE;
@@ -5649,8 +5640,7 @@ static int cfg80211_rtw_tdls_mgmt(struct wiphy *wiphy,
 	}
 	_rtw_memcpy(txmgmt.buf, (void*)buf, txmgmt.len);
 
-/* Debug purpose */
-#if 1
+	/* Debug purpose */
 	DBG_871X("%s %d\n", __FUNCTION__, __LINE__);
 	DBG_871X("peer:"MAC_FMT", action code:%d, dialog:%d, status code:%d\n",
 				MAC_ARG(txmgmt.peer), txmgmt.action_code, 
@@ -5661,7 +5651,6 @@ static int cfg80211_rtw_tdls_mgmt(struct wiphy *wiphy,
 			printk("%02x ", *(txmgmt.buf+i));
 			DBG_871X("len:%d\n", txmgmt.len);
 	}
-#endif
 
 	switch (txmgmt.action_code) {
 	case TDLS_SETUP_REQUEST:

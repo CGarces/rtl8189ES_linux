@@ -386,11 +386,7 @@ int _WriteBTFWtoTxPktBuf8188F(
 	u8			txdesc_offset = TXDESC_OFFSET;
 	u8			val8;
 
-#if 1/*(DEV_BUS_TYPE == RT_PCI_INTERFACE) */
 	TotalPktLen = FwBufLen;
-#else
-	TotalPktLen = FwBufLen + pHalData->HWDescHeadLength;
-#endif
 
 	if ((TotalPktLen + TXDESC_OFFSET) > MAX_CMDBUF_SZ) {
 		DBG_871X(" WARNING %s => Total packet len = %d > MAX_CMDBUF_SZ:%d\n"
@@ -406,12 +402,7 @@ int _WriteBTFWtoTxPktBuf8188F(
 
 	_rtw_memset(ReservedPagePacket, 0, TotalPktLen);
 
-#if 1/*(DEV_BUS_TYPE == RT_PCI_INTERFACE) */
 	_rtw_memcpy(ReservedPagePacket, FwbufferPtr, FwBufLen);
-
-#else
-	PlatformMoveMemory(ReservedPagePacket + Adapter->HWDescHeadLength , FwbufferPtr, FwBufLen);
-#endif
 
 	/* Disable Hw protection for a time which revserd for Hw sending beacon. */
 	/* Fix download reserved page packet fail that access collision with the protection time. */
@@ -472,7 +463,6 @@ int _WriteBTFWtoTxPktBuf8188F(
 
 		dump_mgntframe_and_wait(Adapter, pmgntframe, 100);
 
-#if 1
 		/* check rsvd page download OK. */
 		BcnValidReg = PlatformEFIORead1Byte(Adapter, REG_TDECTRL + 2);
 		while (!(BcnValidReg & BIT(0)) && count < 200) {
@@ -489,8 +479,6 @@ int _WriteBTFWtoTxPktBuf8188F(
 
 	} while ((!(BcnValidReg & BIT(0))) && DLBcnCount < 5);
 
-
-#endif
 	if (DLBcnCount >= 5) {
 		DBG_871X(" check rsvd page download OK DLBcnCount =%d\n", DLBcnCount);
 		rtStatus = _FAIL;
@@ -995,7 +983,6 @@ s32 rtl8188f_FirmwareDownload(PADAPTER padapter, BOOLEAN  bUsedWoWLANFw)
 
 	fwdl_start_time = rtw_get_current_time();
 
-#if 1
 	DBG_871X("%s by IO write!\n", __func__);
 
 	/*
@@ -1022,68 +1009,6 @@ s32 rtl8188f_FirmwareDownload(PADAPTER padapter, BOOLEAN  bUsedWoWLANFw)
 		if (rtStatus == _SUCCESS)
 			break;
 	}
-#else
-	DBG_871X("%s by Tx pkt write!\n", __func__);
-
-	if ((rtw_read8(padapter, REG_MCUFWDL) & MCUFWDL_RDY) == 0) {
-		/* DLFW use HIQ only */
-		value32 = 0xFF | BIT(31);
-		rtw_write32(padapter, REG_RQPN, value32);
-
-		/* Set beacon boundary to TXFIFO header */
-		rtw_write8(padapter, REG_BCNQ_BDNY, 0);
-		rtw_write16(padapter, REG_DWBCN0_CTRL_8188F + 1, BIT(8));
-
-		/* SDIO need read this register before send packet */
-		rtw_read32(padapter, 0x10250020);
-
-		_FWDownloadEnable(padapter, _TRUE);
-
-		/* Get original check sum */
-		new_chk_sum = *(pFirmwareBuf + FirmwareLen - 2) | ((u16) *(pFirmwareBuf + FirmwareLen - 1) << 8);
-
-		/* Send ram code flow */
-		dma_iram_sel = 0;
-		mem_offset = 0;
-		pkt_size_tmp = FirmwareLen;
-		while (0 != pkt_size_tmp) {
-			if (pkt_size_tmp >= FW_DOWNLOAD_SIZE_8188F) {
-				send_pkt_size = FW_DOWNLOAD_SIZE_8188F;
-				/* Modify check sum value */
-				new_chk_sum = (u16)(new_chk_sum ^ (((send_pkt_size - 1) << 2) - TXDESC_SIZE));
-			} else {
-				send_pkt_size = pkt_size_tmp;
-				new_chk_sum = (u16)(new_chk_sum ^ ((send_pkt_size << 2) - TXDESC_SIZE));
-
-			}
-
-			if (send_pkt_size == pkt_size_tmp) {
-				/* last partition packet, write new check sum to ram code file */
-				*(pFirmwareBuf + FirmwareLen - 2) = new_chk_sum & 0xFF;
-				*(pFirmwareBuf + FirmwareLen - 1) = (new_chk_sum & 0xFF00) >> 8;
-			}
-
-			/* IRAM select */
-			rtw_write8(padapter, REG_MCUFWDL + 1, (rtw_read8(padapter, REG_MCUFWDL + 1) & 0x3F) | (dma_iram_sel << 6));
-			/* Enable DMA */
-			rtw_write8(padapter, REG_MCUFWDL + 1, rtw_read8(padapter, REG_MCUFWDL + 1) | BIT(5));
-
-			if (_FALSE == send_fw_packet(padapter, pFirmwareBuf + mem_offset, send_pkt_size)) {
-				DBG_871X("%s: Send FW fail !\n", __func__);
-				rtStatus = _FAIL;
-				goto DLFW_FAIL;
-			}
-
-			dma_iram_sel++;
-			mem_offset += send_pkt_size;
-			pkt_size_tmp -= send_pkt_size;
-		}
-	} else {
-		DBG_871X("%s: Download FW fail since MCUFWDL_RDY is not set!\n", __func__);
-		rtStatus = _FAIL;
-		goto DLFW_FAIL;
-	}
-#endif
 
 	_FWDownloadEnable(padapter, _FALSE);
 
@@ -1727,14 +1652,10 @@ hal_EfuseGetCurrentSize_WiFi(
 
 	count = 0;
 	while (AVAILABLE_EFUSE_ADDR(efuse_addr)) {
-#if 1
 		if (efuse_OneByteRead(padapter, efuse_addr, &efuse_data, bPseudoTest) == _FALSE) {
 			DBG_8192C(KERN_ERR "%s: efuse_OneByteRead Fail! addr=0x%X !!\n", __func__, efuse_addr);
 			goto error;
 		}
-#else
-		ReadEFuseByte(padapter, efuse_addr, &efuse_data, bPseudoTest);
-#endif
 
 		if (efuse_data == 0xFF) break;
 
@@ -1843,7 +1764,6 @@ hal_EfuseGetCurrentSize_BT(
 		/* only when bank is switched we have to reset the efuse_addr. */
 		if (bank != startBank)
 			efuse_addr = 0;
-#if 1
 
 		while (AVAILABLE_EFUSE_ADDR(efuse_addr)) {
 			if (efuse_OneByteRead(padapter, efuse_addr, &efuse_data, bPseudoTest) == _FALSE) {
@@ -1881,34 +1801,6 @@ hal_EfuseGetCurrentSize_BT(
 			/*read next header */
 			efuse_addr += (word_cnts * 2) + 1;
 		}
-#else
-		while (bContinual &&
-			   efuse_OneByteRead(padapter, efuse_addr , &efuse_data, bPseudoTest) &&
-			   AVAILABLE_EFUSE_ADDR(efuse_addr)) {
-			if (efuse_data != 0xFF) {
-				if ((efuse_data & 0x1F) == 0x0F) {	/*extended header */
-					hoffset = efuse_data;
-					efuse_addr++;
-					efuse_OneByteRead(padapter, efuse_addr , &efuse_data, bPseudoTest);
-					if ((efuse_data & 0x0F) == 0x0F) {
-						efuse_addr++;
-						continue;
-					} else {
-						hoffset = ((hoffset & 0xE0) >> 5) | ((efuse_data & 0xF0) >> 1);
-						hworden = efuse_data & 0x0F;
-					}
-				} else {
-					hoffset = (efuse_data >> 4) & 0x0F;
-					hworden =  efuse_data & 0x0F;
-				}
-				word_cnts = Efuse_CalculateWordCnts(hworden);
-				/*read next header */
-				efuse_addr = efuse_addr + (word_cnts * 2) + 1;
-			} else
-				bContinual = _FALSE;
-		}
-#endif
-
 
 		/* Check if we need to check next bank efuse */
 		if (efuse_addr < retU2) {
@@ -2174,63 +2066,11 @@ hal_EfusePartialWriteCheck(
 		}
 
 		if (efuse_OneByteRead(padapter, startAddr, &efuse_data, bPseudoTest) && (efuse_data != 0xFF)) {
-#if 1
 			bRet = _FALSE;
 			DBG_8192C("%s: Something Wrong! last bytes(%#X=0x%02X) is not 0xFF\n",
 					  __func__, startAddr, efuse_data);
 			break;
-#else
-			if (EXT_HEADER(efuse_data)) {
-				cur_header = efuse_data;
-				startAddr++;
-				efuse_OneByteRead(padapter, startAddr, &efuse_data, bPseudoTest);
-				if (ALL_WORDS_DISABLED(efuse_data)) {
-					DBG_8192C("%s: Error condition, all words disabled!", __func__);
-					bRet = _FALSE;
-					break;
-				} else {
-					curPkt.offset = ((cur_header & 0xE0) >> 5) | ((efuse_data & 0xF0) >> 1);
-					curPkt.word_en = efuse_data & 0x0F;
-				}
-			} else {
-				cur_header  =  efuse_data;
-				curPkt.offset = (cur_header >> 4) & 0x0F;
-				curPkt.word_en = cur_header & 0x0F;
-			}
 
-			curPkt.word_cnts = Efuse_CalculateWordCnts(curPkt.word_en);
-			/* if same header is found but no data followed */
-			/* write some part of data followed by the header. */
-			if ((curPkt.offset == pTargetPkt->offset) &&
-				(hal_EfuseCheckIfDatafollowed(padapter, curPkt.word_cnts, startAddr + 1, bPseudoTest) == _FALSE) &&
-				wordEnMatched(pTargetPkt, &curPkt, &matched_wden) == _TRUE) {
-				DBG_8192C("%s: Need to partial write data by the previous wrote header\n", __func__);
-				/* Here to write partial data */
-				badworden = Efuse_WordEnableDataWrite(padapter, startAddr + 1, matched_wden, pTargetPkt->data, bPseudoTest);
-				if (badworden != 0x0F) {
-					u32	PgWriteSuccess = 0;
-					/* if write fail on some words, write these bad words again */
-					if (efuseType == EFUSE_WIFI)
-						PgWriteSuccess = Efuse_PgPacketWrite(padapter, pTargetPkt->offset, badworden, pTargetPkt->data, bPseudoTest);
-					else
-						PgWriteSuccess = Efuse_PgPacketWrite_BT(padapter, pTargetPkt->offset, badworden, pTargetPkt->data, bPseudoTest);
-
-					if (!PgWriteSuccess) {
-						bRet = _FALSE;	/* write fail, return */
-						break;
-					}
-				}
-				/* partial write ok, update the target packet for later use */
-				for (i = 0; i < 4; i++) {
-					if ((matched_wden & (0x1 << i)) == 0) {	/* this word has been written */
-						pTargetPkt->word_en |= (0x1 << i);	/* disable the word */
-					}
-				}
-				pTargetPkt->word_cnts = Efuse_CalculateWordCnts(pTargetPkt->word_en);
-			}
-			/* read from next header */
-			startAddr = startAddr + (curPkt.word_cnts * 2) + 1;
-#endif
 		} else {
 			/* not used header, 0xff */
 			*pAddr = startAddr;
@@ -2558,9 +2398,6 @@ static void rtl8188f_read_chip_version(PADAPTER padapter)
 	pHalData->VersionID.CUTVersion = (value32 & CHIP_VER_RTL_MASK) >> CHIP_VER_RTL_SHIFT; /* IC version (CUT) */
 
 	rtw_hal_config_rftype(padapter);
-#if 1
-	dump_chip_info(pHalData->VersionID);
-#endif
 
 }
 
@@ -3869,7 +3706,6 @@ static void fill_txdesc_vcs_8188f(PADAPTER padapter, struct pkt_attrib *pattrib,
 		break;
 	}
 
-#if 1 /* TODO: */
 	/* Protection mode related */
 	if (pattrib->vcs_mode) {
 		/* SET_TX_DESC_CCA_RTS_8188F(ptxdesc, pTcb->RTSCCA); */
@@ -3883,7 +3719,6 @@ static void fill_txdesc_vcs_8188f(PADAPTER padapter, struct pkt_attrib *pattrib,
 		if (pattrib->ht_en)
 			SET_TX_DESC_RTS_SC_8188F(ptxdesc, SCMapping_8188F(padapter, pattrib));
 	}
-#endif
 }
 
 static void fill_txdesc_phy_8188f(PADAPTER padapter, struct pkt_attrib *pattrib, u8 *ptxdesc)
