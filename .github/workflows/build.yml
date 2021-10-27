@@ -1,6 +1,6 @@
 name: Build
 
-on: [pull_request]
+on: [push, pull_request]
 
 jobs:
   fetchKernelData:
@@ -10,7 +10,9 @@ jobs:
     steps:
     - id: set-matrix
       run: |
-        JSON=$(curl https://www.kernel.org/releases.json)
+        JSON=$(curl https://www.kernel.org/releases.json) 
+        #patch kernels version
+        JSON=$(echo "$JSON" | sed "s/4.4.291/4.4.260/" | sed "s/4.14.254/4.14.215/")
         VERSIONSARRAY=$(echo $JSON | jq -c '[.releases[] | {version: .version, moniker: .moniker} | select(.moniker != "linux-next") | .version]')
         echo ::set-output name=matrix::${VERSIONSARRAY}
 
@@ -24,6 +26,10 @@ jobs:
         #version: [4.9.248, 4.4.248]
     steps:
     - uses: actions/checkout@v2
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: ${{matrix.version}}
     - name: download-Kernel
       env: 
         VERSION: ${{matrix.version }}
@@ -34,8 +40,8 @@ jobs:
         KVER=$(echo $ALL_DEB | cut -d '_' -f 2 | rev | cut -c14- | rev)-generic
         wget -nv ${KERNEL_URL}v${VERSION}/$(echo "$KERNEL_URL_DETAILS" | grep -m1 "amd64.deb" | cut -d '"' -f 2)
         wget -nv ${KERNEL_URL}v${VERSION}/$ALL_DEB
-        wget -nv http://mirrors.kernel.org/ubuntu/pool/main/g/glibc/libc6_2.34-0ubuntu2_amd64.deb
+        wget -nv http://mirrors.edge.kernel.org/ubuntu/pool/main/g/glibc/libc6_2.34-0ubuntu3_amd64.deb
         sudo dpkg --force-all -i *.deb
         echo "KVER=$KVER" >> $GITHUB_ENV
     - name: build
-      run: make KVER=$KVER CONFIG_PLATFORM_I386_PC=y
+      run: make KVER=$KVER CONFIG_PLATFORM_I386_PC=y CC="ccache gcc"
