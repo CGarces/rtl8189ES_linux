@@ -76,7 +76,6 @@ typedef struct _ADAPTER _adapter, ADAPTER,*PADAPTER;
 #include <rtw_io.h>
 #include <rtw_ioctl.h>
 #include <rtw_ioctl_set.h>
-#include <rtw_ioctl_query.h>
 #include <rtw_ioctl_rtl.h>
 #include <osdep_intf.h>
 #include <rtw_eeprom.h>
@@ -928,17 +927,6 @@ struct _ADAPTER{
 
 	void (*intf_start)(_adapter * adapter);
 	void (*intf_stop)(_adapter * adapter);
-
-#ifdef PLATFORM_WINDOWS
-	_nic_hdl		hndis_adapter;//hNdisAdapter(NDISMiniportAdapterHandle);
-	_nic_hdl		hndis_config;//hNdisConfiguration;
-	NDIS_STRING fw_img;
-
-	u32	NdisPacketFilter;
-	u8	MCList[MAX_MCAST_LIST_NUM][6];
-	u32	MCAddrCount;
-#endif //end of PLATFORM_WINDOWS
-
 
 #ifdef PLATFORM_LINUX
 	_nic_hdl pnetdev;
