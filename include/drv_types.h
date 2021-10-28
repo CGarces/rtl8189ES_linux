@@ -959,11 +959,6 @@ struct _ADAPTER{
 
 #endif /* PLATFORM_LINUX */
 
-#ifdef PLATFORM_FREEBSD
-	_nic_hdl pifp;
-	int bup;
-	_lock glock;
-#endif //PLATFORM_FREEBSD
 	u8 mac_addr[ETH_ALEN];
 	int net_closed;
 	
