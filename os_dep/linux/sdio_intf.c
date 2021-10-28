@@ -52,9 +52,6 @@ static const struct sdio_device_id sdio_ids[] =
 	{SDIO_DEVICE(0x024c, 0xF179), .driver_data = RTL8188F},
 #endif
 
-#if defined(RTW_ENABLE_WIFI_CONTROL_FUNC) /* temporarily add this to accept all sdio wlan id */
-	{ SDIO_DEVICE_CLASS(SDIO_CLASS_WLAN) },
-#endif
 	{ /* end: all zeroes */				},
 };
 
@@ -901,7 +898,6 @@ static int rtw_drv_entry(void)
 		goto poweroff;
 	}
 
-	rtw_android_wifictrl_func_add();
 	goto exit;
 
 poweroff:
@@ -919,7 +915,6 @@ static void rtw_drv_halt(void)
 
 	sdio_unregister_driver(&sdio_drvpriv.r871xs_drv);
 
-	rtw_android_wifictrl_func_del();
 	rtw_suspend_lock_uninit();
 	rtw_drv_proc_deinit();
 	rtw_ndev_notifier_unregister();
