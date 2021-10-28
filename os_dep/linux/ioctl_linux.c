@@ -779,14 +779,7 @@ static inline char *  iwe_stream_rssi_process(_adapter *padapter,
 	/* Add quality statistics */
 	iwe->cmd = IWEVQUAL;
 	iwe->u.qual.updated = IW_QUAL_QUAL_UPDATED | IW_QUAL_LEVEL_UPDATED 
-	#if defined(CONFIG_SIGNAL_DISPLAY_DBM) && defined(CONFIG_BACKGROUND_NOISE_MONITOR)
-		| IW_QUAL_NOISE_UPDATED
-	#else
 		| IW_QUAL_NOISE_INVALID
-	#endif
-	#ifdef CONFIG_SIGNAL_DISPLAY_DBM
-		| IW_QUAL_DBM
-	#endif
 	;
 
 	if ( check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE &&
@@ -799,9 +792,6 @@ static inline char *  iwe_stream_rssi_process(_adapter *padapter,
 	}
 	
 	
-	#ifdef CONFIG_SIGNAL_DISPLAY_DBM
-	iwe->u.qual.level = (u8) translate_percentage_to_dbm(ss); /* dbm */
-	#else
 	#ifdef CONFIG_SIGNAL_SCALE_MAPPING
 	iwe->u.qual.level = (u8)ss; /* % */
 	#else
@@ -813,22 +803,13 @@ static inline char *  iwe_stream_rssi_process(_adapter *padapter,
 		iwe->u.qual.level = (u8)odm_SignalScaleMapping(&pHal->odmpriv, ss);
 	}	
 	#endif
-	#endif
 	
 	iwe->u.qual.qual = (u8)sq;   // signal quality
 
 	#ifdef CONFIG_PLATFORM_ROCKCHIPS
 	iwe->u.qual.noise = -100; // noise level suggest by zhf@rockchips
 	#else 
-	#if defined(CONFIG_SIGNAL_DISPLAY_DBM) && defined(CONFIG_BACKGROUND_NOISE_MONITOR)
-	{
-		s16 tmp_noise=0;
-		rtw_hal_get_odm_var(padapter, HAL_ODM_NOISE_MONITOR,&(pnetwork->network.Configuration.DSConfig), &(tmp_noise));
-		iwe->u.qual.noise = tmp_noise ;
-	}
-	#else
 	iwe->u.qual.noise = 0; // noise level
-	#endif	
 	#endif //CONFIG_PLATFORM_ROCKCHIPS
 	
 	//DBG_871X("iqual=%d, ilevel=%d, inoise=%d, iupdated=%d\n", iwe.u.qual.qual, iwe.u.qual.level , iwe.u.qual.noise, iwe.u.qual.updated);
@@ -2302,17 +2283,10 @@ static int rtw_wx_get_range(struct net_device *dev,
 	 * When CONFIG_SIGNAL_SCALE_MAPPING is defined, dbm range is -95 ~ -45
 	 */
 	range->max_qual.qual = 100;
-#ifdef CONFIG_SIGNAL_DISPLAY_DBM
-	range->max_qual.level = (u8)-100;
-	range->max_qual.noise = (u8)-100;
-	range->max_qual.updated = IW_QUAL_ALL_UPDATED; /* Updated all three */
-	range->max_qual.updated |= IW_QUAL_DBM;
-#else /* !CONFIG_SIGNAL_DISPLAY_DBM */
 	//percent values between 0 and 100.
 	range->max_qual.level = 100;
 	range->max_qual.noise = 100;
 	range->max_qual.updated = IW_QUAL_ALL_UPDATED; /* Updated all three */
-#endif /* !CONFIG_SIGNAL_DISPLAY_DBM */
 
 	/* This should contain the average/typical values of the quality
 	 * indicator. This should be the threshold between a "good" and
@@ -2324,18 +2298,10 @@ static int rtw_wx_get_range(struct net_device *dev,
 	 * I expect that people doing the user space apps will feedback
 	 * us on which value we need to put in each driver... */
 	range->avg_qual.qual = 92; /* > 8% missed beacons is 'bad' */
-#ifdef CONFIG_SIGNAL_DISPLAY_DBM
-	/* TODO: Find real 'good' to 'bad' threshold value for RSSI */
-	range->avg_qual.level = (u8)-70;
-	range->avg_qual.noise = 0;
-	range->avg_qual.updated = IW_QUAL_ALL_UPDATED; /* Updated all three */
-	range->avg_qual.updated |= IW_QUAL_DBM;
-#else /* !CONFIG_SIGNAL_DISPLAY_DBM */
 	/* TODO: Find real 'good' to 'bad' threshol value for RSSI */
 	range->avg_qual.level = 30;
 	range->avg_qual.noise = 100;
 	range->avg_qual.updated = IW_QUAL_ALL_UPDATED; /* Updated all three */
-#endif /* !CONFIG_SIGNAL_DISPLAY_DBM */
 
 	range->num_bitrates = RATE_COUNT;
 
@@ -2925,9 +2891,6 @@ static int rtw_wx_get_scan(struct net_device *dev, struct iw_request_info *a,
 
 #if 1 // Wireless Extension use EAGAIN to try
 	wait_status = _FW_UNDER_SURVEY
-#ifndef CONFIG_ANDROID
-		| _FW_UNDER_LINKING
-#endif
 	;
 
 	while (check_fwstate(pmlmepriv, wait_status) == _TRUE)
@@ -3834,7 +3797,6 @@ static int rtw_wx_set_auth(struct net_device *dev,
 
 	case IW_AUTH_80211_AUTH_ALG:
 
-		#if defined(CONFIG_ANDROID) || 1
 		/*
 		 *  It's the starting point of a link layer connection using wpa_supplicant
 		*/
@@ -3845,8 +3807,6 @@ static int rtw_wx_set_auth(struct net_device *dev,
 			rtw_indicate_disconnect(padapter, 0, _FALSE);
 			rtw_free_assoc_resources(padapter, 1);
 		}
-		#endif
-
 
 		ret = wpa_set_auth_algs(dev, (u32)param->value);		
 	
@@ -9381,80 +9341,6 @@ static int rtw_wx_set_priv(struct net_device *dev,
 		ret = rtw_wx_set_scan(dev, info, awrq, ext);
 		goto FREE_EXT;
 	}
-	
-#ifdef CONFIG_ANDROID
-	//DBG_871X("rtw_wx_set_priv: %s req=%s\n", dev->name, ext);
-
-	i = rtw_android_cmdstr_to_num(ext);
-
-	switch(i) {
-		case ANDROID_WIFI_CMD_START :
-			indicate_wx_custom_event(padapter, "START");
-			break;
-		case ANDROID_WIFI_CMD_STOP :
-			indicate_wx_custom_event(padapter, "STOP");
-			break;
-		case ANDROID_WIFI_CMD_RSSI :
-			{
-				struct	mlme_priv	*pmlmepriv = &(padapter->mlmepriv);	
-				struct	wlan_network	*pcur_network = &pmlmepriv->cur_network;
-
-				if(check_fwstate(pmlmepriv, _FW_LINKED) == _TRUE) {
-					sprintf(ext, "%s rssi %d", pcur_network->network.Ssid.Ssid, padapter->recvpriv.rssi);
-				} else {
-					sprintf(ext, "OK");
-				}
-			}
-			break;
-		case ANDROID_WIFI_CMD_LINKSPEED :
-			{
-				u16 mbps = rtw_get_cur_max_rate(padapter)/10;
-				sprintf(ext, "LINKSPEED %d", mbps);
-			}
-			break;
-		case ANDROID_WIFI_CMD_MACADDR :
-			sprintf(ext, "MACADDR = " MAC_FMT, MAC_ARG(dev->dev_addr));
-			break;
-		case ANDROID_WIFI_CMD_SCAN_ACTIVE :
-			{
-				//rtw_set_scan_mode(padapter, SCAN_ACTIVE);
-				sprintf(ext, "OK");
-			}
-			break;
-		case ANDROID_WIFI_CMD_SCAN_PASSIVE :
-			{
-				//rtw_set_scan_mode(padapter, SCAN_PASSIVE);
-				sprintf(ext, "OK");
-			}
-			break;
-
-		case ANDROID_WIFI_CMD_COUNTRY :
-			{
-				char country_code[10];
-				sscanf(ext, "%*s %s", country_code);
-				rtw_set_country(padapter, country_code);
-				sprintf(ext, "OK");
-			}
-			break;
-		default :
-			#ifdef  CONFIG_DEBUG_RTW_WX_SET_PRIV
-			DBG_871X("%s: %s unknowned req=%s\n", __FUNCTION__,
-				dev->name, ext_dbg);
-			#endif
-
-			sprintf(ext, "OK");
-		
-	}
-
-	if (copy_to_user(dwrq->pointer, ext, min(dwrq->length, (u16)(strlen(ext)+1)) ) )
-		ret = -EFAULT;
-
-	#ifdef CONFIG_DEBUG_RTW_WX_SET_PRIV
-	DBG_871X("%s: %s req=%s rep=%s dwrq->length=%d, strlen(ext)+1=%d\n", __FUNCTION__,
-		dev->name, ext_dbg ,ext, dwrq->length, (u16)(strlen(ext)+1));
-	#endif
-#endif //end of CONFIG_ANDROID
-
 
 FREE_EXT:
 
@@ -13377,9 +13263,6 @@ static struct iw_statistics *rtw_get_wireless_stats(struct net_device *dev)
 		//DBG_871X("No link  level:%d, qual:%d, noise:%d\n", tmp_level, tmp_qual, tmp_noise);
 	}
 	else{
-		#ifdef CONFIG_SIGNAL_DISPLAY_DBM
-		tmp_level = translate_percentage_to_dbm(padapter->recvpriv.signal_strength); 
-		#else
 		#ifdef CONFIG_SIGNAL_SCALE_MAPPING
 		tmp_level = padapter->recvpriv.signal_strength;
 		#else
@@ -13390,7 +13273,6 @@ static struct iw_statistics *rtw_get_wireless_stats(struct net_device *dev)
 			
 			tmp_level = (u8)odm_SignalScaleMapping(&pHal->odmpriv, padapter->recvpriv.signal_strength);
 		}
-		#endif
 		#endif
 		
 		tmp_qual = padapter->recvpriv.signal_qual;
@@ -13413,10 +13295,6 @@ static struct iw_statistics *rtw_get_wireless_stats(struct net_device *dev)
 	piwstats->qual.updated = 0x0f;
 #endif
 #endif
-
-	#ifdef CONFIG_SIGNAL_DISPLAY_DBM
-	piwstats->qual.updated = piwstats->qual.updated | IW_QUAL_DBM;
-	#endif
 
 	return &padapter->iwstats;
 }
