@@ -115,10 +115,6 @@
 
 		u8	*c2h_mem;
 		u8	*allocated_c2h_mem;
-
-#ifdef PLATFORM_OS_XP
-		PMDL	pc2h_mdl;
-#endif
 	};
 
 #define init_h2fwcmd_w_parm_no_rsp(pcmd, pparm, code) \
