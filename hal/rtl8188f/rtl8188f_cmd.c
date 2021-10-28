@@ -442,11 +442,7 @@ static void rtl8188f_set_FwKeepAlive_cmd(PADAPTER padapter, u8 benable, u8 pkt_t
 {
 	u8 u1H2CKeepAliveParm[H2C_KEEP_ALIVE_CTRL_LEN] = {0};
 	u8 adopt = 1;
-#ifdef CONFIG_PLATFORM_INTEL_BYT
-	u8 check_period = 10;
-#else
 	u8 check_period = 5;
-#endif
 
 	DBG_871X("%s(): benable = %d\n", __func__, benable);
 	SET_8188F_H2CCMD_KEEPALIVE_PARM_ENABLE(u1H2CKeepAliveParm, benable);
@@ -561,12 +557,6 @@ void rtl8188f_set_FwPwrMode_cmd(PADAPTER padapter, u8 psmode)
 #endif /* CONFIG_P2P */
 
 	_func_enter_;
-
-#ifdef CONFIG_PLATFORM_INTEL_BYT
-	if (psmode == PS_MODE_DTIM)
-		psmode = PS_MODE_MAX;
-#endif /*CONFIG_PLATFORM_INTEL_BYT */
-
 
 	if (pwrpriv->dtim > 0)
 		DBG_871X("%s(): FW LPS mode = %d, SmartPS=%d, dtim=%d\n", __func__, psmode, pwrpriv->smart_ps, pwrpriv->dtim);

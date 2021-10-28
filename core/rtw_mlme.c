@@ -2629,9 +2629,9 @@ _func_enter_;
 #ifdef CONFIG_IOCTL_CFG80211
 		#ifdef COMPAT_KERNEL_RELEASE
 
-		#elif (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,37)) || defined(CONFIG_CFG80211_FORCE_COMPATIBLE_2_6_37_UNDER)
+		#elif (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,37))
 		rtw_cfg80211_indicate_sta_disassoc(adapter, pstadel->macaddr, *(u16*)pstadel->rsvd);
-		#endif //(LINUX_VERSION_CODE < KERNEL_VERSION(2,6,37)) || defined(CONFIG_CFG80211_FORCE_COMPATIBLE_2_6_37_UNDER)
+		#endif //(LINUX_VERSION_CODE < KERNEL_VERSION(2,6,37))
 #endif //CONFIG_IOCTL_CFG80211
 
 		return;

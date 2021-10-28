@@ -48,9 +48,6 @@
 	 * RTW_USE_CFG80211_STA_EVENT must be defiend!
 	 */
 	//#define RTW_USE_CFG80211_STA_EVENT /* Indecate new sta asoc through cfg80211_new_sta */
-	#ifndef CONFIG_PLATFORM_INTEL_BYT
-	#define CONFIG_CFG80211_FORCE_COMPATIBLE_2_6_37_UNDER
-	#endif //!CONFIG_PLATFORM_INTEL_BYT
 	//#define CONFIG_DEBUG_CFG80211
 	#define CONFIG_SET_SCAN_DENY_TIMER
 	/*#define SUPPLICANT_RTK_VERSION_LOWER_THAN_JB42*/ /* wpa_supplicant realtek version <= jb42 will be defined this */

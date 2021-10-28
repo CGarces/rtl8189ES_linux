@@ -22,15 +22,6 @@
 #include <drv_types.h>
 #include <hal_data.h>
 
-#ifdef CONFIG_PLATFORM_INTEL_BYT
-#ifdef CONFIG_ACPI
-#include <linux/acpi.h>
-#include <linux/acpi_gpio.h>
-#include "rtw_android.h"
-#endif
-static int wlan_en_gpio = -1;
-#endif //CONFIG_PLATFORM_INTEL_BYT
-
 #ifndef dev_to_sdio_func
 #define dev_to_sdio_func(d)     container_of(d, struct sdio_func, dev)
 #endif
@@ -628,43 +619,6 @@ static int rtw_drv_init(
 	PADAPTER if1 = NULL, if2 = NULL;
 	struct dvobj_priv *dvobj;
 
-#ifdef CONFIG_PLATFORM_INTEL_BYT
-
-#ifdef CONFIG_ACPI
-        acpi_handle handle;
-        struct acpi_device *adev;
-#endif
-
-#if defined(CONFIG_ACPI) && defined(CONFIG_GPIO_WAKEUP)
-	handle = ACPI_HANDLE(&func->dev);
-
-	if (handle) {
-		/* Dont try to do acpi pm for the wifi module */
-		if (!handle || acpi_bus_get_device(handle, &adev))
-			DBG_871X("Could not get acpi pointer!\n");
-		else {
-			adev->flags.power_manageable = 0;
-			DBG_871X("Disabling ACPI power management support!\n");
-		}
-		oob_gpio = acpi_get_gpio_by_index(&func->dev, 0, NULL);
-		DBG_871X("rtw_drv_init: ACPI_HANDLE found oob_gpio %d!\n", oob_gpio);
-		wifi_configure_gpio();
-	}
-	else
-		DBG_871X("rtw_drv_init: ACPI_HANDLE NOT found!\n");
-#endif
-
-#if defined(CONFIG_ACPI)
-	if (&func->dev && ACPI_HANDLE(&func->dev)) {
-		wlan_en_gpio = acpi_get_gpio_by_index(&func->dev, 1, NULL);
-		DBG_871X("rtw_drv_init: ACPI_HANDLE found wlan_en %d!\n", wlan_en_gpio);
-	}
-	else
-		DBG_871X("rtw_drv_init: ACPI_HANDLE NOT found!\n");
-#endif
-#endif //CONFIG_PLATFORM_INTEL_BYT
-
-
 	RT_TRACE(_module_hci_intfs_c_, _drv_info_,
 		("+rtw_drv_init: vendor=0x%04x device=0x%04x class=0x%02x\n",
 		func->vendor, func->device, func->class));
@@ -892,21 +846,12 @@ static int rtw_sdio_resume(struct device *dev)
 	if(pwrpriv->bInternalAutoSuspend)
 	{
  		ret = rtw_resume_process(padapter);
-	}
-	else
-	{
-#ifdef CONFIG_PLATFORM_INTEL_BYT
-		if(0)
-#else
-		if(pwrpriv->wowlan_mode || pwrpriv->wowlan_ap_mode)
-#endif
-		{
+	} else {
+		if(pwrpriv->wowlan_mode || pwrpriv->wowlan_ap_mode) {
 			rtw_resume_lock_suspend();			
 			ret = rtw_resume_process(padapter);
 			rtw_resume_unlock_suspend();
-		}
-		else
-		{
+		} else {
 #ifdef CONFIG_RESUME_IN_WORKQUEUE
 			rtw_resume_in_workqueue(pwrpriv);
 #else			
@@ -956,9 +901,7 @@ static int rtw_drv_entry(void)
 		goto poweroff;
 	}
 
-#ifndef CONFIG_PLATFORM_INTEL_BYT
 	rtw_android_wifictrl_func_add();
-#endif //!CONFIG_PLATFORM_INTEL_BYT
 	goto exit;
 
 poweroff:
@@ -985,21 +928,6 @@ static void rtw_drv_halt(void)
 
 	rtw_mstat_dump(RTW_DBGDUMP);
 }
-
-#ifdef CONFIG_PLATFORM_INTEL_BYT
-int rtw_sdio_set_power(int on)
-{
-
-	if(wlan_en_gpio >= 0){
-		if(on)
-			gpio_set_value(wlan_en_gpio,1);
-		else
-			gpio_set_value(wlan_en_gpio,0);
-	}
-
-	return 0;
-}
-#endif //CONFIG_PLATFORM_INTEL_BYT
 
 module_init(rtw_drv_entry);
 module_exit(rtw_drv_halt);
