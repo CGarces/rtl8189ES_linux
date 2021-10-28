@@ -739,15 +739,9 @@ void rtw_set_fw_in_ips_mode(PADAPTER padapter, u8 enable)
 		//Enter IPS
 		DBG_871X("%s: issue H2C to FW when entering IPS\n", __func__);
 
-#ifdef CONFIG_PNO_SUPPORT
-		parm[0] = 0x03;
-		parm[1] = pwrpriv->pnlo_info->fast_scan_iterations;
-		parm[2] = pwrpriv->pnlo_info->slow_scan_period;
-#else
 		parm[0] = 0x03;
 		parm[1] = 0x0;
 		parm[2] = 0x0;
-#endif//CONFIG_PNO_SUPPORT
 
 		rtw_hal_fill_h2c_cmd(padapter, //H2C_FWLPS_IN_IPS_,
 					H2C_INACTIVE_PS_,
@@ -831,7 +825,7 @@ void rtw_set_fw_in_ips_mode(PADAPTER padapter, u8 enable)
 #endif
 	}
 }
-#endif //CONFIG_PNO_SUPPORT
+#endif //CONFIG_FWLPS_IN_IPS
 
 void rtw_set_ps_mode(PADAPTER padapter, u8 ps_mode, u8 smart_ps, u8 bcn_ant_mode, const char *msg)
 {
@@ -2177,13 +2171,6 @@ _func_enter_;
 		pwrctrlpriv->patterns[i].len = 0;
 	}
 
-#ifdef CONFIG_PNO_SUPPORT
-	pwrctrlpriv->pno_inited = _FALSE;
-	pwrctrlpriv->pnlo_info = NULL;
-	pwrctrlpriv->pscan_info = NULL;
-	pwrctrlpriv->pno_ssid_list = NULL;
-	pwrctrlpriv->pno_in_resume = _TRUE;
-#endif /* CONFIG_PNO_SUPPORT */
 #endif /* CONFIG_WOWLAN */
 
 _func_exit_;
@@ -2211,19 +2198,6 @@ _func_enter_;
 		destroy_workqueue(pwrctrlpriv->rtw_workqueue);
 	}
 	#endif
-
-#ifdef CONFIG_WOWLAN
-#ifdef CONFIG_PNO_SUPPORT
-	if (pwrctrlpriv->pnlo_info != NULL)
-		printk("****** pnlo_info memory leak********\n");
-
-	if (pwrctrlpriv->pscan_info != NULL)
-		printk("****** pscan_info memory leak********\n");
-
-	if (pwrctrlpriv->pno_ssid_list != NULL)
-		printk("****** pno_ssid_list memory leak********\n");
-#endif
-#endif /* CONFIG_WOWLAN */
 
 	#if defined(CONFIG_HAS_EARLYSUSPEND)
 	rtw_unregister_early_suspend(pwrctrlpriv);

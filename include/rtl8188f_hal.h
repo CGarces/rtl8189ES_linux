@@ -118,22 +118,12 @@ typedef struct _RT_8188F_FIRMWARE_HDR
 #define BCNQ1_PAGE_NUM_8188F		0x00
 #endif
 
-#ifdef CONFIG_PNO_SUPPORT
-#undef BCNQ1_PAGE_NUM_8188F
-#define BCNQ1_PAGE_NUM_8188F		0x00 // 0x04
-#endif
-
 //For WoWLan , more reserved page
 //ARP Rsp:1, RWC:1, GTK Info:1,GTK RSP:2,GTK EXT MEM:2, PNO: 6
 #ifdef CONFIG_WOWLAN
 #define WOWLAN_PAGE_NUM_8188F	0x07
 #else
 #define WOWLAN_PAGE_NUM_8188F	0x00
-#endif
-
-#ifdef CONFIG_PNO_SUPPORT
-#undef WOWLAN_PAGE_NUM_8188F
-#define WOWLAN_PAGE_NUM_8188F	0x15
 #endif
 
 #ifdef CONFIG_AP_WOWLAN

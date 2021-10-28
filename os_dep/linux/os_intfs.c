@@ -3936,14 +3936,6 @@ _func_enter_;
 		goto exit;
 	}
 
-#ifdef CONFIG_PNO_SUPPORT
-	pwrpriv->pno_in_resume = _TRUE;
-#ifdef CONFIG_FWLPS_IN_IPS
-	if(pwrpriv->wowlan_pno_enable)
-		rtw_set_fw_in_ips_mode(padapter, _FALSE);
-#endif //CONFIG_FWLPS_IN_IPS
-#endif//CONFIG_PNO_SUPPORT
-
 	if (pwrpriv->wowlan_mode == _TRUE){
 #ifdef CONFIG_LPS
 		rtw_set_ps_mode(padapter, PS_MODE_ACTIVE, 0, 0, "WOWLAN");
@@ -4420,9 +4412,6 @@ int rtw_resume_common(_adapter *padapter)
 
 	if (pwrpriv) {
 		pwrpriv->bInSuspend = _FALSE;
-	#ifdef CONFIG_PNO_SUPPORT
-		pwrpriv->pno_in_resume = _FALSE;
-	#endif
 	}
 	DBG_871X_LEVEL(_drv_always_, "%s:%d in %d ms\n", __FUNCTION__ ,ret,
 		rtw_get_passing_time_ms(start_time));
