@@ -516,16 +516,6 @@ odm_TXPowerTrackingThermalMeterInit(
 		pRFCalibrateInfo->TxPowerTrackControl = _TRUE;
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("pDM_Odm TxPowerTrackControl = %d\n", pRFCalibrateInfo->TxPowerTrackControl));
-	
-#elif (DM_ODM_SUPPORT_TYPE & (ODM_AP))
-	#ifdef RTL8188E_SUPPORT
-	{
-		pRFCalibrateInfo->bTXPowerTracking = _TRUE;
-		pRFCalibrateInfo->TXPowercount = 0;
-		pRFCalibrateInfo->bTXPowerTrackingInit = _FALSE;
-		pRFCalibrateInfo->TxPowerTrackControl = _TRUE;
-	}
-	#endif
 #endif
 
 	//pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = TRUE;

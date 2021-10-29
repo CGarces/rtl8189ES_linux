@@ -241,14 +241,6 @@ const struct map_t pg_txpwr_def_info =
 			0xEE, 0xEE, 0xEE, 0xEE, 0xEE, 0xEE, 0xEE, 0xEE)
 	);
 
-#ifdef CONFIG_RTL8188E
-static const struct map_t rtl8188e_pg_txpwr_def_info =
-	MAP_ENT(0xB8, 1, 0xFF
-		, MAPSEG_ARRAY_ENT(0x10, 12,
-			0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x24)
-	);
-#endif
-
 #ifdef CONFIG_RTL8188F
 static const struct map_t rtl8188f_pg_txpwr_def_info =
 	MAP_ENT(0xB8, 1, 0xFF
@@ -383,11 +375,7 @@ const struct map_t *hal_pg_txpwr_def_info(_adapter *adapter)
 		map = &rtl8723d_pg_txpwr_def_info;
 		break;
 #endif
-#ifdef CONFIG_RTL8188E
-	case RTL8188E:
-		map = &rtl8188e_pg_txpwr_def_info;
-		break;
-#endif
+
 #ifdef CONFIG_RTL8188F
 	case RTL8188F:
 		map = &rtl8188f_pg_txpwr_def_info;
@@ -3386,11 +3374,6 @@ PHY_SetTxPowerIndex(
 	else if (IS_HARDWARE_TYPE_8192E(pAdapter)) {
 #if (RTL8192E_SUPPORT==1)
 		PHY_SetTxPowerIndex_8192E( pAdapter, PowerIndex, RFPath, Rate );
-#endif
-	}
-	else if (IS_HARDWARE_TYPE_8188E(pAdapter)) {
-#if (RTL8188E_SUPPORT==1)
-		PHY_SetTxPowerIndex_8188E( pAdapter, PowerIndex, RFPath, Rate );
 #endif
 	} else if (IS_HARDWARE_TYPE_8188F(pAdapter)) {
 #if (RTL8188F_SUPPORT == 1)
