@@ -62,11 +62,7 @@
 
 #endif
 
-#ifdef CONFIG_PLATFORM_ARM_SUN8I
-#define BUSY_TRAFFIC_SCAN_DENY_PERIOD	8000
-#else
 #define BUSY_TRAFFIC_SCAN_DENY_PERIOD	12000
-#endif
 
 static const u32 rtw_cipher_suites[] = {
 	WLAN_CIPHER_SUITE_WEP40,

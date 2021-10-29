@@ -108,15 +108,9 @@ CONFIG_PLATFORM_DMP_PHILIPS = n
 CONFIG_PLATFORM_MSTAR_TITANIA12 = n
 CONFIG_PLATFORM_MSTAR = n
 CONFIG_PLATFORM_SZEBOOK = n
-CONFIG_PLATFORM_ARM_SUNxI = n
-CONFIG_PLATFORM_ARM_SUN6I = n
-CONFIG_PLATFORM_ARM_SUN7I = n
-CONFIG_PLATFORM_ARM_SUN8I_W3P1 = n
-CONFIG_PLATFORM_ARM_SUN8I_W5P1 = n
 CONFIG_PLATFORM_ACTIONS_ATM702X = n
 CONFIG_PLATFORM_ACTIONS_ATV5201 = n
 CONFIG_PLATFORM_ACTIONS_ATM705X = n
-CONFIG_PLATFORM_ARM_SUN50IW1P1 = n
 CONFIG_PLATFORM_ARM_RTD299X = n
 CONFIG_PLATFORM_ARM_SPREADTRUM_6820 = n
 CONFIG_PLATFORM_ARM_SPREADTRUM_8810 = n
@@ -624,32 +618,6 @@ CROSS_COMPILE := /opt/arm-2011.09/bin/arm-none-linux-gnueabi-
 KSRC := /home/android_sdk/Action-semi/705a_android_L/android/kernel
 endif
 
-ifeq ($(CONFIG_PLATFORM_ARM_SUN50IW1P1), y)
-EXTRA_CFLAGS += -DCONFIG_PLATFORM_ARM_SUN50IW1P1
-EXTRA_CFLAGS += -DCONFIG_TRAFFIC_PROTECT
-# default setting for Android 4.1, 4.2
-EXTRA_CFLAGS += -DCONFIG_CONCURRENT_MODE
-EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
-EXTRA_CFLAGS += -DCONFIG_RESUME_IN_WORKQUEUE
-EXTRA_CFLAGS += -DCONFIG_PLATFORM_OPS
-
-# Enable this for Android 5.0
-EXTRA_CFLAGS += -DCONFIG_RADIO_WORK
-
-ifeq ($(CONFIG_USB_HCI), y)
-EXTRA_CFLAGS += -DCONFIG_USE_USB_BUFFER_ALLOC_TX
-_PLATFORM_FILES += platform/platform_ARM_SUNxI_usb.o
-endif
-ifeq ($(CONFIG_SDIO_HCI), y)
-_PLATFORM_FILES += platform/platform_ARM_SUN50IW1P1_sdio.o
-endif
-
-ARCH := arm64
-# ===Cross compile setting for Android 5.1(64) SDK ===
-CROSS_COMPILE := /home/android_sdk/Allwinner/a64/android-51/lichee/out/sun50iw1p1/android/common/buildroot/external-toolchain/bin/aarch64-linux-gnu-
-KSRC :=/home/android_sdk/Allwinner/a64/android-51/lichee/linux-3.10/
-endif
-
 ifeq ($(CONFIG_PLATFORM_TI_AM3517), y)
 EXTRA_CFLAGS += -DCONFIG_PLATFORM_SHUTTLE
 CROSS_COMPILE := arm-eabi-
@@ -962,144 +930,6 @@ KSRC := /home/winuser/work/Plat_sLD2T_V3010/usr/src/linux-2.6.32.2
 INSTALL_PREFIX :=
 endif
 
-
-ifeq ($(CONFIG_PLATFORM_ARM_SUNxI), y)
-EXTRA_CFLAGS += -DCONFIG_PLATFORM_ARM_SUNxI
-# default setting for Android 4.1, 4.2
-EXTRA_CFLAGS += -DCONFIG_CONCURRENT_MODE
-EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
-
-EXTRA_CFLAGS += -DCONFIG_PLATFORM_OPS
-ifeq ($(CONFIG_USB_HCI), y)
-EXTRA_CFLAGS += -DCONFIG_USE_USB_BUFFER_ALLOC_TX
-_PLATFORM_FILES += platform/platform_ARM_SUNxI_usb.o
-endif
-ifeq ($(CONFIG_SDIO_HCI), y)
-# default setting for A10-EVB mmc0
-#EXTRA_CFLAGS += -DCONFIG_WITS_EVB_V13
-_PLATFORM_FILES += platform/platform_ARM_SUNxI_sdio.o
-endif
-
-ARCH := arm
-#CROSS_COMPILE := arm-none-linux-gnueabi-
-CROSS_COMPILE=/home/android_sdk/Allwinner/a10/android-jb42/lichee-jb42/buildroot/output/external-toolchain/bin/arm-none-linux-gnueabi-
-KVER  := 3.0.8
-#KSRC:= ../lichee/linux-3.0/
-KSRC=/home/android_sdk/Allwinner/a10/android-jb42/lichee-jb42/linux-3.0
-endif
-
-ifeq ($(CONFIG_PLATFORM_ARM_SUN6I), y)
-EXTRA_CFLAGS += -DCONFIG_PLATFORM_ARM_SUN6I
-EXTRA_CFLAGS += -DCONFIG_TRAFFIC_PROTECT
-# default setting for Android 4.1, 4.2, 4.3, 4.4
-EXTRA_CFLAGS += -DCONFIG_CONCURRENT_MODE
-EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
-EXTRA_CFLAGS +=  -DCONFIG_QOS_OPTIMIZATION
-
-EXTRA_CFLAGS += -DCONFIG_PLATFORM_OPS
-ifeq ($(CONFIG_USB_HCI), y)
-EXTRA_CFLAGS += -DCONFIG_USE_USB_BUFFER_ALLOC_TX
-_PLATFORM_FILES += platform/platform_ARM_SUNxI_usb.o
-endif
-ifeq ($(CONFIG_SDIO_HCI), y)
-# default setting for A31-EVB mmc0
-EXTRA_CFLAGS += -DCONFIG_A31_EVB
-_PLATFORM_FILES += platform/platform_ARM_SUNnI_sdio.o
-endif
-
-ARCH := arm
-#Android-JB42
-#CROSS_COMPILE := /home/android_sdk/Allwinner/a31/android-jb42/lichee/buildroot/output/external-toolchain/bin/arm-linux-gnueabi-
-#KSRC :=/home/android_sdk/Allwinner/a31/android-jb42/lichee/linux-3.3
-#ifeq ($(CONFIG_USB_HCI), y)
-#MODULE_NAME := 8188eu_sw
-#endif
-# ==== Cross compile setting for kitkat-a3x_v4.5 =====
-CROSS_COMPILE := /home/android_sdk/Allwinner/a31/kitkat-a3x_v4.5/lichee/buildroot/output/external-toolchain/bin/arm-linux-gnueabi-
-KSRC :=/home/android_sdk/Allwinner/a31/kitkat-a3x_v4.5/lichee/linux-3.3
-endif
-
-ifeq ($(CONFIG_PLATFORM_ARM_SUN7I), y)
-EXTRA_CFLAGS += -DCONFIG_PLATFORM_ARM_SUN7I
-EXTRA_CFLAGS += -DCONFIG_TRAFFIC_PROTECT
-# default setting for Android 4.1, 4.2, 4.3, 4.4
-EXTRA_CFLAGS += -DCONFIG_CONCURRENT_MODE
-EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
-EXTRA_CFLAGS +=  -DCONFIG_QOS_OPTIMIZATION
-
-EXTRA_CFLAGS += -DCONFIG_PLATFORM_OPS
-ifeq ($(CONFIG_USB_HCI), y)
-EXTRA_CFLAGS += -DCONFIG_USE_USB_BUFFER_ALLOC_TX
-_PLATFORM_FILES += platform/platform_ARM_SUNxI_usb.o
-endif
-ifeq ($(CONFIG_SDIO_HCI), y)
-_PLATFORM_FILES += platform/platform_ARM_SUNnI_sdio.o
-endif
-
-ARCH := arm
-# ===Cross compile setting for Android 4.2 SDK ===
-#CROSS_COMPILE := /home/android_sdk/Allwinner/a20_evb/lichee/out/android/common/buildroot/external-toolchain/bin/arm-linux-gnueabi-
-#KSRC := /home/android_sdk/Allwinner/a20_evb/lichee/linux-3.3
-# ==== Cross compile setting for Android 4.3 SDK =====
-#CROSS_COMPILE := /home/android_sdk/Allwinner/a20/android-jb43/lichee/out/android/common/buildroot/external-toolchain/bin/arm-linux-gnueabi-
-#KSRC := /home/android_sdk/Allwinner/a20/android-jb43/lichee/linux-3.4
-# ==== Cross compile setting for kitkat-a20_v4.4 =====
-CROSS_COMPILE := /home/android_sdk/Allwinner/a20/kitkat-a20_v4.4/lichee/out/android/common/buildroot/external-toolchain/bin/arm-linux-gnueabi-
-KSRC := /home/android_sdk/Allwinner/a20/kitkat-a20_v4.4/lichee/linux-3.4
-endif
-
-ifeq ($(CONFIG_PLATFORM_ARM_SUN8I_W3P1), y)
-EXTRA_CFLAGS += -DCONFIG_PLATFORM_ARM_SUN8I
-EXTRA_CFLAGS += -DCONFIG_PLATFORM_ARM_SUN8I_W3P1
-EXTRA_CFLAGS += -DCONFIG_TRAFFIC_PROTECT
-# default setting for Android 4.1, 4.2
-EXTRA_CFLAGS += -DCONFIG_CONCURRENT_MODE
-EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
-
-EXTRA_CFLAGS += -DCONFIG_PLATFORM_OPS
-ifeq ($(CONFIG_USB_HCI), y)
-EXTRA_CFLAGS += -DCONFIG_USE_USB_BUFFER_ALLOC_TX
-_PLATFORM_FILES += platform/platform_ARM_SUNxI_usb.o
-endif
-ifeq ($(CONFIG_SDIO_HCI), y)
-_PLATFORM_FILES += platform/platform_ARM_SUNnI_sdio.o
-endif
-
-ARCH := arm
-# ===Cross compile setting for Android 4.2 SDK ===
-#CROSS_COMPILE := /home/android_sdk/Allwinner/a23/android-jb42/lichee/out/android/common/buildroot/external-toolchain/bin/arm-linux-gnueabi-
-#KSRC :=/home/android_sdk/Allwinner/a23/android-jb42/lichee/linux-3.4
-# ===Cross compile setting for Android 4.4 SDK ===
-CROSS_COMPILE := /home/android_sdk/Allwinner/a23/android-kk44/lichee/out/android/common/buildroot/external-toolchain/bin/arm-linux-gnueabi-
-KSRC :=/home/android_sdk/Allwinner/a23/android-kk44/lichee/linux-3.4
-endif
-
-ifeq ($(CONFIG_PLATFORM_ARM_SUN8I_W5P1), y)
-EXTRA_CFLAGS += -DCONFIG_PLATFORM_ARM_SUN8I
-EXTRA_CFLAGS += -DCONFIG_PLATFORM_ARM_SUN8I_W5P1
-EXTRA_CFLAGS += -DCONFIG_TRAFFIC_PROTECT
-# default setting for Android 4.1, 4.2
-EXTRA_CFLAGS += -DCONFIG_CONCURRENT_MODE
-EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
-
-# Enable this for Android 5.0
-EXTRA_CFLAGS += -DCONFIG_RADIO_WORK
-
-EXTRA_CFLAGS += -DCONFIG_PLATFORM_OPS
-ifeq ($(CONFIG_USB_HCI), y)
-EXTRA_CFLAGS += -DCONFIG_USE_USB_BUFFER_ALLOC_TX
-_PLATFORM_FILES += platform/platform_ARM_SUNxI_usb.o
-endif
-ifeq ($(CONFIG_SDIO_HCI), y)
-_PLATFORM_FILES += platform/platform_ARM_SUNnI_sdio.o
-endif
-
-ARCH := arm
-# ===Cross compile setting for Android L SDK ===
-CROSS_COMPILE := /home/android_sdk/Allwinner/a33/android-L/lichee/out/sun8iw5p1/android/common/buildroot/external-toolchain/bin/arm-linux-gnueabi-
-KSRC :=/home/android_sdk/Allwinner/a33/android-L/lichee/linux-3.4
-endif
-
 ifeq ($(CONFIG_PLATFORM_ACTIONS_ATV5201), y)
 EXTRA_CFLAGS += -DCONFIG_PLATFORM_ACTIONS_ATV5201
 EXTRA_CFLAGS += -DCONFIG_SDIO_DISABLE_RXFIFO_POLLING_LOOP
@@ -1166,7 +996,6 @@ MODULE_NAME :=8189es_kk
 endif
 
 ifeq ($(CONFIG_PLATFORM_RTK119X), y)
-#EXTRA_CFLAGS += -DCONFIG_PLATFORM_ARM_SUN7I
 EXTRA_CFLAGS += -DCONFIG_TRAFFIC_PROTECT
 # default setting for Android 4.1, 4.2
 EXTRA_CFLAGS += -DCONFIG_CONCURRENT_MODE
