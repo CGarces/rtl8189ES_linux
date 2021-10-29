@@ -680,26 +680,11 @@ u32 build_probe_req_wfd_ie(struct wifidirect_info *pwdinfo, u8 *pbuf)
 	RTW_PUT_BE16(wfdie + wfdielen, 0x0006);
 	wfdielen += 2;
 
-	//	Value1:
-	//	WFD device information
-
-	if ( 1 == pwdinfo->wfd_tdls_enable )
-	{
-		//	WFD primary sink + available for WFD session + WiFi TDLS mode + WSC ( WFD Service Discovery )	
-		val16 = pwfd_info->wfd_device_type | 
-						WFD_DEVINFO_SESSION_AVAIL | 
-						WFD_DEVINFO_WSD |
-						WFD_DEVINFO_PC_TDLS;
-		RTW_PUT_BE16(wfdie + wfdielen, val16 );
-	}
-	else
-	{
-		//	WFD primary sink + available for WFD session + WiFi Direct mode + WSC ( WFD Service Discovery )	
-		val16 = pwfd_info->wfd_device_type |
-						WFD_DEVINFO_SESSION_AVAIL | 
-						WFD_DEVINFO_WSD;
-		RTW_PUT_BE16(wfdie + wfdielen, val16 );
-	}
+	//	WFD primary sink + available for WFD session + WiFi Direct mode + WSC ( WFD Service Discovery )	
+	val16 = pwfd_info->wfd_device_type |
+					WFD_DEVINFO_SESSION_AVAIL | 
+					WFD_DEVINFO_WSD;
+	RTW_PUT_BE16(wfdie + wfdielen, val16 );
 
 	wfdielen += 2;
 
@@ -803,63 +788,21 @@ u32 build_probe_resp_wfd_ie(struct wifidirect_info *pwdinfo, u8 *pbuf, u8 tunnel
 	//	WFD device information
 	//	WFD primary sink + available for WFD session + WiFi Direct mode
 	
-	if (  _TRUE == pwdinfo->session_available )
-	{
-		if ( P2P_ROLE_GO == pwdinfo->role )
-		{
-			if ( is_any_client_associated( pwdinfo->padapter ) )
-			{
-				if ( pwdinfo->wfd_tdls_enable )
-				{
-					//	TDLS mode + WSD ( WFD Service Discovery )
-					RTW_PUT_BE16(wfdie + wfdielen, pwfd_info->wfd_device_type | WFD_DEVINFO_WSD | WFD_DEVINFO_PC_TDLS | WFD_DEVINFO_HDCP_SUPPORT);
-				}
-				else
-				{
-					//	WiFi Direct mode + WSD ( WFD Service Discovery )
-					RTW_PUT_BE16(wfdie + wfdielen, pwfd_info->wfd_device_type | WFD_DEVINFO_WSD | WFD_DEVINFO_HDCP_SUPPORT);
-				}				
-			}
-			else
-			{
-				if ( pwdinfo->wfd_tdls_enable )
-				{
-					//	available for WFD session + TDLS mode + WSD ( WFD Service Discovery )
-					RTW_PUT_BE16(wfdie + wfdielen, pwfd_info->wfd_device_type | WFD_DEVINFO_SESSION_AVAIL | WFD_DEVINFO_WSD | WFD_DEVINFO_PC_TDLS | WFD_DEVINFO_HDCP_SUPPORT);
-				}
-				else
-				{
-					//	available for WFD session + WiFi Direct mode + WSD ( WFD Service Discovery )
-					RTW_PUT_BE16(wfdie + wfdielen, pwfd_info->wfd_device_type | WFD_DEVINFO_SESSION_AVAIL | WFD_DEVINFO_WSD | WFD_DEVINFO_HDCP_SUPPORT);
-				}				
-			}
-		}
-		else
-		{
-			if ( pwdinfo->wfd_tdls_enable )
-			{
-				//	available for WFD session + WiFi Direct mode + WSD ( WFD Service Discovery )
-				RTW_PUT_BE16(wfdie + wfdielen, pwfd_info->wfd_device_type | WFD_DEVINFO_SESSION_AVAIL | WFD_DEVINFO_WSD | WFD_DEVINFO_PC_TDLS | WFD_DEVINFO_HDCP_SUPPORT);
-			}
-			else
-			{
-
+	if (  _TRUE == pwdinfo->session_available )	{
+		if ( P2P_ROLE_GO == pwdinfo->role ) {
+			if ( is_any_client_associated( pwdinfo->padapter ) ) {
+				//	WiFi Direct mode + WSD ( WFD Service Discovery )
+				RTW_PUT_BE16(wfdie + wfdielen, pwfd_info->wfd_device_type | WFD_DEVINFO_WSD | WFD_DEVINFO_HDCP_SUPPORT);
+			} else {
 				//	available for WFD session + WiFi Direct mode + WSD ( WFD Service Discovery )
 				RTW_PUT_BE16(wfdie + wfdielen, pwfd_info->wfd_device_type | WFD_DEVINFO_SESSION_AVAIL | WFD_DEVINFO_WSD | WFD_DEVINFO_HDCP_SUPPORT);
 			}
+		} else {
+			//	available for WFD session + WiFi Direct mode + WSD ( WFD Service Discovery )
+			RTW_PUT_BE16(wfdie + wfdielen, pwfd_info->wfd_device_type | WFD_DEVINFO_SESSION_AVAIL | WFD_DEVINFO_WSD | WFD_DEVINFO_HDCP_SUPPORT);
 		}
-	}
-	else
-	{
-		if ( pwdinfo->wfd_tdls_enable )
-		{
-			RTW_PUT_BE16(wfdie + wfdielen, pwfd_info->wfd_device_type | WFD_DEVINFO_WSD |WFD_DEVINFO_PC_TDLS | WFD_DEVINFO_HDCP_SUPPORT);
-		}
-		else
-		{
-			RTW_PUT_BE16(wfdie + wfdielen, pwfd_info->wfd_device_type | WFD_DEVINFO_WSD | WFD_DEVINFO_HDCP_SUPPORT);
-		}
-
+	} else {
+		RTW_PUT_BE16(wfdie + wfdielen, pwfd_info->wfd_device_type | WFD_DEVINFO_WSD | WFD_DEVINFO_HDCP_SUPPORT);
 	}
 
 	wfdielen += 2;
@@ -4897,7 +4840,6 @@ void reset_global_wifidirect_info( _adapter* padapter )
 	pwdinfo = &padapter->wdinfo;
 	pwdinfo->persistent_supported = 0;
 	pwdinfo->session_available = _TRUE;
-	rtw_tdls_wfd_enable(padapter, 0);
 	pwdinfo->wfd_tdls_weaksec = _TRUE;
 }
 
@@ -4914,7 +4856,6 @@ int rtw_init_wifi_display_info(_adapter* padapter)
 #else
 	pwfd_info->rtsp_ctrlport = pwfd_info->init_rtsp_ctrlport; /* set non-zero value for legacy wfd */
 #endif
-	pwfd_info->tdls_rtsp_ctrlport = 0;
 	pwfd_info->peer_rtsp_ctrlport = 0;	//	Reset to 0
 	pwfd_info->wfd_enable = _FALSE;
 	pwfd_info->wfd_device_type = WFD_DEVINFO_PSINK;
@@ -4952,22 +4893,6 @@ inline void rtw_wfd_set_ctrl_port(_adapter *adapter, u16 port)
 	wfdinfo->init_rtsp_ctrlport = port;
 	if (wfdinfo->wfd_enable == _TRUE)
 		wfdinfo->rtsp_ctrlport = port;
-	if (adapter->wdinfo.wfd_tdls_enable == 1)
-		wfdinfo->tdls_rtsp_ctrlport = port;
-}
-
-inline void rtw_tdls_wfd_enable(_adapter *adapter, bool on)
-{
-	struct wifi_display_info *wfdinfo = &adapter->wfd_info;
-
-	if (on) {
-		wfdinfo->tdls_rtsp_ctrlport = wfdinfo->init_rtsp_ctrlport;
-		adapter->wdinfo.wfd_tdls_enable = 1;
-
-	} else {
-		adapter->wdinfo.wfd_tdls_enable = 0;
-		wfdinfo->tdls_rtsp_ctrlport = 0;
-	}
 }
 
 u32 rtw_append_beacon_wfd_ie(_adapter *adapter, u8 *pbuf)
@@ -5290,7 +5215,6 @@ void init_wifidirect_info( _adapter* padapter, enum P2P_ROLE role)
 	pwdinfo->driver_interface = DRIVER_WEXT;
 #endif //CONFIG_IOCTL_CFG80211
 
-	pwdinfo->wfd_tdls_enable = 0;
 	_rtw_memset( pwdinfo->p2p_peer_interface_addr, 0x00, ETH_ALEN );
 	_rtw_memset( pwdinfo->p2p_peer_device_addr, 0x00, ETH_ALEN );
 

@@ -30,7 +30,6 @@ u32 build_deauth_p2p_ie(struct wifidirect_info *pwdinfo, u8 *pbuf);
 int rtw_init_wifi_display_info(_adapter *padapter);
 void rtw_wfd_enable(_adapter *adapter, bool on);
 void rtw_wfd_set_ctrl_port(_adapter *adapter, u16 port);
-void rtw_tdls_wfd_enable(_adapter *adapter, bool on);
 
 u32 build_probe_req_wfd_ie(struct wifidirect_info *pwdinfo, u8 *pbuf);
 u32 build_probe_resp_wfd_ie(struct wifidirect_info *pwdinfo, u8 *pbuf, u8 tunneled);

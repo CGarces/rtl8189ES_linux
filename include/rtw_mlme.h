@@ -232,7 +232,6 @@ struct wifi_display_info{
 	u16							wfd_enable;			//	Eanble/Disable the WFD function.
 	u16							init_rtsp_ctrlport;	/* init value of rtsp_ctrlport when WFD enable */
 	u16							rtsp_ctrlport;		/* TCP port number at which the this WFD device listens for RTSP messages, 0 when WFD disable */
-	u16							tdls_rtsp_ctrlport;	/* rtsp_ctrlport used by tdls, will sync when rtsp_ctrlport is changed by user */
 	u16							peer_rtsp_ctrlport;	//	TCP port number at which the peer WFD device listens for RTSP messages
 													//	This filed should be filled when receiving the gropu negotiation request
 
@@ -389,9 +388,6 @@ struct wifidirect_info{
 														//	0: disable
 														//	1: enable
 
-	u8						wfd_tdls_enable;			//	Flag to enable or disable the TDLS by WFD Sigma
-														//	0: disable
-														//	1: enable
 	u8						wfd_tdls_weaksec;			//	Flag to enable or disable the weak security function for TDLS by WFD Sigma
 														//	0: disable
 														//	In this case, the driver can't issue the tdls setup request frame.

@@ -4079,7 +4079,7 @@ void session_tracker_chk_for_sta(_adapter *adapter, struct sta_info *sta)
 		#ifdef CONFIG_WFD
 		if (ntohs(st->local_port) == adapter->wfd_info.rtsp_ctrlport)
 			op_wfd_mode |= MIRACAST_SINK;
-		if (ntohs(st->local_port) == adapter->wfd_info.tdls_rtsp_ctrlport)
+		if (ntohs(st->local_port) == 0)
 			op_wfd_mode |= MIRACAST_SINK;
 		if (ntohs(st->remote_port) == adapter->wfd_info.peer_rtsp_ctrlport)
 			op_wfd_mode |= MIRACAST_SOURCE;

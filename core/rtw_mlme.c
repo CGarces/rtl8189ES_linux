@@ -2294,7 +2294,6 @@ void rtw_sta_media_status_rpt(_adapter *adapter, struct sta_info *sta, bool conn
 			|| role == H2C_MSR_ROLE_TDLS
 		) {
 			if (adapter->wfd_info.rtsp_ctrlport
-				|| adapter->wfd_info.tdls_rtsp_ctrlport
 				|| adapter->wfd_info.peer_rtsp_ctrlport)
 				rtw_wfd_st_switch(sta, 1);
 		}
@@ -4600,7 +4599,7 @@ static bool wfd_st_match_rule(_adapter *adapter, u8 *local_naddr, u8 *local_port
 	struct wifi_display_info *wfdinfo = &adapter->wfd_info;
 
 	if (ntohs(*((u16 *)local_port)) == wfdinfo->rtsp_ctrlport
-		|| ntohs(*((u16 *)local_port)) == wfdinfo->tdls_rtsp_ctrlport
+		|| ntohs(*((u16 *)local_port)) == 0
 		|| ntohs(*((u16 *)remote_port)) == wfdinfo->peer_rtsp_ctrlport)
 		return _TRUE;
 	return _FALSE;
