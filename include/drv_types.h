@@ -870,10 +870,6 @@ struct _ADAPTER{
 	struct wifidirect_info	wdinfo;
 #endif //CONFIG_P2P
 
-#ifdef CONFIG_TDLS
-	struct tdls_info	tdlsinfo;
-#endif //CONFIG_TDLS
-
 #ifdef CONFIG_WAPI_SUPPORT
 	u8	WapiSupport;
 	RT_WAPI_T	wapiInfo;
@@ -1072,7 +1068,6 @@ struct _ADAPTER{
 #define adapter_mac_addr(adapter) (adapter->mac_addr)
 
 #define mlme_to_adapter(mlme) container_of((mlme), struct _ADAPTER, mlmepriv)
-#define tdls_info_to_adapter(tdls) container_of((tdls), struct _ADAPTER, tdlsinfo)
 
 #define rtw_get_chip_type(adapter) (((PADAPTER)adapter)->dvobj->chip_type)
 #define rtw_get_hw_type(adapter) (((PADAPTER)adapter)->dvobj->HardwareType)

@@ -1947,9 +1947,7 @@ const struct rtw_proc_hdl adapter_proc_hdls[] = {
 #ifdef CONFIG_POWER_SAVING
 	RTW_PROC_HDL_SSEQ("ps_info", proc_get_ps_info, NULL),
 #endif
-#ifdef CONFIG_TDLS
-	RTW_PROC_HDL_SSEQ("tdls_info", proc_get_tdls_info, NULL),
-#endif
+
 	RTW_PROC_HDL_SSEQ("monitor", proc_get_monitor, proc_set_monitor),
 
 #ifdef CONFIG_AUTO_CHNL_SEL_NHM

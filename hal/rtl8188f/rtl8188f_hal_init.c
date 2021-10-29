@@ -3839,18 +3839,6 @@ static void rtl8188f_fill_default_txdesc(
 		SET_TX_DESC_USB_TXAGG_NUM_8188F(pbuf, pxmitframe->agg_num);
 #endif
 
-#ifdef CONFIG_TDLS
-#ifdef CONFIG_XMIT_ACK
-		/* CCX-TXRPT ack for xmit mgmt frames. */
-		if (pxmitframe->ack_report) {
-#ifdef DBG_CCX
-			DBG_8192C("%s set spe_rpt\n", __func__);
-#endif
-			SET_TX_DESC_SPE_RPT_8188F(pbuf, 1);
-			SET_TX_DESC_SW_DEFINE_8188F(pbuf, (u8)(GET_PRIMARY_ADAPTER(padapter)->xmitpriv.seq_no));
-		}
-#endif /* CONFIG_XMIT_ACK */
-#endif
 	} else if (pxmitframe->frame_tag == MGNT_FRAMETAG) {
 		/* RT_TRACE(_module_hal_xmit_c_, _drv_notice_, ("%s: MGNT_FRAMETAG\n", __func__)); */
 
@@ -4520,11 +4508,6 @@ static void hw_var_set_mlme_sitesurvey(PADAPTER padapter, u8 variable, u8 *val)
 #endif
 	   )
 		rcr_clear_bit = RCR_CBSSID_BCN;
-#ifdef CONFIG_TDLS
-	/* TDLS will clear RCR_CBSSID_DATA bit for connection. */
-	else if (padapter->tdlsinfo.link_established == _TRUE)
-		rcr_clear_bit = RCR_CBSSID_BCN;
-#endif /* CONFIG_TDLS */
 
 	value_rcr = rtw_read32(padapter, REG_RCR);
 
@@ -5412,14 +5395,6 @@ void SetHwReg8188F(PADAPTER padapter, u8 variable, u8 *val)
 		rtl8188f_set_p2p_ps_offload_cmd(padapter, *val);
 		break;
 #endif /*CONFIG_P2P */
-#ifdef CONFIG_TDLS
-	case HW_VAR_TDLS_WRCR:
-		rtw_write32(padapter, REG_RCR, rtw_read32(padapter, REG_RCR) & (~RCR_CBSSID_DATA));
-		break;
-	case HW_VAR_TDLS_RS_RCR:
-		rtw_write32(padapter, REG_RCR, rtw_read32(padapter, REG_RCR) | (RCR_CBSSID_DATA));
-		break;
-#endif /*CONFIG_TDLS */
 		
 #ifdef CONFIG_ANTENNA_DIVERSITY
 	case HW_VAR_ANTENNA_DIVERSITY_SELECT: 

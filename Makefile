@@ -60,7 +60,6 @@ CONFIG_80211W = n
 CONFIG_REDUCE_TX_CPU_LOADING = n
 CONFIG_BR_EXT = y
 CONFIG_ANTENNA_DIVERSITY = n
-CONFIG_TDLS = n
 CONFIG_WIFI_MONITOR = n
 ######################## Wake On Lan ##########################
 CONFIG_WOWLAN = n
@@ -542,10 +541,6 @@ endif
 
 ifeq ($(CONFIG_ANTENNA_DIVERSITY), y)
 EXTRA_CFLAGS += -DCONFIG_ANTENNA_DIVERSITY
-endif
-
-ifeq ($(CONFIG_TDLS), y)
-EXTRA_CFLAGS += -DCONFIG_TDLS
 endif
 
 ifeq ($(CONFIG_WIFI_MONITOR), y)

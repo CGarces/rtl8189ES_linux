@@ -252,7 +252,6 @@ enum STAKEY_TYPE
 {
 	GROUP_KEY		=0,
 	UNICAST_KEY		=1,
-	TDLS_KEY		=2,
 };
 
 enum RFINTFS {
@@ -1102,7 +1101,6 @@ u8 rtw_set_country_cmd(_adapter *adapter, int flags, const char *country_code, u
 
 extern u8 rtw_led_blink_cmd(_adapter*padapter, PVOID pLed);
 extern u8 rtw_set_csa_cmd(_adapter*padapter, u8 new_ch_no);
-extern u8 rtw_tdls_cmd(_adapter*padapter, u8 *addr, u8 option);
 
 //#ifdef CONFIG_C2H_PACKET_EN
 extern u8 rtw_c2h_packet_wk_cmd(PADAPTER padapter, u8 *pbuf, u16 length);
