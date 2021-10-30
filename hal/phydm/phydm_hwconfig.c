@@ -1927,59 +1927,6 @@ ODM_ConfigRFWithHeaderFile(
 		}
 	}
 #endif
-#if (RTL8812A_SUPPORT == 1)
-	if (pDM_Odm->SupportICType == ODM_RTL8812)
-	{
-		if(ConfigType == CONFIG_RF_RADIO) {
-			if(eRFPath == ODM_RF_PATH_A){
-				READ_AND_CONFIG_MP(8812A,_RadioA);
-			}
-			else if(eRFPath == ODM_RF_PATH_B){
-				READ_AND_CONFIG_MP(8812A,_RadioB);
-			}
-		}
-		else if(ConfigType == CONFIG_RF_TXPWR_LMT) {
-			#if (DM_ODM_SUPPORT_TYPE & ODM_WIN) && (DEV_BUS_TYPE == RT_PCI_INTERFACE)
-			HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-			if ((pHalData->EEPROMSVID == 0x17AA && pHalData->EEPROMSMID == 0xA811) ||
-				(pHalData->EEPROMSVID == 0x10EC && pHalData->EEPROMSMID == 0xA812) ||
-				(pHalData->EEPROMSVID == 0x10EC && pHalData->EEPROMSMID == 0x8812))
-				READ_AND_CONFIG_MP(8812A,_TXPWR_LMT_HM812A03);
-			else
-			#endif				
-			READ_AND_CONFIG_MP(8812A,_TXPWR_LMT);
-		}
-	}
-#endif
-#if (RTL8821A_SUPPORT == 1)
-	if (pDM_Odm->SupportICType == ODM_RTL8821)
-	{
-		if(ConfigType == CONFIG_RF_RADIO) {
-	 		if(eRFPath == ODM_RF_PATH_A){
-				READ_AND_CONFIG_MP(8821A,_RadioA);
-			}
-		}
-		else if(ConfigType == CONFIG_RF_TXPWR_LMT) {
-			if (pDM_Odm->SupportInterface == ODM_ITRF_USB) {
-				if (pDM_Odm->ExtPA5G || pDM_Odm->ExtLNA5G)
-					READ_AND_CONFIG_MP(8821A,_TXPWR_LMT_8811AU_FEM);
-				else
-					READ_AND_CONFIG_MP(8821A,_TXPWR_LMT_8811AU_IPA);				
-			} 
-			else {
-				#if (DM_ODM_SUPPORT_TYPE &  ODM_WIN)
-				if (pMgntInfo->CustomerID == RT_CID_8821AE_ASUS_MB)
-					READ_AND_CONFIG_MP(8821A,_TXPWR_LMT_8821A_SAR_8mm);
-				else if (pMgntInfo->CustomerID == RT_CID_ASUS_NB)
-					READ_AND_CONFIG_MP(8821A,_TXPWR_LMT_8821A_SAR_5mm);
-				else
-				#endif
-					READ_AND_CONFIG_MP(8821A,_TXPWR_LMT_8821A);			
-			}
-		}
-		ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("<===8821_ODM_ConfigRFWithHeaderFile\n"));
-	}
-#endif
 
 #if (RTL8723B_SUPPORT == 1)
 	if (pDM_Odm->SupportICType == ODM_RTL8723B)
@@ -2094,31 +2041,7 @@ ODM_ConfigRFWithTxPwrTrackHeaderFile(
 
 //1 AP doesn't use PHYDM power tracking table in these ICs
 #if (DM_ODM_SUPPORT_TYPE !=  ODM_AP)
-#if RTL8821A_SUPPORT
-	if(pDM_Odm->SupportICType == ODM_RTL8821)
-	{
-		if (pDM_Odm->SupportInterface == ODM_ITRF_PCIE)
-			READ_AND_CONFIG_MP(8821A,_TxPowerTrack_PCIE);
-		else if (pDM_Odm->SupportInterface == ODM_ITRF_USB)
-			READ_AND_CONFIG_MP(8821A,_TxPowerTrack_USB);			
-		else if (pDM_Odm->SupportInterface == ODM_ITRF_SDIO)
-			READ_AND_CONFIG_MP(8821A,_TxPowerTrack_SDIO);
-	}
-#endif	
-#if RTL8812A_SUPPORT	
-	if(pDM_Odm->SupportICType == ODM_RTL8812)
-	{
-		if (pDM_Odm->SupportInterface == ODM_ITRF_PCIE)
-			READ_AND_CONFIG_MP(8812A,_TxPowerTrack_PCIE);
-		else if (pDM_Odm->SupportInterface == ODM_ITRF_USB) {
-			if (pDM_Odm->RFEType == 3 && pDM_Odm->bIsMPChip) 
-				READ_AND_CONFIG_MP(8812A,_TxPowerTrack_RFE3);	
-			else
-				READ_AND_CONFIG_MP(8812A,_TxPowerTrack_USB);	
-		}
-		
-	}
-#endif	
+
 #if RTL8192E_SUPPORT 	
 	if(pDM_Odm->SupportICType == ODM_RTL8192E)
 	{
@@ -2217,53 +2140,6 @@ ODM_ConfigBBWithHeaderFile(
 		}else if(ConfigType == CONFIG_BB_AGC_TAB){
 			READ_AND_CONFIG_MP(8723A,_AGC_TAB);
 		}		
-	}		
-#endif
-#if (RTL8812A_SUPPORT == 1) 
-	if(pDM_Odm->SupportICType == ODM_RTL8812)
-	{
-		if(ConfigType == CONFIG_BB_PHY_REG){
-			READ_AND_CONFIG_MP(8812A,_PHY_REG);
-		}else if(ConfigType == CONFIG_BB_AGC_TAB){
-			READ_AND_CONFIG_MP(8812A,_AGC_TAB);
-		}
-		else if(ConfigType == CONFIG_BB_PHY_REG_PG)
-		{
-			if (pDM_Odm->RFEType == 3 && pDM_Odm->bIsMPChip) 
-				READ_AND_CONFIG_MP(8812A,_PHY_REG_PG_ASUS);
-			#if (DM_ODM_SUPPORT_TYPE &  ODM_WIN)
-			else if (pMgntInfo->CustomerID == RT_CID_WNC_NEC && pDM_Odm->bIsMPChip) 
-				READ_AND_CONFIG_MP(8812A,_PHY_REG_PG_NEC);
-			#endif			
-			else
-				READ_AND_CONFIG_MP(8812A,_PHY_REG_PG);
-		}
-		else if(ConfigType == CONFIG_BB_PHY_REG_MP){
-			READ_AND_CONFIG_MP(8812A,_PHY_REG_MP);
-		}
-		else if(ConfigType == CONFIG_BB_AGC_TAB_DIFF)
-		{
-			if ((36 <= *pDM_Odm->pChannel)  && (*pDM_Odm->pChannel  <= 64)) 
-				AGC_DIFF_CONFIG_MP(8812A,LB);
-			else if (100 <= *pDM_Odm->pChannel) 
-				AGC_DIFF_CONFIG_MP(8812A,HB);
-		}
-		ODM_RT_TRACE(pDM_Odm,ODM_COMP_INIT, ODM_DBG_LOUD, (" ===> phy_ConfigBBWithHeaderFile() phy:Rtl8812AGCTABArray\n"));
-		ODM_RT_TRACE(pDM_Odm,ODM_COMP_INIT, ODM_DBG_LOUD, (" ===> phy_ConfigBBWithHeaderFile() agc:Rtl8812PHY_REGArray\n"));
-	}		
-#endif
-#if (RTL8821A_SUPPORT == 1) 
-	if(pDM_Odm->SupportICType == ODM_RTL8821)
-	{
-		if(ConfigType == CONFIG_BB_PHY_REG){
-			READ_AND_CONFIG_MP(8821A,_PHY_REG);
-		}else if(ConfigType == CONFIG_BB_AGC_TAB){
-			READ_AND_CONFIG_MP(8821A,_AGC_TAB);
-		}else if(ConfigType == CONFIG_BB_PHY_REG_PG){
-			READ_AND_CONFIG_MP(8821A,_PHY_REG_PG);
-		}		
-		ODM_RT_TRACE(pDM_Odm,ODM_COMP_INIT, ODM_DBG_LOUD, (" ===> phy_ConfigBBWithHeaderFile() phy:Rtl8821AGCTABArray\n"));
-		ODM_RT_TRACE(pDM_Odm,ODM_COMP_INIT, ODM_DBG_LOUD, (" ===> phy_ConfigBBWithHeaderFile() agc:Rtl8821PHY_REGArray\n"));
 	}		
 #endif
 #if (RTL8723B_SUPPORT == 1)
@@ -2407,18 +2283,6 @@ ODM_ConfigMACWithHeaderFile(
 		READ_AND_CONFIG_MP(8723A,_MAC_REG);
 	}
 #endif
-#if (RTL8812A_SUPPORT == 1)
-	if (pDM_Odm->SupportICType == ODM_RTL8812){
-		READ_AND_CONFIG_MP(8812A,_MAC_REG);
-	}
-#endif
-#if (RTL8821A_SUPPORT == 1)
-	if (pDM_Odm->SupportICType == ODM_RTL8821){
-		READ_AND_CONFIG_MP(8821A,_MAC_REG);
-
-		ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("<===8821_ODM_ConfigMACwithHeaderFile\n"));
-	}
-#endif
 #if (RTL8723B_SUPPORT == 1)  
 	if (pDM_Odm->SupportICType == ODM_RTL8723B){
 		READ_AND_CONFIG_MP(8723B,_MAC_REG);
@@ -2496,35 +2360,7 @@ ODM_ConfigFWWithHeaderFile(
 		
 	}
 #endif //#if (RTL8723B_SUPPORT == 1)  
-#if (RTL8812A_SUPPORT == 1)
-	if (pDM_Odm->SupportICType == ODM_RTL8812)
-	{
-		if (ConfigType == CONFIG_FW_NIC)
-			READ_FIRMWARE_MP(8812A,_FW_NIC);
-		else if (ConfigType == CONFIG_FW_WoWLAN)
-			READ_FIRMWARE_MP(8812A,_FW_WoWLAN);
-		else if (ConfigType == CONFIG_FW_BT)
-			READ_FIRMWARE_MP(8812A,_FW_NIC_BT);
-		#ifdef CONFIG_AP_WOWLAN
-		else if (ConfigType == CONFIG_FW_AP_WoWLAN)
-			READ_FIRMWARE(8812A,_FW_AP);
-		#endif
-	}
-#endif
-#if (RTL8821A_SUPPORT == 1)
-	if (pDM_Odm->SupportICType == ODM_RTL8821){
-		if (ConfigType == CONFIG_FW_NIC)
-			READ_FIRMWARE_MP(8821A,_FW_NIC);
-		else if (ConfigType == CONFIG_FW_WoWLAN)
-			READ_FIRMWARE_MP(8821A,_FW_WoWLAN);
-		#ifdef CONFIG_AP_WOWLAN
-		else if (ConfigType == CONFIG_FW_AP_WoWLAN)
-			READ_FIRMWARE_MP(8821A , _FW_AP);
-		#endif /*CONFIG_AP_WOWLAN*/
-		else if (ConfigType == CONFIG_FW_BT)
-			READ_FIRMWARE_MP(8821A,_FW_NIC_BT);
-	}
-#endif
+
 #if (RTL8192E_SUPPORT == 1)
 	if (pDM_Odm->SupportICType == ODM_RTL8192E)
 	{
@@ -2626,17 +2462,9 @@ ODM_GetHWImgVersion(
 	if (pDM_Odm->SupportICType == ODM_RTL8723B)
 		Version = GET_VERSION_MP(8723B,_MAC_REG);
 #endif
-#if (RTL8821A_SUPPORT == 1)  
-	if (pDM_Odm->SupportICType == ODM_RTL8821)
-		Version = GET_VERSION_MP(8821A,_MAC_REG);
-#endif
 #if (RTL8192E_SUPPORT == 1)  
 	if (pDM_Odm->SupportICType == ODM_RTL8192E)
 		Version = GET_VERSION_MP(8192E,_MAC_REG);
-#endif
-#if (RTL8812A_SUPPORT == 1)  
-	if (pDM_Odm->SupportICType == ODM_RTL8812)
-		Version = GET_VERSION_MP(8812A,_MAC_REG);
 #endif
 #endif //(DM_ODM_SUPPORT_TYPE != ODM_AP)
 

@@ -254,7 +254,7 @@ typedef struct _MPT_CONTEXT
 //#endif
 
 /* E-Fuse */
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8814A)
+#ifdef CONFIG_RTL8814A
 #define EFUSE_MAP_SIZE		512
 #endif
 #ifdef CONFIG_RTL8192E

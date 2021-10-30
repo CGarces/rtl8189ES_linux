@@ -44,11 +44,7 @@
 #define NR_XMIT_EXTBUFF	(32)
 #endif
 
-#ifdef CONFIG_RTL8812A
-#define MAX_CMDBUF_SZ	(512*14)
-#else
 #define MAX_CMDBUF_SZ	(5120)	//(4096)
-#endif
 
 #define MAX_NUMBLKS		(1)
 
@@ -116,7 +112,7 @@ do{\
 #endif
 #endif
 
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8188F)
+#if defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8188F)
 #define TXDESC_SIZE 40
 #else
 #define TXDESC_SIZE 32 /* old IC (ex: 8188E) */

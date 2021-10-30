@@ -787,7 +787,7 @@ odm_RSSIMonitorCheckAP(
 )
 {
 #if (DM_ODM_SUPPORT_TYPE == ODM_AP)
-#if (RTL8812A_SUPPORT||RTL8881A_SUPPORT||RTL8192E_SUPPORT||RTL8814A_SUPPORT)
+#if (RTL8881A_SUPPORT||RTL8192E_SUPPORT||RTL8814A_SUPPORT)
 
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	u1Byte 			H2C_Parameter[4] = {0};
@@ -1094,24 +1094,6 @@ odm_RefreshRateAdaptiveMaskCE(
 		if (IS_STA_VALID(pstat)) {
 			if (IS_MCAST(pstat->hwaddr))  //if(psta->mac_id ==1)
 				continue;
-
-#if((RTL8812A_SUPPORT==1)||(RTL8821A_SUPPORT==1))
-			if ((pDM_Odm->SupportICType == ODM_RTL8812) || (pDM_Odm->SupportICType == ODM_RTL8821)) {
-				if (pstat->rssi_stat.UndecoratedSmoothedPWDB < pRA->LdpcThres) {
-					pRA->bUseLdpc = TRUE;
-					pRA->bLowerRtsRate = TRUE;
-					if ((pDM_Odm->SupportICType == ODM_RTL8821) && (pDM_Odm->CutVersion == ODM_CUT_A))
-						Set_RA_LDPC_8812(pstat, TRUE);
-					//DbgPrint("RSSI=%d, bUseLdpc = TRUE\n", pHalData->UndecoratedSmoothedPWDB);
-				} else if (pstat->rssi_stat.UndecoratedSmoothedPWDB > (pRA->LdpcThres - 5)) {
-					pRA->bUseLdpc = FALSE;
-					pRA->bLowerRtsRate = FALSE;
-					if ((pDM_Odm->SupportICType == ODM_RTL8821) && (pDM_Odm->CutVersion == ODM_CUT_A))
-						Set_RA_LDPC_8812(pstat, FALSE);
-					//DbgPrint("RSSI=%d, bUseLdpc = FALSE\n", pHalData->UndecoratedSmoothedPWDB);
-				}
-			}
-#endif
 
 			if (TRUE == ODM_RAStateCheck(pDM_Odm, pstat->rssi_stat.UndecoratedSmoothedPWDB, FALSE , &pstat->rssi_level)) {
 				ODM_RT_TRACE(pDM_Odm, ODM_COMP_RA_MASK, ODM_DBG_LOUD, ("RSSI:%d, RSSI_LEVEL:%d\n", pstat->rssi_stat.UndecoratedSmoothedPWDB, pstat->rssi_level));
@@ -1542,17 +1524,7 @@ ODM_UpdateInitRate(
 #if USE_WORKITEM
 		PlatformScheduleWorkItem(&pDM_Odm->RaRptWorkitem);
 #else
-		if (pDM_Odm->SupportICType == ODM_RTL8821) {
-#if (RTL8821A_SUPPORT == 1)
-			ODM_TxPwrTrackSetPwr8821A(pDM_Odm, MIX_MODE, ODM_RF_PATH_A, 0);
-#endif
-		} else if (pDM_Odm->SupportICType == ODM_RTL8812) {
-			for (p = ODM_RF_PATH_A; p < MAX_PATH_NUM_8812A; p++) {
-#if (RTL8812A_SUPPORT == 1)
-				ODM_TxPwrTrackSetPwr8812A(pDM_Odm, MIX_MODE, p, 0);
-#endif
-			}
-		} else if (pDM_Odm->SupportICType == ODM_RTL8723B) {
+		if (pDM_Odm->SupportICType == ODM_RTL8723B) {
 #if (RTL8723B_SUPPORT == 1)
 			ODM_TxPwrTrackSetPwr_8723B(pDM_Odm, MIX_MODE, ODM_RF_PATH_A, 0);
 #endif

@@ -336,47 +336,6 @@ u1Byte CCKSwingTable_Ch14_New[CCK_TABLE_SIZE][8]= {
 	{0x36, 0x35, 0x2e, 0x1b, 0x00, 0x00, 0x00, 0x00} 	/* 32, +0dB	*/
 };
 
-u4Byte TxScalingTable_Jaguar[TXSCALE_TABLE_SIZE] =
-{
-	0x081, /* 0,  -12.0dB*/
-	0x088, /* 1,  -11.5dB*/
-	0x090, /* 2,  -11.0dB*/
-	0x099, /* 3,  -10.5dB*/
-	0x0A2, /* 4,  -10.0dB*/
-	0x0AC, /* 5,  -9.5dB*/
-	0x0B6, /* 6,  -9.0dB*/
-	0x0C0, /*7,  -8.5dB*/
-	0x0CC, /* 8,  -8.0dB*/
-	0x0D8, /* 9,  -7.5dB*/
-	0x0E5, /* 10, -7.0dB*/
-	0x0F2, /* 11, -6.5dB*/
-	0x101, /* 12, -6.0dB*/
-	0x110, /* 13, -5.5dB*/
-	0x120, /* 14, -5.0dB*/
-	0x131, /* 15, -4.5dB*/
-	0x143, /* 16, -4.0dB*/
-	0x156, /* 17, -3.5dB*/
-	0x16A, /* 18, -3.0dB*/
-	0x180, /* 19, -2.5dB*/
-	0x197, /* 20, -2.0dB*/
-	0x1AF, /* 21, -1.5dB*/
-	0x1C8, /* 22, -1.0dB*/
-	0x1E3, /* 23, -0.5dB*/
-	0x200, /* 24, +0  dB*/
-	0x21E, /* 25, +0.5dB*/
-	0x23E, /* 26, +1.0dB*/
-	0x261, /* 27, +1.5dB*/
-	0x285,/* 28, +2.0dB*/
-	0x2AB, /* 29, +2.5dB*/
-	0x2D3, /*30, +3.0dB*/
-	0x2FE, /* 31, +3.5dB*/
-	0x32B, /* 32, +4.0dB*/
-	0x35C, /* 33, +4.5dB*/
-	0x38E, /* 34, +5.0dB*/
-	0x3C4, /* 35, +5.5dB*/
-	0x3FE  /* 36, +6.0dB	*/
-};
-
 #ifdef AP_BUILD_WORKAROUND
 
 unsigned int TxPwrTrk_OFDM_SwingTbl[TxPwrTrk_OFDM_SwingTbl_Len] = {
@@ -457,20 +416,9 @@ getSwingIndex(
 		pSwingTable = OFDMSwingTable_New;
 		swingTableSize = OFDM_TABLE_SIZE;
 	} else {
-#if ((RTL8812A_SUPPORT==1)||(RTL8821A_SUPPORT==1))
-		if (pDM_Odm->SupportICType == ODM_RTL8812 || pDM_Odm->SupportICType == ODM_RTL8821)
-		{
-			bbSwing = PHY_GetTxBBSwing_8812A(Adapter, pHalData->CurrentBandType, ODM_RF_PATH_A);
-			pSwingTable = TxScalingTable_Jaguar;
-			swingTableSize = TXSCALE_TABLE_SIZE;
-		}
-		else
-#endif
-		{
-			bbSwing = 0;
-			pSwingTable = OFDMSwingTable;
-			swingTableSize = OFDM_TABLE_SIZE;
-		}
+		bbSwing = 0;
+		pSwingTable = OFDMSwingTable;
+		swingTableSize = OFDM_TABLE_SIZE;
 	}
 
 	for (i = 0; i < swingTableSize; ++i) {
@@ -597,7 +545,7 @@ odm_TXPowerTrackingCheckCE(
 	if (!pDM_Odm->RFCalibrateInfo.TM_Trigger) {
 		
 		if (IS_HARDWARE_TYPE_8188E(Adapter) || IS_HARDWARE_TYPE_8188F(Adapter) || IS_HARDWARE_TYPE_8192E(Adapter)
-			|| IS_HARDWARE_TYPE_8723B(Adapter) || IS_HARDWARE_TYPE_JAGUAR(Adapter) || IS_HARDWARE_TYPE_8814A(Adapter)
+			|| IS_HARDWARE_TYPE_8723B(Adapter) || IS_HARDWARE_TYPE_8814A(Adapter)
 			|| IS_HARDWARE_TYPE_8703B(Adapter)
 		) {
 			ODM_SetRFReg(pDM_Odm, ODM_RF_PATH_A, RF_T_METER_NEW, (BIT17 | BIT16), 0x03);
@@ -671,7 +619,7 @@ odm_TXPowerTrackingThermalMeterCheck(
 	}
 
 	if (!TM_Trigger) {
-		if (IS_HARDWARE_TYPE_8188E(Adapter) || IS_HARDWARE_TYPE_JAGUAR(Adapter) || IS_HARDWARE_TYPE_8192E(Adapter) ||
+		if (IS_HARDWARE_TYPE_8188E(Adapter) || IS_HARDWARE_TYPE_8192E(Adapter) ||
 				IS_HARDWARE_TYPE_8723B(Adapter) || IS_HARDWARE_TYPE_8814A(Adapter) || IS_HARDWARE_TYPE_8188F(Adapter) 
 				|| IS_HARDWARE_TYPE_8703B(Adapter) || IS_HARDWARE_TYPE_8723D(Adapter))
 			PHY_SetRFReg(Adapter, ODM_RF_PATH_A, RF_T_METER_88E, BIT17 | BIT16, 0x03);

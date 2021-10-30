@@ -47,14 +47,6 @@ void ConfigureTxpowerTrack(
 	if(pDM_Odm->SupportICType==ODM_RTL8192E)
 		ConfigureTxpowerTrack_8192E(pConfig);
 #endif	
-#if RTL8821A_SUPPORT
-	if(pDM_Odm->SupportICType==ODM_RTL8821)
-		ConfigureTxpowerTrack_8821A(pConfig);
-#endif
-#if RTL8812A_SUPPORT
-	if(pDM_Odm->SupportICType==ODM_RTL8812)
-		ConfigureTxpowerTrack_8812A(pConfig);
-#endif
 
 #if RTL8723B_SUPPORT
 	if(pDM_Odm->SupportICType==ODM_RTL8723B)
@@ -641,40 +633,10 @@ odm_IQCalibrate(
 		return;
 #endif
 	
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))		
-	if (!IS_HARDWARE_TYPE_JAGUAR(Adapter))
+#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))
 		return;
-#if (DM_ODM_SUPPORT_TYPE & (ODM_CE))
-	else if (IS_HARDWARE_TYPE_8812AU(Adapter))
-		return;
-#endif
 #endif
 	
-#if (RTL8821A_SUPPORT == 1)
-	if (pDM_Odm->bLinked) {
-		if ((*pDM_Odm->pChannel != pDM_Odm->preChannel) && (!*pDM_Odm->pbScanInProcess)) {
-			pDM_Odm->preChannel = *pDM_Odm->pChannel;
-			pDM_Odm->LinkedInterval = 0;
-		}
-
-		if (pDM_Odm->LinkedInterval < 3)
-			pDM_Odm->LinkedInterval++;
-		
-		if (pDM_Odm->LinkedInterval == 2) {
-			/*Mark out IQK flow to prevent tx stuck. by Maddest 20130306*/
-			/*Open it verified by James 20130715*/
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
-			/*Change channel will do IQK , cancel duplicate doIQK by YiWei*/
-			/*PHY_IQCalibrate_8821A(pDM_Odm, FALSE);*/
-#elif (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-			PHY_IQCalibrate(Adapter, FALSE);
-#else
-			PHY_IQCalibrate_8821A(Adapter, FALSE);
-#endif
-		}
-	} else
-		pDM_Odm->LinkedInterval = 0;
-#endif
 }
 
 void phydm_rf_init(IN	PVOID		pDM_VOID)

@@ -1205,23 +1205,13 @@ odm_DIG(
 			else
 #endif
 			{
-				if(pDM_Odm->RSSI_Min < DIG_MaxOfMin)
-				{
+				if(pDM_Odm->RSSI_Min < DIG_MaxOfMin) {
 					if(CurrentIGI < pDM_Odm->RSSI_Min)
 						CurrentIGI = pDM_Odm->RSSI_Min;
-				}
-				else
-				{
+				} else {
 					if(CurrentIGI < DIG_MaxOfMin)
 						CurrentIGI = DIG_MaxOfMin;
 				}
-
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))
-#if (RTL8812A_SUPPORT==1) 
-				if(pDM_Odm->SupportICType == ODM_RTL8812)
-					ODM_ConfigBBWithHeaderFile(pDM_Odm, CONFIG_BB_AGC_TAB_DIFF);
-#endif
-#endif
 			}
 
 			ODM_RT_TRACE(pDM_Odm,	ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): First connect case: IGI does on-shot to 0x%x\n", CurrentIGI));

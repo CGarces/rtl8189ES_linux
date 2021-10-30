@@ -37,12 +37,8 @@ void dump_chip_info(HAL_VERSION	ChipVersion)
 	
 	if (IS_8188F(ChipVersion))
 		cnt += sprintf((buf+cnt), "Chip Version Info: CHIP_8188F_");
-	else if (IS_8812_SERIES(ChipVersion))
-		cnt += sprintf((buf+cnt), "Chip Version Info: CHIP_8812_");
 	else if (IS_8192E(ChipVersion))
 		cnt += sprintf((buf+cnt), "Chip Version Info: CHIP_8192E_");
-	else if (IS_8821_SERIES(ChipVersion))
-		cnt += sprintf((buf+cnt), "Chip Version Info: CHIP_8821_");
 	else if (IS_8723B_SERIES(ChipVersion))
 		cnt += sprintf((buf+cnt), "Chip Version Info: CHIP_8723B_");
 	else if (IS_8703B_SERIES(ChipVersion))
@@ -732,7 +728,7 @@ s32 c2h_evt_read_88xx(_adapter *adapter, u8 *buf)
 	if (buf == NULL)
 		goto exit;
 
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B)
+#if defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B)
 
 	trigger = rtw_read8(adapter, REG_C2HEVT_CLEAR);
 
@@ -1730,16 +1726,6 @@ s32 rtw_hal_set_FwMediaStatusRpt_cmd(_adapter *adapter, bool opmode, bool miraca
 	ret = rtw_hal_fill_h2c_cmd(adapter, H2C_MEDIA_STATUS_RPT, H2C_MEDIA_STATUS_RPT_LEN, parm);
 	if (ret != _SUCCESS)
 		goto exit;
-
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
-	/* TODO: this should move to IOT issue area */
-	if (rtw_get_chip_type(adapter) == RTL8812
-		|| rtw_get_chip_type(adapter) == RTL8821
-	) {
-		if (MLME_IS_STA(adapter))
-			Hal_PatchwithJaguar_8812(adapter, opmode);
-	}
-#endif
 
 	SET_H2CCMD_MSRRPT_PARM_MACID_IND(parm, 0);
 	if (macid_ind == 0)
@@ -6189,7 +6175,6 @@ void rtw_hal_check_rxfifo_full(_adapter *adapter)
 	
 	//switch counter to RX fifo
 	if (IS_8188F(pHalData->VersionID)
-		|| IS_8812_SERIES(pHalData->VersionID) || IS_8821_SERIES(pHalData->VersionID)
 		|| IS_8723B_SERIES(pHalData->VersionID) || IS_8192E(pHalData->VersionID) || IS_8703B_SERIES(pHalData->VersionID))
 	{
 		rtw_write8(adapter, REG_RXERR_RPT+3, rtw_read8(adapter, REG_RXERR_RPT+3)|0xa0);
@@ -6403,24 +6388,6 @@ int hal_efuse_macaddr_offset(_adapter *adapter)
 			addr_offset = EEPROM_MAC_ADDR_8188FU;
 		else if (interface_type == RTW_SDIO)
 			addr_offset = EEPROM_MAC_ADDR_8188FS;
-		break;
-#endif
-#ifdef CONFIG_RTL8812A
-	case RTL8812:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_8812AU;
-		else if (interface_type == RTW_PCIE)
-			addr_offset = EEPROM_MAC_ADDR_8812AE;
-		break;
-#endif
-#ifdef CONFIG_RTL8821A
-	case RTL8821:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_8821AU;
-		else if (interface_type == RTW_SDIO)
-			addr_offset = EEPROM_MAC_ADDR_8821AS;
-		else if (interface_type == RTW_PCIE)
-			addr_offset = EEPROM_MAC_ADDR_8821AE;
 		break;
 #endif
 #ifdef CONFIG_RTL8192E
@@ -6695,7 +6662,6 @@ void dm_DynamicUsbTxAgg(_adapter *padapter, u8 from_timer)
 #ifdef CONFIG_CONCURRENT_MODE
 	struct mlme_ext_priv	*pbuddymlmeextpriv = &(padapter->pbuddy_adapter->mlmeextpriv);
 #endif //CONFIG_CONCURRENT_MODE
-
 }
 
 //bus-agg check for SoftAP mode
@@ -6966,11 +6932,6 @@ void rtw_dump_mac_rx_counters(_adapter* padapter,struct dbg_rx_counter *rx_count
 	PHY_SetMacReg(padapter, REG_RXERR_RPT, BIT28|BIT29|BIT30|BIT31, 0x6);
 	mac_ht_ok	= PHY_QueryMacReg(padapter, REG_RXERR_RPT, bMaskLWord);// [15:0]	
 	mac_vht_ok	= 0;	
-	if (IS_HARDWARE_TYPE_JAGUAR(padapter) || IS_HARDWARE_TYPE_JAGUAR2(padapter)) {
-		PHY_SetMacReg(padapter, REG_RXERR_RPT, BIT28|BIT29|BIT30|BIT31, 0x0);
-		PHY_SetMacReg(padapter, REG_RXERR_RPT, BIT26, 0x1);
-		mac_vht_ok	= PHY_QueryMacReg(padapter, REG_RXERR_RPT, bMaskLWord);// [15:0]	 
-	}	
 		
 	PHY_SetMacReg(padapter, REG_RXERR_RPT, BIT28|BIT29|BIT30|BIT31, 0x4);
 	mac_cck_err	= PHY_QueryMacReg(padapter, REG_RXERR_RPT, bMaskLWord);// [15:0]	
@@ -6979,11 +6940,6 @@ void rtw_dump_mac_rx_counters(_adapter* padapter,struct dbg_rx_counter *rx_count
 	PHY_SetMacReg(padapter, REG_RXERR_RPT, BIT28|BIT29|BIT30|BIT31, 0x7);
 	mac_ht_err	= PHY_QueryMacReg(padapter, REG_RXERR_RPT, bMaskLWord);// [15:0]		
 	mac_vht_err	= 0;
-	if (IS_HARDWARE_TYPE_JAGUAR(padapter) || IS_HARDWARE_TYPE_JAGUAR2(padapter)) {
-		PHY_SetMacReg(padapter, REG_RXERR_RPT, BIT28|BIT29|BIT30|BIT31, 0x1);
-		PHY_SetMacReg(padapter, REG_RXERR_RPT, BIT26, 0x1);
-		mac_vht_err	= PHY_QueryMacReg(padapter, REG_RXERR_RPT, bMaskLWord);// [15:0]	 
-	}
 
 	PHY_SetMacReg(padapter, REG_RXERR_RPT, BIT28|BIT29|BIT30|BIT31, 0x5);
 	mac_cck_fa	= PHY_QueryMacReg(padapter, REG_RXERR_RPT, bMaskLWord);// [15:0]	
@@ -7021,34 +6977,21 @@ void rtw_dump_phy_rx_counters(_adapter* padapter,struct dbg_rx_counter *rx_count
 		rtw_warn_on(1);
 		return;
 	}
-	if (IS_HARDWARE_TYPE_JAGUAR(padapter) || IS_HARDWARE_TYPE_JAGUAR2(padapter)){
-		cckok	= PHY_QueryBBReg(padapter, 0xF04, 0x3FFF);	     // [13:0] 
-		ofdmok	= PHY_QueryBBReg(padapter, 0xF14, 0x3FFF);	     // [13:0] 
-		htok		= PHY_QueryBBReg(padapter, 0xF10, 0x3FFF);     // [13:0]
-		vht_ok	= PHY_QueryBBReg(padapter, 0xF0C, 0x3FFF);     // [13:0]
-		cckcrc	= PHY_QueryBBReg(padapter, 0xF04, 0x3FFF0000); // [29:16]	
-		ofdmcrc	= PHY_QueryBBReg(padapter, 0xF14, 0x3FFF0000); // [29:16]
-		htcrc	= PHY_QueryBBReg(padapter, 0xF10, 0x3FFF0000); // [29:16]
-		vht_err	= PHY_QueryBBReg(padapter, 0xF0C, 0x3FFF0000); // [29:16]
-		CCK_FA	= PHY_QueryBBReg(padapter, 0xA5C, bMaskLWord);
-		OFDM_FA	= PHY_QueryBBReg(padapter, 0xF48, bMaskLWord);
-	} 
-	else
-	{
-		cckok	= PHY_QueryBBReg(padapter, 0xF88, bMaskDWord);
-		ofdmok	= PHY_QueryBBReg(padapter, 0xF94, bMaskLWord);
-		htok		= PHY_QueryBBReg(padapter, 0xF90, bMaskLWord);
-		vht_ok	= 0;
-		cckcrc	= PHY_QueryBBReg(padapter, 0xF84, bMaskDWord);
-		ofdmcrc	= PHY_QueryBBReg(padapter, 0xF94, bMaskHWord);
-		htcrc	= PHY_QueryBBReg(padapter, 0xF90, bMaskHWord);
-		vht_err	= 0;
-		OFDM_FA = PHY_QueryBBReg(padapter, 0xCF0, bMaskLWord) + PHY_QueryBBReg(padapter, 0xCF2, bMaskLWord) +
-			PHY_QueryBBReg(padapter, 0xDA2, bMaskLWord) + PHY_QueryBBReg(padapter, 0xDA4, bMaskLWord) +
-			PHY_QueryBBReg(padapter, 0xDA6, bMaskLWord) + PHY_QueryBBReg(padapter, 0xDA8, bMaskLWord);
-	
-		CCK_FA=(rtw_read8(padapter, 0xA5B )<<8 ) | (rtw_read8(padapter, 0xA5C));
-	}
+
+	cckok	= PHY_QueryBBReg(padapter, 0xF88, bMaskDWord);
+	ofdmok	= PHY_QueryBBReg(padapter, 0xF94, bMaskLWord);
+	htok		= PHY_QueryBBReg(padapter, 0xF90, bMaskLWord);
+	vht_ok	= 0;
+	cckcrc	= PHY_QueryBBReg(padapter, 0xF84, bMaskDWord);
+	ofdmcrc	= PHY_QueryBBReg(padapter, 0xF94, bMaskHWord);
+	htcrc	= PHY_QueryBBReg(padapter, 0xF90, bMaskHWord);
+	vht_err	= 0;
+
+	OFDM_FA = PHY_QueryBBReg(padapter, 0xCF0, bMaskLWord) + PHY_QueryBBReg(padapter, 0xCF2, bMaskLWord) +
+		PHY_QueryBBReg(padapter, 0xDA2, bMaskLWord) + PHY_QueryBBReg(padapter, 0xDA4, bMaskLWord) +
+		PHY_QueryBBReg(padapter, 0xDA6, bMaskLWord) + PHY_QueryBBReg(padapter, 0xDA8, bMaskLWord);
+
+	CCK_FA=(rtw_read8(padapter, 0xA5B )<<8 ) | (rtw_read8(padapter, 0xA5C));
 	
 	rx_counter->rx_pkt_ok = cckok+ofdmok+htok+vht_ok;
 	rx_counter->rx_pkt_crc_error = cckcrc+ofdmcrc+htcrc+vht_err;
@@ -7060,31 +7003,17 @@ void rtw_dump_phy_rx_counters(_adapter* padapter,struct dbg_rx_counter *rx_count
 void rtw_reset_phy_rx_counters(_adapter* padapter)
 {
 	//reset phy counter
-	if (IS_HARDWARE_TYPE_JAGUAR(padapter) || IS_HARDWARE_TYPE_JAGUAR2(padapter))
-	{
-		PHY_SetBBReg(padapter, 0xB58, BIT0, 0x1);
-		PHY_SetBBReg(padapter, 0xB58, BIT0, 0x0);
-
-		PHY_SetBBReg(padapter, 0x9A4, BIT17, 0x1);//reset  OFDA FA counter
-		PHY_SetBBReg(padapter, 0x9A4, BIT17, 0x0);
-			
-		PHY_SetBBReg(padapter, 0xA2C, BIT15, 0x0);//reset  CCK FA counter
-		PHY_SetBBReg(padapter, 0xA2C, BIT15, 0x1);
-	}
-	else
-	{
-		PHY_SetBBReg(padapter, 0xF14, BIT16, 0x1);
-		rtw_msleep_os(10);
-		PHY_SetBBReg(padapter, 0xF14, BIT16, 0x0);
+	PHY_SetBBReg(padapter, 0xF14, BIT16, 0x1);
+	rtw_msleep_os(10);
+	PHY_SetBBReg(padapter, 0xF14, BIT16, 0x0);
+	
+	PHY_SetBBReg(padapter, 0xD00, BIT27, 0x1);//reset  OFDA FA counter
+	PHY_SetBBReg(padapter, 0xC0C, BIT31, 0x1);//reset  OFDA FA counter
+	PHY_SetBBReg(padapter, 0xD00, BIT27, 0x0);
+	PHY_SetBBReg(padapter, 0xC0C, BIT31, 0x0);
 		
-		PHY_SetBBReg(padapter, 0xD00, BIT27, 0x1);//reset  OFDA FA counter
-		PHY_SetBBReg(padapter, 0xC0C, BIT31, 0x1);//reset  OFDA FA counter
-		PHY_SetBBReg(padapter, 0xD00, BIT27, 0x0);
-		PHY_SetBBReg(padapter, 0xC0C, BIT31, 0x0);
-			
-		PHY_SetBBReg(padapter, 0xA2C, BIT15, 0x0);//reset  CCK FA counter
-		PHY_SetBBReg(padapter, 0xA2C, BIT15, 0x1);
-	}
+	PHY_SetBBReg(padapter, 0xA2C, BIT15, 0x0);//reset  CCK FA counter
+	PHY_SetBBReg(padapter, 0xA2C, BIT15, 0x1);
 }
 #ifdef DBG_RX_COUNTER_DUMP
 void rtw_dump_drv_rx_counters(_adapter* padapter,struct dbg_rx_counter *rx_counter)
@@ -7304,13 +7233,7 @@ void hal_set_crystal_cap(_adapter *adapter, u8 crystal_cap)
 		PHY_SetBBReg(adapter, REG_AFE_XTAL_CTRL, 0x007FF800, (crystal_cap | (crystal_cap << 6)));
 		break;
 #endif
-#if defined(CONFIG_RTL8812A)
-	case RTL8812:
-		/* write 0x2C[30:25] = 0x2C[24:19] = CrystalCap */
-		PHY_SetBBReg(adapter, REG_MAC_PHY_CTRL, 0x7FF80000, (crystal_cap | (crystal_cap << 6)));
-		break;
-#endif
-#if defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8192E)
+#if defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8192E)
 	case RTL8723B:
 	case RTL8703B:
 	case RTL8821:
@@ -7361,16 +7284,6 @@ int hal_spec_init(_adapter *adapter)
 #ifdef CONFIG_RTL8188F
 	case RTL8188F:
 		init_hal_spec_8188f(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8812A
-	case RTL8812:
-		init_hal_spec_8812a(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8821A
-	case RTL8821:
-		init_hal_spec_8821a(adapter);
 		break;
 #endif
 #ifdef CONFIG_RTL8192E

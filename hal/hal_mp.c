@@ -908,79 +908,6 @@ mpt_SetSingleTone_8814A(
 
 #endif
 
-#if	defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
-void mpt_SetRFPath_8812A(PADAPTER pAdapter)
-{
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
-	PMPT_CONTEXT	pMptCtx = &pAdapter->mppriv.MptCtx;
-	u32		ulAntennaTx, ulAntennaRx;
-
-	ulAntennaTx = pHalData->AntennaTxPath;
-	ulAntennaRx = pHalData->AntennaRxPath;
-
-	switch (ulAntennaTx) {
-	case ANTENNA_A:
-			pMptCtx->MptRfPath = ODM_RF_PATH_A;
-			PHY_SetBBReg(pAdapter, rTxPath_Jaguar, bMaskLWord, 0x1111);
-			if (pHalData->RFEType == 3 && IS_HARDWARE_TYPE_8812(pAdapter))
-				PHY_SetBBReg(pAdapter, r_ANTSEL_SW_Jaguar, bMask_AntselPathFollow_Jaguar, 0x0);	 
-			break;
-	case ANTENNA_B:
-			pMptCtx->MptRfPath = ODM_RF_PATH_B;
-			PHY_SetBBReg(pAdapter, rTxPath_Jaguar, bMaskLWord, 0x2222);
-			if (pHalData->RFEType == 3 && IS_HARDWARE_TYPE_8812(pAdapter))
-				PHY_SetBBReg(pAdapter,	r_ANTSEL_SW_Jaguar, bMask_AntselPathFollow_Jaguar, 0x1);
-			break;
-	case ANTENNA_AB:
-			pMptCtx->MptRfPath = ODM_RF_PATH_AB;
-			PHY_SetBBReg(pAdapter, rTxPath_Jaguar, bMaskLWord, 0x3333);
-			if (pHalData->RFEType == 3 && IS_HARDWARE_TYPE_8812(pAdapter))
-				PHY_SetBBReg(pAdapter, r_ANTSEL_SW_Jaguar, bMask_AntselPathFollow_Jaguar, 0x0);
-			break;
-	default:
-			pMptCtx->MptRfPath = ODM_RF_PATH_AB;
-			DBG_871X("Unknown Tx antenna.\n");
-			break;
-	}
-
-	switch (ulAntennaRx) {
-			u32 reg0xC50 = 0;
-	case ANTENNA_A:
-			PHY_SetBBReg(pAdapter, rRxPath_Jaguar, bMaskByte0, 0x11);	
-			PHY_SetRFReg(pAdapter, ODM_RF_PATH_B, RF_AC_Jaguar, 0xF0000, 0x1); /*/ RF_B_0x0[19:16] = 1, Standby mode*/
-			PHY_SetBBReg(pAdapter, rCCK_RX_Jaguar, bCCK_RX_Jaguar, 0x0);	   
-			PHY_SetRFReg(pAdapter, ODM_RF_PATH_A, RF_AC_Jaguar, BIT19|BIT18|BIT17|BIT16, 0x3); 
-
-			/*/ <20121101, Kordan> To prevent gain table from not switched, asked by Ynlin.*/
-			reg0xC50 = PHY_QueryBBReg(pAdapter, rA_IGI_Jaguar, bMaskByte0);
-			PHY_SetBBReg(pAdapter, rA_IGI_Jaguar, bMaskByte0, reg0xC50+2);	   
-			PHY_SetBBReg(pAdapter, rA_IGI_Jaguar, bMaskByte0, reg0xC50);			
-			break;
-	case ANTENNA_B:
-			PHY_SetBBReg(pAdapter, rRxPath_Jaguar, bMaskByte0, 0x22);
-			PHY_SetRFReg(pAdapter, ODM_RF_PATH_A, RF_AC_Jaguar, 0xF0000, 0x1);/*/ RF_A_0x0[19:16] = 1, Standby mode */
-			PHY_SetBBReg(pAdapter, rCCK_RX_Jaguar, bCCK_RX_Jaguar, 0x1);
-			PHY_SetRFReg(pAdapter, ODM_RF_PATH_B, RF_AC_Jaguar, BIT19|BIT18|BIT17|BIT16, 0x3); 
-
-			/*/ <20121101, Kordan> To prevent gain table from not switched, asked by Ynlin.*/
-			reg0xC50 = PHY_QueryBBReg(pAdapter, rB_IGI_Jaguar, bMaskByte0);
-			PHY_SetBBReg(pAdapter, rB_IGI_Jaguar, bMaskByte0, reg0xC50+2);	   
-			PHY_SetBBReg(pAdapter, rB_IGI_Jaguar, bMaskByte0, reg0xC50);						
-			break;
-	case ANTENNA_AB:
-			PHY_SetBBReg(pAdapter, rRxPath_Jaguar, bMaskByte0, 0x33);	
-			PHY_SetRFReg(pAdapter, ODM_RF_PATH_B, RF_AC_Jaguar, 0xF0000, 0x3); /*/ RF_B_0x0[19:16] = 3, Rx mode*/
-			PHY_SetBBReg(pAdapter, rCCK_RX_Jaguar, bCCK_RX_Jaguar, 0x0);	
-			break;
-	default:
-			DBG_871X("Unknown Rx antenna.\n");
-			break;
-	}
-	RT_TRACE(_module_mp_, _drv_notice_, ("-SwitchAntenna: finished\n"));
-}
-#endif
-
-
 #ifdef CONFIG_RTL8723B
 void mpt_SetRFPath_8723B(PADAPTER pAdapter)
 {
@@ -1334,12 +1261,6 @@ void hal_mpt_SetAntenna(PADAPTER	pAdapter)
 		return;
 	}
 #endif
-#if	defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
-	if (IS_HARDWARE_TYPE_JAGUAR(pAdapter)) {
-		mpt_SetRFPath_8812A(pAdapter);
-		return;
-	}
-#endif
 #ifdef	CONFIG_RTL8723B
 	if (IS_HARDWARE_TYPE_8723B(pAdapter)) {
 		mpt_SetRFPath_8723B(pAdapter);
@@ -1353,12 +1274,6 @@ void hal_mpt_SetAntenna(PADAPTER	pAdapter)
 	}	
 #endif	
 
-/*	else if (IS_HARDWARE_TYPE_8821B(pAdapter))
-		mpt_SetRFPath_8821B(pAdapter);
-	Prepare for 8822B
-	else if (IS_HARDWARE_TYPE_8822B(Context))
-		mpt_SetRFPath_8822B(Context);
-*/	
 	mpt_SetRFPath_819X(pAdapter);
 	DBG_871X("mpt_SetRFPath_819X Do %s\n", __func__);
 
@@ -1439,8 +1354,8 @@ void hal_mpt_SetSingleCarrierTx(PADAPTER pAdapter, u8 bStart)
 		PHY_SetBBReg(pAdapter, rCCK0_System, bCCKScramble, 1);
 
 		/*/ 4. Turn On Continue Tx and turn off the other test modes.*/
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) ||  defined(CONFIG_RTL8814A)
-		if (IS_HARDWARE_TYPE_JAGUAR(pAdapter) || IS_HARDWARE_TYPE_8814A(pAdapter) /*|| IS_HARDWARE_TYPE_8822B(pAdapter)*/)
+#ifdef CONFIG_RTL8814A
+		if (IS_HARDWARE_TYPE_8814A(pAdapter) /*|| IS_HARDWARE_TYPE_8822B(pAdapter)*/)
 			PHY_SetBBReg(pAdapter, rSingleTone_ContTx_Jaguar, BIT18|BIT17|BIT16, OFDM_SingleCarrier);
 		else
 #endif		
@@ -1450,8 +1365,8 @@ void hal_mpt_SetSingleCarrierTx(PADAPTER pAdapter, u8 bStart)
 		/*/ Stop Single Carrier.*/
 		/*/ Stop Single Carrier.*/
 		/*/ Turn off all test modes.*/
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) ||  defined(CONFIG_RTL8814A)		
-		if (IS_HARDWARE_TYPE_JAGUAR(pAdapter) || IS_HARDWARE_TYPE_8814A(pAdapter) /*|| IS_HARDWARE_TYPE_8822B(pAdapter)*/)
+#ifdef CONFIG_RTL8814A
+		if ( IS_HARDWARE_TYPE_8814A(pAdapter) /*|| IS_HARDWARE_TYPE_8822B(pAdapter)*/)
 			PHY_SetBBReg(pAdapter, rSingleTone_ContTx_Jaguar, BIT18|BIT17|BIT16, OFDM_ALL_OFF);
 		else
 #endif
@@ -1525,41 +1440,6 @@ void hal_mpt_SetSingleToneTx(PADAPTER pAdapter, u8 bStart)
 			PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, LNA_Low_Gain_3, BIT1, 0x1);
 			PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, RF_AC, 0xF0000, 0x2);
 
-		} else if (IS_HARDWARE_TYPE_JAGUAR(pAdapter)) {
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
-			u1Byte p = ODM_RF_PATH_A;
-			
-			regRF = PHY_QueryRFReg(pAdapter, ODM_RF_PATH_A, RF_AC_Jaguar, bRFRegOffsetMask);
-			regBB0 = PHY_QueryBBReg(pAdapter, rA_RFE_Pinmux_Jaguar, bMaskDWord);
-			regBB1 = PHY_QueryBBReg(pAdapter, rB_RFE_Pinmux_Jaguar, bMaskDWord);
-			regBB2 = PHY_QueryBBReg(pAdapter, rA_RFE_Pinmux_Jaguar+4, bMaskDWord);
-			regBB3 = PHY_QueryBBReg(pAdapter, rB_RFE_Pinmux_Jaguar+4, bMaskDWord);
-			
-			PHY_SetBBReg(pAdapter, rOFDMCCKEN_Jaguar, BIT29|BIT28, 0x0); /*/ Disable CCK and OFDM*/
-			
-			if (pMptCtx->MptRfPath == ODM_RF_PATH_AB) {
-				for (p = ODM_RF_PATH_A; p <= ODM_RF_PATH_B; ++p) {					
-					PHY_SetRFReg(pAdapter, p, RF_AC_Jaguar, 0xF0000, 0x2); /*/ Tx mode: RF0x00[19:16]=4'b0010 */
-					PHY_SetRFReg(pAdapter, p, RF_AC_Jaguar, 0x1F, 0x0); /*/ Lowest RF gain index: RF_0x0[4:0] = 0*/
-					PHY_SetRFReg(pAdapter, p, LNA_Low_Gain_3, BIT1, 0x1); /*/ RF LO enabled*/
-				}
-			} else {
-				PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, RF_AC_Jaguar, 0xF0000, 0x2); /*/ Tx mode: RF0x00[19:16]=4'b0010 */
-				PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, RF_AC_Jaguar, 0x1F, 0x0); /*/ Lowest RF gain index: RF_0x0[4:0] = 0*/
-				PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, LNA_Low_Gain_3, BIT1, 0x1); /*/ RF LO enabled*/
-			}			
-			
-			PHY_SetBBReg(pAdapter, rA_RFE_Pinmux_Jaguar, 0xFF00F0, 0x77007);  /*/ 0xCB0[[23:16, 7:4] = 0x77007*/
-			PHY_SetBBReg(pAdapter, rB_RFE_Pinmux_Jaguar, 0xFF00F0, 0x77007);  /*/ 0xCB0[[23:16, 7:4] = 0x77007*/
-			
-			if (pHalData->ExternalPA_5G) {
-				PHY_SetBBReg(pAdapter, rA_RFE_Pinmux_Jaguar+4, 0xFF00000, 0x12); /*/ 0xCB4[23:16] = 0x12*/
-				PHY_SetBBReg(pAdapter, rB_RFE_Pinmux_Jaguar+4, 0xFF00000, 0x12); /*/ 0xEB4[23:16] = 0x12*/
-			} else if (pHalData->ExternalPA_2G) {
-				PHY_SetBBReg(pAdapter, rA_RFE_Pinmux_Jaguar+4, 0xFF00000, 0x11); /*/ 0xCB4[23:16] = 0x11*/
-				PHY_SetBBReg(pAdapter, rB_RFE_Pinmux_Jaguar+4, 0xFF00000, 0x11); /*/ 0xEB4[23:16] = 0x11*/
-			}
-#endif
 		}
 #ifdef CONFIG_RTL8814A 
 		else if (IS_HARDWARE_TYPE_8814A(pAdapter))
@@ -1603,27 +1483,6 @@ void hal_mpt_SetSingleToneTx(PADAPTER pAdapter, u8 bStart)
 			PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, LNA_Low_Gain_3, BIT1, 0x0); /*RF LO disabled*/
 			/*Set BB REG 88C: Prevent SingleTone Fail*/
 			PHY_SetBBReg(pAdapter, rFPGA0_AnalogParameter4, 0xF00000, 0xc);	
-		} else if (IS_HARDWARE_TYPE_JAGUAR(pAdapter)) {
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
-			u1Byte p = ODM_RF_PATH_A;
-			
-			PHY_SetBBReg(pAdapter, rOFDMCCKEN_Jaguar, BIT29|BIT28, 0x3); /*/ Disable CCK and OFDM*/
-
-			if (pMptCtx->MptRfPath == ODM_RF_PATH_AB) {
-				for (p = ODM_RF_PATH_A; p <= ODM_RF_PATH_B; ++p) {					
-					PHY_SetRFReg(pAdapter, p, RF_AC_Jaguar, bRFRegOffsetMask, regRF);
-					PHY_SetRFReg(pAdapter, p, LNA_Low_Gain_3, BIT1, 0x0); /*/ RF LO disabled*/
-				}
-			} else {
-				PHY_SetRFReg(pAdapter, p, RF_AC_Jaguar, bRFRegOffsetMask, regRF);
-				PHY_SetRFReg(pAdapter, p, LNA_Low_Gain_3, BIT1, 0x0); /*/ RF LO disabled*/
-			}
-			
-			PHY_SetBBReg(pAdapter, rA_RFE_Pinmux_Jaguar, bMaskDWord, regBB0); 
-			PHY_SetBBReg(pAdapter, rB_RFE_Pinmux_Jaguar, bMaskDWord, regBB1); 
-			PHY_SetBBReg(pAdapter, rA_RFE_Pinmux_Jaguar+4, bMaskDWord, regBB2);
-			PHY_SetBBReg(pAdapter, rB_RFE_Pinmux_Jaguar+4, bMaskDWord, regBB3);
-#endif
 		}
 #ifdef CONFIG_RTL8814A		
 		else if (IS_HARDWARE_TYPE_8814A(pAdapter))
@@ -1653,7 +1512,7 @@ void hal_mpt_SetCarrierSuppressionTx(PADAPTER pAdapter, u8 bStart)
 				write_bbreg(pAdapter, rFPGA0_RFMOD, bCCKEn, bEnable);/*set CCK block on*/
 
 			/*/Turn Off All Test Mode*/
-			if (IS_HARDWARE_TYPE_JAGUAR(pAdapter) || IS_HARDWARE_TYPE_8814A(pAdapter) /*|| IS_HARDWARE_TYPE_8822B(pAdapter)*/)
+			if (IS_HARDWARE_TYPE_8814A(pAdapter) /*|| IS_HARDWARE_TYPE_8822B(pAdapter)*/)
 				PHY_SetBBReg(pAdapter, 0x914, BIT18|BIT17|BIT16, OFDM_ALL_OFF);/* rSingleTone_ContTx_Jaguar*/
 			else
 				PHY_SetBBReg(pAdapter, rOFDM1_LSTF, BIT30|BIT29|BIT28, OFDM_ALL_OFF);
@@ -1700,10 +1559,7 @@ void hal_mpt_SetCCKContinuousTx(PADAPTER pAdapter, u8 bStart)
 			write_bbreg(pAdapter, rFPGA0_RFMOD, bCCKEn, bEnable);/*set CCK block on*/
 
 		/*/Turn Off All Test Mode*/
-		if (IS_HARDWARE_TYPE_JAGUAR_AND_JAGUAR2(pAdapter))
-			PHY_SetBBReg(pAdapter, 0x914, BIT18|BIT17|BIT16, OFDM_ALL_OFF);/*rSingleTone_ContTx_Jaguar*/
-		else
-			PHY_SetBBReg(pAdapter, rOFDM1_LSTF, BIT30|BIT29|BIT28, OFDM_ALL_OFF);
+		PHY_SetBBReg(pAdapter, rOFDM1_LSTF, BIT30|BIT29|BIT28, OFDM_ALL_OFF);
 
 		/*/Set CCK Tx Test Rate*/
 
@@ -1713,12 +1569,10 @@ void hal_mpt_SetCCKContinuousTx(PADAPTER pAdapter, u8 bStart)
 		write_bbreg(pAdapter, rCCK0_System, bCCKBBMode, 0x2);	/*/transmit mode*/
 		write_bbreg(pAdapter, rCCK0_System, bCCKScramble, bEnable);	/*/turn on scramble setting*/
 
-		if (!IS_HARDWARE_TYPE_JAGUAR_AND_JAGUAR2(pAdapter)) {
-			PHY_SetBBReg(pAdapter, 0xa14, 0x300, 0x3);  /* rCCK0_RxHP 0xa15[1:0] = 11 force cck rxiq = 0*/
-			PHY_SetBBReg(pAdapter, rOFDM0_TRMuxPar, 0x10000, 0x1);		/*/ 0xc08[16] = 1 force ofdm rxiq = ofdm txiq*/
-			PHY_SetBBReg(pAdapter, rFPGA0_XA_HSSIParameter2, BIT14, 1);
-			PHY_SetBBReg(pAdapter, 0x0B34, BIT14, 1);
-		}
+		PHY_SetBBReg(pAdapter, 0xa14, 0x300, 0x3);  /* rCCK0_RxHP 0xa15[1:0] = 11 force cck rxiq = 0*/
+		PHY_SetBBReg(pAdapter, rOFDM0_TRMuxPar, 0x10000, 0x1);		/*/ 0xc08[16] = 1 force ofdm rxiq = ofdm txiq*/
+		PHY_SetBBReg(pAdapter, rFPGA0_XA_HSSIParameter2, BIT14, 1);
+		PHY_SetBBReg(pAdapter, 0x0B34, BIT14, 1);
 
 		write_bbreg(pAdapter, rFPGA0_XA_HSSIParameter1, bMaskDWord, 0x01000500);
 		write_bbreg(pAdapter, rFPGA0_XB_HSSIParameter1, bMaskDWord, 0x01000500);
@@ -1730,7 +1584,7 @@ void hal_mpt_SetCCKContinuousTx(PADAPTER pAdapter, u8 bStart)
 		write_bbreg(pAdapter, rCCK0_System, bCCKBBMode, 0x0);	/*/normal mode*/
 		write_bbreg(pAdapter, rCCK0_System, bCCKScramble, bEnable);	/*/turn on scramble setting*/
 
-		if (!IS_HARDWARE_TYPE_JAGUAR(pAdapter)  && !IS_HARDWARE_TYPE_8814A(pAdapter) /* && !IS_HARDWARE_TYPE_8822B(pAdapter) */) {
+		if (!IS_HARDWARE_TYPE_8814A(pAdapter) /* && !IS_HARDWARE_TYPE_8822B(pAdapter) */) {
 			PHY_SetBBReg(pAdapter, 0xa14, 0x300, 0x0);/* rCCK0_RxHP 0xa15[1:0] = 2b00*/
 			PHY_SetBBReg(pAdapter, rOFDM0_TRMuxPar, 0x10000, 0x0);		/*/ 0xc08[16] = 0*/
 			
@@ -1765,13 +1619,13 @@ void hal_mpt_SetOFDMContinuousTx(PADAPTER pAdapter, u8 bStart)
 		/*/ 3. turn on scramble setting*/
 		PHY_SetBBReg(pAdapter, rCCK0_System, bCCKScramble, 1);
 
-		if (!IS_HARDWARE_TYPE_JAGUAR(pAdapter) && !IS_HARDWARE_TYPE_8814A(pAdapter) /*&& !IS_HARDWARE_TYPE_8822B(pAdapter)*/) {
+		if (!IS_HARDWARE_TYPE_8814A(pAdapter) /*&& !IS_HARDWARE_TYPE_8822B(pAdapter)*/) {
 			PHY_SetBBReg(pAdapter, 0xa14, 0x300, 0x3);			/* rCCK0_RxHP 0xa15[1:0] = 2b'11*/
 			PHY_SetBBReg(pAdapter, rOFDM0_TRMuxPar, 0x10000, 0x1);		/* 0xc08[16] = 1*/
 		}
 
 		/*/ 4. Turn On Continue Tx and turn off the other test modes.*/
-		if (IS_HARDWARE_TYPE_JAGUAR(pAdapter) || IS_HARDWARE_TYPE_8814A(pAdapter) /*|| IS_HARDWARE_TYPE_8822B(pAdapter)*/)
+		if (IS_HARDWARE_TYPE_8814A(pAdapter) /*|| IS_HARDWARE_TYPE_8822B(pAdapter)*/)
 			PHY_SetBBReg(pAdapter, 0x914, BIT18|BIT17|BIT16, OFDM_ContinuousTx);/*rSingleTone_ContTx_Jaguar*/
 		else
 			PHY_SetBBReg(pAdapter, rOFDM1_LSTF, BIT30|BIT29|BIT28, OFDM_ContinuousTx);
@@ -1781,14 +1635,14 @@ void hal_mpt_SetOFDMContinuousTx(PADAPTER pAdapter, u8 bStart)
 
 	} else {
 		RT_TRACE(_module_mp_, _drv_info_, ("SetOFDMContinuousTx: test stop\n"));
-		if (IS_HARDWARE_TYPE_JAGUAR(pAdapter) || IS_HARDWARE_TYPE_8814A(pAdapter) /*|| IS_HARDWARE_TYPE_8822B(pAdapter)*/)
+		if (IS_HARDWARE_TYPE_8814A(pAdapter) /*|| IS_HARDWARE_TYPE_8822B(pAdapter)*/)
 			PHY_SetBBReg(pAdapter, 0x914, BIT18|BIT17|BIT16, OFDM_ALL_OFF);
 		else
 			PHY_SetBBReg(pAdapter, rOFDM1_LSTF, BIT30|BIT29|BIT28, OFDM_ALL_OFF);
 		/*/Delay 10 ms*/
 		rtw_msleep_os(10);
 		
-		if (!IS_HARDWARE_TYPE_JAGUAR(pAdapter) && !IS_HARDWARE_TYPE_8814A(pAdapter) /*&&! IS_HARDWARE_TYPE_8822B(pAdapter)*/) {
+		if (!IS_HARDWARE_TYPE_8814A(pAdapter) /*&&! IS_HARDWARE_TYPE_8822B(pAdapter)*/) {
 			PHY_SetBBReg(pAdapter, 0xa14, 0x300, 0x0);/*/ 0xa15[1:0] = 0*/
 			PHY_SetBBReg(pAdapter, rOFDM0_TRMuxPar, 0x10000, 0x0);/*/ 0xc08[16] = 0*/
 		}
@@ -1835,13 +1689,11 @@ static	VOID mpt_StopCckContTx(
 	PHY_SetBBReg(pAdapter, rCCK0_System, bCCKBBMode, 0x0);	/*normal mode*/
 	PHY_SetBBReg(pAdapter, rCCK0_System, bCCKScramble, 0x1);	/*turn on scramble setting*/
 
-	if (!IS_HARDWARE_TYPE_JAGUAR(pAdapter) && !IS_HARDWARE_TYPE_JAGUAR2(pAdapter)) {
-		PHY_SetBBReg(pAdapter, 0xa14, 0x300, 0x0);			/* 0xa15[1:0] = 2b00*/
-		PHY_SetBBReg(pAdapter, rOFDM0_TRMuxPar, 0x10000, 0x0);		/* 0xc08[16] = 0*/
-		
-		PHY_SetBBReg(pAdapter, rFPGA0_XA_HSSIParameter2, BIT14, 0);
-		PHY_SetBBReg(pAdapter, 0x0B34, BIT14, 0);
-	}
+	PHY_SetBBReg(pAdapter, 0xa14, 0x300, 0x0);			/* 0xa15[1:0] = 2b00*/
+	PHY_SetBBReg(pAdapter, rOFDM0_TRMuxPar, 0x10000, 0x0);		/* 0xc08[16] = 0*/
+	
+	PHY_SetBBReg(pAdapter, rFPGA0_XA_HSSIParameter2, BIT14, 0);
+	PHY_SetBBReg(pAdapter, 0x0B34, BIT14, 0);
 
 	/*BB Reset*/
 	PHY_SetBBReg(pAdapter, rPMAC_Reset, bBBResetB, 0x0);
@@ -1865,17 +1717,12 @@ static	VOID mpt_StopOfdmContTx(
 	pMptCtx->bCckContTx = FALSE;
 	pMptCtx->bOfdmContTx = FALSE;
 
-	if (IS_HARDWARE_TYPE_JAGUAR(pAdapter) || IS_HARDWARE_TYPE_JAGUAR2(pAdapter))
-		PHY_SetBBReg(pAdapter, 0x914, BIT18|BIT17|BIT16, OFDM_ALL_OFF);
-	else
-		PHY_SetBBReg(pAdapter, rOFDM1_LSTF, BIT30|BIT29|BIT28, OFDM_ALL_OFF);
+	PHY_SetBBReg(pAdapter, rOFDM1_LSTF, BIT30|BIT29|BIT28, OFDM_ALL_OFF);
 
 	rtw_mdelay_os(10);
 
-	if (!IS_HARDWARE_TYPE_JAGUAR(pAdapter) && !IS_HARDWARE_TYPE_JAGUAR2(pAdapter)) {
-		PHY_SetBBReg(pAdapter, 0xa14, 0x300, 0x0);			/* 0xa15[1:0] = 0*/
-		PHY_SetBBReg(pAdapter, rOFDM0_TRMuxPar, 0x10000, 0x0);		/* 0xc08[16] = 0*/
-	}
+	PHY_SetBBReg(pAdapter, 0xa14, 0x300, 0x0);			/* 0xa15[1:0] = 0*/
+	PHY_SetBBReg(pAdapter, rOFDM0_TRMuxPar, 0x10000, 0x0);		/* 0xc08[16] = 0*/
 
 	/*BB Reset*/
 	PHY_SetBBReg(pAdapter, rPMAC_Reset, bBBResetB, 0x0);
@@ -1899,10 +1746,7 @@ static	VOID mpt_StartCckContTx(
 		PHY_SetBBReg(pAdapter, rFPGA0_RFMOD, bCCKEn, 1);/*set CCK block on*/
 
 	/*Turn Off All Test Mode*/
-	if (IS_HARDWARE_TYPE_JAGUAR_AND_JAGUAR2(pAdapter))
-		PHY_SetBBReg(pAdapter, 0x914, BIT18|BIT17|BIT16, OFDM_ALL_OFF);
-	else
-		PHY_SetBBReg(pAdapter, rOFDM1_LSTF, BIT30|BIT29|BIT28, OFDM_ALL_OFF);
+	PHY_SetBBReg(pAdapter, rOFDM1_LSTF, BIT30|BIT29|BIT28, OFDM_ALL_OFF);
 
 	cckrate  = pAdapter->mppriv.rateidx;
 
@@ -1911,12 +1755,10 @@ static	VOID mpt_StartCckContTx(
 	PHY_SetBBReg(pAdapter, rCCK0_System, bCCKBBMode, 0x2);	/*transmit mode*/
 	PHY_SetBBReg(pAdapter, rCCK0_System, bCCKScramble, 0x1);	/*turn on scramble setting*/
 
-	if (!IS_HARDWARE_TYPE_JAGUAR_AND_JAGUAR2(pAdapter)) {
-		PHY_SetBBReg(pAdapter, 0xa14, 0x300, 0x3);			/* 0xa15[1:0] = 11 force cck rxiq = 0*/
-		PHY_SetBBReg(pAdapter, rOFDM0_TRMuxPar, 0x10000, 0x1);		/* 0xc08[16] = 1 force ofdm rxiq = ofdm txiq*/
-		PHY_SetBBReg(pAdapter, rFPGA0_XA_HSSIParameter2, BIT14, 1);
-		PHY_SetBBReg(pAdapter, 0x0B34, BIT14, 1);
-	}
+	PHY_SetBBReg(pAdapter, 0xa14, 0x300, 0x3);			/* 0xa15[1:0] = 11 force cck rxiq = 0*/
+	PHY_SetBBReg(pAdapter, rOFDM0_TRMuxPar, 0x10000, 0x1);		/* 0xc08[16] = 1 force ofdm rxiq = ofdm txiq*/
+	PHY_SetBBReg(pAdapter, rFPGA0_XA_HSSIParameter2, BIT14, 1);
+	PHY_SetBBReg(pAdapter, 0x0B34, BIT14, 1);
 
 	PHY_SetBBReg(pAdapter, rFPGA0_XA_HSSIParameter1, bMaskDWord, 0x01000500);
 	PHY_SetBBReg(pAdapter, rFPGA0_XB_HSSIParameter1, bMaskDWord, 0x01000500);
@@ -1944,16 +1786,11 @@ static	VOID mpt_StartOfdmContTx(
 	/* 3. turn on scramble setting*/
 	PHY_SetBBReg(pAdapter, rCCK0_System, bCCKScramble, 1);
 
-	if (!IS_HARDWARE_TYPE_JAGUAR(pAdapter) && !IS_HARDWARE_TYPE_JAGUAR2(pAdapter)) {
-		PHY_SetBBReg(pAdapter, 0xa14, 0x300, 0x3);			/* 0xa15[1:0] = 2b'11*/
-		PHY_SetBBReg(pAdapter, rOFDM0_TRMuxPar, 0x10000, 0x1);		/* 0xc08[16] = 1*/
-	}
+	PHY_SetBBReg(pAdapter, 0xa14, 0x300, 0x3);			/* 0xa15[1:0] = 2b'11*/
+	PHY_SetBBReg(pAdapter, rOFDM0_TRMuxPar, 0x10000, 0x1);		/* 0xc08[16] = 1*/
 
 	/* 4. Turn On Continue Tx and turn off the other test modes.*/
-	if (IS_HARDWARE_TYPE_JAGUAR(pAdapter) || IS_HARDWARE_TYPE_JAGUAR2(pAdapter))
-		PHY_SetBBReg(pAdapter, 0x914, BIT18|BIT17|BIT16, OFDM_ContinuousTx);
-	else
-		PHY_SetBBReg(pAdapter, rOFDM1_LSTF, BIT30|BIT29|BIT28, OFDM_ContinuousTx);
+	PHY_SetBBReg(pAdapter, rOFDM1_LSTF, BIT30|BIT29|BIT28, OFDM_ContinuousTx);
 	
 	PHY_SetBBReg(pAdapter, rFPGA0_XA_HSSIParameter1, bMaskDWord, 0x01000500);
 	PHY_SetBBReg(pAdapter, rFPGA0_XB_HSSIParameter1, bMaskDWord, 0x01000500);

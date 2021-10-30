@@ -287,16 +287,6 @@ static const struct map_t rtl8192e_pg_txpwr_def_info =
 	);
 #endif
 
-#ifdef CONFIG_RTL8821A
-static const struct map_t rtl8821a_pg_txpwr_def_info =
-	MAP_ENT(0xB8, 1, 0xFF
-		, MAPSEG_ARRAY_ENT(0x10, 39,
-			0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x24, 0xFF, 0xFF, 0xFF, 0xFF,
-			0xFF, 0xFF, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A,
-			0x04, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00)
-	);
-#endif
-
 #ifdef CONFIG_RTL8821C
 static const struct map_t rtl8821c_pg_txpwr_def_info =
 	MAP_ENT(0xB8, 1, 0xFF
@@ -305,19 +295,6 @@ static const struct map_t rtl8821c_pg_txpwr_def_info =
 			0xFF, 0xFF, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 
 			0x02, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xEC, 0xFF, 0xFF, 0xFF, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D,
 			0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x02)
-	);
-#endif
-
-#ifdef CONFIG_RTL8812A
-static const struct map_t rtl8812a_pg_txpwr_def_info =
-	MAP_ENT(0xB8, 1, 0xFF
-		, MAPSEG_ARRAY_ENT(0x10, 82,
-			0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x02, 0xEE, 0xEE, 0xFF, 0xFF,
-			0xFF, 0xFF, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A,
-			0x02, 0xEE, 0xFF, 0xFF, 0xEE, 0xFF, 0x00, 0xEE, 0xFF, 0xFF, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D,
-			0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x02, 0xEE, 0xEE, 0xFF, 0xFF, 0xFF, 0xFF, 0x2A, 0x2A, 0x2A, 0x2A,
-			0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x02, 0xEE, 0xFF, 0xFF, 0xEE, 0xFF,
-			0x00, 0xEE)
 	);
 #endif
 
@@ -379,16 +356,6 @@ const struct map_t *hal_pg_txpwr_def_info(_adapter *adapter)
 #ifdef CONFIG_RTL8188F
 	case RTL8188F:
 		map = &rtl8188f_pg_txpwr_def_info;
-		break;
-#endif
-#ifdef CONFIG_RTL8812A
-	case RTL8812:
-		map = &rtl8812a_pg_txpwr_def_info;
-		break;
-#endif
-#ifdef CONFIG_RTL8821A
-	case RTL8821:
-		map = &rtl8821a_pg_txpwr_def_info;
 		break;
 #endif
 #ifdef CONFIG_RTL8192E
@@ -1262,7 +1229,7 @@ bool rtw_regsty_chk_target_tx_power_valid(_adapter *adapter)
 				if (band == BAND_ON_5G && IS_CCK_RATE_SECTION(rs))
 					continue;
 
-				if (IS_VHT_RATE_SECTION(rs) && !IS_HARDWARE_TYPE_JAGUAR_AND_JAGUAR2(adapter))
+				if (IS_VHT_RATE_SECTION(rs))
 					continue;
 
 				target = rtw_regsty_get_target_tx_power(adapter, band, path, rs);
@@ -1442,7 +1409,7 @@ phy_StoreTxPowerByRateBase(
 				if (band == BAND_ON_5G && IS_CCK_RATE_SECTION(rs))
 					continue;
 
-				if (IS_VHT_RATE_SECTION(rs) && !IS_HARDWARE_TYPE_JAGUAR_AND_JAGUAR2(pAdapter))
+				if (IS_VHT_RATE_SECTION(rs))
 					continue;
 
 				if (regsty->target_tx_pwr_valid == _TRUE)
@@ -2726,14 +2693,14 @@ PHY_SetTxPowerLevelByPath(
 		PHY_SetTxPowerIndexByRateSection( Adapter, path, channel, OFDM );
 		PHY_SetTxPowerIndexByRateSection( Adapter, path, channel, HT_MCS0_MCS7 );
 
-		if (IS_HARDWARE_TYPE_JAGUAR(Adapter) || IS_HARDWARE_TYPE_8814A(Adapter))
+		if (IS_HARDWARE_TYPE_8814A(Adapter))
 			PHY_SetTxPowerIndexByRateSection(Adapter, path, channel, VHT_1SSMCS0_1SSMCS9);
 
 		if (pHalData->NumTotalRFPath >= 2)
 		{
 			PHY_SetTxPowerIndexByRateSection( Adapter, path, channel, HT_MCS8_MCS15 );
 
-			if (IS_HARDWARE_TYPE_JAGUAR(Adapter) || IS_HARDWARE_TYPE_8814A(Adapter))
+			if (IS_HARDWARE_TYPE_8814A(Adapter))
 				PHY_SetTxPowerIndexByRateSection(Adapter, path, channel, VHT_2SSMCS0_2SSMCS9);
 
 			if (IS_HARDWARE_TYPE_8814A(Adapter))
@@ -3134,31 +3101,6 @@ PHY_ConvertTxPowerLimitToPowerIndex(
 			}
 		}
 	}
-	
-	if (IS_HARDWARE_TYPE_JAGUAR_AND_JAGUAR2(Adapter)) {
-
-		for (regulation = 0; regulation < MAX_REGULATION_NUM; ++regulation) {
-
-			for (bw = 0; bw < MAX_5G_BANDWIDTH_NUM; ++bw) {
-
-				for (channel = 0; channel < CENTER_CH_5G_ALL_NUM; ++channel) {
-
-					for (rateSection = OFDM; rateSection <= VHT_4SS; ++rateSection) {
-						tempPwrLmt = pHalData->TxPwrLimit_5G[regulation][bw][rateSection][channel][RF_PATH_A];
-
-						if (tempPwrLmt != MAX_POWER_INDEX) {
-
-							for (rfPath = RF_PATH_A; rfPath < MAX_RF_PATH; ++rfPath) {
-								base = PHY_GetTxPowerByRateBase(Adapter, BAND_ON_5G, rfPath, rate_section_to_tx_num(rateSection), rateSection);
-								tempValue = tempPwrLmt - base;
-								pHalData->TxPwrLimit_5G[regulation][bw][rateSection][channel][rfPath] = tempValue;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
 }
 
 /*
@@ -3336,11 +3278,6 @@ PHY_SetTxPowerIndex(
 		PHY_SetTxPowerIndex_8814A(pAdapter, PowerIndex, RFPath, Rate);
 #endif
 	}
-	else if (IS_HARDWARE_TYPE_JAGUAR(pAdapter)) {
-#if ((RTL8812A_SUPPORT==1) || (RTL8821A_SUPPORT == 1))
-		PHY_SetTxPowerIndex_8812A( pAdapter, PowerIndex, RFPath, Rate );
-#endif
-	}
 	else if (IS_HARDWARE_TYPE_8723B(pAdapter)) {
 #if (RTL8723B_SUPPORT==1)
 		PHY_SetTxPowerIndex_8723B( pAdapter, PowerIndex, RFPath, Rate );
@@ -3402,7 +3339,7 @@ void dump_tx_power_idx_by_path_rs(void *sel, _adapter *adapter, u8 rfpath, u8 rs
 	if (band == BAND_ON_5G && IS_CCK_RATE_SECTION(rs))
 		return;
 
-	if (IS_VHT_RATE_SECTION(rs) && !IS_HARDWARE_TYPE_JAGUAR_AND_JAGUAR2(adapter))
+	if (IS_VHT_RATE_SECTION(rs))
 		return;
 
 	for (i = 0; i < rates_by_sections[rs].rate_num; i++) {
@@ -3614,7 +3551,7 @@ void dump_target_tx_power(void *sel, _adapter *adapter)
 				if (band == BAND_ON_5G && IS_CCK_RATE_SECTION(rs))
 					continue;
 
-				if (IS_VHT_RATE_SECTION(rs) && !IS_HARDWARE_TYPE_JAGUAR_AND_JAGUAR2(adapter))
+				if (IS_VHT_RATE_SECTION(rs))
 					continue;
 
 				target = PHY_GetTxPowerByRateBase(adapter, band, path, rate_section_to_tx_num(rs), rs);
@@ -3657,13 +3594,10 @@ void dump_tx_power_by_rate(void *sel, _adapter *adapter)
 				if (band == BAND_ON_5G && IS_CCK_RATE_SECTION(rs))
 					continue;
 
-				if (IS_VHT_RATE_SECTION(rs) && !IS_HARDWARE_TYPE_JAGUAR_AND_JAGUAR2(adapter))
+				if (IS_VHT_RATE_SECTION(rs))
 					continue;
 
-				if (IS_HARDWARE_TYPE_JAGUAR_AND_JAGUAR2(adapter))
-					max_rate_num = 10;
-				else
-					max_rate_num = 8;
+				max_rate_num = 8;
 				rate_num = rate_section_rate_num(rs);
 				base = PHY_GetTxPowerByRateBase(adapter, band, path, tx_num, rs);
 
@@ -3704,9 +3638,6 @@ void dump_tx_power_limit(void *sel, _adapter *adapter)
 	int bw, band, ch_num, rs, i, path;
 	u8 ch, n, rd;
 
-	if (IS_HARDWARE_TYPE_JAGUAR_AND_JAGUAR2(adapter))
-		DBG_871X_SEL_NL(sel, "tx_pwr_lmt_5g_20_40_ref:0x%02x\n", hal_data->tx_pwr_lmt_5g_20_40_ref);
-
 	for (band = BAND_ON_2_4G; band <= BAND_ON_5G; band++) {
 		if (!hal_is_band_support(adapter, band))
 			continue;
@@ -3743,7 +3674,7 @@ void dump_tx_power_limit(void *sel, _adapter *adapter)
 				if (rate_section_to_tx_num(rs) >= hal_spec->nss_num)
 					continue;
 
-				if (IS_VHT_RATE_SECTION(rs) && !IS_HARDWARE_TYPE_JAGUAR_AND_JAGUAR2(adapter))
+				if (IS_VHT_RATE_SECTION(rs))
 					continue;
 
 				/* by pass 5G 20M, 40M pure reference */

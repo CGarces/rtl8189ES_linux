@@ -351,12 +351,7 @@ void mpt_InitHWConfig(PADAPTER Adapter)
 
 		/* <20130522, Kordan> Turn off equalizer to improve Rx sensitivity. (Asked by EEChou) */
 		PHY_SetBBReg(Adapter, 0xA00, BIT8, 0x0);			/*0xA01[0] = 0*/
-	 } else if (IS_HARDWARE_TYPE_8821(Adapter)) {
-		/* <20131121, VincentL> Add for 8821AU DPDT setting and fix switching antenna issue (Asked by Rock)
-		<20131122, VincentL> Enable for all 8821A/8811AU  (Asked by Alex)*/
-		PHY_SetMacReg(Adapter, 0x4C, BIT23, 0x0);		   /*0x4C[23:22]=01*/
-		PHY_SetMacReg(Adapter, 0x4C, BIT22, 0x1);		   /*0x4C[23:22]=01*/
-	} else if (IS_HARDWARE_TYPE_8188ES(Adapter))
+	 } else if (IS_HARDWARE_TYPE_8188ES(Adapter))
 		PHY_SetMacReg(Adapter, 0x4C , BIT23, 0);		/*select DPDT_P and DPDT_N as output pin*/
 #ifdef CONFIG_RTL8814A	
 	  else if (IS_HARDWARE_TYPE_8814A(Adapter))
@@ -383,23 +378,11 @@ void mpt_InitHWConfig(PADAPTER Adapter)
 #define PHY_SetRFPathSwitch(a,b) PHY_SetRFPathSwitch_8814A(a,b)
 #endif /* CONFIG_RTL8814A */
 
-#ifdef CONFIG_RTL8812A
-#define PHY_IQCalibrate(_Adapter, b)	PHY_IQCalibrate_8812A(_Adapter, b)
-#define PHY_LCCalibrate(_Adapter)	PHY_LCCalibrate_8812A(&(GET_HAL_DATA(_Adapter)->odmpriv))
-#define PHY_SetRFPathSwitch(_Adapter, b) PHY_SetRFPathSwitch_8812A(_Adapter, b)
-#endif
-
-#ifdef CONFIG_RTL8821A
-#define PHY_IQCalibrate(_Adapter, b)	PHY_IQCalibrate_8821A(&(GET_HAL_DATA(_Adapter)->odmpriv), b)
-#define PHY_LCCalibrate(_Adapter)	PHY_LCCalibrate_8821A(&(GET_HAL_DATA(_Adapter)->odmpriv))
-#define PHY_SetRFPathSwitch(_Adapter, b) PHY_SetRFPathSwitch_8812A(_Adapter, b)
-#endif
-
 #ifdef CONFIG_RTL8192E
 #define PHY_IQCalibrate(a,b)	PHY_IQCalibrate_8192E(a,b)
 #define PHY_LCCalibrate(a)	PHY_LCCalibrate_8192E(&(GET_HAL_DATA(a)->odmpriv))
 #define PHY_SetRFPathSwitch(a,b) PHY_SetRFPathSwitch_8192E(a,b)
-#endif //CONFIG_RTL8812A_8821A
+#endif //CONFIG_RTL8192E
 
 #ifdef CONFIG_RTL8723B
 static void PHY_IQCalibrate(PADAPTER padapter, u8 bReCovery)
@@ -784,9 +767,6 @@ s32 mp_start_test(PADAPTER padapter)
 	#ifdef CONFIG_RTL8814A
 	rtl8814_InitHalDm(padapter);
 	#endif /* CONFIG_RTL8814A */
-	#ifdef CONFIG_RTL8812A
-	rtl8812_InitHalDm(padapter);
-	#endif /* CONFIG_RTL8812A */
 	#ifdef CONFIG_RTL8723B
 	rtl8723b_InitHalDm(padapter);
 	#endif /* CONFIG_RTL8723B */
@@ -870,9 +850,6 @@ end_of_mp_stop_test:
 
 	_exit_critical_bh(&pmlmepriv->lock, &irqL);
 
-	#ifdef CONFIG_RTL8812A
-	rtl8812_InitHalDm(padapter);
-	#endif
 	#ifdef CONFIG_RTL8723B
 	rtl8723b_InitHalDm(padapter);
 	#endif
@@ -1041,9 +1018,6 @@ void PhySetTxPowerLevel(PADAPTER pAdapter)
 		
 	if (pmp_priv->bSetTxPower==0) // for NO manually set power index
 	{
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
-		PHY_SetTxPowerLevel8812(pAdapter,pmp_priv->channel);
-#endif
 #if defined(CONFIG_RTL8192E)
 		PHY_SetTxPowerLevel8192E(pAdapter,pmp_priv->channel);
 #endif
@@ -1214,62 +1188,6 @@ void fill_tx_desc_8814a(PADAPTER padapter)
 }
 #endif
 
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
-void fill_tx_desc_8812a(PADAPTER padapter)
-{
-	struct mp_priv *pmp_priv = &padapter->mppriv;
-	u8 *pDesc   = (u8 *)&(pmp_priv->tx.desc);
-	struct pkt_attrib *pattrib = &(pmp_priv->tx.attrib);
-	
-	u32	pkt_size = pattrib->last_txcmdsz;
-	s32 bmcast = IS_MCAST(pattrib->ra);
-	u8 data_rate,pwr_status,offset;
-
-	SET_TX_DESC_FIRST_SEG_8812(pDesc, 1);
-	SET_TX_DESC_LAST_SEG_8812(pDesc, 1);
-	SET_TX_DESC_OWN_8812(pDesc, 1);
-	
-	SET_TX_DESC_PKT_SIZE_8812(pDesc, pkt_size);
-	
-	offset = TXDESC_SIZE + OFFSET_SZ;		
-
-	SET_TX_DESC_OFFSET_8812(pDesc, offset);
-
-#if defined(CONFIG_PCI_HCI)
-	SET_TX_DESC_PKT_OFFSET_8812(pDesc, 0);
-#else
-	SET_TX_DESC_PKT_OFFSET_8812(pDesc, 1);
-#endif
-	if (bmcast) {
-		SET_TX_DESC_BMC_8812(pDesc, 1);
-	}
-
-	SET_TX_DESC_MACID_8812(pDesc, pattrib->mac_id);
-	SET_TX_DESC_RATE_ID_8812(pDesc, pattrib->raid);
-
-	//SET_TX_DESC_RATE_ID_8812(pDesc, RATEID_IDX_G);
-	SET_TX_DESC_QUEUE_SEL_8812(pDesc,  pattrib->qsel);
-	//SET_TX_DESC_QUEUE_SEL_8812(pDesc,  QSLT_MGNT);
-	
-	if (!pattrib->qos_en) {
-		SET_TX_DESC_HWSEQ_EN_8812(pDesc, 1); // Hw set sequence number
-	} else {
-		SET_TX_DESC_SEQ_8812(pDesc, pattrib->seqnum);
-	}
-	
-	if (pmp_priv->bandwidth <= CHANNEL_WIDTH_160) {
-		SET_TX_DESC_DATA_BW_8812(pDesc, pmp_priv->bandwidth);
-	} else {
-		DBG_871X("%s:Err: unknown bandwidth %d, use 20M\n", __func__,pmp_priv->bandwidth);
-		SET_TX_DESC_DATA_BW_8812(pDesc, CHANNEL_WIDTH_20);
-	}
-
-	SET_TX_DESC_DISABLE_FB_8812(pDesc, 1);
-	SET_TX_DESC_USE_RATE_8812(pDesc, 1);
-	SET_TX_DESC_TX_RATE_8812(pDesc, pmp_priv->rateidx);
-
-}
-#endif
 #if defined(CONFIG_RTL8192E)
 void fill_tx_desc_8192e(PADAPTER padapter)
 {
@@ -1493,11 +1411,6 @@ void SetPacketTx(PADAPTER padapter)
 		fill_tx_desc_8814a(padapter);
 #endif /* defined(CONFIG_RTL8814A) */
 
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
-	if(IS_HARDWARE_TYPE_8812(padapter) || IS_HARDWARE_TYPE_8821(padapter)) 
-		fill_tx_desc_8812a(padapter);
-#endif
-
 #if defined(CONFIG_RTL8192E)
 	if(IS_HARDWARE_TYPE_8192E(padapter))
 		fill_tx_desc_8192e(padapter);
@@ -1676,7 +1589,7 @@ static u32 rtw_GetPSDData(PADAPTER pAdapter, u32 point)
 {
 	u32 psd_val=0;
 	
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8814A)
+#ifdef CONFIG_RTL8814A
 	u16 psd_reg = 0x910;
 	u16 psd_regL= 0xF44;
 #else	

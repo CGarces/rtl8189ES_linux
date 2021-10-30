@@ -897,17 +897,11 @@ void rtw_rf_set_tx_gain_offset(_adapter *adapter, u8 path, s8 offset)
 		break;
 #endif /* CONFIG_RTL8188F */
 
-#ifdef CONFIG_RTL8821A
-	case RTL8821:
-		write_value = RF_TX_GAIN_OFFSET_8821A(offset);
-		rtw_hal_write_rfreg(adapter, path, 0x55, 0x0f8000, write_value);
-		break;
-#endif /* CONFIG_RTL8821A */
 #ifdef CONFIG_RTL8814A
 		case RTL8814A:
 		DBG_871X("\nkfree by PhyDM on the sw CH. path %d\n", path);
 		break;
-#endif /* CONFIG_RTL8821A */
+#endif /* CONFIG_RTL8814A */
 
 	default:
 		rtw_warn_on(1);

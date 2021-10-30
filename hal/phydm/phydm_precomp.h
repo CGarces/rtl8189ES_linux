@@ -128,32 +128,6 @@ PHY_SetTxPowerLimit(
 #endif
 #endif  //92E END
 
-#if (RTL8812A_SUPPORT==1)
-
-    #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-        #include "rtl8812a/halphyrf_8812a_win.h"
-    #elif (DM_ODM_SUPPORT_TYPE == ODM_AP)
-        #include "rtl8812a/halphyrf_8812a_ap.h"
-    #elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
-        #include "rtl8812a/halphyrf_8812a_ce.h"
-    #endif
-
-    //#include "rtl8812a/HalPhyRf_8812A.h" //FOR_8812_IQK
-    #if (DM_ODM_SUPPORT_TYPE != ODM_AP)
-        #include "rtl8812a/halhwimg8812a_bb.h"
-        #include "rtl8812a/halhwimg8812a_mac.h"
-        #include "rtl8812a/halhwimg8812a_rf.h"
-        #include "rtl8812a/phydm_regconfig8812a.h"
-        #include "rtl8812a/halhwimg8812a_fw.h"
-        #include "rtl8812a/phydm_rtl8812a.h"
-    #endif
-
-    #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
-	    #include "rtl8812a_hal.h"
-    #endif
-
-#endif //8812 END
-
 #if (RTL8814A_SUPPORT==1)
 
 #include "rtl8814a/halhwimg8814a_mac.h"
@@ -205,24 +179,6 @@ PHY_SetTxPowerLimit(
     #include "rtl8723b/halphyrf_8723b_ce.h"
     #include "rtl8723b/halhwimg8723b_mp.h"
     #include "rtl8723b_hal.h"
-#endif
-#endif
-
-#if (RTL8821A_SUPPORT==1) 
-#include "rtl8821a/halhwimg8821a_mac.h"
-#include "rtl8821a/halhwimg8821a_rf.h"
-#include "rtl8821a/halhwimg8821a_bb.h"
-#include "rtl8821a/halhwimg8821a_fw.h"
-#include "rtl8821a/phydm_regconfig8821a.h"
-#include "rtl8821a/phydm_rtl8821a.h"
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	#include "rtl8821a/halphyrf_8821a_win.h"
-#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
-	#include "rtl8821a/halphyrf_8821a_ce.h"
-	#include "rtl8821a/phydm_iqk_8821a_ce.h"/*for IQK*/
-	#include "rtl8812a/halphyrf_8812a_ce.h"/*for IQK,LCK,Power-tracking*/
-	#include "rtl8812a_hal.h"
-#else
 #endif
 #endif
 

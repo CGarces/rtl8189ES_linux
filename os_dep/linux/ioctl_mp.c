@@ -1083,7 +1083,7 @@ int rtw_mp_thermal(struct net_device *dev,
 	u8 val;
 	int bwrite = 1;
 
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8814A)
+#ifdef CONFIG_RTL8814A
 	u16 addr = EEPROM_THERMAL_METER_8812;
 #endif
 #ifdef CONFIG_RTL8192E
@@ -1447,16 +1447,6 @@ int rtw_mp_pretx_proc(PADAPTER padapter, u8 bStartTest, char *extra)
 			SetPacketTx(padapter);
 		} else
 			pmp_priv->mode = MP_ON;
-
-#if defined(CONFIG_RTL8812A)
-			if (IS_HARDWARE_TYPE_8812AU(padapter)) {
-				/* <20130425, Kordan> Turn off OFDM Rx to prevent from CCA causing Tx hang.*/
-				if (pmp_priv->mode == MP_PACKET_TX)
-					PHY_SetBBReg(padapter, rCCAonSec_Jaguar, BIT3, 1);
-				else
-					PHY_SetBBReg(padapter, rCCAonSec_Jaguar, BIT3, 0);
-			}
-#endif
 
 	return 0;
 }

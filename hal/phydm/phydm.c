@@ -406,18 +406,6 @@ PhyDM_Get_Structure(
 	return	pStruct;
 }
 
-VOID
-odm_HWSetting(
-	IN		PDM_ODM_T		pDM_Odm
-	)
-{
-#if (RTL8821A_SUPPORT == 1)
-	if(pDM_Odm->SupportICType & ODM_RTL8821)
-		odm_HWSetting_8821A(pDM_Odm);
-#endif
-
-}
-
 //
 // 2011/09/21 MH Add to describe different team necessary resource allocate??
 //
@@ -561,7 +549,6 @@ ODM_DMWatchdog(
 {
 	odm_CommonInfoSelfUpdate(pDM_Odm);
 	phydm_BasicDbgMessage(pDM_Odm);
-	odm_HWSetting(pDM_Odm);
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_AP)
 	{
