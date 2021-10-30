@@ -7,14 +7,6 @@
 #endif
 
 /*Beamforming Related*/
-#include "txbf/halcomtxbf.h"
-#include "txbf/haltxbfjaguar.h"
-#include "txbf/haltxbf8192e.h"
-#include "txbf/haltxbf8814a.h"
-#include "txbf/haltxbf8821b.h"
-#include "txbf/haltxbf8822b.h"
-#include "txbf/haltxbfinterface.h"
-
 #if (BEAMFORMING_SUPPORT == 1)
 
 #define MAX_BEAMFORMEE_SU	2
