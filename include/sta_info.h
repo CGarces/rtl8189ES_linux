@@ -216,11 +216,7 @@ struct sta_info {
 	u8	ldpc;
 	u8	stbc;
 
-#ifdef CONFIG_BEAMFORMING
-	u16 txbf_paid;
-	u16 txbf_gid;
-#endif
-		
+	
 	struct stainfo_stats sta_stats;
 
 	//for A-MPDU TX, ADDBA timeout check	

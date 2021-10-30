@@ -379,10 +379,6 @@ odm_RSSIMonitorCheckMP(
 	pRA_T			pRA_Table = &pDM_Odm->DM_RA_Table;
 	pDIG_T			pDM_DigTable = &pDM_Odm->DM_DigTable;
 
-#if (BEAMFORMING_SUPPORT == 1)
-	BEAMFORMING_CAP Beamform_cap = BEAMFORMING_CAP_NONE;
-#endif
-
 	PADAPTER	pLoopAdapter = GetDefaultAdapter(Adapter);
 
 	if (pDM_Odm->SupportICType & EXT_RA_INFO_SUPPORT_IC) {
@@ -512,14 +508,6 @@ odm_RSSIMonitorCheckMP(
 		PRT_HIGH_THROUGHPUT 		pHTInfo = GET_HT_INFO(pDefaultMgntInfo);
 		PRT_VERY_HIGH_THROUGHPUT	pVHTInfo = GET_VHT_INFO(pDefaultMgntInfo);
 
-		//2 BF_en
-#if (BEAMFORMING_SUPPORT == 1)
-		Beamform_cap = phydm_Beamforming_GetEntryBeamCapByMacId(pDM_Odm, pDefaultMgntInfo->mMacId);
-
-		if (Beamform_cap & (BEAMFORMER_CAP_HT_EXPLICIT | BEAMFORMER_CAP_VHT_SU))
-			TxBF_EN = 1;
-#endif
-
 		//2 STBC_en
 		if ((IS_WIRELESS_MODE_AC(Adapter) && TEST_FLAG(pVHTInfo->VhtCurStbc, STBC_VHT_ENABLE_TX)) ||
 			TEST_FLAG(pHTInfo->HtCurStbc, STBC_HT_ENABLE_TX))
@@ -636,21 +624,6 @@ s8 phydm_rssi_report(PDM_ODM_T pDM_Odm, u8 mac_id)
 	else
 		UL_DL_STATE = 0;
 	
-	#ifdef CONFIG_BEAMFORMING
-	{
-		#if (BEAMFORMING_SUPPORT == 1)
-		BEAMFORMING_CAP Beamform_cap = phydm_Beamforming_GetEntryBeamCapByMacId(pDM_Odm, pEntry->mac_id);
-		#else/*for drv beamforming*/
-		BEAMFORMING_CAP Beamform_cap = beamforming_get_entry_beam_cap_by_mac_id(&Adapter->mlmepriv, pEntry->mac_id);
-		#endif
-
-		if (Beamform_cap & (BEAMFORMER_CAP_HT_EXPLICIT | BEAMFORMER_CAP_VHT_SU))
-			TxBF_EN = 1;
-		else
-			TxBF_EN = 0;
-	}
-	#endif /*#ifdef CONFIG_BEAMFORMING*/
-		
 	if (TxBF_EN)
 		STBC_TX = 0;
 	else {

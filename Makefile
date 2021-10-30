@@ -176,7 +176,6 @@ _OUTSRC_FILES := hal/phydm/phydm_debug.o	\
 		hal/phydm/phydm_cfotracking.o\
 		hal/phydm/phydm_noisemonitor.o\
 		hal/phydm/phydm_acs.o\
-		hal/phydm/phydm_beamforming.o
 
 EXTRA_CFLAGS += -I$(src)/platform
 

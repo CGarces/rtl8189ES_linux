@@ -2651,12 +2651,6 @@ void dynamic_chk_wk_hdl(_adapter *padapter)
 		dm_DynamicUsbTxAgg(padapter, 0);
 	}
 
-#ifdef CONFIG_BEAMFORMING
-#if (BEAMFORMING_SUPPORT == 0) /*for diver defined beamforming*/
-	beamforming_watchdog(padapter);
-#endif
-#endif
-
 	rtw_hal_dm_watchdog(padapter);
 
 	//check_hw_pbc(padapter, pdrvextra_cmd->pbuf, pdrvextra_cmd->type);
@@ -4262,11 +4256,7 @@ u8 rtw_drvextra_cmd_hdl(_adapter *padapter, unsigned char *pbuf)
 			c2h_evt_hdl(padapter, pdrvextra_cmd->pbuf, NULL);
 #endif
 			break;
-#ifdef CONFIG_BEAMFORMING
-		case BEAMFORMING_WK_CID:
-			beamforming_wk_hdl(padapter, pdrvextra_cmd->type, pdrvextra_cmd->pbuf);
-			break;
-#endif
+
 		case DM_RA_MSK_WK_CID:
 			rtw_dm_ra_mask_hdl(padapter, (struct sta_info *)pdrvextra_cmd->pbuf);
 			break;
