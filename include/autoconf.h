@@ -195,11 +195,6 @@
 
 #define BT_30_SUPPORT 0
 
-#ifdef CONFIG_WOWLAN
-	//#define CONFIG_GTK_OL
-	#define CONFIG_ARP_KEEP_ALIVE
-#endif // CONFIG_WOWLAN
-
 #ifdef CONFIG_GPIO_WAKEUP
 	#ifndef WAKEUP_GPIO_IDX
 		#define WAKEUP_GPIO_IDX	0

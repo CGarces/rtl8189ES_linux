@@ -1133,11 +1133,6 @@ __inline static void RTW_ENABLE_FUNC(_adapter*padapter, int func_bit)
 			(RTW_CANNOT_RUN(padapter) || \
 			 RTW_IS_FUNC_DISABLED((padapter), DF_TX_BIT))
 
-#ifdef CONFIG_WOWLAN
-int rtw_suspend_wow(_adapter *padapter);
-int rtw_resume_process_wow(_adapter *padapter);
-#endif
-
 #include <sdio_osintf.h>
 #include <sdio_ops.h>
 #include <sdio_hal.h>

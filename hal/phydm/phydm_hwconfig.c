@@ -2353,11 +2353,6 @@ ODM_ConfigFWWithHeaderFile(
 			READ_FIRMWARE_MP(8723B,_FW_NIC);
 		else if (ConfigType == CONFIG_FW_WoWLAN)
 			READ_FIRMWARE_MP(8723B,_FW_WoWLAN);
-		#ifdef CONFIG_AP_WOWLAN
-		else if (ConfigType == CONFIG_FW_AP_WoWLAN)
-			READ_FIRMWARE(8723B,_FW_AP_WoWLAN);
-		#endif
-		
 	}
 #endif //#if (RTL8723B_SUPPORT == 1)  
 
@@ -2368,10 +2363,6 @@ ODM_ConfigFWWithHeaderFile(
 			READ_FIRMWARE_MP(8192E,_FW_NIC);
 		else if (ConfigType == CONFIG_FW_WoWLAN)
 			READ_FIRMWARE_MP(8192E,_FW_WoWLAN);
-		#ifdef CONFIG_AP_WOWLAN
-		else if (ConfigType == CONFIG_FW_AP_WoWLAN)
-			READ_FIRMWARE_MP(8192E,_FW_AP);
-		#endif
 	}
 #endif
 #if (RTL8814A_SUPPORT == 1)
@@ -2379,10 +2370,6 @@ ODM_ConfigFWWithHeaderFile(
 	{
 		if (ConfigType == CONFIG_FW_NIC)
 			READ_FIRMWARE_MP(8814A,_FW_NIC);
-		#ifdef CONFIG_AP_WOWLAN
-		else if (ConfigType == CONFIG_FW_AP_WoWLAN)
-			READ_FIRMWARE_MP(8814A,_FW_AP);
-		#endif
 	}
 #endif
 #if (RTL8703B_SUPPORT == 1)
@@ -2391,10 +2378,6 @@ ODM_ConfigFWWithHeaderFile(
 			READ_FIRMWARE_MP(8703B, _FW_NIC);
 		else if (ConfigType == CONFIG_FW_WoWLAN)
 			READ_FIRMWARE_MP(8703B, _FW_WoWLAN);
-		#ifdef CONFIG_AP_WOWLAN
-		else if (ConfigType == CONFIG_FW_AP_WoWLAN)
-			READ_FIRMWARE(8703B, _FW_AP_WoWLAN);
-		#endif
 	}
 #endif
 
@@ -2404,10 +2387,6 @@ ODM_ConfigFWWithHeaderFile(
 			READ_FIRMWARE_MP(8188F, _FW_NIC);
 		else if (ConfigType == CONFIG_FW_WoWLAN)
 			READ_FIRMWARE_MP(8188F, _FW_WoWLAN);
-		#ifdef CONFIG_AP_WOWLAN
-		else if (ConfigType == CONFIG_FW_AP)
-			READ_FIRMWARE_MP(8188F,_FW_AP);
-		#endif
 	}
 #endif
 
@@ -2416,18 +2395,6 @@ ODM_ConfigFWWithHeaderFile(
 #if (RTL8821B_SUPPORT == 1)
 	if (pDM_Odm->SupportICType == ODM_RTL8821B)
 	{
-	}
-#endif
-#if (RTL8822B_SUPPORT == 1)
-	if (pDM_Odm->SupportICType == ODM_RTL8822B)
-	{
-		/*
-		if (ConfigType == CONFIG_FW_NIC)
-			READ_FIRMWARE_MP(8822B,_FW_NIC);
-		#ifdef CONFIG_AP_WOWLAN
-		else if (ConfigType == CONFIG_FW_AP_WoWLAN)
-			READ_FIRMWARE(8822B,_FW_AP);
-		#endif */
 	}
 #endif
 #if ((DEV_BUS_TYPE == RT_USB_INTERFACE) || (DEV_BUS_TYPE == RT_SDIO_INTERFACE))

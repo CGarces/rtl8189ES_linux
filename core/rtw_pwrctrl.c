@@ -664,17 +664,8 @@ u8 PS_RDY_CHECK(_adapter * padapter)
 #endif /* CONFIG_IOCTL_CFG80211 */
 #endif /* CONFIG_P2P */
 
-#if defined(CONFIG_WOWLAN) || defined(CONFIG_AP_WOWLAN)
-	if(_TRUE == pwrpriv->bInSuspend && pwrpriv->wowlan_mode)
-		return _TRUE;
-	else if(_TRUE == pwrpriv->bInSuspend && pwrpriv->wowlan_ap_mode)
-		return _TRUE;
-	else if (_TRUE == pwrpriv->bInSuspend)
-		return _FALSE;
-#else
 	if(_TRUE == pwrpriv->bInSuspend )
 		return _FALSE;
-#endif
 
 	curr_time = rtw_get_current_time();	
 
@@ -891,7 +882,7 @@ _func_enter_;
 			pwrpriv->pwr_mode = ps_mode;
 			rtw_set_rpwm(padapter, PS_STATE_S4);
 			
-#if defined(CONFIG_WOWLAN) || defined(CONFIG_AP_WOWLAN) || defined(CONFIG_P2P_WOWLAN)
+#ifdef CONFIG_P2P_WOWLAN
 			if (pwrpriv->wowlan_mode == _TRUE ||
 					pwrpriv->wowlan_ap_mode == _TRUE ||
 					pwrpriv->wowlan_p2p_mode == _TRUE)
@@ -2117,18 +2108,6 @@ _func_enter_;
 	DBG_871X("%s: set GPIO_%d %d as default.\n",
 		 __func__, WAKEUP_GPIO_IDX, val8);
 #endif /* CONFIG_GPIO_WAKEUP */
-
-#ifdef CONFIG_WOWLAN
-	pwrctrlpriv->wowlan_pattern_idx = 0;
-	for (i = 0 ; i < MAX_WKFM_NUM; i++) {
-		_rtw_memset(pwrctrlpriv->patterns[i].content, '\0',
-				sizeof(pwrctrlpriv->patterns[i].content));
-		_rtw_memset(pwrctrlpriv->patterns[i].mask, '\0',
-				sizeof(pwrctrlpriv->patterns[i].mask));
-		pwrctrlpriv->patterns[i].len = 0;
-	}
-
-#endif /* CONFIG_WOWLAN */
 
 _func_exit_;
 

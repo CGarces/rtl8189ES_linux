@@ -481,13 +481,6 @@ struct mlme_priv {
 	struct beacon_keys new_beacon_keys; // save new beacon keys
 	u8 new_beacon_cnts; // if new_beacon_cnts >= threshold, ap beacon is changed
 
-#ifdef CONFIG_ARP_KEEP_ALIVE
-	// for arp offload keep alive
-	u8 bGetGateway;
-	u8	gw_mac_addr[6];
-	u8	gw_ip[4];
-#endif
-
 	//uint wireless_mode; no used, remove it
 
 	u32	auto_scan_int_ms;

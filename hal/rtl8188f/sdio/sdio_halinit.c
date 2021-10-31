@@ -1596,10 +1596,6 @@ _ReadEfuseInfo8188FS(
 	
 	//Hal_EfuseParseVoltage_8188F(padapter, hwinfo, pHalData->bautoload_fail_flag);
 	
-#if defined(CONFIG_WOWLAN) || defined(CONFIG_AP_WOWLAN)
-	Hal_DetectWoWMode(padapter);
-#endif
-
 	Hal_EfuseParseKFreeData_8188F(padapter, hwinfo, pHalData->bautoload_fail_flag);
 	hal_read_mac_hidden_rpt(padapter);
 
@@ -1830,9 +1826,6 @@ _func_enter_;
 	pHalFunc->disable_interrupt = &DisableInterrupt8188FSdio;
 	pHalFunc->check_ips_status = &CheckIPSStatus;
 
-#if defined(CONFIG_WOWLAN) || defined(CONFIG_AP_WOWLAN)
-	pHalFunc->clear_interrupt = &ClearInterrupt8188FSdio;
-#endif
 	pHalFunc->SetHwRegHandler = &SetHwReg8188FS;
 	pHalFunc->GetHwRegHandler = &GetHwReg8188FS;
 	pHalFunc->GetHalDefVarHandler = &GetHalDefVar8188FSDIO;

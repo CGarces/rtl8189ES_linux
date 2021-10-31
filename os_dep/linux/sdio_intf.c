@@ -26,10 +26,6 @@
 #define dev_to_sdio_func(d)     container_of(d, struct sdio_func, dev)
 #endif
 
-#ifdef CONFIG_WOWLAN
-static struct mmc_host *mmc_host = NULL;
-#endif
-
 static const struct sdio_device_id sdio_ids[] =
 {
 #ifdef CONFIG_RTL8723B
@@ -559,11 +555,6 @@ static void rtw_sdio_if1_deinit(_adapter *if1)
 #endif
 
 	rtw_cancel_all_timer(if1);
-
-#ifdef CONFIG_WOWLAN
-	adapter_to_pwrctl(if1)->wowlan_mode=_FALSE;
-	DBG_871X_LEVEL(_drv_always_, "%s wowlan_mode:%d\n", __func__, adapter_to_pwrctl(if1)->wowlan_mode);
-#endif //CONFIG_WOWLAN
 
 	rtw_dev_unload(if1);
 	DBG_871X("+r871xu_dev_remove, hw_init_completed=%d\n", rtw_get_hw_init_completed(if1));

@@ -24,12 +24,6 @@
 #ifdef PLATFORM_LINUX
 	#include <linux/mmc/sdio_func.h> 
 	#include <linux/mmc/sdio_ids.h>
-
-#if defined(CONFIG_WOWLAN) || defined(CONFIG_AP_WOWLAN)
-	#include <linux/mmc/host.h>
-	#include <linux/mmc/card.h>
-#endif
-
 #endif
 
 

@@ -1484,9 +1484,6 @@ void InitInterrupt8188FSdio(PADAPTER padapter)
 #if defined(CONFIG_LPS_LCLK) && !defined(CONFIG_DETECT_CPWM_BY_POLLING)
 		| SDIO_HIMR_CPWM1_MSK
 #endif
-#ifdef CONFIG_WOWLAN
-		| SDIO_HIMR_CPWM2_MSK
-#endif
 		;
 }
 
@@ -1511,40 +1508,6 @@ void InitSysInterrupt8188FSdio(PADAPTER padapter)
 //							HSIMR_GPIO9_INT_EN				|
 							0);
 }
-
-#if defined(CONFIG_WOWLAN) || defined(CONFIG_AP_WOWLAN)
-//
-//	Description:
-//		Clear corresponding SDIO Host ISR interrupt service.
-//
-//	Assumption:
-//		Using SDIO Local register ONLY for configuration.
-//
-//	Created by Roger, 2011.02.11.
-//
-void ClearInterrupt8188FSdio(PADAPTER padapter)
-{
-	PHAL_DATA_TYPE pHalData;
-	u8 *clear;
-
-
-	if (rtw_is_surprise_removed(padapter))
-		return;
-
-	pHalData = GET_HAL_DATA(padapter);
-	clear = rtw_zmalloc(4);
-
-	// Clear corresponding HISR Content if needed
-	*(u32*)clear = cpu_to_le32(pHalData->sdio_hisr & MASK_SDIO_HISR_CLEAR);
-	if (*(u32*)clear)
-	{
-		// Perform write one clear operation
-		sdio_local_write(padapter, SDIO_REG_HISR, 4, clear);
-	}
-
-	rtw_mfree(clear, 4);
-}
-#endif
 
 //
 //	Description:
@@ -1649,21 +1612,6 @@ u8 CheckIPSStatus(PADAPTER padapter)
 		return _FALSE;
 }
 
-#ifdef CONFIG_WOWLAN
-void DisableInterruptButCpwm28188FSdio(PADAPTER padapter)
-{
-	u32 himr, tmp;
-
-	sdio_local_read(padapter, SDIO_REG_HIMR, 4, (u8*)&tmp);
-	DBG_871X("DisableInterruptButCpwm28188FSdio(): Read SDIO_REG_HIMR: 0x%08x\n", tmp);
-	
-	himr = cpu_to_le32(SDIO_HIMR_DISABLED)|SDIO_HIMR_CPWM2_MSK;
-	sdio_local_write(padapter, SDIO_REG_HIMR, 4, (u8*)&himr);
-
-	sdio_local_read(padapter, SDIO_REG_HIMR, 4, (u8*)&tmp);
-	DBG_871X("DisableInterruptButCpwm28188FSdio(): Read again SDIO_REG_HIMR: 0x%08x\n", tmp);
-}
-#endif //CONFIG_WOWLAN
 //
 //	Description:
 //		Update SDIO Host Interrupt Mask configuration on SDIO local domain.
@@ -2232,42 +2180,3 @@ u8 HalQueryTxOQTBufferStatus8188FSdio(PADAPTER padapter)
 	pHalData->SdioTxOQTFreeSpace = SdioLocalCmd52Read1Byte(padapter, SDIO_REG_AC_OQT_FREEPG_8188F);
 	return _TRUE;
 }
-
-#if defined(CONFIG_WOWLAN) || defined(CONFIG_AP_WOWLAN) 
-u8 RecvOnePkt(PADAPTER padapter, u32 size)
-{
-	struct recv_buf *precvbuf;
-	struct dvobj_priv *psddev;
-	PSDIO_DATA psdio_data;
-	struct sdio_func *func;
-
-	u8 res = _FALSE;
-
-	DBG_871X("+%s: size: %d+\n", __func__, size);
-
-	if (padapter == NULL) {
-		DBG_871X(KERN_ERR "%s: padapter is NULL!\n", __func__);
-		return _FALSE;
-	}
-
-	psddev = adapter_to_dvobj(padapter);
-	psdio_data = &psddev->intf_data;
-	func = psdio_data->func;
-
-	if(size) {
-		sdio_claim_host(func);
-		sd_recv_rxfifo(padapter, size, &precvbuf);
-		if (precvbuf) {
-			//printk("Completed Recv One Pkt.\n");
-			sd_rxhandler(padapter, precvbuf);
-			res = _TRUE;
-		}else{
-			res = _FALSE;
-		}
-		sdio_release_host(func);
-	}
-	DBG_871X("-%s-\n", __func__);
-	return res;
-}
-#endif //CONFIG_WOWLAN
-

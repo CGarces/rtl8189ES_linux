@@ -22,7 +22,7 @@
 #include "../phydm_precomp.h"
 
 #if (RTL8188F_SUPPORT == 1)
-#if (defined(CONFIG_AP_WOWLAN) || (DM_ODM_SUPPORT_TYPE & (ODM_AP)))
+#if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
 
 
 u1Byte Array_MP_8188F_FW_AP[] = {
@@ -2284,7 +2284,7 @@ ODM_ReadFirmware_MP_8188F_FW_AP(
 }
 
 
-#endif /* #if (defined(CONFIG_AP_WOWLAN)||(DM_ODM_SUPPORT_TYPE & (ODM_AP)) */
+#endif /* #if (DM_ODM_SUPPORT_TYPE & (ODM_AP)) */
 
 
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN)) || (DM_ODM_SUPPORT_TYPE & (ODM_CE))
@@ -7835,7 +7835,7 @@ ODM_ReadFirmware_MP_8188F_FW_WoWLAN(
 
 
 
-#endif /* end of (defined(CONFIG_AP_WOWLAN) || (DM_ODM_SUPPORT_TYPE & (ODM_AP)))*/
+#endif /* end of (DM_ODM_SUPPORT_TYPE & (ODM_AP)))*/
 
 
 #endif /* end of HWIMG_SUPPORT*/
