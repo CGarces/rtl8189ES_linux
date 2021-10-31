@@ -24,11 +24,6 @@
 #include <rtw_mp_ioctl.h>
 #include "../../hal/phydm/phydm_precomp.h"
 
-
-#if defined(CONFIG_RTL8723B)
-#include <rtw_bt_mp.h>
-#endif
-
 /*
  * Input Format: %s,%d,%d
  *	%s is width, could be

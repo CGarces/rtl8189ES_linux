@@ -24,9 +24,6 @@
 #endif
 
 #include "../hal/phydm/phydm_precomp.h"		
-#if defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8821A)
-#include <rtw_bt_mp.h>
-#endif
 
 #ifdef CONFIG_MP_VHT_HW_TX_MODE
 #define CEILING_POS(X) ((X - (int)(X)) > 0 ? (int)(X + 1) : (int)(X))
