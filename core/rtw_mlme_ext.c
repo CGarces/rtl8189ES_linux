@@ -776,9 +776,6 @@ static void init_mlme_ext_priv_value(_adapter* padapter)
 	pmlmeext->sitesurvey_res.scan_cnt_max = RTW_SCAN_NUM_OF_CH;
 	pmlmeext->sitesurvey_res.backop_ms = RTW_BACK_OP_CH_MS;
 	#endif
-	#if defined(CONFIG_ANTENNA_DIVERSITY) || defined(DBG_SCAN_SW_ANTDIV_BL)
-	pmlmeext->sitesurvey_res.is_sw_antdiv_bl_scan = 0;
-	#endif
 	pmlmeext->scan_abort = _FALSE;
 
 	pmlmeinfo->state = WIFI_FW_NULL_STATE;
@@ -10367,10 +10364,6 @@ u8 collect_bss_info(_adapter *padapter, union recv_frame *precv_frame, WLAN_BSSI
 	bssid->Rssi = precv_frame->u.hdr.attrib.phy_info.RecvSignalPower; // in dBM.raw data	
 	bssid->PhyInfo.SignalQuality = precv_frame->u.hdr.attrib.phy_info.SignalQuality;//in percentage 
 	bssid->PhyInfo.SignalStrength = precv_frame->u.hdr.attrib.phy_info.SignalStrength;//in percentage
-#ifdef CONFIG_ANTENNA_DIVERSITY
-	//rtw_hal_get_hwreg(padapter, HW_VAR_CURRENT_ANTENNA, (u8 *)(&bssid->PhyInfo.Optimum_antenna));
-	rtw_hal_get_def_var(padapter, HAL_DEF_CURRENT_ANTENNA,  &bssid->PhyInfo.Optimum_antenna);
-#endif
 
 	// checking SSID
 	if ((p = rtw_get_ie(bssid->IEs + ie_offset, _SSID_IE_, &len, bssid->IELength - ie_offset)) == NULL)
@@ -12648,9 +12641,7 @@ u8 join_cmd_hdl(_adapter *padapter, u8 *pbuf)
 	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	WLAN_BSSID_EX		*pnetwork = (WLAN_BSSID_EX*)(&(pmlmeinfo->network));
-#ifdef CONFIG_ANTENNA_DIVERSITY
-	struct joinbss_parm	*pparm = (struct joinbss_parm *)pbuf;
-#endif //CONFIG_ANTENNA_DIVERSITY
+
 	u32 i;
 	//u8	initialgain;
 	//u32	acparm;
@@ -12678,10 +12669,6 @@ u8 join_cmd_hdl(_adapter *padapter, u8 *pbuf)
 
 		rtw_hal_set_hwreg(padapter, HW_VAR_MLME_DISCONNECT, 0);
 	}
-
-#ifdef CONFIG_ANTENNA_DIVERSITY
-	rtw_antenna_select_cmd(padapter, pparm->network.PhyInfo.Optimum_antenna, _FALSE);
-#endif
 
 #ifdef CONFIG_WAPI_SUPPORT
 	rtw_wapi_clear_all_cam_entry(padapter);
@@ -13057,9 +13044,6 @@ static void sitesurvey_res_reset(_adapter *adapter, struct sitesurvey_parm *parm
 #ifdef CONFIG_SCAN_BACKOP
 	ss->scan_cnt = 0;
 #endif
-#if defined(CONFIG_ANTENNA_DIVERSITY) || defined(DBG_SCAN_SW_ANTDIV_BL)
-	ss->is_sw_antdiv_bl_scan = 0;
-#endif
 	
 	for (i = 0; i < RTW_SSID_SCAN_AMOUNT; i++) {
 		if (parm->ssid[i].SsidLength) {
@@ -13163,39 +13147,8 @@ static u8 sitesurvey_pick_ch_behavior(_adapter *padapter, u8 *ch, RT_SCAN_TYPE *
 	} else if (rtw_p2p_findphase_ex_is_needed(pwdinfo)) {
 		/* go p2p listen */
 		next_state = SCAN_TO_P2P_LISTEN;
-
-	#ifdef CONFIG_ANTENNA_DIVERSITY
-	} else if (rtw_hal_antdiv_before_linked(padapter)) {
-		/* go sw antdiv before link */
-		next_state = SCAN_SW_ANTDIV_BL;
-	#endif
 	} else {
 		next_state = SCAN_COMPLETE;
-
-		#if defined(DBG_SCAN_SW_ANTDIV_BL)
-		{
-			/* for SCAN_SW_ANTDIV_BL state testing */
-			struct dvobj_priv *dvobj = adapter_to_dvobj(padapter);
-			int i;
-			bool is_linked = _FALSE;
-
-			for (i = 0; i < dvobj->iface_nums; i++) {
-				if (rtw_linked_check(dvobj->padapters[i]))
-					is_linked = _TRUE;
-			}
-
-			if (!is_linked) {
-				static bool fake_sw_antdiv_bl_state = 0;
-
-				if (fake_sw_antdiv_bl_state == 0) {
-					next_state = SCAN_SW_ANTDIV_BL;
-					fake_sw_antdiv_bl_state = 1;
-				} else {
-					fake_sw_antdiv_bl_state = 0;
-				}
-			}
-		}
-		#endif /* defined(DBG_SCAN_SW_ANTDIV_BL) */
 	}
 
 	#ifdef CONFIG_SCAN_BACKOP
@@ -13548,11 +13501,6 @@ operation_by_state:
 		scan_ms = ss->scan_ch_ms;
 		#endif
 
-		#if defined(CONFIG_ANTENNA_DIVERSITY) || defined(DBG_SCAN_SW_ANTDIV_BL)
-		if (ss->is_sw_antdiv_bl_scan)
-			scan_ms = scan_ms/2;
-		#endif
-
 		set_survey_timer(pmlmeext, scan_ms);
 		break;
 	}
@@ -13642,22 +13590,6 @@ operation_by_state:
 		goto operation_by_state;
 
 	#endif /* CONFIG_SCAN_BACKOP */
-
-	#if defined(CONFIG_ANTENNA_DIVERSITY) || defined(DBG_SCAN_SW_ANTDIV_BL)
-	case SCAN_SW_ANTDIV_BL:
-		/*
-		* 20100721
-		* For SW antenna diversity before link, it needs to switch to another antenna and scan again.
-		* It compares the scan result and select better one to do connection.
-		*/
-		ss->bss_cnt = 0;
-		ss->channel_idx = 0;
-		ss->is_sw_antdiv_bl_scan = 1;
-
-		mlmeext_set_scan_next_state(pmlmeext, SCAN_PROCESS);
-		set_survey_timer(pmlmeext, ss->scan_ch_ms);
-		break;
-	#endif
 
 	#ifdef CONFIG_P2P
 	case SCAN_TO_P2P_LISTEN:

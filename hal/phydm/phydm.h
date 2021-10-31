@@ -28,9 +28,7 @@
 #include "phydm_pre_define.h"
 #include "phydm_dig.h"
 #include "phydm_edcaturbocheck.h"
-#include "phydm_pathdiv.h"
 #include "phydm_antdiv.h"
-#include "phydm_antdect.h"
 #include "phydm_dynamicbbpowersaving.h"
 #include "phydm_rainfo.h"
 #include "phydm_dynamictxpower.h"
@@ -455,18 +453,6 @@ typedef enum tag_CCA_Path
 	ODM_CCA_1R_B		= 2,
 }ODM_CCA_PATH_E;
 
-//move RAInfo to Phydm_RaInfo.h
-
-//Remove struct  PATHDIV_PARA to odm_PathDiv.h 
-
-//Remove struct to odm_PowerTracking.h by YuChen
-//
-// ODM Dynamic common info value definition
-//
-//Move AntDiv form phydm.h to Phydm_AntDiv.h by Dino
-
-//move PathDiv to Phydm_PathDiv.h
-
 typedef enum _BASEBAND_CONFIG_PHY_REG_PG_VALUE_TYPE{
 	PHY_REG_PG_RELATIVE_VALUE = 0,
 	PHY_REG_PG_EXACT_VALUE = 1
@@ -798,16 +784,7 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 	//
 	//ODM Structure
 	//
-#if (defined(CONFIG_PHYDM_ANTENNA_DIVERSITY))
-	#if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
-	BDC_T					DM_BdcTable;
-	#endif
-	
-	#ifdef CONFIG_HL_SMART_ANTENNA_TYPE1
-	SAT_T						dm_sat_table;
-	#endif
-	
-#endif
+
 	FAT_T						DM_FatTable;
 	DIG_T						DM_DigTable;
 
@@ -833,9 +810,6 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 	//Path Div Struct
 	PATHDIV_PARA	pathIQK;
 #endif
-#if(defined(CONFIG_PATH_DIVERSITY))
-	PATHDIV_T	DM_PathDiv;
-#endif	
 
 	EDCA_T		DM_EDCA_Table;
 	u4Byte		WMMEDCA_BE;
@@ -873,9 +847,6 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 
 	ODM_RATE_ADAPTIVE	RateAdaptive;
 //#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
-#if(defined(CONFIG_ANT_DETECTION))
-	ANT_DETECTED_INFO	AntDetectedInfo; // Antenna detected information for RSSI tool
-#endif
 	ODM_RF_CAL_T	RFCalibrateInfo;
 
 	
@@ -904,9 +875,7 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 	//2011.09.27 add for Path Diversity
 	RT_TIMER				CCKPathDiversityTimer;
 	RT_TIMER 	FastAntTrainingTimer;
-#ifdef ODM_EVM_ENHANCE_ANTDIV
-	RT_TIMER 			EVM_FastAntTrainingTimer;
-#endif
+
 	RT_TIMER		sbdcnt_timer;
 
 	// ODM relative workitem.

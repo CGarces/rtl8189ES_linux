@@ -156,11 +156,6 @@ static void Update_ODM_ComInfo_8188f(PADAPTER	Adapter)
 		SupportAbility |= ODM_BB_ADAPTIVITY;
 	}
 
-#ifdef CONFIG_ANTENNA_DIVERSITY
-	if (pHalData->AntDivCfg)
-		SupportAbility |= ODM_BB_ANT_DIV;
-#endif
-
 #if (MP_DRIVER==1)
 	if (Adapter->registrypriv.mp_mode == 1) {
 		SupportAbility = 0

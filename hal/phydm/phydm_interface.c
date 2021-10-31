@@ -936,13 +936,9 @@ phydm_c2H_content_parsing(
 		break;
 
 	case PHYDM_C2H_RA_PARA_RPT:
-		ODM_C2HRaParaReportHandler(pDM_Odm, tmpBuf, c2hCmdLen);
 		break;
 		
 	case PHYDM_C2H_DYNAMIC_TX_PATH_RPT:
-		if (pDM_Odm->SupportICType & (ODM_RTL8814A))
-			phydm_c2h_dtp_handler(pDM_Odm, tmpBuf, c2hCmdLen);
-		
 		break;
 		
 	case PHYDM_C2H_IQK_FINISH:

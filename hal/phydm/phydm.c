@@ -432,15 +432,12 @@ ODM_DMInit(
 	Phydm_AdaptivityInit(pDM_Odm);
 	phydm_ra_info_init(pDM_Odm);
 	odm_RateAdaptiveMaskInit(pDM_Odm);
-	odm_RA_ParaAdjust_init(pDM_Odm);
 	ODM_CfoTrackingInit(pDM_Odm);
 	ODM_EdcaTurboInit(pDM_Odm);
 	odm_RSSIMonitorInit(pDM_Odm);
 	phydm_rf_init(pDM_Odm);
 	odm_TXPowerTrackingInit(pDM_Odm);
-	odm_AntennaDiversityInit(pDM_Odm);
 	odm_AutoChannelSelectInit(pDM_Odm);
-	odm_PathDiversityInit(pDM_Odm);
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
 	phydm_Beamforming_Init(pDM_Odm);
 #endif	
@@ -452,11 +449,6 @@ ODM_DMInit(
 
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))
 	
-	#if (RTL8723B_SUPPORT == 1)
-		if(pDM_Odm->SupportICType == ODM_RTL8723B)
-			odm_SwAntDetectInit(pDM_Odm);
-	#endif
-
 	#if (RTL8192E_SUPPORT == 1)
 		if(pDM_Odm->SupportICType==ODM_RTL8192E)
 			odm_PrimaryCCA_Check_Init(pDM_Odm);
@@ -475,7 +467,6 @@ ODM_DMReset(
 {
 	pDIG_T pDM_DigTable = &pDM_Odm->DM_DigTable;
 	
-	ODM_AntDivReset(pDM_Odm);	
 	phydm_setEDCCAThresholdAPI(pDM_Odm, pDM_DigTable->CurIGValue);
 }
 
@@ -523,32 +514,13 @@ phydm_support_ablity_debug(
 		PHYDM_SNPRINTF((output+used, out_len-used, "25. (( %s ))RX_GAIN_TRACK  \n", ((pDM_Odm->SupportAbility & ODM_RF_RX_GAIN_TRACK)?("V"):("."))  ));
 		PHYDM_SNPRINTF((output+used, out_len-used, "26. (( %s ))RF_CALIBRATION  \n", ((pDM_Odm->SupportAbility & ODM_RF_CALIBRATION)?("V"):("."))   ));
 		PHYDM_SNPRINTF((output+used, out_len-used,"%s\n", "================================"));
-	}
-	/*
-	else if(dm_value[0] == 101)
-	{
-		pDM_Odm->SupportAbility = 0 ;
-		DbgPrint("Disable all SupportAbility components \n");
-		PHYDM_SNPRINTF((output+used, out_len-used,"%s\n", "Disable all SupportAbility components"));	
-	}
-	*/
-	else
-	{
+	} else {
 
-		if(dm_value[1] == 1) //enable
-		{
+		if (dm_value[1] == 1) //enable
 			pDM_Odm->SupportAbility |= BIT(dm_value[0]) ;
-			if(BIT(dm_value[0]) & ODM_BB_PATH_DIV)
-			{
-				odm_PathDiversityInit(pDM_Odm);
-			}
-		}
-		else if(dm_value[1] == 2) //disable
-		{
+		else if(dm_value[1] == 2) { //disable
 			pDM_Odm->SupportAbility &= ~(BIT(dm_value[0])) ;
-		}
-		else
-		{
+		} else {
 			//DbgPrint("\n[Warning!!!]  1:enable,  2:disable \n\n");
 			PHYDM_SNPRINTF((output+used, out_len-used,"%s\n", "[Warning!!!]  1:enable,  2:disable"));
 		}
@@ -623,16 +595,13 @@ ODM_DMWatchdog(
 		Phydm_Adaptivity(pDM_Odm, pDM_DigTable->CurIGValue);
 	}
 	odm_CCKPacketDetectionThresh(pDM_Odm);
-	phydm_ra_dynamic_retry_limit(pDM_Odm);
 	phydm_ra_dynamic_retry_count(pDM_Odm);
 	odm_RefreshRateAdaptiveMask(pDM_Odm);
 	odm_RefreshBasicRateMask(pDM_Odm);
 	odm_DynamicBBPowerSaving(pDM_Odm);
 	odm_EdcaTurboCheck(pDM_Odm);
-	odm_PathDiversity(pDM_Odm);
 	ODM_CfoTracking(pDM_Odm);
 	odm_DynamicTxPower(pDM_Odm);
-	odm_AntennaDiversity(pDM_Odm);
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
 	phydm_Beamforming_Watchdog(pDM_Odm);
 #endif
@@ -1152,13 +1121,6 @@ ODM_InitAllWorkItems(IN PDM_ODM_T	pDM_Odm )
 
 	PADAPTER		pAdapter = pDM_Odm->Adapter;
 #if USE_WORKITEM
-	#ifdef CONFIG_S0S1_SW_ANTENNA_DIVERSITY
-	ODM_InitializeWorkItem(	pDM_Odm, 
-							&pDM_Odm->DM_SWAT_Table.phydm_SwAntennaSwitchWorkitem, 
-							(RT_WORKITEM_CALL_BACK)ODM_SW_AntDiv_WorkitemCallback,
-							(PVOID)pAdapter,
-							"AntennaSwitchWorkitem");
-	#endif
 	#ifdef CONFIG_HL_SMART_ANTENNA_TYPE1
 	ODM_InitializeWorkItem(pDM_Odm, 
 						&pDM_Odm->dm_sat_table.hl_smart_antenna_workitem, 
@@ -1282,10 +1244,6 @@ ODM_FreeAllWorkItems(IN PDM_ODM_T	pDM_Odm )
 {
 #if USE_WORKITEM
 
-#ifdef CONFIG_S0S1_SW_ANTENNA_DIVERSITY
-	ODM_FreeWorkItem(&(pDM_Odm->DM_SWAT_Table.phydm_SwAntennaSwitchWorkitem));
-#endif
-
 #ifdef CONFIG_HL_SMART_ANTENNA_TYPE1
 	ODM_FreeWorkItem(&(pDM_Odm->dm_sat_table.hl_smart_antenna_workitem));
 	ODM_FreeWorkItem(&(pDM_Odm->dm_sat_table.hl_smart_antenna_decision_workitem));
@@ -1368,9 +1326,6 @@ ODM_InitAllTimers(
 	IN PDM_ODM_T	pDM_Odm 
 	)
 {
-#if (defined(CONFIG_PHYDM_ANTENNA_DIVERSITY))
-	ODM_AntDivTimers(pDM_Odm,INIT_ANTDIV_TIMMER);
-#endif
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_AP)
 #ifdef MP_TEST
@@ -1421,10 +1376,6 @@ ODM_CancelAllTimers(
 	HAL_ADAPTER_STS_CHK(pDM_Odm)
 #endif	
 
-#if (defined(CONFIG_PHYDM_ANTENNA_DIVERSITY))
-	ODM_AntDivTimers(pDM_Odm,CANCEL_ANTDIV_TIMMER);
-#endif
-
 #if (DM_ODM_SUPPORT_TYPE == ODM_AP)
 #ifdef MP_TEST
 	if (pDM_Odm->priv->pshare->rf_ft_var.mp_specific)
@@ -1460,10 +1411,6 @@ ODM_ReleaseAllTimers(
 	IN PDM_ODM_T	pDM_Odm 
 	)
 {
-#if (defined(CONFIG_PHYDM_ANTENNA_DIVERSITY))
-	ODM_AntDivTimers(pDM_Odm,RELEASE_ANTDIV_TIMMER);
-#endif
-
 #if (DM_ODM_SUPPORT_TYPE == ODM_AP)
     #ifdef MP_TEST
 	if (pDM_Odm->priv->pshare->rf_ft_var.mp_specific)

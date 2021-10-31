@@ -161,29 +161,6 @@ typedef struct _Rate_Adaptive_Table_ {
 	BOOLEAN		PT_collision_pre;
 #endif
 
-#if (defined(CONFIG_RA_DBG_CMD))
-	BOOLEAN		is_ra_dbg_init;
-
-	u1Byte	RTY_P[ODM_NUM_RATE_IDX];
-	u1Byte	RTY_P_default[ODM_NUM_RATE_IDX];
-	BOOLEAN	RTY_P_modify_note[ODM_NUM_RATE_IDX];
-
-	u1Byte	RATE_UP_RTY_RATIO[ODM_NUM_RATE_IDX];
-	u1Byte	RATE_UP_RTY_RATIO_default[ODM_NUM_RATE_IDX];
-	BOOLEAN	RATE_UP_RTY_RATIO_modify_note[ODM_NUM_RATE_IDX];
-
-	u1Byte	RATE_DOWN_RTY_RATIO[ODM_NUM_RATE_IDX];
-	u1Byte	RATE_DOWN_RTY_RATIO_default[ODM_NUM_RATE_IDX];
-	BOOLEAN	RATE_DOWN_RTY_RATIO_modify_note[ODM_NUM_RATE_IDX];
-
-	BOOLEAN RA_Para_feedback_req;
-
-	u1Byte   para_idx;
-	u1Byte	rate_idx;
-	u1Byte	value;
-	u2Byte	value_16;
-	u1Byte	rate_length;
-#endif
 	u1Byte	link_tx_rate[ODM_ASSOCIATE_ENTRY_NUM];
 
 	#if (defined(CONFIG_RA_DYNAMIC_RTY_LIMIT))
@@ -220,26 +197,8 @@ typedef struct _ODM_RATE_ADAPTIVE {
 } ODM_RATE_ADAPTIVE, *PODM_RATE_ADAPTIVE;
 
 VOID
-ODM_C2HRaParaReportHandler(
-	IN	PVOID	pDM_VOID,
-	IN pu1Byte   CmdBuf,
-	IN u1Byte   CmdLen
-);
-
-VOID
 odm_RA_ParaAdjust_Send_H2C(
 	IN	PVOID	pDM_VOID
-);
-
-VOID
-odm_RA_debug(
-	IN		PVOID		pDM_VOID,
-	IN		u4Byte		*const dm_value
-);
-
-VOID
-odm_RA_ParaAdjust_init(
-	IN		PVOID		pDM_VOID
 );
 
 VOID
@@ -249,11 +208,6 @@ odm_RA_ParaAdjust(
 
 VOID
 phydm_ra_dynamic_retry_count(
-	IN	PVOID	pDM_VOID
-);
-
-VOID
-phydm_ra_dynamic_retry_limit(
 	IN	PVOID	pDM_VOID
 );
 

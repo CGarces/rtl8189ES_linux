@@ -59,7 +59,6 @@ CONFIG_SIGNAL_SCALE_MAPPING = n
 CONFIG_80211W = n
 CONFIG_REDUCE_TX_CPU_LOADING = n
 CONFIG_BR_EXT = y
-CONFIG_ANTENNA_DIVERSITY = n
 CONFIG_WIFI_MONITOR = n
 ######################## Wake On Lan ##########################
 CONFIG_WOWLAN = n
@@ -164,15 +163,12 @@ _HAL_INTFS_FILES :=	hal/hal_intf.o \
 
 			
 _OUTSRC_FILES := hal/phydm/phydm_debug.o	\
-		hal/phydm/phydm_antdiv.o\
-		hal/phydm/phydm_antdect.o\
 		hal/phydm/phydm_interface.o\
 		hal/phydm/phydm_hwconfig.o\
 		hal/phydm/phydm.o\
 		hal/phydm/halphyrf_ce.o\
 		hal/phydm/phydm_edcaturbocheck.o\
 		hal/phydm/phydm_dig.o\
-		hal/phydm/phydm_pathdiv.o\
 		hal/phydm/phydm_rainfo.o\
 		hal/phydm/phydm_dynamicbbpowersaving.o\
 		hal/phydm/phydm_powertracking_ce.o\
@@ -537,10 +533,6 @@ ifeq ($(CONFIG_BR_EXT), y)
 BR_NAME = br0
 EXTRA_CFLAGS += -DCONFIG_BR_EXT
 EXTRA_CFLAGS += '-DCONFIG_BR_EXT_BRNAME="'$(BR_NAME)'"'
-endif
-
-ifeq ($(CONFIG_ANTENNA_DIVERSITY), y)
-EXTRA_CFLAGS += -DCONFIG_ANTENNA_DIVERSITY
 endif
 
 ifeq ($(CONFIG_WIFI_MONITOR), y)

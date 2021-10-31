@@ -1023,7 +1023,6 @@ VOID phydm_BasicProfile(
 	PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %s\n", "DIG", DIG_VERSION));
 	PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %s\n", "Dynamic BB PowerSaving", DYNAMIC_BBPWRSAV_VERSION));
 	PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %s\n", "CFO Tracking", CFO_TRACKING_VERSION));
-	PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %s\n", "Antenna Diversity", ANTDIV_VERSION));
 	PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %s\n", "Power Tracking", POWRTRACKING_VERSION));
 	PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %s\n", "Dynamic TxPower", DYNAMIC_TXPWR_VERSION));
 	PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %s\n", "RA Info", RAINFO_VERSION));
@@ -1032,7 +1031,6 @@ VOID phydm_BasicProfile(
 #endif
 	PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %s\n", "Auto Channel Selection", ACS_VERSION));
 	PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %s\n", "EDCA Turbo", EDCATURBO_VERSION));
-	PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %s\n", "Path Diversity", PATHDIV_VERSION));
 #if(DM_ODM_SUPPORT_TYPE & ODM_WIN)
 	PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %s\n", "RxHP", RXHP_VERSION));
 #endif
@@ -1437,14 +1435,6 @@ phydm_cmd_parser(
 			}
 		}
 
-		if (input_idx >= 1) {
-			/*PHYDM_SNPRINTF((output+used, out_len-used, "odm_RA_debug\n"));*/
-#if (defined(CONFIG_RA_DBG_CMD))
-			odm_RA_debug((PVOID)pDM_Odm, var1);
-#endif
-		}
-
-
 		break;
 
 	case PHYDM_PATHDIV:
@@ -1457,14 +1447,6 @@ phydm_cmd_parser(
 				input_idx++;
 			}
 		}
-
-		if (input_idx >= 1) {
-			/*PHYDM_SNPRINTF((output+used, out_len-used, "odm_PATHDIV_debug\n"));*/
-#if (defined(CONFIG_PATH_DIVERSITY))
-			odm_pathdiv_debug(pDM_Odm, (u4Byte *)var1, &used, output, &out_len);
-#endif
-		}
-
 		break;
 
 	case PHYDM_DEBUG:
@@ -1512,15 +1494,6 @@ phydm_cmd_parser(
 				input_idx++;
 			}
 		}
-
-		if (input_idx >= 1) {
-			#if (defined(CONFIG_PHYDM_ANTENNA_DIVERSITY))
-			#ifdef CONFIG_HL_SMART_ANTENNA_TYPE1
-			phydm_hl_smart_ant_cmd(pDM_Odm, (u4Byte *)var1, &used, output, &out_len);
-			#endif
-			#endif
-		}
-
 		break;
 
 	case PHYDM_API:

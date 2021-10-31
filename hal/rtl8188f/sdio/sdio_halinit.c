@@ -1756,14 +1756,8 @@ GetHalDefVar8188FSDIO(
 	switch(eVariable)
 	{
 		case HAL_DEF_IS_SUPPORT_ANT_DIV:
-#ifdef CONFIG_ANTENNA_DIVERSITY
-			*((u8 *)pValue) = _FALSE;
-#endif
 			break;
 		case HAL_DEF_CURRENT_ANTENNA:
-#ifdef CONFIG_ANTENNA_DIVERSITY
-			*(( u8*)pValue) = pHalData->CurAntenna;
-#endif
 			break;
 		case HW_VAR_MAX_RX_AMPDU_FACTOR:
 			// Stanley@BB.SD3 suggests 16K can get stable performance

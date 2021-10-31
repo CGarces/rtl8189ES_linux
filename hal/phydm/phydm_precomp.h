@@ -22,7 +22,6 @@
 #define __ODM_PRECOMP_H__
 
 #include "phydm_types.h"
-#include "phydm_features.h"
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 #include "Precomp.h"		// We need to include mp_precomp.h due to batch file setting.

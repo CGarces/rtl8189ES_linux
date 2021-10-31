@@ -519,16 +519,6 @@ odm_EVMdbToPercentage(
 
 	/*DbgPrint("Value=%d\n", Value);*/
 	/*ODM_RT_DISP(FRX, RX_PHY_SQ, ("EVMdbToPercentage92C Value=%d / %x\n", ret_val, ret_val));*/
-#ifdef ODM_EVM_ENHANCE_ANTDIV
-	if (ret_val >= 0)
-		ret_val = 0;
-
-	if (ret_val <= -40)
-		ret_val = -40;
-
-	ret_val = 0 - ret_val;
-	ret_val *= 3;
-#else
 	if (ret_val >= 0)
 		ret_val = 0;
 
@@ -540,8 +530,6 @@ odm_EVMdbToPercentage(
 
 	if (ret_val == 99)
 		ret_val = 100;
-#endif
-
 	return (u1Byte)ret_val;
 }
 			
@@ -1101,12 +1089,6 @@ odm_RxPhyStatus92CSeries_Parsing(
 		//isCCKrate, pPhyInfo->RxPWDBAll, pPhyStaRpt->cck_agc_rpt_ofdm_cfosho_a);
 
 	//For 92C/92D HW (Hybrid) Antenna Diversity
-#if (defined(CONFIG_PHYDM_ANTENNA_DIVERSITY))
-	//For 88E HW Antenna Diversity
-	pDM_Odm->DM_FatTable.antsel_rx_keep_0 = pPhyStaRpt->ant_sel;
-	pDM_Odm->DM_FatTable.antsel_rx_keep_1 = pPhyStaRpt->ant_sel_b;
-	pDM_Odm->DM_FatTable.antsel_rx_keep_2 = pPhyStaRpt->antsel_rx_keep_2;
-#endif
 }
 #endif
 
@@ -1594,10 +1576,6 @@ odm_Process_RSSIForDM(
 	if (pPktinfo->StationID >= ODM_ASSOCIATE_ENTRY_NUM)
 		return;
 
-	#ifdef CONFIG_S0S1_SW_ANTENNA_DIVERSITY
-	odm_S0S1_SwAntDivByCtrlFrame_ProcessRSSI(pDM_Odm, pPhyInfo, pPktinfo);
-	#endif
-
 	//
 	// 2012/05/30 MH/Luke.Lee Add some description 
 	// In windows driver: AP/IBSS mode STA
@@ -1642,19 +1620,6 @@ odm_Process_RSSIForDM(
 	isCCKrate = (pPktinfo->DataRate <= ODM_RATE11M )?TRUE :FALSE;
 	pDM_Odm->RxRate = pPktinfo->DataRate;
 
-	//--------------Statistic for antenna/path diversity------------------
-	if(pDM_Odm->SupportAbility & ODM_BB_ANT_DIV)
-	{
-		#if (defined(CONFIG_PHYDM_ANTENNA_DIVERSITY))
-			ODM_Process_RSSIForAntDiv(pDM_Odm,pPhyInfo,pPktinfo);
-		#endif
-	}
-	#if(defined(CONFIG_PATH_DIVERSITY))
-	else if(pDM_Odm->SupportAbility & ODM_BB_PATH_DIV)
-	{
-		phydm_process_rssi_for_path_div(pDM_Odm,pPhyInfo,pPktinfo);
-	}
-	#endif
 	//-----------------Smart Antenna Debug Message------------------//
 	
 	UndecoratedSmoothedCCK =  pEntry->rssi_stat.UndecoratedSmoothedCCK;
