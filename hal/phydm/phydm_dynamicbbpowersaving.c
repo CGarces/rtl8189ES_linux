@@ -46,7 +46,6 @@ odm_DynamicBBPowerSaving(
 	)
 {	
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))
 
 	if (pDM_Odm->SupportICType != ODM_RTL8723A)
 		return;
@@ -68,7 +67,6 @@ odm_DynamicBBPowerSaving(
 	{
 		ODM_RF_Saving(pDM_Odm, FALSE);
 	}
-#endif	// #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	
 }
 
@@ -133,17 +131,17 @@ ODM_RF_Saving(
 	)
 {
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
-#if (DM_ODM_SUPPORT_TYPE != ODM_AP)
+
 	pPS_T	pDM_PSTable = &pDM_Odm->DM_PSTable;
 	u1Byte	Rssi_Up_bound = 30 ;
 	u1Byte	Rssi_Low_bound = 25;
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
+
 	if(pDM_Odm->PatchID == 40 ) //RT_CID_819x_FUNAI_TV
 	{
 		Rssi_Up_bound = 50 ;
 		Rssi_Low_bound = 45;
 	}
-#endif
+
 	if(pDM_PSTable->initialize == 0){
 		
 		pDM_PSTable->Reg874 = (ODM_GetBBReg(pDM_Odm, 0x874, bMaskDWord)&0x1CC000)>>14;
@@ -213,6 +211,5 @@ ODM_RF_Saving(
 		}
 		pDM_PSTable->PreRFState =pDM_PSTable->CurRFState;
 	}
-#endif	
 }
 

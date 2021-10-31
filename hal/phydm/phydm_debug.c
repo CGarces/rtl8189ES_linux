@@ -82,7 +82,6 @@ phydm_BasicDbgMessage
 	IN		PVOID			pDM_VOID
 )
 {
-#if( DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	PFALSE_ALARM_STATISTICS FalseAlmCnt = (PFALSE_ALARM_STATISTICS)PhyDM_Get_Structure(pDM_Odm , PHYDM_FALSEALMCNT);
 	pDIG_T	pDM_DigTable = &pDM_Odm->DM_DigTable;
@@ -120,21 +119,6 @@ phydm_BasicDbgMessage
 	
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("bLinked = %d, RSSI_Min = %d, CurrentIGI = 0x%x, bNoisy=%d\n\n",
 		pDM_Odm->bLinked, pDM_Odm->RSSI_Min, pDM_DigTable->CurIGValue, pDM_Odm->NoisyDecision));    
-/*
-	temp_reg = ODM_GetBBReg(pDM_Odm, 0xDD0, bMaskByte0);
-	ODM_RT_TRACE(pDM_Odm,ODM_COMP_COMMON, ODM_DBG_LOUD, ("0xDD0 = 0x%x\n",temp_reg));
-		
-	temp_reg = ODM_GetBBReg(pDM_Odm, 0xDDc, bMaskByte1);
-	ODM_RT_TRACE(pDM_Odm,ODM_COMP_COMMON, ODM_DBG_LOUD, ("0xDDD = 0x%x\n",temp_reg));
-	
-	temp_reg = ODM_GetBBReg(pDM_Odm, 0xc50, bMaskByte0);
-	ODM_RT_TRACE(pDM_Odm,ODM_COMP_COMMON, ODM_DBG_LOUD, ("0xC50 = 0x%x\n",temp_reg));
-
-	temp_reg = ODM_GetRFReg(pDM_Odm, ODM_RF_PATH_A, 0x0, 0x3fe0);
-	ODM_RT_TRACE(pDM_Odm,ODM_COMP_COMMON, ODM_DBG_LOUD, ("RF 0x0[13:5] = 0x%x\n\n",temp_reg));
-*/	
-
-#endif
 }
 
 
@@ -215,18 +199,10 @@ VOID phydm_BasicProfile(
 	PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %s\n", "PHY Parameter Commit by", commit_by));
 	PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %d\n", "PHY Parameter Release Version", release_ver));
 	
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	{
-		struct rtl8192cd_priv *priv = pDM_Odm->priv;
-		PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %d (Subversion: %d)\n", "FW Version", priv->pshare->fw_version, priv->pshare->fw_sub_version));
-	}
-#else
-	{
-		PADAPTER		       Adapter = pDM_Odm->Adapter;
-		HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);
-		PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %d (Subversion: %d)\n", "FW Version", pHalData->FirmwareVersion, pHalData->FirmwareSubVersion));
-	}
-#endif
+	PADAPTER		       Adapter = pDM_Odm->Adapter;
+	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);
+	PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %d (Subversion: %d)\n", "FW Version", pHalData->FirmwareVersion, pHalData->FirmwareSubVersion));
+
 	//1 PHY DM Version List
 	PHYDM_SNPRINTF((output + used, out_len - used, "%-35s\n", "% PHYDM Version %"));
 	PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %s\n", "Adaptivity", ADAPTIVITY_VERSION));
@@ -614,11 +590,7 @@ phydm_cmd_parser(
 	case PHYDM_DEMO: /*echo demo 10 0x3a z abcde >cmd*/
 			{
 				u4Byte   directory = 0;
-#if (DM_ODM_SUPPORT_TYPE & (ODM_CE|ODM_AP))				
 				char   char_temp;
-#else
-				u4Byte char_temp = ' ';
-#endif
 		PHYDM_SSCANF(input[1], DCMD_DECIMAL, &directory);
 		PHYDM_SNPRINTF((output + used, out_len - used, "Decimal Value = %d\n", directory));
 		PHYDM_SSCANF(input[2], DCMD_HEX, &directory);
@@ -791,43 +763,7 @@ phydm_cmd_parser(
 		break;
 
 	case PHYDM_LA_MODE:
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-#if ((RTL8822B_SUPPORT == 1) || (RTL8814A_SUPPORT == 1))
-	{
-		if (pDM_Odm->SupportICType & (ODM_RTL8814A | ODM_RTL8822B)) {
-			u2Byte		PollingTime;
-			u1Byte		TrigSel, TrigSigSel, DmaDataSigSel, TriggerTime;
-			BOOLEAN		bEnableLaMode;
-
-			for (i = 0; i < 6; i++) {
-				if (input[i + 1])
-					PHYDM_SSCANF(input[i + 1], DCMD_DECIMAL, &var1[i]);
-			}
-
-			bEnableLaMode = (BOOLEAN)var1[0];
-			if (bEnableLaMode) {
-				TrigSel = (u1Byte)var1[1];
-				TrigSigSel = (u1Byte)var1[2];
-				DmaDataSigSel = (u1Byte)var1[3];
-				TriggerTime = (u1Byte)var1[4];
-				PollingTime = (((u1Byte)var1[5]) << 6);
-
-				ADCSmp_Set(pDM_Odm->Adapter, TrigSel, TrigSigSel, DmaDataSigSel, TriggerTime, PollingTime);
-				PHYDM_SNPRINTF((output+used, out_len-used, "TrigSel = %d, TrigSigSel = %d, DmaDataSigSel = %d\n", TrigSel, TrigSigSel, DmaDataSigSel));
-				PHYDM_SNPRINTF((output+used, out_len-used, "TriggerTime = %d, PollingTime = %d\n", TriggerTime, PollingTime));
-			} else {
-				ADCSmp_Stop(pDM_Odm->Adapter);
-				PHYDM_SNPRINTF((output+used, out_len-used, "Disable LA mode\n"));
-			}
-		} else
-			PHYDM_SNPRINTF((output+used, out_len-used, "This IC doesn't support LA mode\n"));
-	}
-#else
 		PHYDM_SNPRINTF((output+used, out_len-used, "This IC doesn't support LA mode\n"));
-#endif
-#else
-		PHYDM_SNPRINTF((output+used, out_len-used, "This IC doesn't support LA mode\n"));
-#endif
 		break;
 
 	case PHYDM_DUMP_REG:
@@ -869,7 +805,6 @@ char *strsep(char **s, const char *ct)
 }
 #endif
 
-#if(DM_ODM_SUPPORT_TYPE & (ODM_CE|ODM_AP))
 s4Byte
 phydm_cmd(
 	IN PDM_ODM_T	pDM_Odm,
@@ -900,8 +835,6 @@ phydm_cmd(
 
 	return 0;
 }
-#endif
-
 
 VOID
 phydm_fw_trace_handler(
@@ -1144,7 +1077,6 @@ GoBackforAggreDbgPkt:
 	i = 0;
 	Extend_c2hDbgSeq = Buffer[2];
 	Extend_c2hDbgContent = Buffer + 3;
-
 	for (; ; i++) {
 		fw_debug_trace[i] = Extend_c2hDbgContent[i];
 		if (Extend_c2hDbgContent[i + 1] == '\0') {

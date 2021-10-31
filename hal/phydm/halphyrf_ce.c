@@ -120,11 +120,7 @@ ODM_ClearTxPowerTrackingState(
 
 VOID
 ODM_TXPowerTrackingCallback_ThermalMeter(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T		pDM_Odm
-#else
 	IN PADAPTER	Adapter
-#endif
 	)
 {
 
@@ -171,9 +167,7 @@ ODM_TXPowerTrackingCallback_ThermalMeter(
     
 #if (MP_DRIVER == 1)
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	if (pDM_Odm->mp_mode == TRUE)
-#endif
 		// <Kordan> RFCalibrateInfo.RegA24 will be initialized when ODM HW configuring, but MP configures with para files.
 		pDM_Odm->RFCalibrateInfo.RegA24 = 0x090e1317;
 #endif
@@ -266,21 +260,13 @@ ODM_TXPowerTrackingCallback_ThermalMeter(
 	if (delta > 0 && pDM_Odm->RFCalibrateInfo.TxPowerTrackControl)
 	{
 		//"delta" here is used to record the absolute value of differrence.
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))			
 	    delta = ThermalValue > pHalData->EEPROMThermalMeter?(ThermalValue - pHalData->EEPROMThermalMeter):(pHalData->EEPROMThermalMeter - ThermalValue);		
-#else
-	    delta = (ThermalValue > pDM_Odm->priv->pmib->dot11RFEntry.ther)?(ThermalValue - pDM_Odm->priv->pmib->dot11RFEntry.ther):(pDM_Odm->priv->pmib->dot11RFEntry.ther - ThermalValue);		
-#endif
 		if (delta >= TXPWR_TRACK_TABLE_SIZE)
 			delta = TXPWR_TRACK_TABLE_SIZE - 1;
 
 		//4 7.1 The Final Power Index = BaseIndex + PowerIndexOffset
 		
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))				
 		if(ThermalValue > pHalData->EEPROMThermalMeter) {
-#else
-		if(ThermalValue > pDM_Odm->priv->pmib->dot11RFEntry.ther) {
-#endif
 			for (p = ODM_RF_PATH_A; p < c.RfPathCount; p++)  {
 				pDM_Odm->RFCalibrateInfo.DeltaPowerIndexLast[p] = pDM_Odm->RFCalibrateInfo.DeltaPowerIndex[p];	/* recording power index offset */
 				switch (p) {
@@ -467,12 +453,7 @@ ODM_TXPowerTrackingCallback_ThermalMeter(
 			}
 		}
 
-#if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
-		if (ThermalValue > pHalData->EEPROMThermalMeter)
-#else
-		if (ThermalValue > pDM_Odm->priv->pmib->dot11RFEntry.ther)
-#endif
-		{
+		if (ThermalValue > pHalData->EEPROMThermalMeter) {
 			ODM_RT_TRACE(pDM_Odm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD,
 				("Temperature(%d) higher than PG value(%d)\n", ThermalValue, pHalData->EEPROMThermalMeter));			
 
@@ -523,8 +504,6 @@ ODM_TXPowerTrackingCallback_ThermalMeter(
 
 	}
 
-#if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
-		
 	if (!IS_HARDWARE_TYPE_8723B(Adapter) && !IS_HARDWARE_TYPE_8192E(Adapter) && !IS_HARDWARE_TYPE_8703B(Adapter)) {
 		/* Delta temperature is equal to or larger than 20 centigrade (When threshold is 8).*/
 		if (delta_IQK >= c.Threshold_IQK) {
@@ -569,7 +548,7 @@ ODM_TXPowerTrackingCallback_ThermalMeter(
 		}
 	}
 
-#endif		
+		
 			
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("<===ODM_TXPowerTrackingCallback_ThermalMeter End\n"));
 	
@@ -589,7 +568,6 @@ ODM_ResetIQKResult(
 	return;
 
 }
-#if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
 u1Byte ODM_GetRightChnlPlaceforIQK(u1Byte chnl)
 {
 	u1Byte	channel_all[ODM_TARGET_CHNL_NUM_2G_5G] = 
@@ -610,7 +588,6 @@ u1Byte ODM_GetRightChnlPlaceforIQK(u1Byte chnl)
 	return 0;
 
 }
-#endif
 
 VOID
 odm_IQCalibrate(
@@ -618,11 +595,6 @@ odm_IQCalibrate(
 		)
 {
 	PADAPTER	Adapter = pDM_Odm->Adapter;
-
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))
-		return;
-#endif
-	
 }
 
 void phydm_rf_init(IN	PVOID		pDM_VOID)
@@ -630,25 +602,13 @@ void phydm_rf_init(IN	PVOID		pDM_VOID)
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	odm_TXPowerTrackingInit(pDM_Odm);
 
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))
 	ODM_ClearTxPowerTrackingState(pDM_Odm);	
-#endif
-
-#if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
-#if (RTL8814A_SUPPORT == 1)		
-	if (pDM_Odm->SupportICType & ODM_RTL8814A)
-		PHY_IQCalibrate_8814A_Init(pDM_Odm);
-#endif	
-#endif
-
 }
 
 void phydm_rf_watchdog(IN	PVOID		pDM_VOID)
 {
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))
 	ODM_TXPowerTrackingCheck(pDM_Odm);
 	if (pDM_Odm->SupportICType & ODM_IC_11AC_SERIES)
 		odm_IQCalibrate(pDM_Odm);
-#endif
 }
