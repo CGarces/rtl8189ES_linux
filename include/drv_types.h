@@ -34,22 +34,8 @@
 #include <wlan_bssdef.h>
 #include <wifi.h>
 #include <ieee80211.h>
-#ifdef CONFIG_ARP_KEEP_ALIVE
-#include <net/neighbour.h>
-#include <net/arp.h>
-#endif
 
-#ifdef PLATFORM_OS_XP
-#include <drv_types_xp.h>
-#endif
-
-#ifdef PLATFORM_OS_CE
-#include <drv_types_ce.h>
-#endif
-
-#ifdef PLATFORM_LINUX
 #include <drv_types_linux.h>
-#endif
 
 enum _NIC_VERSION {
 
@@ -67,14 +53,6 @@ typedef struct _ADAPTER _adapter, ADAPTER,*PADAPTER;
 
 #ifdef CONFIG_80211N_HT
 #include <rtw_ht.h>
-#endif
-
-#ifdef CONFIG_80211AC_VHT
-#include <rtw_vht.h>
-#endif
-
-#ifdef CONFIG_INTEL_WIDI
-#include <rtw_intel_widi.h>
 #endif
 
 #include <rtw_cmd.h>
@@ -115,23 +93,7 @@ typedef struct _ADAPTER _adapter, ADAPTER,*PADAPTER;
 #include <rtw_version.h>
 #include <rtw_odm.h>
 
-#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
-#include <rtw_mem.h>
-#endif
-
 #include <rtw_p2p.h>
-
-#ifdef CONFIG_TDLS
-#include <rtw_tdls.h>
-#endif // CONFIG_TDLS
-
-#ifdef CONFIG_WAPI_SUPPORT
-#include <rtw_wapi.h>
-#endif // CONFIG_WAPI_SUPPORT
-
-#ifdef CONFIG_DRVEXT_MODULE
-#include <drvext_api.h>
-#endif // CONFIG_DRVEXT_MODULE
 
 #ifdef CONFIG_MP_INCLUDED
 #include <rtw_mp.h>
@@ -141,21 +103,12 @@ typedef struct _ADAPTER _adapter, ADAPTER,*PADAPTER;
 #include <rtw_br_ext.h>
 #endif // CONFIG_BR_EXT
 
-#ifdef CONFIG_IOL
-#include <rtw_iol.h>
-#endif // CONFIG_IOL
-
 #include <ip.h>
 #include <if_ether.h>
 #include <ethernet.h>
 #include <circ_buf.h>
 
 #include <rtw_android.h>
-
-#ifdef CONFIG_BT_COEXIST
-#include <rtw_btcoex.h>
-#endif // CONFIG_BT_COEXIST
-
 #define SPEC_DEV_ID_NONE BIT(0)
 #define SPEC_DEV_ID_DISABLE_HT BIT(1)
 #define SPEC_DEV_ID_ENABLE_PS BIT(2)
@@ -396,10 +349,8 @@ struct registry_priv
 #include <drv_types_sdio.h>
 #define INTF_DATA SDIO_DATA
 #elif defined(CONFIG_GSPI_HCI)
-#include <drv_types_gspi.h>
 #define INTF_DATA GSPI_DATA
 #elif defined(CONFIG_PCI_HCI)
-#include <drv_types_pci.h>
 #endif
 
 #ifdef CONFIG_CONCURRENT_MODE
@@ -1346,29 +1297,10 @@ int rtw_suspend_wow(_adapter *padapter);
 int rtw_resume_process_wow(_adapter *padapter);
 #endif
 
-// HCI Related header file
-#ifdef CONFIG_USB_HCI
-#include <usb_osintf.h>
-#include <usb_ops.h>
-#include <usb_hal.h>
-#endif
-
 #ifdef CONFIG_SDIO_HCI
 #include <sdio_osintf.h>
 #include <sdio_ops.h>
 #include <sdio_hal.h>
-#endif
-
-#ifdef CONFIG_GSPI_HCI
-#include <gspi_osintf.h>
-#include <gspi_ops.h>
-#include <gspi_hal.h>
-#endif
-
-#ifdef CONFIG_PCI_HCI
-#include <pci_osintf.h>
-#include <pci_ops.h>
-#include <pci_hal.h>
 #endif
 
 #endif //__DRV_TYPES_H__

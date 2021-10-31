@@ -22,9 +22,6 @@
 #include <drv_types.h>
 #include <hal_data.h>
 #include "rtw_proc.h"
-#ifdef CONFIG_BT_COEXIST
-#include <rtw_btcoex.h>
-#endif
 
 #ifdef CONFIG_PROC_DEBUG
 

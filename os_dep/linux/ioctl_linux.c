@@ -7182,10 +7182,6 @@ exit:
 
 }
 
-#ifdef CONFIG_IOL
-#include <rtw_iol.h>
-#endif
-
 #ifdef DBG_CMD_QUEUE
 u8 dump_cmd_id=0;
 #endif

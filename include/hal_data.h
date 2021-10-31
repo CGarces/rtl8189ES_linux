@@ -23,16 +23,11 @@
 #if 1//def  CONFIG_SINGLE_IMG
 
 #include "../hal/phydm/phydm_precomp.h"
-#ifdef CONFIG_BT_COEXIST
-#include <hal_btcoex.h>
-#endif
 
 #ifdef CONFIG_SDIO_HCI
 #include <hal_sdio.h>
 #endif
-#ifdef CONFIG_GSPI_HCI
-#include <hal_gspi.h>
-#endif
+
 //
 // <Roger_Notes> For RTL8723 WiFi/BT/GPS multi-function configuration. 2010.10.06.
 //
