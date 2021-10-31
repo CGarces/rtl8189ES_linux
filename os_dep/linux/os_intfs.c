@@ -211,11 +211,7 @@ int rtw_hwpwrp_detect = 1;
 int rtw_hwpwrp_detect = 0; //HW power  ping detect 0:disable , 1:enable
 #endif
 
-#ifdef CONFIG_USB_HCI
-int rtw_hw_wps_pbc = 1;
-#else
 int rtw_hw_wps_pbc = 0;
-#endif
 
 #ifdef CONFIG_TX_MCAST2UNI
 int rtw_mc2u_disable = 0;
@@ -1159,12 +1155,6 @@ int rtw_os_ndev_alloc(_adapter *adapter)
 	SET_NETDEV_DEV(ndev, dvobj_to_dev(adapter_to_dvobj(adapter)));
 	#endif
 
-	#ifdef CONFIG_PCI_HCI
-	if (adapter_to_dvobj(adapter)->bdma64)
-		ndev->features |= NETIF_F_HIGHDMA;
-	ndev->irq = adapter_to_dvobj(adapter)->irq;
-	#endif
-
 #if defined(CONFIG_IOCTL_CFG80211)
 	if (rtw_cfg80211_ndev_res_alloc(adapter) != _SUCCESS) {
 		rtw_warn_on(1);
@@ -1372,10 +1362,7 @@ u32 rtw_start_drv_threads(_adapter *padapter)
 	RT_TRACE(_module_os_intfs_c_,_drv_info_,("+rtw_start_drv_threads\n"));
 
 #ifdef CONFIG_XMIT_THREAD_MODE
-#if defined(CONFIG_SDIO_HCI)
-	if (is_primary_adapter(padapter))
-#endif		
-	{
+	if (is_primary_adapter(padapter)) {
 		padapter->xmitThread = kthread_run(rtw_xmit_thread, padapter, "RTW_XMIT_THREAD");
 		if(IS_ERR(padapter->xmitThread))
 			_status = _FAIL;
@@ -1426,11 +1413,8 @@ void rtw_stop_drv_threads (_adapter *padapter)
 
 #ifdef CONFIG_XMIT_THREAD_MODE
 	// Below is to termindate tx_thread...
-#if defined(CONFIG_SDIO_HCI) 
 	// Only wake-up primary adapter
-	if (is_primary_adapter(padapter))
-#endif  /*SDIO_HCI */
-	{
+	if (is_primary_adapter(padapter)) {
 		_rtw_up_sema(&padapter->xmitpriv.xmit_sema);
 		_rtw_down_sema(&padapter->xmitpriv.terminate_xmitthread_sema);
 	}

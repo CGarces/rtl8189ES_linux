@@ -370,7 +370,6 @@ struct seq_operations seq_file_test = {
 };
 #endif /* RTW_SEQ_FILE_TEST */
 
-#ifdef CONFIG_SDIO_HCI
 static int proc_get_sd_f0_reg_dump(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
@@ -390,7 +389,6 @@ static int proc_get_sdio_local_reg_dump(struct seq_file *m, void *v)
 
 	return 0;
 }
-#endif /* CONFIG_SDIO_HCI */
 
 static int proc_get_mac_reg_dump(struct seq_file *m, void *v)
 {
@@ -1849,10 +1847,8 @@ const struct rtw_proc_hdl adapter_proc_hdls[] = {
 	RTW_PROC_HDL_SSEQ("roam_tgt_addr", NULL, proc_set_roam_tgt_addr),
 #endif /* CONFIG_LAYER2_ROAMING */
 
-#ifdef CONFIG_SDIO_HCI
 	RTW_PROC_HDL_SSEQ("sd_f0_reg_dump", proc_get_sd_f0_reg_dump, NULL),
 	RTW_PROC_HDL_SSEQ("sdio_local_reg_dump", proc_get_sdio_local_reg_dump, NULL),
-#endif /* CONFIG_SDIO_HCI */
 
 	RTW_PROC_HDL_SSEQ("fwdl_test_case", NULL, proc_set_fwdl_test_case),
 	RTW_PROC_HDL_SSEQ("del_rx_ampdu_test_case", NULL, proc_set_del_rx_ampdu_test_case),
@@ -1919,10 +1915,6 @@ const struct rtw_proc_hdl adapter_proc_hdls[] = {
 	RTW_PROC_HDL_SSEQ("int_logs", proc_get_int_logs, NULL),
 #endif
 
-#ifdef CONFIG_PCI_HCI
-	RTW_PROC_HDL_SSEQ("rx_ring", proc_get_rx_ring, NULL),
-	RTW_PROC_HDL_SSEQ("tx_ring", proc_get_tx_ring, NULL),
-#endif
 #ifdef CONFIG_GPIO_WAKEUP
 	RTW_PROC_HDL_SSEQ("wowlan_gpio_info", proc_get_wowlan_gpio_info, proc_set_wowlan_gpio_info),
 #endif

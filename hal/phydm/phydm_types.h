@@ -156,10 +156,6 @@ typedef enum _RT_SPINLOCK_TYPE{
 #endif
 	typedef  void *				RT_TIMER_CALL_BACK;
 
-#ifdef CONFIG_PCI_HCI
-	#define DEV_BUS_TYPE		RT_PCI_INTERFACE
-#endif
-
 	#define _TRUE				1
 	#define _FALSE				0
 
@@ -206,15 +202,8 @@ typedef enum _RT_SPINLOCK_TYPE{
 	#define	ps8Byte 	s64*	
 	
 #endif
-	#ifdef CONFIG_USB_HCI
-		#define DEV_BUS_TYPE  	RT_USB_INTERFACE
-	#elif defined(CONFIG_PCI_HCI)
-		#define DEV_BUS_TYPE  	RT_PCI_INTERFACE
-	#elif defined(CONFIG_SDIO_HCI)
-		#define DEV_BUS_TYPE  	RT_SDIO_INTERFACE
-	#elif defined(CONFIG_GSPI_HCI)
-		#define DEV_BUS_TYPE  	RT_SDIO_INTERFACE
-	#endif
+
+	#define DEV_BUS_TYPE  	RT_SDIO_INTERFACE
 	
 #if defined (LINUX_VERSION_CODE) && (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
 	typedef struct legacy_timer_emu		RT_TIMER, *PRT_TIMER;

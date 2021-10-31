@@ -1427,9 +1427,6 @@ _func_enter_;
 
 		if (rtw_is_surprise_removed(padapter)
 			|| (!rtw_is_hw_init_completed(padapter))
-#ifdef CONFIG_USB_HCI
-			|| rtw_is_drv_stopped(padapter)
-#endif
 			|| (pwrpriv->pwr_mode == PS_MODE_ACTIVE)
 			)
 		{
@@ -2520,30 +2517,7 @@ int _rtw_pwr_wakeup(_adapter *padapter, u32 ips_deffer_ms, const char *caller)
 #endif	//#if defined (CONFIG_BT_COEXIST)&& defined (CONFIG_AUTOSUSPEND)
 	}	
 
-	if(rf_off == pwrpriv->rf_pwrstate )
-	{		
-#ifdef CONFIG_USB_HCI
-#ifdef CONFIG_AUTOSUSPEND
-		 if(pwrpriv->brfoffbyhw==_TRUE)
-		{
-			DBG_8192C("hw still in rf_off state ...........\n");
-			ret = _FAIL;
-			goto exit;
-		}
-		else if(padapter->registrypriv.usbss_enable)
-		{
-			DBG_8192C("%s call autoresume_enter....\n",__FUNCTION__);
-			if(_FAIL ==  autoresume_enter(padapter))
-			{
-				DBG_8192C("======> autoresume fail.............\n");
-				ret = _FAIL;
-				goto exit;
-			}	
-		}
-		else
-#endif
-#endif
-		{
+	if(rf_off == pwrpriv->rf_pwrstate )	{		
 #ifdef CONFIG_IPS
 			DBG_8192C("%s call ips_leave....\n",__FUNCTION__);
 			if(_FAIL ==  ips_leave(padapter))
@@ -2553,7 +2527,6 @@ int _rtw_pwr_wakeup(_adapter *padapter, u32 ips_deffer_ms, const char *caller)
 				goto exit;
 			}
 #endif
-		}
 	}
 
 	//TODO: the following checking need to be merged...

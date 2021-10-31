@@ -390,13 +390,9 @@ int rtw_mp_start(struct net_device *dev,
 	}
 	padapter->mppriv.bmac_filter = _FALSE;
 #ifdef CONFIG_RTL8723B
-#ifdef CONFIG_USB_HCI
-	rtw_write32(padapter, 0x765, 0x0000);
-	rtw_write32(padapter, 0x948, 0x0280);
-#else
 	rtw_write32(padapter, 0x765, 0x0000);
 	rtw_write32(padapter, 0x948, 0x0000);
-#endif
+
 #ifdef CONFIG_FOR_RTL8723BS_VQ0
 	rtw_write32(padapter, 0x765, 0x0000);
 	rtw_write32(padapter, 0x948, 0x0280);

@@ -22,10 +22,6 @@
 #include <drv_types.h>
 #include <hal_data.h>
 
-#ifndef CONFIG_SDIO_HCI
-#error "CONFIG_SDIO_HCI shall be on!\n"
-#endif
-
 #ifdef CONFIG_PLATFORM_INTEL_BYT
 #ifdef CONFIG_ACPI
 #include <linux/acpi.h>

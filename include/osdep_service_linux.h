@@ -105,15 +105,6 @@
 	#include <linux/fs.h>
 #endif
 
-#ifdef CONFIG_USB_HCI
-	#include <linux/usb.h>
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,21))
-	#include <linux/usb_ch9.h>
-#else
-	#include <linux/usb/ch9.h>
-#endif
-#endif
-
 #ifdef CONFIG_BT_COEXIST_SOCKET_TRX
 	#include <net/sock.h>
 	#include <net/tcp.h>
@@ -121,15 +112,6 @@
 	#include <linux/in.h>
 	#include <linux/netlink.h>
 #endif //CONFIG_BT_COEXIST_SOCKET_TRX
-
-#ifdef CONFIG_USB_HCI
-	typedef struct urb *  PURB;
-#if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,22))
-#ifdef CONFIG_USB_SUSPEND
-#define CONFIG_AUTOSUSPEND	1
-#endif
-#endif
-#endif
 
 	typedef struct 	semaphore _sema;
 	typedef	spinlock_t	_lock;

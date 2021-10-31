@@ -197,24 +197,6 @@ void sreset_restore_network_station(_adapter *padapter)
 	
 	rtw_setopmode_cmd(padapter, Ndis802_11Infrastructure,_FALSE);
 
-	{
-		u8 threshold;
-		#ifdef CONFIG_USB_HCI
-		// TH=1 => means that invalidate usb rx aggregation
-		// TH=0 => means that validate usb rx aggregation, use init value.
-		if(mlmepriv->htpriv.ht_option) {
-			if(padapter->registrypriv.wifi_spec==1)		
-				threshold = 1;
-			else
-				threshold = 0;
-			rtw_hal_set_hwreg(padapter, HW_VAR_RXDMA_AGG_PG_TH, (u8 *)(&threshold));
-		} else {
-			threshold = 1;
-			rtw_hal_set_hwreg(padapter, HW_VAR_RXDMA_AGG_PG_TH, (u8 *)(&threshold));
-		}
-		#endif
-	}
-
 	doiqk = _TRUE;
 	rtw_hal_set_hwreg(padapter, HW_VAR_DO_IQK , &doiqk);
 
@@ -275,11 +257,6 @@ void sreset_stop_adapter(_adapter *padapter)
 
 	rtw_cancel_all_timer(padapter);
 
-	/* TODO: OS and HCI independent */
-	#if defined(PLATFORM_LINUX) && defined(CONFIG_USB_HCI)
-	tasklet_kill(&pxmitpriv->xmit_tasklet);
-	#endif
-
 	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY))
 		rtw_scan_abort(padapter);
 
@@ -304,11 +281,6 @@ void sreset_start_adapter(_adapter *padapter)
 	if (check_fwstate(pmlmepriv, _FW_LINKED)) {
 		sreset_restore_network_status(padapter);
 	}
-
-	/* TODO: OS and HCI independent */
-	#if defined(PLATFORM_LINUX) && defined(CONFIG_USB_HCI)
-	tasklet_hi_schedule(&pxmitpriv->xmit_tasklet);
-	#endif
 
 	if (is_primary_adapter(padapter))
 		_set_timer(&padapter->mlmepriv.dynamic_chk_timer, 2000);

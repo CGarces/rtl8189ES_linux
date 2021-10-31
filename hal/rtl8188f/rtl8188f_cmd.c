@@ -1083,11 +1083,8 @@ static void SetFwRsvdPagePkt_BTCoex(PADAPTER padapter)
 	update_mgntframe_attrib(padapter, pattrib);
 	pattrib->qsel = QSLT_BEACON;
 	pattrib->pktlen = pattrib->last_txcmdsz = TotalPacketLen - TxDescOffset;
-#ifdef CONFIG_PCI_HCI
-	dump_mgntframe(padapter, pcmdframe);
-#else
+
 	dump_mgntframe_and_wait(padapter, pcmdframe, 100);
-#endif
 
 	/*DBG_8192C(FUNC_ADPT_FMT ": Set RSVD page location to Fw, TotalPacketLen(%d), TotalPageNum(%d)\n", */
 	/*	FUNC_ADPT_ARG(padapter), TotalPacketLen, TotalPageNum); */

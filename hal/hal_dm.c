@@ -26,49 +26,6 @@ ODM_BOARD_TYPE_E boardType(u8 InterfaceSel)
 {
     ODM_BOARD_TYPE_E        board	= ODM_BOARD_DEFAULT;
 
-#ifdef CONFIG_PCI_HCI
-	INTERFACE_SELECT_PCIE   pcie 	= (INTERFACE_SELECT_PCIE)InterfaceSel;
-	switch (pcie) 
-	{
-        case INTF_SEL0_SOLO_MINICARD:       
-            board |= ODM_BOARD_MINICARD;
-            break;
-        case INTF_SEL1_BT_COMBO_MINICARD:   
-            board |= ODM_BOARD_BT;
-			board |= ODM_BOARD_MINICARD;
-            break;
-        default:
-            board = ODM_BOARD_DEFAULT;
-            break;
-	}                                
-
-#elif defined(CONFIG_USB_HCI)
-	INTERFACE_SELECT_USB    usb 	= (INTERFACE_SELECT_USB)InterfaceSel;
-	switch (usb) 
-	{
-	    case INTF_SEL1_USB_High_Power:      
-	        board |= ODM_BOARD_EXT_LNA;
-	        board |= ODM_BOARD_EXT_PA;			
-	        break;
-	    case INTF_SEL2_MINICARD:            
-	        board |= ODM_BOARD_MINICARD;
-	        break;
-	    case INTF_SEL4_USB_Combo:           
-	        board |= ODM_BOARD_BT;
-	        break;
-	    case INTF_SEL5_USB_Combo_MF:        
-	        board |= ODM_BOARD_BT;
-	        break;
-	    case INTF_SEL0_USB: 			
-	    case INTF_SEL3_USB_Solo:            			
-	    default:
-	        board = ODM_BOARD_DEFAULT;
-	        break;
-	}
-	
-#endif	
-	//DBG_871X("===> boardType(): (pHalData->InterfaceSel, pDM_Odm->BoardType) = (%d, %d)\n", InterfaceSel, board);
-
 	return board;
 }
 
@@ -182,9 +139,6 @@ void Init_ODM_ComInfo(_adapter *adapter)
 	/*Add by Yuchen for phydm beamforming*/
 	ODM_CmnInfoHook(pDM_Odm, ODM_CMNINFO_TX_TP, &(dvobj->traffic_stat.cur_tx_tp));
 	ODM_CmnInfoHook(pDM_Odm, ODM_CMNINFO_RX_TP, &(dvobj->traffic_stat.cur_rx_tp));
-#ifdef CONFIG_USB_HCI
-	ODM_CmnInfoHook(pDM_Odm, ODM_CMNINFO_HUBUSBMODE, &(dvobj->usb_speed));
-#endif
 	for(i=0; i<ODM_ASSOCIATE_ENTRY_NUM; i++)
 		ODM_CmnInfoPtrArrayHook(pDM_Odm, ODM_CMNINFO_STA_STATUS, i, NULL);
 

@@ -20,38 +20,16 @@
 #ifndef _RTW_RECV_H_
 #define _RTW_RECV_H_
 
-#ifdef PLATFORM_OS_XP
-	#ifdef CONFIG_SDIO_HCI
-		#define NR_RECVBUFF 1024//512//128
-	#else
-		#define NR_RECVBUFF (16)
-	#endif
-#elif defined(PLATFORM_OS_CE)
-	#ifdef CONFIG_SDIO_HCI
-		#define NR_RECVBUFF (128)
-	#else
-		#define NR_RECVBUFF (4)
-	#endif
-#else //PLATFORM_LINUX /PLATFORM_BSD
-
-	#ifdef CONFIG_SINGLE_RECV_BUF
-		#define NR_RECVBUFF (1)
-	#else
-		#if defined(CONFIG_GSPI_HCI)
-			#define NR_RECVBUFF (32)
-		#elif defined(CONFIG_SDIO_HCI)
-			#define NR_RECVBUFF (8)	
-		#else
-			#define NR_RECVBUFF (8)
-		#endif	
-	#endif //CONFIG_SINGLE_RECV_BUF
-	#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
-		#define NR_PREALLOC_RECV_SKB (rtw_rtkm_get_nr_recv_skb()>>1)
-	#else /*!CONFIG_PREALLOC_RX_SKB_BUFFER */
-		#define NR_PREALLOC_RECV_SKB 8
-	#endif /* CONFIG_PREALLOC_RX_SKB_BUFFER */
-
-#endif
+#ifdef CONFIG_SINGLE_RECV_BUF
+	#define NR_RECVBUFF (1)
+#else
+	#define NR_RECVBUFF (8)
+#endif //CONFIG_SINGLE_RECV_BUF
+#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
+	#define NR_PREALLOC_RECV_SKB (rtw_rtkm_get_nr_recv_skb()>>1)
+#else /*!CONFIG_PREALLOC_RX_SKB_BUFFER */
+	#define NR_PREALLOC_RECV_SKB 8
+#endif /* CONFIG_PREALLOC_RX_SKB_BUFFER */
 
 #define NR_RECVFRAME 256
 
@@ -295,12 +273,7 @@ struct rx_pkt_attrib	{
 #define RECVBUFF_ALIGN_SZ 8
 
 #if defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8814A)
-	#ifdef CONFIG_PCI_HCI
-		#define RXDESC_SIZE 16
-		#define RX_WIFI_INFO_SIZE	24
-	#else
-		#define RXDESC_SIZE	24
-	#endif
+	#define RXDESC_SIZE	24
 #else
 #define RXDESC_SIZE	24
 #endif
@@ -312,40 +285,19 @@ struct recv_stat
 
 	unsigned int rxdw1;
 
-#if !((defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8814A)) && defined(CONFIG_PCI_HCI))  /* exclude 8192ee, 8814ae */
 	unsigned int rxdw2;
 
 	unsigned int rxdw3;
-#endif
 
 #ifndef BUF_DESC_ARCH
 	unsigned int rxdw4;
 
 	unsigned int rxdw5;
 
-#ifdef CONFIG_PCI_HCI
-	unsigned int rxdw6;
-
-	unsigned int rxdw7;
-#endif
 #endif //if BUF_DESC_ARCH is defined, rx_buf_desc occupy 4 double words
 };
 
 #define EOR BIT(30)
-
-#ifdef CONFIG_PCI_HCI
-#define PCI_MAX_RX_QUEUE		1// MSDU packet queue, Rx Command Queue
-#define PCI_MAX_RX_COUNT		128
-
-struct rtw_rx_ring {
-	struct recv_stat	*desc;
-	dma_addr_t		dma;
-	unsigned int		idx;
-	struct sk_buff	*rx_buf[PCI_MAX_RX_COUNT];
-};
-#endif
-
-
 
 /*
 accesser of recv_priv: rtw_recv_entry(dispatch / passive level); recv_thread(passive) ; returnpkt(dispatch)
@@ -433,16 +385,7 @@ struct recv_priv
 	_queue	free_recv_buf_queue;
 	u32	free_recv_buf_queue_cnt;
 
-#if defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI) || defined(CONFIG_USB_HCI) 
 	_queue	recv_buf_pending_queue;
-#endif
-
-#ifdef CONFIG_PCI_HCI
-	// Rx
-	struct rtw_rx_ring	rx_ring[PCI_MAX_RX_QUEUE];
-	int 	rxringcount;
-	u16	rxbuffersize;
-#endif
 
 	//For display the phy informatiom
 	u8 is_signal_dbg;	// for debug
@@ -513,27 +456,6 @@ struct recv_buf
 	u8	*pdata;
 	u8	*ptail;
 	u8	*pend;
-
-#ifdef CONFIG_USB_HCI
-
-	#if defined(PLATFORM_OS_XP)||defined(PLATFORM_LINUX)||defined(PLATFORM_FREEBSD)
-	PURB	purb;
-	dma_addr_t dma_transfer_addr;	/* (in) dma addr for transfer_buffer */
-	u32 alloc_sz;
-	#endif
-
-	#ifdef PLATFORM_OS_XP
-	PIRP		pirp;
-	#endif
-
-	#ifdef PLATFORM_OS_CE
-	USB_TRANSFER	usb_transfer_read_port;
-	#endif
-
-	u8  irp_pending;
-	int  transfer_len;
-
-#endif
 
 #ifdef PLATFORM_LINUX
 	_pkt	*pskb;

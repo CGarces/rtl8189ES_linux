@@ -56,18 +56,10 @@ jackson@realtek.com.tw
 #error "Shall be Linux or Windows, but not both!\n"
 #endif
 
-#ifdef CONFIG_SDIO_HCI
 #define rtw_le16_to_cpu(val) 		val
 #define rtw_le32_to_cpu(val)		val
 #define rtw_cpu_to_le16(val)		val
 #define rtw_cpu_to_le32(val)		val
-#else
-#define rtw_le16_to_cpu(val) 		le16_to_cpu(val)
-#define rtw_le32_to_cpu(val)		le32_to_cpu(val)
-#define rtw_cpu_to_le16(val)		cpu_to_le16(val)
-#define rtw_cpu_to_le32(val)		cpu_to_le32(val)
-#endif
-
 
 u8 _rtw_read8(_adapter *adapter, u32 addr)
 {
@@ -179,7 +171,6 @@ int _rtw_writeN(_adapter *adapter, u32 addr ,u32 length , u8 *pdata)
 	return RTW_STATUS_CODE(ret);
 }
 
-#ifdef CONFIG_SDIO_HCI
 u8 _rtw_sd_f0_read8(_adapter *adapter, u32 addr)
 {
 	u8 r_val = 0x00;
@@ -302,8 +293,6 @@ int _rtw_sd_iwrite32(_adapter *adapter, u32 addr, u32 val)
 }
 
 #endif /* CONFIG_SDIO_INDIRECT_ACCESS */
-
-#endif /* CONFIG_SDIO_HCI */
 
 int _rtw_write8_async(_adapter *adapter, u32 addr, u8 val)
 {
@@ -662,7 +651,6 @@ int dbg_rtw_writeN(_adapter *adapter, u32 addr ,u32 length , u8 *data, const cha
 	return _rtw_writeN(adapter, addr, length, data);
 }
 
-#ifdef CONFIG_SDIO_HCI
 u8 dbg_rtw_sd_f0_read8(_adapter *adapter, u32 addr, const char *caller, const int line)
 {
 	u8 val = _rtw_sd_f0_read8(adapter, addr);
@@ -729,8 +717,6 @@ int dbg_rtw_sd_iwrite32(_adapter *adapter, u32 addr, u32 val, const char *caller
 }
 
 #endif /* CONFIG_SDIO_INDIRECT_ACCESS */
-
-#endif /* CONFIG_SDIO_HCI */
 
 #endif
 

@@ -7539,9 +7539,6 @@ static int rtw_dbg_port(struct net_device *dev,
 							pxmitpriv->free_xmitbuf_cnt, pxmitpriv->free_xmitframe_cnt,
 							pxmitpriv->free_xmit_extbuf_cnt, pxmitpriv->free_xframe_ext_cnt,
 							precvpriv->free_recvframe_cnt);
-						#ifdef CONFIG_USB_HCI
-						DBG_871X("rx_urb_pending_cn=%d\n", ATOMIC_READ(&(precvpriv->rx_pending_cnt)));
-						#endif
 					}
 					break;	
 				case 0x09:
@@ -10041,14 +10038,6 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 	}
 	else if (strcmp(tmp[0], "vidpid") == 0)
 	{
-		#ifdef CONFIG_RTL8192E
-			#ifdef CONFIG_USB_HCI
-			addr = EEPROM_VID_8192EU;
-			#endif
-			#ifdef CONFIG_PCI_HCI
-			addr = EEPROM_VID_8192EE;
-			#endif
-		#endif // CONFIG_RTL8192E
 		#ifdef CONFIG_RTL8723B
 		addr = EEPROM_VID_8723BU;
 		#endif // CONFIG_RTL8192E
@@ -10056,12 +10045,6 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		#ifdef CONFIG_RTL8188F
 		addr = EEPROM_VID_8188FU;
 		#endif /* CONFIG_RTL8188F */
-
-		#ifdef CONFIG_RTL8703B
-			#ifdef CONFIG_USB_HCI
-			addr = EEPROM_VID_8703BU;
-			#endif
-		#endif /* CONFIG_RTL8703B */
 
 		cnts = 4;
 
@@ -10634,16 +10617,6 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 			goto exit;
 		}
 
-		// pidvid,da0b7881		
-		#ifdef CONFIG_RTL8192E
-			#ifdef CONFIG_USB_HCI
-			addr = EEPROM_VID_8192EU;
-			#endif
-			#ifdef CONFIG_PCI_HCI
-			addr = EEPROM_VID_8192EE;
-			#endif
-		#endif // CONFIG_RTL8192E
-
 		#ifdef CONFIG_RTL8723B
 		addr = EEPROM_VID_8723BU;
 		#endif
@@ -10651,12 +10624,6 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		#ifdef CONFIG_RTL8188F
 		addr = EEPROM_VID_8188FU;
 		#endif
-
-		#ifdef CONFIG_RTL8703B
-			#ifdef CONFIG_USB_HCI
-			addr = EEPROM_VID_8703BU;
-			#endif /* CONFIG_USB_HCI */
-		#endif /* CONFIG_RTL8703B */
 
 		cnts = strlen(tmp[1]);
 		if (cnts%2)
@@ -12454,7 +12421,7 @@ extern void rtl8723b_fill_default_txdesc(struct xmit_frame *pxmitframe, u8 *pbuf
 #if defined(CONFIG_RTL8192E)
 extern void rtl8192e_cal_txdesc_chksum(struct tx_desc *ptxdesc);
 #define cal_txdesc_chksum rtl8192e_cal_txdesc_chksum
-#ifdef CONFIG_SDIO_HCI || defined(CONFIG_GSPI_HCI)
+#ifdef CONFIG_SDIO_HCI
 extern void rtl8192es_fill_default_txdesc(struct xmit_frame *pxmitframe, u8 *pbuf);
 #define fill_default_txdesc rtl8192es_fill_default_txdesc
 #endif // CONFIG_SDIO_HCI
@@ -12679,16 +12646,6 @@ static struct xmit_frame* createloopbackpkt(PADAPTER padapter, u32 size)
 	desc->txdw5 = cpu_to_le32(desc->txdw5);
 	desc->txdw6 = cpu_to_le32(desc->txdw6);
 	desc->txdw7 = cpu_to_le32(desc->txdw7);
-#ifdef CONFIG_PCI_HCI
-	desc->txdw8 = cpu_to_le32(desc->txdw8);
-	desc->txdw9 = cpu_to_le32(desc->txdw9);
-	desc->txdw10 = cpu_to_le32(desc->txdw10);
-	desc->txdw11 = cpu_to_le32(desc->txdw11);
-	desc->txdw12 = cpu_to_le32(desc->txdw12);
-	desc->txdw13 = cpu_to_le32(desc->txdw13);
-	desc->txdw14 = cpu_to_le32(desc->txdw14);
-	desc->txdw15 = cpu_to_le32(desc->txdw15);
-#endif
 
 	cal_txdesc_chksum(desc);
 

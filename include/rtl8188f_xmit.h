@@ -81,9 +81,7 @@
 #define GET_RX_STATUS_DESC_HTC_8188F(__pRxStatusDesc)					LE_BITS_TO_4BYTE( __pRxStatusDesc+12, 10, 1)
 #define GET_RX_STATUS_DESC_EOSP_8188F(__pRxStatusDesc)					LE_BITS_TO_4BYTE( __pRxStatusDesc+12, 11, 1)
 #define GET_RX_STATUS_DESC_BSSID_FIT_8188F(__pRxStatusDesc) 		LE_BITS_TO_4BYTE( __pRxStatusDesc+12, 12, 2)
-#ifdef CONFIG_USB_RX_AGGREGATION
-#define GET_RX_STATUS_DESC_USB_AGG_PKTNUM_8188F(__pRxStatusDesc)	LE_BITS_TO_4BYTE( __pRxStatusDesc+12, 16, 8)
-#endif
+
 #define GET_RX_STATUS_DESC_PATTERN_MATCH_8188F(__pRxDesc)			LE_BITS_TO_4BYTE( __pRxDesc+12, 29, 1)
 #define GET_RX_STATUS_DESC_UNICAST_MATCH_8188F(__pRxDesc)			LE_BITS_TO_4BYTE( __pRxDesc+12, 30, 1)
 #define GET_RX_STATUS_DESC_MAGIC_MATCH_8188F(__pRxDesc) 		LE_BITS_TO_4BYTE( __pRxDesc+12, 31, 1)
@@ -291,7 +289,6 @@
 void rtl8188f_update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem);
 void rtl8188f_fill_fake_txdesc(PADAPTER padapter, u8 *pDesc, u32 BufferLen, u8 IsPsPoll, u8 IsBTQosNull, u8 bDataFrame);
 
-#if defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
 s32 rtl8188fs_init_xmit_priv(PADAPTER padapter);
 void rtl8188fs_free_xmit_priv(PADAPTER padapter);
 s32 rtl8188fs_hal_xmit(PADAPTER padapter, struct xmit_frame *pxmitframe);
@@ -300,34 +297,6 @@ s32	rtl8188fs_hal_xmitframe_enqueue(_adapter *padapter, struct xmit_frame *pxmit
 s32 rtl8188fs_xmit_buf_handler(PADAPTER padapter);
 thread_return rtl8188fs_xmit_thread(thread_context context);
 #define hal_xmit_handler rtl8188fs_xmit_buf_handler
-#endif
-
-#ifdef CONFIG_USB_HCI
-s32 rtl8188fu_xmit_buf_handler(PADAPTER padapter);
-#define hal_xmit_handler rtl8188fu_xmit_buf_handler
-
-
-s32 rtl8188fu_init_xmit_priv(PADAPTER padapter);
-void rtl8188fu_free_xmit_priv(PADAPTER padapter);
-s32 rtl8188fu_hal_xmit(PADAPTER padapter, struct xmit_frame *pxmitframe);
-s32 rtl8188fu_mgnt_xmit(PADAPTER padapter, struct xmit_frame *pmgntframe);
-s32	 rtl8188fu_hal_xmitframe_enqueue(_adapter *padapter, struct xmit_frame *pxmitframe);
-//s32 rtl8812au_xmit_buf_handler(PADAPTER padapter);
-void rtl8188fu_xmit_tasklet(void *priv);
-s32 rtl8188fu_xmitframe_complete(_adapter *padapter, struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf);
-void _dbg_dump_tx_info(_adapter	*padapter,int frame_tag,struct tx_desc *ptxdesc);
-#endif
-
-#ifdef CONFIG_PCI_HCI
-s32 rtl8188fe_init_xmit_priv(PADAPTER padapter);
-void rtl8188fe_free_xmit_priv(PADAPTER padapter);
-struct xmit_buf *rtl8188fe_dequeue_xmitbuf(struct rtw_tx_ring *ring);
-void	rtl8188fe_xmitframe_resume(_adapter *padapter);
-s32 rtl8188fe_hal_xmit(PADAPTER padapter, struct xmit_frame *pxmitframe);
-s32 rtl8188fe_mgnt_xmit(PADAPTER padapter, struct xmit_frame *pmgntframe);
-s32	rtl8188fe_hal_xmitframe_enqueue(_adapter *padapter, struct xmit_frame *pxmitframe);
-void rtl8188fe_xmit_tasklet(void *priv);
-#endif
 
 u8	BWMapping_8188F(PADAPTER Adapter, struct pkt_attrib *pattrib);
 u8	SCMapping_8188F(PADAPTER Adapter, struct pkt_attrib	*pattrib);

@@ -22,7 +22,7 @@
 #include <drv_types.h>
 #include <hal_data.h>
 
-#include "../hal/efuse/efuse_mask.h"
+#include "../hal/efuse/rtl8188f/HalEfuseMask8188F_SDIO.h"
 
 /*------------------------Define local variable------------------------------*/
 u8	fakeEfuseBank=0;

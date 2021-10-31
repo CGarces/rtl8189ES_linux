@@ -933,14 +933,6 @@ int hal_read_mac_hidden_rpt(_adapter *adapter)
 	u8 id = C2H_DEFEATURE_RSVD;
 	int i;
 
-#if defined(CONFIG_USB_HCI) || defined(CONFIG_PCI_HCI)
-	u8 hci_type = rtw_get_intf_type(adapter);
-
-	if ((hci_type == RTW_USB || hci_type == RTW_PCIE)
-		&& !rtw_is_hw_init_completed(adapter))
-		rtw_hal_power_on(adapter);
-#endif
-
 	/* inform FW mac hidden rpt from reg is needed */
 	rtw_write8(adapter, REG_C2HEVT_MSG_NORMAL, C2H_DEFEATURE_RSVD);
 
@@ -976,12 +968,6 @@ mac_hidden_rpt_hdl:
 		ret = _SUCCESS;
 
 exit:
-
-#if defined(CONFIG_USB_HCI) || defined(CONFIG_PCI_HCI)
-	if ((hci_type == RTW_USB || hci_type == RTW_PCIE)
-		&& !rtw_is_hw_init_completed(adapter))
-		rtw_hal_power_off(adapter);
-#endif
 
 	DBG_871X("%s %s! (%u, %dms), fwdl:%d, id:0x%02x\n", __func__
 		, (ret == _SUCCESS)?"OK":"Fail", cnt, rtw_get_passing_time_ms(start), ret_fwdl, id);
@@ -6129,11 +6115,8 @@ download_page:
 		pattrib->qsel = QSLT_BEACON;
 		pattrib->pktlen = TotalPacketLen - TxDescOffset;
 		pattrib->last_txcmdsz = TotalPacketLen - TxDescOffset;
-#ifdef CONFIG_PCI_HCI
-		dump_mgntframe(adapter, pcmdframe);
-#else
+
 		dump_mgntframe_and_wait(adapter, pcmdframe, 100);
-#endif
 	}
 
 	DBG_871X("%s: Set RSVD page location to Fw ,TotalPacketLen(%d), TotalPageNum(%d)\n",
@@ -7418,120 +7401,6 @@ bool kfree_data_is_bb_gain_empty(struct kfree_data_t *data)
 	return 1;
 }
 
-#ifdef CONFIG_USB_RX_AGGREGATION
-void rtw_set_usb_agg_by_mode_normal(_adapter *padapter, u8 cur_wireless_mode)
-{
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
-	if(cur_wireless_mode < WIRELESS_11_24N 
-		&& cur_wireless_mode > 0) //ABG mode
-	{
-#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
-		u32 remainder = 0;
-		u8 quotient = 0;
-
-		remainder = MAX_RECVBUF_SZ % (4*1024); 
-		quotient = (u8)(MAX_RECVBUF_SZ >> 12); 
-		
-		if (quotient > 5) {
-			pHalData->RegAcUsbDmaSize = 0x6;
-			pHalData->RegAcUsbDmaTime = 0x10;
-		} else {
-			if (remainder >= 2048) {
-				pHalData->RegAcUsbDmaSize = quotient;
-				pHalData->RegAcUsbDmaTime = 0x10;
-			} else {
-				pHalData->RegAcUsbDmaSize = (quotient-1);
-				pHalData->RegAcUsbDmaTime = 0x10;
-			}
-		}
-#else /* !CONFIG_PREALLOC_RX_SKB_BUFFER */
-		if(0x6 != pHalData->RegAcUsbDmaSize || 0x10 !=pHalData->RegAcUsbDmaTime)
-		{
-			pHalData->RegAcUsbDmaSize = 0x6;
-			pHalData->RegAcUsbDmaTime = 0x10;
-			rtw_write16(padapter, REG_RXDMA_AGG_PG_TH,
-				pHalData->RegAcUsbDmaSize | (pHalData->RegAcUsbDmaTime<<8));
-		}
-#endif /* CONFIG_PREALLOC_RX_SKB_BUFFER */
-					
-	}
-	else if(cur_wireless_mode >= WIRELESS_11_24N
-			&& cur_wireless_mode <= WIRELESS_MODE_MAX)//N AC mode
-	{
-#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
-		u32 remainder = 0;
-		u8 quotient = 0;
-
-		remainder = MAX_RECVBUF_SZ % (4*1024); 
-		quotient = (u8)(MAX_RECVBUF_SZ >> 12); 
-		
-		if (quotient > 5) {
-			pHalData->RegAcUsbDmaSize = 0x5;
-			pHalData->RegAcUsbDmaTime = 0x20;
-		} else {
-			if (remainder >= 2048) {
-				pHalData->RegAcUsbDmaSize = quotient;
-				pHalData->RegAcUsbDmaTime = 0x10;
-			} else {
-				pHalData->RegAcUsbDmaSize = (quotient-1);
-				pHalData->RegAcUsbDmaTime = 0x10;
-			}
-		}
-#else /* !CONFIG_PREALLOC_RX_SKB_BUFFER */
-		if(0x5 != pHalData->RegAcUsbDmaSize || 0x20 !=pHalData->RegAcUsbDmaTime)
-		{
-			pHalData->RegAcUsbDmaSize = 0x5;
-			pHalData->RegAcUsbDmaTime = 0x20;
-			rtw_write16(padapter, REG_RXDMA_AGG_PG_TH,
-				pHalData->RegAcUsbDmaSize | (pHalData->RegAcUsbDmaTime<<8));
-		}
-#endif /* CONFIG_PREALLOC_RX_SKB_BUFFER */
-
-	}
-	else
-	{
-		/* DBG_871X("%s: Unknow wireless mode(0x%x)\n",__func__,padapter->mlmeextpriv.cur_wireless_mode); */
-	}
-}
-
-void rtw_set_usb_agg_by_mode_customer(_adapter *padapter, u8 cur_wireless_mode, u8 UsbDmaSize, u8 Legacy_UsbDmaSize)
-{
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
-
-	if (cur_wireless_mode < WIRELESS_11_24N
-		&& cur_wireless_mode > 0) { /* ABG mode */
-		if (Legacy_UsbDmaSize != pHalData->RegAcUsbDmaSize
-			|| 0x10 != pHalData->RegAcUsbDmaTime) {
-			pHalData->RegAcUsbDmaSize = Legacy_UsbDmaSize;
-			pHalData->RegAcUsbDmaTime = 0x10;
-			rtw_write16(padapter, REG_RXDMA_AGG_PG_TH,
-				pHalData->RegAcUsbDmaSize | (pHalData->RegAcUsbDmaTime<<8));
-		}
-	} else if (cur_wireless_mode >= WIRELESS_11_24N
-				&& cur_wireless_mode <= WIRELESS_MODE_MAX) { /* N AC mode */
-		if (UsbDmaSize != pHalData->RegAcUsbDmaSize
-			|| 0x20 != pHalData->RegAcUsbDmaTime) {
-			pHalData->RegAcUsbDmaSize = UsbDmaSize;
-			pHalData->RegAcUsbDmaTime = 0x20;
-			rtw_write16(padapter, REG_RXDMA_AGG_PG_TH,
-				pHalData->RegAcUsbDmaSize | (pHalData->RegAcUsbDmaTime<<8));
-		}
-	} else {
-		/* DBG_871X("%s: Unknown wireless mode(0x%x)\n",__func__,padapter->mlmeextpriv.cur_wireless_mode); */
-	}
-}
-
-void rtw_set_usb_agg_by_mode(_adapter *padapter, u8 cur_wireless_mode)
-{
-#ifdef CONFIG_PLATFORM_NOVATEK_NT72668
-	rtw_set_usb_agg_by_mode_customer(padapter, cur_wireless_mode, 0x3, 0x3);
-	return;
-#endif /* CONFIG_PLATFORM_NOVATEK_NT72668 */
-
-	rtw_set_usb_agg_by_mode_normal(padapter, cur_wireless_mode);
-}
-#endif //CONFIG_USB_RX_AGGREGATION
-
 //To avoid RX affect TX throughput
 void dm_DynamicUsbTxAgg(_adapter *padapter, u8 from_timer)
 {
@@ -7544,43 +7413,6 @@ void dm_DynamicUsbTxAgg(_adapter *padapter, u8 from_timer)
 	struct mlme_ext_priv	*pbuddymlmeextpriv = &(padapter->pbuddy_adapter->mlmeextpriv);
 #endif //CONFIG_CONCURRENT_MODE
 
-#ifdef CONFIG_USB_RX_AGGREGATION	
-	if(IS_HARDWARE_TYPE_8821U(padapter) )//|| IS_HARDWARE_TYPE_8192EU(padapter))
-	{
-		//This AGG_PH_TH only for UsbRxAggMode == USB_RX_AGG_USB
-		if((pHalData->UsbRxAggMode == USB_RX_AGG_USB) && (check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE))
-		{
-			if(pdvobjpriv->traffic_stat.cur_tx_tp > 2 && pdvobjpriv->traffic_stat.cur_rx_tp < 30)
-				rtw_write16(padapter , REG_RXDMA_AGG_PG_TH , 0x1010);
-			else if (pdvobjpriv->traffic_stat.last_tx_bytes > 220000 && pdvobjpriv->traffic_stat.cur_rx_tp < 30)
-				rtw_write16(padapter , REG_RXDMA_AGG_PG_TH , 0x1006);			
-			else
-				rtw_write16(padapter, REG_RXDMA_AGG_PG_TH,0x2005); //dmc agg th 20K
-			
-			//DBG_871X("TX_TP=%u, RX_TP=%u \n", pdvobjpriv->traffic_stat.cur_tx_tp, pdvobjpriv->traffic_stat.cur_rx_tp);
-		}
-	}
-	else if(IS_HARDWARE_TYPE_8812(padapter))
-	{
-#ifdef CONFIG_CONCURRENT_MODE
-		if(rtw_linked_check(padapter) == _TRUE && rtw_linked_check(padapter->pbuddy_adapter) == _TRUE)
-		{
-			if(pbuddymlmeextpriv->cur_wireless_mode >= pmlmeextpriv->cur_wireless_mode)
-				cur_wireless_mode = pbuddymlmeextpriv->cur_wireless_mode;
-			else
-				cur_wireless_mode = pmlmeextpriv->cur_wireless_mode;
-
-			rtw_set_usb_agg_by_mode(padapter,cur_wireless_mode);
-		}
-		else if (rtw_linked_check(padapter) == _TRUE && rtw_linked_check(padapter->pbuddy_adapter) == _FALSE)
-		{
-			rtw_set_usb_agg_by_mode(padapter,cur_wireless_mode);
-		}
-#else //!CONFIG_CONCURRENT_MODE
-		rtw_set_usb_agg_by_mode(padapter,cur_wireless_mode);
-#endif //CONFIG_CONCURRENT_MODE
-	}
-#endif
 }
 
 //bus-agg check for SoftAP mode
