@@ -31,7 +31,6 @@
 #include "phydm_antdiv.h"
 #include "phydm_dynamicbbpowersaving.h"
 #include "phydm_rainfo.h"
-#include "phydm_dynamictxpower.h"
 #include "phydm_cfotracking.h"
 #include "phydm_acs.h"
 #include "phydm_adaptivity.h"

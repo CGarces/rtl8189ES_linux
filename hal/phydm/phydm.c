@@ -445,7 +445,6 @@ ODM_DMInit(
 	if(pDM_Odm->SupportICType & ODM_IC_11N_SERIES)
 	{
 		odm_DynamicBBPowerSavingInit(pDM_Odm);
-		odm_DynamicTxPowerInit(pDM_Odm);
 
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))
 	
@@ -601,7 +600,6 @@ ODM_DMWatchdog(
 	odm_DynamicBBPowerSaving(pDM_Odm);
 	odm_EdcaTurboCheck(pDM_Odm);
 	ODM_CfoTracking(pDM_Odm);
-	odm_DynamicTxPower(pDM_Odm);
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
 	phydm_Beamforming_Watchdog(pDM_Odm);
 #endif

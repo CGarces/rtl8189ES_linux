@@ -172,7 +172,6 @@ _OUTSRC_FILES := hal/phydm/phydm_debug.o	\
 		hal/phydm/phydm_rainfo.o\
 		hal/phydm/phydm_dynamicbbpowersaving.o\
 		hal/phydm/phydm_powertracking_ce.o\
-		hal/phydm/phydm_dynamictxpower.o\
 		hal/phydm/phydm_adaptivity.o\
 		hal/phydm/phydm_cfotracking.o\
 		hal/phydm/phydm_noisemonitor.o\
