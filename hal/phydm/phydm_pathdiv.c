@@ -21,7 +21,6 @@
 //============================================================
 // include files
 //============================================================
-#include "mp_precomp.h"
 #include "phydm_precomp.h"
 
 #if(defined(CONFIG_PATH_DIVERSITY))

@@ -1,5 +1,4 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-#include "mp_precomp.h"
 #include "phydm_precomp.h"
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
@@ -1267,7 +1266,7 @@ Beamforming_InitEntry(
 	if (BeamformCap & (BEAMFORMER_CAP_VHT_MU | BEAMFORMER_CAP_VHT_SU | BEAMFORMER_CAP_HT_EXPLICIT)) {
 		pBeamformEntry = phydm_Beamforming_GetBFeeEntryByAddr(pDM_Odm, pSTA->RA, &BFeeIdx);
 
-		/*¦pªGBFeeIdx = 0xF «h¥Nªí¥Ø«eentry·í¤¤¨S¦³¬Û¦PªºMACID¦b¤º*/
+		/*ï¿½pï¿½GBFeeIdx = 0xF ï¿½hï¿½Nï¿½ï¿½ï¿½Ø«eentryï¿½ï¿½ï¿½ï¿½ï¿½Sï¿½ï¿½ï¿½Û¦Pï¿½ï¿½MACIDï¿½bï¿½ï¿½*/
 		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] Get BFee entry 0x%X by address\n", __func__, BFeeIdx));
 		if (pBeamformEntry == NULL) {
 			pBeamformEntry = Beamforming_AddBFeeEntry(pDM_Odm, pSTA, BeamformCap, NumofSoundingDim, CompSteeringNumofBFer, &BFeeIdx);

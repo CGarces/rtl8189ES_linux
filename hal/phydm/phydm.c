@@ -22,7 +22,6 @@
 // include files
 //============================================================
 
-#include "mp_precomp.h"
 #include "phydm_precomp.h"
 
 const u2Byte dB_Invert_Table[12][8] = {

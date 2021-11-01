@@ -18,7 +18,6 @@
  *
  ******************************************************************************/
 
-#include "mp_precomp.h"
 #include "../phydm_precomp.h"
 
 #define		bMaskH3Bytes				0xffffff00
