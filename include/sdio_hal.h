@@ -32,10 +32,6 @@ u8 rtw_set_hal_ops(_adapter *padapter);
 void rtl8723bs_set_hal_ops(PADAPTER padapter);
 #endif
 
-#ifdef CONFIG_RTL8192E
-void rtl8192es_set_hal_ops(PADAPTER padapter);
-#endif
-
 #ifdef CONFIG_RTL8703B
 void rtl8703bs_set_hal_ops(PADAPTER padapter);
 #endif

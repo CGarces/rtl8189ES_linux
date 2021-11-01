@@ -268,9 +268,6 @@ phydm_trans_h2c_id(
 			break;
 
 		case PHYDM_H2C_TXBF:
-#if RTL8192E_SUPPORT
-			platform_h2c_id  = 0x41;	/*H2C_TxBF*/
-#endif
 		break;
 
 		default:

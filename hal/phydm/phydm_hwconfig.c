@@ -1520,20 +1520,6 @@ ODM_ConfigRFWithHeaderFile(
 			READ_AND_CONFIG_MP(8723B,_TXPWR_LMT);
 	}
 #endif
-
-#if (RTL8192E_SUPPORT == 1)
-	if (pDM_Odm->SupportICType == ODM_RTL8192E)
-	{
-		if(ConfigType == CONFIG_RF_RADIO) {
-		 	if(eRFPath == ODM_RF_PATH_A)
-				READ_AND_CONFIG_MP(8192E,_RadioA);
-			else if(eRFPath == ODM_RF_PATH_B)
-				READ_AND_CONFIG_MP(8192E,_RadioB);
-		} else if (ConfigType == CONFIG_RF_TXPWR_LMT) {
-			READ_AND_CONFIG_MP(8192E,_TXPWR_LMT);
-	}
-	}
-#endif
 #endif//(DM_ODM_SUPPORT_TYPE !=  ODM_AP)
 
 //1 All platforms support
@@ -1591,17 +1577,6 @@ ODM_ConfigRFWithTxPwrTrackHeaderFile(
 //1 AP doesn't use PHYDM power tracking table in these ICs
 #if (DM_ODM_SUPPORT_TYPE !=  ODM_AP)
 
-#if RTL8192E_SUPPORT 	
-	if(pDM_Odm->SupportICType == ODM_RTL8192E)
-	{
-		if (pDM_Odm->SupportInterface == ODM_ITRF_PCIE)
-			READ_AND_CONFIG_MP(8192E,_TxPowerTrack_PCIE);
-		else if (pDM_Odm->SupportInterface == ODM_ITRF_USB)
-			READ_AND_CONFIG_MP(8192E,_TxPowerTrack_USB); 
-		else if (pDM_Odm->SupportInterface == ODM_ITRF_SDIO)
-			READ_AND_CONFIG_MP(8192E,_TxPowerTrack_SDIO); 
-	}
-#endif
 #if RTL8723B_SUPPORT 	
 	if(pDM_Odm->SupportICType == ODM_RTL8723B)
 	{
@@ -1681,18 +1656,6 @@ ODM_ConfigBBWithHeaderFile(
 		}
 	}
 #endif
-#if (RTL8192E_SUPPORT == 1)
-	if(pDM_Odm->SupportICType == ODM_RTL8192E)
-	{
-		if(ConfigType == CONFIG_BB_PHY_REG){
-			READ_AND_CONFIG_MP(8192E,_PHY_REG);
-		}else if(ConfigType == CONFIG_BB_AGC_TAB){
-			READ_AND_CONFIG_MP(8192E,_AGC_TAB);
-		}else if(ConfigType == CONFIG_BB_PHY_REG_PG){
-			READ_AND_CONFIG_MP(8192E,_PHY_REG_PG);
-		}
-	}
-#endif
 #endif//(DM_ODM_SUPPORT_TYPE !=  ODM_AP)
 
 
@@ -1758,11 +1721,6 @@ ODM_ConfigMACWithHeaderFile(
 		READ_AND_CONFIG_MP(8723B,_MAC_REG);
 	}
 #endif
-#if (RTL8192E_SUPPORT == 1)  
-	if (pDM_Odm->SupportICType == ODM_RTL8192E){
-		READ_AND_CONFIG_MP(8192E,_MAC_REG);
-	}
-#endif
 #endif//(DM_ODM_SUPPORT_TYPE !=  ODM_AP)
 
 //1 All platforms support
@@ -1804,15 +1762,6 @@ ODM_ConfigFWWithHeaderFile(
 	}
 #endif //#if (RTL8723B_SUPPORT == 1)  
 
-#if (RTL8192E_SUPPORT == 1)
-	if (pDM_Odm->SupportICType == ODM_RTL8192E)
-	{
-		if (ConfigType == CONFIG_FW_NIC)
-			READ_FIRMWARE_MP(8192E,_FW_NIC);
-		else if (ConfigType == CONFIG_FW_WoWLAN)
-			READ_FIRMWARE_MP(8192E,_FW_WoWLAN);
-	}
-#endif
 #if (RTL8814A_SUPPORT == 1)
 	if (pDM_Odm->SupportICType == ODM_RTL8814A)
 	{
@@ -1858,10 +1807,6 @@ ODM_GetHWImgVersion(
 #if (RTL8723B_SUPPORT == 1)  
 	if (pDM_Odm->SupportICType == ODM_RTL8723B)
 		Version = GET_VERSION_MP(8723B,_MAC_REG);
-#endif
-#if (RTL8192E_SUPPORT == 1)  
-	if (pDM_Odm->SupportICType == ODM_RTL8192E)
-		Version = GET_VERSION_MP(8192E,_MAC_REG);
 #endif
 #endif //(DM_ODM_SUPPORT_TYPE != ODM_AP)
 

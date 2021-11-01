@@ -447,11 +447,7 @@ efuse_OneByteRead(
 		return bResult;
 	}
 	
-	if(	IS_HARDWARE_TYPE_8723B(pAdapter) ||
-		(IS_HARDWARE_TYPE_8192E(pAdapter) && (!IS_A_CUT(pHalData->VersionID))) ||
-		(IS_CHIP_VENDOR_SMIC(pHalData->VersionID))
-	  )
-	{
+	if (IS_HARDWARE_TYPE_8723B(pAdapter) || (IS_CHIP_VENDOR_SMIC(pHalData->VersionID))) {
 		// <20130121, Kordan> For SMIC EFUSE specificatoin.
 		//0x34[11]: SW force PGMEN input of efuse to high. (for the bank selected by 0x34[9:8])	
 		//PHY_SetMacReg(pAdapter, 0x34, BIT11, 0);
@@ -524,10 +520,7 @@ efuse_OneByteWrite(
 	efuseValue |= ((addr<<8 | data) & 0x3FFFF);
 
 	// <20130227, Kordan> 8192E MP chip A-cut had better not set 0x34[11] until B-Cut.
-	if (	IS_HARDWARE_TYPE_8723B(pAdapter) ||
-		(IS_HARDWARE_TYPE_8192E(pAdapter) && (!IS_A_CUT(pHalData->VersionID))) ||
-		(IS_CHIP_VENDOR_SMIC(pHalData->VersionID))
-		) {
+	if (IS_HARDWARE_TYPE_8723B(pAdapter) || (IS_CHIP_VENDOR_SMIC(pHalData->VersionID))) {
 		// <20130121, Kordan> For SMIC EFUSE specificatoin.
 		//0x34[11]: SW force PGMEN input of efuse to high. (for the bank selected by 0x34[9:8])
 		//PHY_SetMacReg(pAdapter, 0x34, BIT11, 1);
@@ -557,10 +550,7 @@ efuse_OneByteWrite(
 	}
 
 	// disable Efuse program enable
-	if (	IS_HARDWARE_TYPE_8723B(pAdapter) ||
-		(IS_HARDWARE_TYPE_8192E(pAdapter) && (!IS_A_CUT(pHalData->VersionID))) ||
-		(IS_CHIP_VENDOR_SMIC(pHalData->VersionID))
-		) {
+	if (IS_HARDWARE_TYPE_8723B(pAdapter) || (IS_CHIP_VENDOR_SMIC(pHalData->VersionID))) {
 		PHY_SetMacReg(pAdapter, EFUSE_TEST, BIT(11), 0);
 	}
 

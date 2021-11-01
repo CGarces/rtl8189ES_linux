@@ -406,14 +406,6 @@ typedef enum _HARDWARE_TYPE{
 #define	IS_HARDWARE_TYPE_8188E(_Adapter)	\
 (IS_HARDWARE_TYPE_8188EE(_Adapter) || IS_HARDWARE_TYPE_8188EU(_Adapter) || IS_HARDWARE_TYPE_8188ES(_Adapter))
 
-//RTL8192E Series
-#define IS_HARDWARE_TYPE_8192EE(_Adapter)		(rtw_get_hw_type(_Adapter) == HARDWARE_TYPE_RTL8192EE)
-#define IS_HARDWARE_TYPE_8192EU(_Adapter)		(rtw_get_hw_type(_Adapter) == HARDWARE_TYPE_RTL8192EU)
-#define IS_HARDWARE_TYPE_8192ES(_Adapter)		(rtw_get_hw_type(_Adapter) == HARDWARE_TYPE_RTL8192ES)
-
-#define IS_HARDWARE_TYPE_8192E(_Adapter)		\
-(IS_HARDWARE_TYPE_8192EE(_Adapter) || IS_HARDWARE_TYPE_8192EU(_Adapter) ||IS_HARDWARE_TYPE_8192ES(_Adapter))
-
 #define IS_HARDWARE_TYPE_8723BE(_Adapter)		(rtw_get_hw_type(_Adapter) == HARDWARE_TYPE_RTL8723BE)
 #define IS_HARDWARE_TYPE_8723BU(_Adapter)		(rtw_get_hw_type(_Adapter) == HARDWARE_TYPE_RTL8723BU)
 #define IS_HARDWARE_TYPE_8723BS(_Adapter)		(rtw_get_hw_type(_Adapter) == HARDWARE_TYPE_RTL8723BS)

@@ -124,22 +124,6 @@ phydm_Init_cck_setting(
 	u4Byte value_824,value_82c;
 
 	pDM_Odm->bCckHighPower = (BOOLEAN) ODM_GetBBReg(pDM_Odm, ODM_REG(CCK_RPT_FORMAT,pDM_Odm), ODM_BIT(CCK_RPT_FORMAT,pDM_Odm));
-
-	#if (RTL8192E_SUPPORT == 1)
-	if(pDM_Odm->SupportICType & (ODM_RTL8192E))
-	{
-		/* 0x824[9] = 0x82C[9] = 0xA80[7]  these regiaters settinh should be equal or CCK RSSI report may inaccurate */
-		value_824 = ODM_GetBBReg(pDM_Odm, 0x824, BIT9);
-		value_82c = ODM_GetBBReg(pDM_Odm, 0x82c, BIT9);
-		
-		if(value_824 != value_82c)
-		{
-			ODM_SetBBReg(pDM_Odm, 0x82c , BIT9, value_824);
-		}
-		ODM_SetBBReg(pDM_Odm, 0xa80 , BIT7, value_824);
-		pDM_Odm->cck_agc_report_type = (BOOLEAN)value_824;
-	}
-	#endif
 	
 	#if (RTL8703B_SUPPORT == 1)
 	if (pDM_Odm->SupportICType & (ODM_RTL8703B)) {
@@ -282,14 +266,8 @@ ODM_DMInit(
 	odm_AutoChannelSelectInit(pDM_Odm);
 	phydm_Beamforming_Init(pDM_Odm);
 
-	if(pDM_Odm->SupportICType & ODM_IC_11N_SERIES)
-	{
+	if(pDM_Odm->SupportICType & ODM_IC_11N_SERIES) {
 		odm_DynamicBBPowerSavingInit(pDM_Odm);
-
-	#if (RTL8192E_SUPPORT == 1)
-		if(pDM_Odm->SupportICType==ODM_RTL8192E)
-			odm_PrimaryCCA_Check_Init(pDM_Odm);
-	#endif
 	}
 
 }
@@ -410,13 +388,6 @@ ODM_DMWatchdog(
 
 	phydm_rf_watchdog(pDM_Odm);
 
-	if(pDM_Odm->SupportICType & ODM_IC_11N_SERIES)
-	{
-	#if (RTL8192E_SUPPORT == 1)
-		if(pDM_Odm->SupportICType==ODM_RTL8192E)
-			odm_DynamicPrimaryCCA_Check(pDM_Odm); 
-	#endif
-	}
 	odm_dtc(pDM_Odm);
 
 	pDM_Odm->PhyDbgInfo.NumQryBeaconPkt = 0;

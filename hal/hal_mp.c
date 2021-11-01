@@ -484,7 +484,6 @@ void hal_mpt_SetTxPower(PADAPTER pAdapter)
 	if (pHalData->rf_chip < RF_TYPE_MAX) {
 		if (IS_HARDWARE_TYPE_8188E(pAdapter) || 
 			IS_HARDWARE_TYPE_8723B(pAdapter) || 
-			IS_HARDWARE_TYPE_8192E(pAdapter) || 
 			IS_HARDWARE_TYPE_8703B(pAdapter) ||
 			IS_HARDWARE_TYPE_8188F(pAdapter)) {
 			u8 path = (pHalData->AntennaTxPath == ANTENNA_A) ? (ODM_RF_PATH_A) : (ODM_RF_PATH_B);
@@ -1236,10 +1235,6 @@ VOID mpt_SetRFPath_819X(PADAPTER	pAdapter)
 				PHY_SetBBReg(pAdapter, rFPGA0_TxInfo, 0x0000000f, r_ofdm_tx_en_val);		/*/OFDM Tx*/
 				PHY_SetBBReg(pAdapter, rOFDM0_TRxPathEnable, 0x0000000f, r_rx_antenna_ofdm);	/*/OFDM Rx*/
 				PHY_SetBBReg(pAdapter, rOFDM1_TRxPathEnable, 0x0000000f, r_rx_antenna_ofdm);	/*/OFDM Rx*/
-				if (IS_HARDWARE_TYPE_8192E(pAdapter)) {
-					PHY_SetBBReg(pAdapter, rOFDM0_TRxPathEnable, 0x000000F0, r_rx_antenna_ofdm);	/*/OFDM Rx*/
-					PHY_SetBBReg(pAdapter, rOFDM1_TRxPathEnable, 0x000000F0, r_rx_antenna_ofdm);	/*/OFDM Rx*/
-				}
 				PHY_SetBBReg(pAdapter, rCCK0_AFESetting, bMaskByte3, r_ant_select_cck_val);/*/r_ant_sel_cck_val); /CCK TxRx*/
 				break;
 
@@ -1415,11 +1410,6 @@ void hal_mpt_SetSingleToneTx(PADAPTER pAdapter, u8 bStart)
 			PHY_SetRFReg(pAdapter, ODM_RF_PATH_A, LNA_Low_Gain_3, BIT1, 0x1); /*/ RF LO enabled*/	
 			PHY_SetBBReg(pAdapter, rFPGA0_RFMOD, bCCKEn, 0x0);
 			PHY_SetBBReg(pAdapter, rFPGA0_RFMOD, bOFDMEn, 0x0);
-		} else if (IS_HARDWARE_TYPE_8192E(pAdapter)) { /*/ USB need to do RF LO disable first, PCIE isn't required to follow this order.*/
-						/*/Set MAC REG 88C: Prevent SingleTone Fail*/
-			PHY_SetMacReg(pAdapter, 0x88C, 0xF00000, 0xF);
-			PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, LNA_Low_Gain_3, BIT1, 0x1); /*/ RF LO disabled*/
-			PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, RF_AC, 0xF0000, 0x2); /*/ Tx mode*/
 		} else if (IS_HARDWARE_TYPE_8723B(pAdapter)) {
 			if (pMptCtx->MptRfPath == ODM_RF_PATH_A) {
 				PHY_SetRFReg(pAdapter, ODM_RF_PATH_A, RF_AC, 0xF0000, 0x2); /*/ Tx mode*/
@@ -1457,11 +1447,6 @@ void hal_mpt_SetSingleToneTx(PADAPTER pAdapter, u8 bStart)
 			PHY_SetRFReg(pAdapter, ODM_RF_PATH_A, LNA_Low_Gain_3, bRFRegOffsetMask, regRF);
 			PHY_SetBBReg(pAdapter, rFPGA0_RFMOD, bCCKEn, 0x1);
 			PHY_SetBBReg(pAdapter, rFPGA0_RFMOD, bOFDMEn, 0x1);
-		} else if (IS_HARDWARE_TYPE_8192E(pAdapter)) {
-			PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, RF_AC, 0xF0000, 0x3);/*/ Tx mode*/
-			PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, LNA_Low_Gain_3, BIT1, 0x0);/*/ RF LO disabled */
-			/*/ RESTORE MAC REG 88C: Enable RF Functions*/
-			PHY_SetMacReg(pAdapter, 0x88C, 0xF00000, 0x0);
 		} else if (IS_HARDWARE_TYPE_8723B(pAdapter)) {
 			if (pMptCtx->MptRfPath == ODM_RF_PATH_A) {
 			

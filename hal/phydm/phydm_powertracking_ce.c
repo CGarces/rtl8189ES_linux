@@ -470,7 +470,7 @@ odm_TXPowerTrackingCheckCE(
 
 	if (!pDM_Odm->RFCalibrateInfo.TM_Trigger) {
 		
-		if (IS_HARDWARE_TYPE_8188E(Adapter) || IS_HARDWARE_TYPE_8188F(Adapter) || IS_HARDWARE_TYPE_8192E(Adapter)
+		if (IS_HARDWARE_TYPE_8188E(Adapter) || IS_HARDWARE_TYPE_8188F(Adapter) 
 			|| IS_HARDWARE_TYPE_8723B(Adapter) || IS_HARDWARE_TYPE_8814A(Adapter)
 			|| IS_HARDWARE_TYPE_8703B(Adapter)
 		) {

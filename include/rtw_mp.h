@@ -257,9 +257,7 @@ typedef struct _MPT_CONTEXT
 #ifdef CONFIG_RTL8814A
 #define EFUSE_MAP_SIZE		512
 #endif
-#ifdef CONFIG_RTL8192E
-#define EFUSE_MAP_SIZE		512
-#endif
+
 #ifdef CONFIG_RTL8723B
 #define EFUSE_MAP_SIZE		512
 #endif

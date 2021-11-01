@@ -37,8 +37,6 @@ void dump_chip_info(HAL_VERSION	ChipVersion)
 	
 	if (IS_8188F(ChipVersion))
 		cnt += sprintf((buf+cnt), "Chip Version Info: CHIP_8188F_");
-	else if (IS_8192E(ChipVersion))
-		cnt += sprintf((buf+cnt), "Chip Version Info: CHIP_8192E_");
 	else if (IS_8723B_SERIES(ChipVersion))
 		cnt += sprintf((buf+cnt), "Chip Version Info: CHIP_8723B_");
 	else if (IS_8703B_SERIES(ChipVersion))
@@ -728,7 +726,7 @@ s32 c2h_evt_read_88xx(_adapter *adapter, u8 *buf)
 	if (buf == NULL)
 		goto exit;
 
-#if defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B)
+#if defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B)
 
 	trigger = rtw_read8(adapter, REG_C2HEVT_CLEAR);
 
@@ -4385,7 +4383,7 @@ void rtw_hal_check_rxfifo_full(_adapter *adapter)
 	
 	//switch counter to RX fifo
 	if (IS_8188F(pHalData->VersionID)
-		|| IS_8723B_SERIES(pHalData->VersionID) || IS_8192E(pHalData->VersionID) || IS_8703B_SERIES(pHalData->VersionID))
+		|| IS_8723B_SERIES(pHalData->VersionID) || IS_8703B_SERIES(pHalData->VersionID))
 	{
 		rtw_write8(adapter, REG_RXERR_RPT+3, rtw_read8(adapter, REG_RXERR_RPT+3)|0xa0);
 		save_cnt = _TRUE;
@@ -4600,16 +4598,7 @@ int hal_efuse_macaddr_offset(_adapter *adapter)
 			addr_offset = EEPROM_MAC_ADDR_8188FS;
 		break;
 #endif
-#ifdef CONFIG_RTL8192E
-	case RTL8192E:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_8192EU;
-		else if (interface_type == RTW_SDIO)
-			addr_offset = EEPROM_MAC_ADDR_8192ES;
-		else if (interface_type == RTW_PCIE)
-			addr_offset = EEPROM_MAC_ADDR_8192EE;
-		break;
-#endif
+
 #ifdef CONFIG_RTL8814A
 	case RTL8814A:
 		if (interface_type == RTW_USB)
@@ -5443,7 +5432,7 @@ void hal_set_crystal_cap(_adapter *adapter, u8 crystal_cap)
 		PHY_SetBBReg(adapter, REG_AFE_XTAL_CTRL, 0x007FF800, (crystal_cap | (crystal_cap << 6)));
 		break;
 #endif
-#if defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8192E)
+#if defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B)
 	case RTL8723B:
 	case RTL8703B:
 	case RTL8821:
@@ -5496,11 +5485,7 @@ int hal_spec_init(_adapter *adapter)
 		init_hal_spec_8188f(adapter);
 		break;
 #endif
-#ifdef CONFIG_RTL8192E
-	case RTL8192E:
-		init_hal_spec_8192e(adapter);
-		break;
-#endif
+
 #ifdef CONFIG_RTL8814A
 	case RTL8814A:
 		init_hal_spec_8814a(adapter);

@@ -237,7 +237,7 @@ struct rx_pkt_attrib	{
 
 #define RECVBUFF_ALIGN_SZ 8
 
-#if defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8814A)
+#if defined(CONFIG_RTL8814A)
 	#define RXDESC_SIZE	24
 #else
 #define RXDESC_SIZE	24

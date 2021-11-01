@@ -115,7 +115,6 @@ typedef	struct tag_HAL_VERSION
 // HAL_IC_TYPE_E
 
 #define IS_8188F(version)					((GET_CVID_IC_TYPE(version) == CHIP_8188F) ? TRUE : FALSE)
-#define IS_8192E(version)					((GET_CVID_IC_TYPE(version) == CHIP_8192E)? TRUE : FALSE)
 #define IS_8814A_SERIES(version)			((GET_CVID_IC_TYPE(version) == CHIP_8814A) ? TRUE : FALSE)
 #define IS_8723B_SERIES(version)			((GET_CVID_IC_TYPE(version) == CHIP_8723B)? TRUE : FALSE)
 #define IS_8703B_SERIES(version)			((GET_CVID_IC_TYPE(version) == CHIP_8703B)? TRUE : FALSE)
