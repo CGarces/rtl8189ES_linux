@@ -336,62 +336,12 @@ u1Byte CCKSwingTable_Ch14_New[CCK_TABLE_SIZE][8]= {
 	{0x36, 0x35, 0x2e, 0x1b, 0x00, 0x00, 0x00, 0x00} 	/* 32, +0dB	*/
 };
 
-#ifdef AP_BUILD_WORKAROUND
-
-unsigned int TxPwrTrk_OFDM_SwingTbl[TxPwrTrk_OFDM_SwingTbl_Len] = {
-	/*  +6.0dB */ 0x7f8001fe,
-	/*  +5.5dB */ 0x788001e2,
-	/*  +5.0dB */ 0x71c001c7,
-	/*  +4.5dB */ 0x6b8001ae,
-	/*  +4.0dB */ 0x65400195,
-	/*  +3.5dB */ 0x5fc0017f,
-	/*  +3.0dB */ 0x5a400169,
-	/*  +2.5dB */ 0x55400155,
-	/*  +2.0dB */ 0x50800142,
-	/*  +1.5dB */ 0x4c000130,
-	/*  +1.0dB */ 0x47c0011f,
-	/*  +0.5dB */ 0x43c0010f,
-	/*   0.0dB */ 0x40000100,
-	/*  -0.5dB */ 0x3c8000f2,
-	/*  -1.0dB */ 0x390000e4,
-	/*  -1.5dB */ 0x35c000d7,
-	/*  -2.0dB */ 0x32c000cb,
-	/*  -2.5dB */ 0x300000c0,
-	/*  -3.0dB */ 0x2d4000b5,
-	/*  -3.5dB */ 0x2ac000ab,
-	/*  -4.0dB */ 0x288000a2,
-	/*  -4.5dB */ 0x26000098,
-	/*  -5.0dB */ 0x24000090,
-	/*  -5.5dB */ 0x22000088,
-	/*  -6.0dB */ 0x20000080,
-	/*  -6.5dB */ 0x1a00006c,
-	/*  -7.0dB */ 0x1c800072,
-	/*  -7.5dB */ 0x18000060,
-	/*  -8.0dB */ 0x19800066,
-	/*  -8.5dB */ 0x15800056,
-	/*  -9.0dB */ 0x26c0005b,
-	/*  -9.5dB */ 0x14400051,
-	/* -10.0dB */ 0x24400051,
-	/* -10.5dB */ 0x1300004c,
-	/* -11.0dB */ 0x12000048,
-	/* -11.5dB */ 0x11000044,
-	/* -12.0dB */ 0x10000040
-};
-#endif
-
-
-
 VOID
 odm_TXPowerTrackingInit(
 	IN	PVOID	pDM_VOID 
 	)
 {
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
-#if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
-	if (!(pDM_Odm->SupportICType & (ODM_RTL8814A | ODM_IC_11N_SERIES)))
-		return;
-#endif
-
 	odm_TXPowerTrackingThermalMeterInit(pDM_Odm);
 }	
 
@@ -510,24 +460,7 @@ ODM_TXPowerTrackingCheck(
 	at the same time. In the stage2/3, we need to prive universal interface and merge all
 	HW dynamic mechanism. */
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
-	switch	(pDM_Odm->SupportPlatform)
-	{
-		case	ODM_WIN:
-			odm_TXPowerTrackingCheckMP(pDM_Odm);
-			break;
-
-		case	ODM_CE:
-			odm_TXPowerTrackingCheckCE(pDM_Odm);
-			break;
-
-		case	ODM_AP:
-			odm_TXPowerTrackingCheckAP(pDM_Odm);		
-			break;		
-
-		default:
-			break;	
-	}
-
+	odm_TXPowerTrackingCheckCE(pDM_Odm);
 }
 
 VOID
@@ -536,7 +469,7 @@ odm_TXPowerTrackingCheckCE(
 	)
 {
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
+
 	PADAPTER	Adapter = pDM_Odm->Adapter;
 
 	if (!(pDM_Odm->SupportAbility & ODM_RF_TX_PWR_TRACK))
@@ -552,91 +485,11 @@ odm_TXPowerTrackingCheckCE(
 		} else {
 			ODM_SetRFReg(pDM_Odm, ODM_RF_PATH_A, RF_T_METER_OLD, bRFRegOffsetMask, 0x60);
 		}
-		
-	
-		
+
 		pDM_Odm->RFCalibrateInfo.TM_Trigger = 1;
 		return;
-	}
-	else
-	{
-		
+	} else {
 		ODM_TXPowerTrackingCallback_ThermalMeter(Adapter);
 		pDM_Odm->RFCalibrateInfo.TM_Trigger = 0;
 	}
-
-#endif	
 }
-
-VOID
-odm_TXPowerTrackingCheckMP(
-	IN	PVOID	pDM_VOID
-	)
-{
-	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PADAPTER	Adapter = pDM_Odm->Adapter;
-
-	if (ODM_CheckPowerStatus(Adapter) == FALSE) 
-	{
-		RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD, ("===>ODM_CheckPowerStatus() return FALSE\n"));
-		return;
-	}
-
-	odm_TXPowerTrackingThermalMeterCheck(Adapter);
-#endif
-	
-}
-
-
-VOID
-odm_TXPowerTrackingCheckAP(
-	IN	PVOID	pDM_VOID
-	)
-{
-	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
-#if (DM_ODM_SUPPORT_TYPE == ODM_AP)
-	prtl8192cd_priv	priv		= pDM_Odm->priv;
-
-	return;
-	
-#endif
-}
-
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-VOID
-odm_TXPowerTrackingThermalMeterCheck(
-	IN	PADAPTER		Adapter
-	)
-{
-#ifndef AP_BUILD_WORKAROUND
-	static u1Byte			TM_Trigger = 0;
-
-	if (!(GET_HAL_DATA(Adapter)->DM_OutSrc.SupportAbility & ODM_RF_TX_PWR_TRACK)) {
-		RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD,
-			("===>odm_TXPowerTrackingThermalMeterCheck(),pMgntInfo->bTXPowerTracking is FALSE, return!!\n"));
-		return;
-	}
-
-	if (!TM_Trigger) {
-		if (IS_HARDWARE_TYPE_8188E(Adapter) || IS_HARDWARE_TYPE_8192E(Adapter) ||
-				IS_HARDWARE_TYPE_8723B(Adapter) || IS_HARDWARE_TYPE_8814A(Adapter) || IS_HARDWARE_TYPE_8188F(Adapter) 
-				|| IS_HARDWARE_TYPE_8703B(Adapter) || IS_HARDWARE_TYPE_8723D(Adapter))
-			PHY_SetRFReg(Adapter, ODM_RF_PATH_A, RF_T_METER_88E, BIT17 | BIT16, 0x03);
-		else
-			PHY_SetRFReg(Adapter, ODM_RF_PATH_A, RF_T_METER, bRFRegOffsetMask, 0x60);
-		
-		RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD,("Trigger Thermal Meter!!\n"));
-		
-		TM_Trigger = 1;
-		return;
-	} else {
-		RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD,("Schedule TxPowerTracking direct call!!\n"));		
-		odm_TXPowerTrackingDirectCall(Adapter); 
-		TM_Trigger = 0;
-	}
-#endif
-}
-#endif
-
-
