@@ -47,11 +47,6 @@ typedef enum _HAL_STATUS{
 	RT_STATUS_OS_API_FAILED,*/
 }HAL_STATUS,*PHAL_STATUS;
 
-#if( DM_ODM_SUPPORT_TYPE == ODM_AP)
-#define		MP_DRIVER		0
-#endif
-#if(DM_ODM_SUPPORT_TYPE != ODM_WIN)
-
 #define		VISTA_USB_RX_REVISE			0
 
 //
@@ -103,8 +98,6 @@ typedef enum _RT_SPINLOCK_TYPE{
 	RT_SYNC_IO_CNT_SPINLOCK = 43,
 	RT_LAST_SPINLOCK,
 }RT_SPINLOCK_TYPE;
-
-#endif
 
 	#include <drv_types.h>
 	#define u1Byte 		u8

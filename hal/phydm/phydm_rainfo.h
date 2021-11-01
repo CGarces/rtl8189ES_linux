@@ -66,9 +66,6 @@
 #define		DM_RATR_STA_HIGH			1
 #define 		DM_RATR_STA_MIDDLE		2
 #define 		DM_RATR_STA_LOW			3
-#if(DM_ODM_SUPPORT_TYPE & ODM_AP)
-#define		DM_RATR_STA_ULTRA_LOW	4
-#endif
 
 #define		DM_RA_RATE_UP				1
 #define		DM_RA_RATE_DOWN			2
@@ -134,15 +131,6 @@ typedef struct _ODM_RA_Info_ {
 	u1Byte RAstage;  // StageRA, decide how many times RA will be done between PT
 	u1Byte PTSmoothFactor;
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_AP) && ((DEV_BUS_TYPE == RT_USB_INTERFACE) || (DEV_BUS_TYPE == RT_SDIO_INTERFACE))
-	u1Byte RateDownCounter;
-	u1Byte RateUpCounter;
-	u1Byte RateDirection;
-	u1Byte BoundingType;
-	u1Byte BoundingCounter;
-	u1Byte BoundingLearningTime;
-	u1Byte RateDownStartTime;
-#endif
 } ODM_RA_INFO_T, *PODM_RA_INFO_T;
 #endif
 

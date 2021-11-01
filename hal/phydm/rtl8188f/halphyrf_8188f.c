@@ -155,12 +155,7 @@ void DoIQK_8188F(
 	ODM_ResetIQKResult(pDM_Odm);
 
 	pDM_Odm->RFCalibrateInfo.ThermalValue_IQK = ThermalValue;
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	PHY_IQCalibrate_8188F(pDM_Odm, FALSE, FALSE);
-#else
 	PHY_IQCalibrate_8188F(Adapter, FALSE, FALSE);
-#endif
-
 }
 
 /*-----------------------------------------------------------------------------
@@ -237,10 +232,6 @@ ODM_TxPwrTrackSetPwr_8188F(
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("odm_TxPwrTrackSetPwr8188F CH=%d\n", *(pDM_Odm->pChannel)));
 
 		pRFCalibrateInfo->Remnant_OFDMSwingIdx[RFPath] = pRFCalibrateInfo->Absolute_OFDMSwingIdx[RFPath];
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-		//PHY_RF6052SetCCKTxPower(pDM_Odm->priv, *(pDM_Odm->pChannel));
-		//PHY_RF6052SetOFDMTxPower(pDM_Odm->priv, *(pDM_Odm->pChannel));
-#endif
 	} else if (Method == BBSWING) {
 		Final_OFDM_Swing_Index = pRFCalibrateInfo->DefaultOfdmIndex + pRFCalibrateInfo->Absolute_OFDMSwingIdx[RFPath];
 		Final_CCK_Swing_Index = pRFCalibrateInfo->DefaultCckIndex + pRFCalibrateInfo->Absolute_OFDMSwingIdx[RFPath];
@@ -640,11 +631,7 @@ void ConfigureTxpowerTrack_8188F(
 
 u1Byte          //bit0 = 1 => Tx OK, bit1 = 1 => Rx OK
 phy_PathA_IQK_8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
 	IN PADAPTER pAdapter,
-#endif
 	IN BOOLEAN configPathB
 )
 {
@@ -724,11 +711,7 @@ phy_PathA_IQK_8188F(
 
 u1Byte          //bit0 = 1 => Tx OK, bit1 = 1 => Rx OK
 phy_PathA_RxIQK8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
 	IN PADAPTER pAdapter,
-#endif
 	IN BOOLEAN configPathB
 )
 {
@@ -880,11 +863,7 @@ phy_PathA_RxIQK8188F(
 
 u1Byte              //bit0 = 1 => Tx OK, bit1 = 1 => Rx OK
 phy_PathB_IQK_8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm
-#else
 	IN PADAPTER pAdapter
-#endif
 )
 {
 	u4Byte regEAC, regE94, regE9C/*, regEC4, regECC*/;
@@ -965,11 +944,7 @@ phy_PathB_IQK_8188F(
 
 u1Byte          //bit0 = 1 => Tx OK, bit1 = 1 => Rx OK
 phy_PathB_RxIQK8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
 	IN PADAPTER pAdapter,
-#endif
 	IN BOOLEAN configPathB
 )
 {
@@ -1109,11 +1084,7 @@ phy_PathB_RxIQK8188F(
 
 VOID
 _PHY_PathAFillIQKMatrix8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
 	IN PADAPTER pAdapter,
-#endif
 	IN BOOLEAN bIQKOK,
 	IN s4Byte result[][8],
 	IN u1Byte final_candidate,
@@ -1200,11 +1171,7 @@ _PHY_PathAFillIQKMatrix8188F(
 
 VOID
 _PHY_PathBFillIQKMatrix8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
 	IN PADAPTER pAdapter,
-#endif
 	IN BOOLEAN bIQKOK,
 	IN s4Byte result[][8],
 	IN u1Byte final_candidate,
@@ -1323,11 +1290,7 @@ ODM_CheckPowerStatus(
 
 VOID
 _PHY_SaveADDARegisters8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
 	IN PADAPTER pAdapter,
-#endif
 	IN pu4Byte ADDAReg,
 	IN pu4Byte ADDABackup,
 	IN u4Byte RegisterNum
@@ -1351,11 +1314,7 @@ _PHY_SaveADDARegisters8188F(
 
 VOID
 _PHY_SaveMACRegisters8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
 	IN PADAPTER pAdapter,
-#endif
 	IN pu4Byte MACReg,
 	IN pu4Byte MACBackup
 )
@@ -1377,11 +1336,7 @@ _PHY_SaveMACRegisters8188F(
 
 VOID
 _PHY_ReloadADDARegisters8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
 	IN PADAPTER pAdapter,
-#endif
 	IN pu4Byte ADDAReg,
 	IN pu4Byte ADDABackup,
 	IN u4Byte RegiesterNum
@@ -1402,11 +1357,7 @@ _PHY_ReloadADDARegisters8188F(
 
 VOID
 _PHY_ReloadMACRegisters8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
 	IN PADAPTER pAdapter,
-#endif
 	IN pu4Byte MACReg,
 	IN pu4Byte MACBackup
 )
@@ -1427,11 +1378,7 @@ _PHY_ReloadMACRegisters8188F(
 
 VOID
 _PHY_PathADDAOn8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
 	IN PADAPTER pAdapter,
-#endif
 	IN pu4Byte ADDAReg,
 	IN BOOLEAN isPathAOn,
 	IN BOOLEAN is2T
@@ -1461,11 +1408,7 @@ _PHY_PathADDAOn8188F(
 
 VOID
 _PHY_MACSettingCalibration8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
 	IN PADAPTER pAdapter,
-#endif
 	IN pu4Byte MACReg,
 	IN pu4Byte MACBackup
 )
@@ -1484,11 +1427,7 @@ _PHY_MACSettingCalibration8188F(
 
 VOID
 _PHY_PathAStandBy8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm
-#else
 	IN PADAPTER pAdapter
-#endif
 )
 {
 #if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
@@ -1509,11 +1448,7 @@ _PHY_PathAStandBy8188F(
 
 VOID
 _PHY_PIModeSwitch8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
 	IN PADAPTER pAdapter,
-#endif
 	IN BOOLEAN PIMode
 )
 {
@@ -1533,11 +1468,7 @@ _PHY_PIModeSwitch8188F(
 
 BOOLEAN
 phy_SimularityCompare_8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
 	IN PADAPTER pAdapter,
-#endif
 	IN s4Byte result[][8],
 	IN u1Byte c1,
 	IN u1Byte c2
@@ -1642,11 +1573,7 @@ phy_SimularityCompare_8188F(
 
 VOID
 phy_IQCalibrate_8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
 	IN PADAPTER pAdapter,
-#endif
 	IN s4Byte result[][8],
 	IN u1Byte t,
 	IN BOOLEAN is2T
@@ -1687,28 +1614,16 @@ phy_IQCalibrate_8188F(
 
 	u4Byte Path_SEL_BB, Path_SEL_RF;
 
-#if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
-	u4Byte retryCount = 2;
-#else
 #if MP_DRIVER
 	const u4Byte retryCount = 9;
 #else
 	const u4Byte retryCount = 2;
-#endif
 #endif
 
 	// Note: IQ calibration must be performed after loading
 	// 		PHY_REG.txt , and radio_a, radio_b.txt
 
 	//u4Byte bbvalue;
-
-#if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
-#ifdef MP_TEST
-	if (pDM_Odm->priv->pshare->rf_ft_var.mp_specific)
-		retryCount = 9;
-#endif
-#endif
-
 
 	if (t == 0) {
 //	 	 bbvalue = ODM_GetBBReg(pDM_Odm, rFPGA0_RFMOD, bMaskDWord);
@@ -1986,11 +1901,7 @@ phy_LCCalibrate_8188F(
 
 VOID
 PHY_IQCalibrate_8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
 	IN PADAPTER pAdapter,
-#endif
 	IN BOOLEAN bReCovery,
 	IN BOOLEAN bRestore
 )
@@ -2355,11 +2266,7 @@ PHY_LCCalibrate_8188F(
 }
 
 VOID phy_SetRFPathSwitch_8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
 	IN PADAPTER pAdapter,
-#endif
 	IN BOOLEAN bMain,
 	IN BOOLEAN is2T
 )
@@ -2376,11 +2283,7 @@ VOID phy_SetRFPathSwitch_8188F(
 }
 
 VOID PHY_SetRFPathSwitch_8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
 	IN PADAPTER pAdapter,
-#endif
 	IN BOOLEAN bMain
 )
 {

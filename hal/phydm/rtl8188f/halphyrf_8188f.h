@@ -53,11 +53,7 @@ ODM_TxPwrTrackSetPwr_8188F(
 
 void	
 PHY_IQCalibrate_8188F(	
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T		pDM_Odm,
-#else
 	IN PADAPTER	Adapter,
-#endif
 	IN	BOOLEAN 	bReCovery,
 	IN	BOOLEAN 	bRestore);
 
@@ -79,11 +75,7 @@ PHY_DigitalPredistortion_8188F(		IN	PADAPTER	pAdapter);
 
 VOID
 _PHY_SaveADDARegisters_8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T		pDM_Odm,
-#else
 	IN	PADAPTER	pAdapter,
-#endif
 	IN	pu4Byte		ADDAReg,
 	IN	pu4Byte		ADDABackup,
 	IN	u4Byte		RegisterNum
@@ -91,11 +83,7 @@ _PHY_SaveADDARegisters_8188F(
 
 VOID
 _PHY_PathADDAOn_8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T		pDM_Odm,
-#else
 	IN	PADAPTER	pAdapter,
-#endif
 	IN	pu4Byte		ADDAReg,
 	IN	BOOLEAN		isPathAOn,
 	IN	BOOLEAN		is2T
@@ -103,11 +91,7 @@ _PHY_PathADDAOn_8188F(
 
 VOID
 _PHY_MACSettingCalibration_8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T		pDM_Odm,
-#else
 	IN	PADAPTER	pAdapter,
-#endif
 	IN	pu4Byte		MACReg,
 	IN	pu4Byte		MACBackup	
 	);
@@ -115,11 +99,7 @@ _PHY_MACSettingCalibration_8188F(
 
 VOID
 _PHY_PathAStandBy(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T		pDM_Odm
-#else
 	IN	PADAPTER	pAdapter
-#endif
 	);
 
 void phy_active_large_power_detection_8188f(

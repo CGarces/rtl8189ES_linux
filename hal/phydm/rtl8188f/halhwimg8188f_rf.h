@@ -35,16 +35,6 @@ ODM_ReadAndConfig_MP_8188F_RadioA(/* TC: Test Chip, MP: MP Chip*/
 u4Byte ODM_GetVersion_MP_8188F_RadioA(void);
 
 /******************************************************************************
-*                           TxPowerTrack_AP.TXT
-******************************************************************************/
-
-void
-ODM_ReadAndConfig_MP_8188F_TxPowerTrack_AP(/* TC: Test Chip, MP: MP Chip*/
-	IN   PDM_ODM_T  pDM_Odm
-);
-u4Byte ODM_GetVersion_MP_8188F_TxPowerTrack_AP(void);
-
-/******************************************************************************
 *                           TxPowerTrack_SDIO.TXT
 ******************************************************************************/
 
