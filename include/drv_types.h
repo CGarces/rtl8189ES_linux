@@ -210,13 +210,7 @@ struct registry_priv
 	char alpha2[2];
 	u8	channel_plan;
 	u8  full_ch_in_p2p_handshake; /* 0: reply only softap channel, 1: reply full channel list*/
-#ifdef CONFIG_BT_COEXIST
-	u8	btcoex;
-	u8	bt_iso;
-	u8	bt_sco;
-	u8	bt_ampdu;
-	s8	ant_num;
-#endif
+
 	BOOLEAN	bAcceptAddbaReq;
 
 	u8	antdiv_cfg;

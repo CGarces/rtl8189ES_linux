@@ -491,10 +491,6 @@ _adapter *rtw_sdio_if1_init(struct dvobj_priv *dvobj)
 
 	rtw_hal_chip_configure(padapter);
 
-#ifdef CONFIG_BT_COEXIST
-	rtw_btcoex_Initialize(padapter);
-#endif // CONFIG_BT_COEXIST
-
 	//3 6. read efuse/eeprom data
 	rtw_hal_read_chip_info(padapter);
 
@@ -704,14 +700,6 @@ _func_enter_;
 	rtw_set_drv_stopped(padapter);	/*for stop thread*/
 #ifdef CONFIG_CONCURRENT_MODE
 	rtw_drv_if2_stop(dvobj->padapters[IFACE_ID1]);
-#endif
-
-#ifdef CONFIG_BT_COEXIST
-	#ifdef CONFIG_BT_COEXIST_SOCKET_TRX
-	if (GET_HAL_DATA(padapter)->EEPROMBluetoothCoexist)
-		rtw_btcoex_close_socket(padapter);
-	#endif
-	rtw_btcoex_HaltNotify(padapter);
 #endif
 
 	rtw_sdio_if1_deinit(padapter);

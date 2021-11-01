@@ -811,36 +811,9 @@ odm_DIG(
 	else
 #endif
 	{
-#if (ODM_CONFIG_BT_COEXIST == 1)
-		if(pDM_Odm->bBtHsOperation)
-		{
-			if(pDM_Odm->bLinked)
-			{
-				if(pDM_DigTable->BT30_CurIGI > (CurrentIGI))
-					ODM_Write_DIG(pDM_Odm, CurrentIGI);
-				else
-					ODM_Write_DIG(pDM_Odm, pDM_DigTable->BT30_CurIGI);
-					
-				pDM_DigTable->bMediaConnect_0 = pDM_Odm->bLinked;
-				pDM_DigTable->DIG_Dynamic_MIN_0 = DIG_Dynamic_MIN;
-			}
-			else
-			{
-				if(pDM_Odm->bLinkInProcess)
-					ODM_Write_DIG(pDM_Odm, 0x1c);
-				else if(pDM_Odm->bBtConnectProcess)
-					ODM_Write_DIG(pDM_Odm, 0x28);
-				else
-					ODM_Write_DIG(pDM_Odm, pDM_DigTable->BT30_CurIGI);//ODM_Write_DIG(pDM_Odm, pDM_DigTable->CurIGValue);	
-			}
-		}
-		else		// BT is not using
-#endif
-		{
-			ODM_Write_DIG(pDM_Odm, CurrentIGI);//ODM_Write_DIG(pDM_Odm, pDM_DigTable->CurIGValue);
-			pDM_DigTable->bMediaConnect_0 = pDM_Odm->bLinked;
-			pDM_DigTable->DIG_Dynamic_MIN_0 = DIG_Dynamic_MIN;
-		}
+		ODM_Write_DIG(pDM_Odm, CurrentIGI);//ODM_Write_DIG(pDM_Odm, pDM_DigTable->CurIGValue);
+		pDM_DigTable->bMediaConnect_0 = pDM_Odm->bLinked;
+		pDM_DigTable->DIG_Dynamic_MIN_0 = DIG_Dynamic_MIN;
 	}
 }
 

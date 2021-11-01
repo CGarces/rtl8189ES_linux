@@ -486,11 +486,6 @@ typedef struct hal_com_data {
 	struct sreset_priv srestpriv;
 #endif //#ifdef DBG_CONFIG_ERROR_DETECT
 
-#ifdef CONFIG_BT_COEXIST
-	// For bluetooth co-existance
-	BT_COEXIST		bt_coexist;
-#endif // CONFIG_BT_COEXIST
-
 #if defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8188F)
 	// mutual exclusive with PCI -- so they're SDIO and GSPI 
 	// Interrupt relatd register information.

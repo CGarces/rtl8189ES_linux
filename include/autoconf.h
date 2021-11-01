@@ -98,7 +98,6 @@
 /*
  * Hareware/Firmware Related Config
  */
-//#define CONFIG_BT_COEXIST	// Set from Makefile
 //#define CONFIG_ANTENNA_DIVERSITY	// Set from Makefile
 //#define SUPPORT_HW_RFOFF_DETECTED
 
@@ -153,7 +152,6 @@
 	#undef CONFIG_AP_MODE
 	#undef CONFIG_NATIVEAP_MLME
 	#undef CONFIG_POWER_SAVING
-	#undef CONFIG_BT_COEXIST
 	#undef SUPPORT_HW_RFOFF_DETECTED
 #endif
 
