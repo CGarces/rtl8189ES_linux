@@ -1058,26 +1058,12 @@ ODM_ReadAndConfig_MP_8188F_TXPWR_LMT(
 )
 {
 	u4Byte     i           = 0;
-#if (DM_ODM_SUPPORT_TYPE == ODM_IOT)
-	u4Byte     ArrayLen    = sizeof(Array_MP_8188F_TXPWR_LMT)/sizeof(u1Byte);
-	pu1Byte    Array      = (pu1Byte)Array_MP_8188F_TXPWR_LMT;
-#else
 	u4Byte     ArrayLen    = sizeof(Array_MP_8188F_TXPWR_LMT)/sizeof(pu1Byte);
 	pu1Byte    *Array      = (pu1Byte *)Array_MP_8188F_TXPWR_LMT;
-#endif
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("===> ODM_ReadAndConfig_MP_8188F_TXPWR_LMT\n"));
 
 	for (i = 0; i < ArrayLen; i += 7) {
-#if (DM_ODM_SUPPORT_TYPE == ODM_IOT)
-		u1Byte regulation = Array[i];
-		u1Byte band = Array[i+1];
-		u1Byte bandwidth = Array[i+2];
-		u1Byte rate = Array[i+3];
-		u1Byte rfPath = Array[i+4];
-		u1Byte chnl = Array[i+5];
-		u1Byte val = Array[i+6];
-#else
 		pu1Byte regulation = Array[i];
 		pu1Byte band = Array[i+1];
 		pu1Byte bandwidth = Array[i+2];
@@ -1085,8 +1071,7 @@ ODM_ReadAndConfig_MP_8188F_TXPWR_LMT(
 		pu1Byte rfPath = Array[i+4];
 		pu1Byte chnl = Array[i+5];
 		pu1Byte val = Array[i+6];
-#endif
-	
+
 		odm_ConfigBB_TXPWR_LMT_8188F(pDM_Odm, regulation, band, bandwidth, rate, rfPath, chnl, val);
 	}
 
