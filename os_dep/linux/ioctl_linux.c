@@ -9033,10 +9033,6 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 	}
 	else if (strcmp(tmp[0], "vidpid") == 0)
 	{
-		#ifdef CONFIG_RTL8723B
-		addr = EEPROM_VID_8723BU;
-		#endif // CONFIG_RTL8723B
-
 		#ifdef CONFIG_RTL8188F
 		addr = EEPROM_VID_8188FU;
 		#endif /* CONFIG_RTL8188F */
@@ -9608,10 +9604,6 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 			err = -EINVAL;
 			goto exit;
 		}
-
-		#ifdef CONFIG_RTL8723B
-		addr = EEPROM_VID_8723BU;
-		#endif
 
 		#ifdef CONFIG_RTL8188F
 		addr = EEPROM_VID_8188FU;
@@ -10440,12 +10432,6 @@ static int rtw_mp_get(struct net_device *dev,
 			DBG_871X("mp_get MP_RX\n");
 			rtw_mp_rx(dev, info, wdata, extra);
 			break;
-#if defined(CONFIG_RTL8723B)
-	case MP_SetBT:		
-			DBG_871X("set MP_SetBT\n");
-			rtw_mp_SetBT(dev, info, wdata, extra);
-			break;		 
-#endif
 #ifdef CONFIG_SDIO_INDIRECT_ACCESS
 	case MP_SD_IREAD:
 		rtw_mp_sd_iread(dev, info, wrqu, extra);
@@ -10519,13 +10505,6 @@ static int rtw_widi_set_probe_request(struct net_device *dev,
 #endif // CONFIG_INTEL_WIDI
 
 #ifdef CONFIG_MAC_LOOPBACK_DRIVER
-
-#if defined(CONFIG_RTL8723B)
-extern void rtl8723b_cal_txdesc_chksum(struct tx_desc *ptxdesc);
-#define cal_txdesc_chksum rtl8723b_cal_txdesc_chksum
-extern void rtl8723b_fill_default_txdesc(struct xmit_frame *pxmitframe, u8 *pbuf);
-#define fill_default_txdesc rtl8723b_fill_default_txdesc
-#endif // CONFIG_RTL8723B
 
 #if defined(CONFIG_RTL8703B)
 /* extern void rtl8703b_cal_txdesc_chksum(struct tx_desc *ptxdesc); */
@@ -11322,10 +11301,7 @@ static const struct iw_priv_args rtw_private_args[] = {
 		{ EFUSE_FILE, IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "efuse_file" },
 		{ MP_TX, IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "mp_tx" },
 		{ MP_RX, IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "mp_rx" },
-#if defined(CONFIG_RTL8723B)
-		{ MP_SetBT, IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "mp_setbt" },
-        { MP_DISABLE_BT_COEXIST, IW_PRIV_TYPE_CHAR | 1024, 0, "mp_disa_btcoex"},
-#endif
+
 		{ CTA_TEST, IW_PRIV_TYPE_CHAR | 1024, 0, "cta_test"},
 		{ MP_IQK, IW_PRIV_TYPE_CHAR | 1024, 0, "mp_iqk"},
 		{ MP_LCK, IW_PRIV_TYPE_CHAR | 1024, 0, "mp_lck"},

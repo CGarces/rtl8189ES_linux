@@ -330,28 +330,7 @@ void mpt_InitHWConfig(PADAPTER Adapter)
 
 	hal = GET_HAL_DATA(Adapter);
 
-	if (IS_HARDWARE_TYPE_8723B(Adapter)) {
-		// TODO: <20130114, Kordan> The following setting is only for DPDT and Fixed board type.
-		// TODO:  A better solution is configure it according EFUSE during the run-time. 
-
-		PHY_SetMacReg(Adapter, 0x64, BIT20, 0x0);		   //0x66[4]=0		
-		PHY_SetMacReg(Adapter, 0x64, BIT24, 0x0);		   //0x66[8]=0
-		PHY_SetMacReg(Adapter, 0x40, BIT4, 0x0);		   //0x40[4]=0		
-		PHY_SetMacReg(Adapter, 0x40, BIT3, 0x1);		   //0x40[3]=1		
-		PHY_SetMacReg(Adapter, 0x4C, BIT24, 0x1);		   //0x4C[24:23]=10
-		PHY_SetMacReg(Adapter, 0x4C, BIT23, 0x0);		   //0x4C[24:23]=10
-		PHY_SetBBReg(Adapter, 0x944, BIT1|BIT0, 0x3);	  //0x944[1:0]=11	
-		PHY_SetBBReg(Adapter, 0x930, bMaskByte0, 0x77);   //0x930[7:0]=77	  
-		PHY_SetMacReg(Adapter, 0x38, BIT11, 0x1);		   //0x38[11]=1
-
-		// TODO: <20130206, Kordan> The default setting is wrong, hard-coded here. 
-		PHY_SetMacReg(Adapter, 0x778, 0x3, 0x3);					// Turn off hardware PTA control (Asked by Scott)
-		PHY_SetMacReg(Adapter, 0x64, bMaskDWord, 0x36000000);	 //Fix BT S0/S1
-		PHY_SetMacReg(Adapter, 0x948, bMaskDWord, 0x0); 		   //Fix BT can't Tx
-
-		/* <20130522, Kordan> Turn off equalizer to improve Rx sensitivity. (Asked by EEChou) */
-		PHY_SetBBReg(Adapter, 0xA00, BIT8, 0x0);			/*0xA01[0] = 0*/
-	 } else if (IS_HARDWARE_TYPE_8188ES(Adapter))
+	if (IS_HARDWARE_TYPE_8188ES(Adapter))
 		PHY_SetMacReg(Adapter, 0x4C , BIT23, 0);		/*select DPDT_P and DPDT_N as output pin*/
 #ifdef CONFIG_RTL8814A	
 	  else if (IS_HARDWARE_TYPE_8814A(Adapter))
@@ -377,24 +356,6 @@ void mpt_InitHWConfig(PADAPTER Adapter)
 #define PHY_LCCalibrate(a)	PHY_LCCalibrate_8814A(&(GET_HAL_DATA(a)->odmpriv))
 #define PHY_SetRFPathSwitch(a,b) PHY_SetRFPathSwitch_8814A(a,b)
 #endif /* CONFIG_RTL8814A */
-
-#ifdef CONFIG_RTL8723B
-static void PHY_IQCalibrate(PADAPTER padapter, u8 bReCovery)
-{
-	PHAL_DATA_TYPE pHalData;
-	u8 b2ant;	//false:1ant, true:2-ant
-	u8 RF_Path;	//0:S1, 1:S0
-
-	pHalData = GET_HAL_DATA(padapter);
-	b2ant = pHalData->EEPROMBluetoothAntNum==Ant_x2?_TRUE:_FALSE;
-
-	PHY_IQCalibrate_8723B(padapter, bReCovery, _FALSE, b2ant, pHalData->ant_path);
-}
-
-
-#define PHY_LCCalibrate(a)	PHY_LCCalibrate_8723B(&(GET_HAL_DATA(a)->odmpriv))
-#define PHY_SetRFPathSwitch(a,b)	PHY_SetRFPathSwitch_8723B(a,b)
-#endif
 
 #ifdef CONFIG_RTL8703B
 static void PHY_IQCalibrate(PADAPTER padapter, u8 bReCovery) 
@@ -434,35 +395,8 @@ MPT_InitializeAdapter(
 	pMptCtx->bMassProdTest = _FALSE;
 	pMptCtx->bMptIndexEven = _TRUE;	//default gain index is -6.0db
 	pMptCtx->h2cReqNum = 0x0;
-	//init for BT MP
-#if defined(CONFIG_RTL8723B)
-	pMptCtx->bMPh2c_timeout = _FALSE;
-	pMptCtx->MptH2cRspEvent = _FALSE;
-	pMptCtx->MptBtC2hEvent = _FALSE;
-	_rtw_init_sema(&pMptCtx->MPh2c_Sema, 0);
-	_init_timer( &pMptCtx->MPh2c_timeout_timer, pAdapter->pnetdev, MPh2c_timeout_handle, pAdapter );
-#endif
 
 	mpt_InitHWConfig(pAdapter);
-
-#ifdef CONFIG_RTL8723B
-	rtl8723b_InitAntenna_Selection(pAdapter);
-	if (IS_HARDWARE_TYPE_8723B(pAdapter))
-	{
-
-		/* <20130522, Kordan> Turn off equalizer to improve Rx sensitivity. (Asked by EEChou)*/
-		PHY_SetBBReg(pAdapter, 0xA00, BIT8, 0x0);
-		PHY_SetRFPathSwitch(pAdapter, 1/*pHalData->bDefaultAntenna*/); /*default use Main*/
-		/*<20130522, Kordan> 0x51 and 0x71 should be set immediately after path switched, or they might be overwritten. */
-		if ((pHalData->PackageType == PACKAGE_TFBGA79) || (pHalData->PackageType == PACKAGE_TFBGA90))
-					PHY_SetRFReg(pAdapter, ODM_RF_PATH_A, 0x51, bRFRegOffsetMask, 0x6B10E);
-		else
-					PHY_SetRFReg(pAdapter, ODM_RF_PATH_A, 0x51, bRFRegOffsetMask, 0x6B04E);
-	}	
-	/*set ant to wifi side in mp mode*/
-	rtw_write16(pAdapter, 0x870, 0x300);
-	rtw_write16(pAdapter, 0x860, 0x110);
-#endif
 
 	pMptCtx->bMptWorkItemInProgress = _FALSE;
 	pMptCtx->CurrMptAct = NULL;
@@ -525,14 +459,6 @@ MPT_DeInitAdapter(
 	PMPT_CONTEXT		pMptCtx = &pAdapter->mppriv.MptCtx;
 
 	pMptCtx->bMptDrvUnload = _TRUE;
-	#if defined(CONFIG_RTL8723B)
-	_rtw_free_sema(&(pMptCtx->MPh2c_Sema));
-	_cancel_timer_ex( &pMptCtx->MPh2c_timeout_timer);
-	#endif
-	#if	defined(CONFIG_RTL8723B)
-	PHY_SetBBReg(pAdapter,0xA01, BIT0, 1); ///suggestion  by jerry for MP Rx.
-	#endif
-
 }
 
 static u8 mpt_ProStartTest(PADAPTER padapter)
@@ -758,9 +684,6 @@ s32 mp_start_test(PADAPTER padapter)
 	#ifdef CONFIG_RTL8814A
 	rtl8814_InitHalDm(padapter);
 	#endif /* CONFIG_RTL8814A */
-	#ifdef CONFIG_RTL8723B
-	rtl8723b_InitHalDm(padapter);
-	#endif /* CONFIG_RTL8723B */
 	#ifdef CONFIG_RTL8703B
 	rtl8703b_InitHalDm(padapter);
 	#endif /* CONFIG_RTL8703B */
@@ -838,9 +761,6 @@ end_of_mp_stop_test:
 
 	_exit_critical_bh(&pmlmepriv->lock, &irqL);
 
-	#ifdef CONFIG_RTL8723B
-	rtl8723b_InitHalDm(padapter);
-	#endif
 	#ifdef CONFIG_RTL8703B
 	rtl8703b_InitHalDm(padapter);
 	#endif
@@ -1003,9 +923,6 @@ void PhySetTxPowerLevel(PADAPTER pAdapter)
 		
 	if (pmp_priv->bSetTxPower==0) // for NO manually set power index
 	{
-#if defined(CONFIG_RTL8723B)
-		PHY_SetTxPowerLevel8723B(pAdapter,pmp_priv->channel);
-#endif
 #if defined(CONFIG_RTL8188F)
 		PHY_SetTxPowerLevel8188F(pAdapter, pmp_priv->channel);
 #endif
@@ -1170,39 +1087,6 @@ void fill_tx_desc_8814a(PADAPTER padapter)
 }
 #endif
 
-#if defined(CONFIG_RTL8723B)
-void fill_tx_desc_8723b(PADAPTER padapter)
-{
-	struct mp_priv *pmp_priv = &padapter->mppriv;
-	struct pkt_attrib *pattrib = &(pmp_priv->tx.attrib);
-	u8 *ptxdesc = pmp_priv->tx.desc;
-
-	SET_TX_DESC_AGG_BREAK_8723B(ptxdesc, 1);
-	SET_TX_DESC_MACID_8723B(ptxdesc, pattrib->mac_id);
-	SET_TX_DESC_QUEUE_SEL_8723B(ptxdesc, pattrib->qsel);
-
-	SET_TX_DESC_RATE_ID_8723B(ptxdesc, pattrib->raid);
-	SET_TX_DESC_SEQ_8723B(ptxdesc, pattrib->seqnum);
-	SET_TX_DESC_HWSEQ_EN_8723B(ptxdesc, 1);
-	SET_TX_DESC_USE_RATE_8723B(ptxdesc, 1);
-	SET_TX_DESC_DISABLE_FB_8723B(ptxdesc, 1);
-
-	if (pmp_priv->preamble) {
-		if (HwRateToMPTRate(pmp_priv->rateidx) <=  MPT_RATE_54M)
-			SET_TX_DESC_DATA_SHORT_8723B(ptxdesc, 1);
-	}
-
-	if (pmp_priv->bandwidth == CHANNEL_WIDTH_40) {
-		SET_TX_DESC_DATA_BW_8723B(ptxdesc, 1);
-	}
-
-	SET_TX_DESC_TX_RATE_8723B(ptxdesc, pmp_priv->rateidx);
-
-	SET_TX_DESC_DATA_RATE_FB_LIMIT_8723B(ptxdesc, 0x1F);
-	SET_TX_DESC_RTS_RATE_FB_LIMIT_8723B(ptxdesc, 0xF);
-}
-#endif
-
 #if defined(CONFIG_RTL8703B)
 void fill_tx_desc_8703b(PADAPTER padapter) 
 {
@@ -1339,10 +1223,6 @@ void SetPacketTx(PADAPTER padapter)
 		fill_tx_desc_8814a(padapter);
 #endif /* defined(CONFIG_RTL8814A) */
 
-#if defined(CONFIG_RTL8723B)
-	if(IS_HARDWARE_TYPE_8723B(padapter))
-		fill_tx_desc_8723b(padapter);
-#endif
 #if defined(CONFIG_RTL8703B)
 	if (IS_HARDWARE_TYPE_8703B(padapter))
 		fill_tx_desc_8703b(padapter);
@@ -1418,10 +1298,6 @@ void SetPacketRx(PADAPTER pAdapter, u8 bStartRx, u8 bAB)
 	type = _HW_STATE_AP_;
 	if(bStartRx)
 	{
-#ifdef CONFIG_RTL8723B
-		PHY_SetMacReg(pAdapter, 0xe70, BIT23|BIT22, 0x3);// Power on adc  (in RX_WAIT_CCA state)
-		write_bbreg(pAdapter, 0xa01, BIT0, bDisable);// improve Rx performance by jerry	
-#endif
 		if(	pmppriv->bSetRxBssid == _TRUE ){
 			//pHalData->ReceiveConfig = RCR_APM | RCR_AM | RCR_AB |RCR_CBSSID_DATA| RCR_CBSSID_BCN| RCR_APP_ICV | RCR_AMF | RCR_HTC_LOC_CTRL | RCR_APP_MIC | RCR_APP_PHYST_RXFF;	 
 			pHalData->ReceiveConfig = RCR_AAP | RCR_APM | RCR_AM | RCR_AB |RCR_AMF | RCR_APP_ICV | RCR_AMF | RCR_HTC_LOC_CTRL | RCR_APP_MIC | RCR_APP_PHYST_RXFF  ;
@@ -1432,9 +1308,7 @@ void SetPacketRx(PADAPTER pAdapter, u8 bStartRx, u8 bAB)
 			//Set_MSR(pAdapter, WIFI_FW_AP_STATE);
 			//rtw_hal_set_hwreg(pAdapter, HW_VAR_BSSID, pmppriv->network_macaddr);
 			//rtw_hal_set_hwreg(pAdapter, HW_VAR_SET_OPMODE, (u8 *)(&type));
-		}
-		else
-		{
+		} else {
 		pHalData->ReceiveConfig = AAP | APM | AM | AB | APP_ICV | ADF | AMF | HTC_LOC_CTRL | APP_MIC | APP_PHYSTS;
 		pHalData->ReceiveConfig |= ACRC32;
 		rtw_write32(pAdapter, REG_RCR, pHalData->ReceiveConfig);
@@ -1442,13 +1316,7 @@ void SetPacketRx(PADAPTER pAdapter, u8 bStartRx, u8 bAB)
 		rtw_write16(pAdapter, REG_RXFLTMAP2, 0xFFFF);
 		// Accept CRC error and destination address
 		}
-	}
-	else
-	{
-#ifdef CONFIG_RTL8723B
-		PHY_SetMacReg(pAdapter, 0xe70, BIT23|BIT22, 0x00);// Power off adc  (in RX_WAIT_CCA state)
-		write_bbreg(pAdapter, 0xa01, BIT0, bEnable);// improve Rx performance by jerry	
-#endif
+	} else {
 		rtw_write32(pAdapter, REG_RCR, 0);
 	}
 

@@ -873,10 +873,6 @@ struct _ADAPTER{
 #ifdef CONFIG_WFD
 	struct wifi_display_info wfd_info;
 #endif //CONFIG_WFD
-
-#ifdef CONFIG_BT_COEXIST_SOCKET_TRX
-	struct bt_coex_info coex_info;
-#endif //CONFIG_BT_COEXIST_SOCKET_TRX
 	
 	ERROR_CODE		LastError; /* <20130613, Kordan> Only the functions associated with MP records the error code by now. */
 	

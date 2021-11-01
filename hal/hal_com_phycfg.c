@@ -249,16 +249,6 @@ static const struct map_t rtl8188f_pg_txpwr_def_info =
 	);
 #endif
 
-#ifdef CONFIG_RTL8723B
-static const struct map_t rtl8723b_pg_txpwr_def_info =
-	MAP_ENT(0xB8, 2, 0xFF
-		, MAPSEG_ARRAY_ENT(0x10, 12,
-			0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0xE0)
-		, MAPSEG_ARRAY_ENT(0x3A, 12,
-			0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0xE0)
-	);
-#endif
-
 #ifdef CONFIG_RTL8703B
 static const struct map_t rtl8703b_pg_txpwr_def_info =
 	MAP_ENT(0xB8, 1, 0xFF
@@ -327,11 +317,6 @@ const struct map_t *hal_pg_txpwr_def_info(_adapter *adapter)
 	interface_type = rtw_get_intf_type(adapter);
 
 	switch (rtw_get_chip_type(adapter)) {
-#ifdef CONFIG_RTL8723B
-	case RTL8723B:
-		map = &rtl8723b_pg_txpwr_def_info;
-		break;
-#endif
 #ifdef CONFIG_RTL8703B
 	case RTL8703B:
 		map = &rtl8703b_pg_txpwr_def_info;
@@ -3261,11 +3246,6 @@ PHY_SetTxPowerIndex(
 	if (IS_HARDWARE_TYPE_8814A(pAdapter)) {
 #if (RTL8814A_SUPPORT == 1)
 		PHY_SetTxPowerIndex_8814A(pAdapter, PowerIndex, RFPath, Rate);
-#endif
-	}
-	else if (IS_HARDWARE_TYPE_8723B(pAdapter)) {
-#if (RTL8723B_SUPPORT==1)
-		PHY_SetTxPowerIndex_8723B( pAdapter, PowerIndex, RFPath, Rate );
 #endif
 	}
 	else if (IS_HARDWARE_TYPE_8703B(pAdapter)) {

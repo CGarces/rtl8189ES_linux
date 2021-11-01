@@ -116,7 +116,6 @@ typedef	struct tag_HAL_VERSION
 
 #define IS_8188F(version)					((GET_CVID_IC_TYPE(version) == CHIP_8188F) ? TRUE : FALSE)
 #define IS_8814A_SERIES(version)			((GET_CVID_IC_TYPE(version) == CHIP_8814A) ? TRUE : FALSE)
-#define IS_8723B_SERIES(version)			((GET_CVID_IC_TYPE(version) == CHIP_8723B)? TRUE : FALSE)
 #define IS_8703B_SERIES(version)			((GET_CVID_IC_TYPE(version) == CHIP_8703B)? TRUE : FALSE)
 
 //HAL_CHIP_TYPE_E
@@ -154,9 +153,6 @@ typedef	struct tag_HAL_VERSION
 //----------------------------------------------------------------------------
 
 #define IS_VENDOR_8192E_B_CUT(_Adapter)		((GET_CVID_CUT_VERSION(GET_HAL_DATA(_Adapter)->VersionID) == B_CUT_VERSION) ? TRUE : FALSE)
-
-#define IS_VENDOR_8723B_TEST_CHIP(_Adapter)	((IS_8723B_SERIES(GET_HAL_DATA(_Adapter)->VersionID)) ? ((IS_NORMAL_CHIP(GET_HAL_DATA(_Adapter)->VersionID)) ? FALSE : TRUE) : FALSE)
-#define IS_VENDOR_8723B_MP_CHIP(_Adapter)		((IS_8723B_SERIES(GET_HAL_DATA(_Adapter)->VersionID)) ? ((IS_NORMAL_CHIP(GET_HAL_DATA(_Adapter)->VersionID)) ? TRUE : FALSE) : FALSE)
 
 #define IS_VENDOR_8703B_TEST_CHIP(_Adapter)	((IS_8703B_SERIES(GET_HAL_DATA(_Adapter)->VersionID)) ? ((IS_NORMAL_CHIP(GET_HAL_DATA(_Adapter)->VersionID)) ? FALSE : TRUE) : FALSE)
 #define IS_VENDOR_8703B_MP_CHIP(_Adapter)		((IS_8703B_SERIES(GET_HAL_DATA(_Adapter)->VersionID)) ? ((IS_NORMAL_CHIP(GET_HAL_DATA(_Adapter)->VersionID)) ? TRUE : FALSE) : FALSE)

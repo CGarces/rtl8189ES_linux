@@ -1010,8 +1010,6 @@ PhyDM_Get_Structure(
 /* The following is for compile only*/
 /*===========================================================*/
 
-#define	IS_HARDWARE_TYPE_8723A(_Adapter)			FALSE
-#define IS_HARDWARE_TYPE_8723AE(_Adapter)			FALSE
 #define	IS_HARDWARE_TYPE_8192C(_Adapter)			FALSE
 #define	IS_HARDWARE_TYPE_8192D(_Adapter)			FALSE
 #define	RF_T_METER_92D					0x42

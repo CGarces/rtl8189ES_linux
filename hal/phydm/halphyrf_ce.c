@@ -43,11 +43,6 @@ void ConfigureTxpowerTrack(
 {
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 
-#if RTL8723B_SUPPORT
-	if(pDM_Odm->SupportICType==ODM_RTL8723B)
-		ConfigureTxpowerTrack_8723B(pConfig);
-#endif
-
 #if RTL8814A_SUPPORT
 	if (pDM_Odm->SupportICType == ODM_RTL8814A)
 		ConfigureTxpowerTrack_8814A(pConfig);
@@ -499,7 +494,7 @@ ODM_TXPowerTrackingCallback_ThermalMeter(
 
 	}
 
-	if (!IS_HARDWARE_TYPE_8723B(Adapter) && !IS_HARDWARE_TYPE_8703B(Adapter)) {
+	if (!IS_HARDWARE_TYPE_8703B(Adapter)) {
 		/* Delta temperature is equal to or larger than 20 centigrade (When threshold is 8).*/
 		if (delta_IQK >= c.Threshold_IQK) {
 			if (!pDM_Odm->RFCalibrateInfo.bIQKInProgress) 

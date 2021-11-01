@@ -202,12 +202,6 @@ ReadEFuseByte(
 		Efuse_Read1ByteFromFakeContent(Adapter, _offset, pbuf);
 		return;
 	}
-	if (IS_HARDWARE_TYPE_8723B(Adapter))
-	{
-		// <20130121, Kordan> For SMIC S55 EFUSE specificatoin.
-		//0x34[11]: SW force PGMEN input of efuse to high. (for the bank selected by 0x34[9:8])
-		PHY_SetMacReg(Adapter, EFUSE_TEST, BIT11, 0);
-	}
 	//Write Address
 	rtw_write8(Adapter, EFUSE_CTRL+1, (_offset & 0xff));  		
 	readbyte = rtw_read8(Adapter, EFUSE_CTRL+2);
@@ -447,7 +441,7 @@ efuse_OneByteRead(
 		return bResult;
 	}
 	
-	if (IS_HARDWARE_TYPE_8723B(pAdapter) || (IS_CHIP_VENDOR_SMIC(pHalData->VersionID))) {
+	if (IS_CHIP_VENDOR_SMIC(pHalData->VersionID)) {
 		// <20130121, Kordan> For SMIC EFUSE specificatoin.
 		//0x34[11]: SW force PGMEN input of efuse to high. (for the bank selected by 0x34[9:8])	
 		//PHY_SetMacReg(pAdapter, 0x34, BIT11, 0);
@@ -520,15 +514,13 @@ efuse_OneByteWrite(
 	efuseValue |= ((addr<<8 | data) & 0x3FFFF);
 
 	// <20130227, Kordan> 8192E MP chip A-cut had better not set 0x34[11] until B-Cut.
-	if (IS_HARDWARE_TYPE_8723B(pAdapter) || (IS_CHIP_VENDOR_SMIC(pHalData->VersionID))) {
+	if (IS_CHIP_VENDOR_SMIC(pHalData->VersionID)) {
 		// <20130121, Kordan> For SMIC EFUSE specificatoin.
 		//0x34[11]: SW force PGMEN input of efuse to high. (for the bank selected by 0x34[9:8])
 		//PHY_SetMacReg(pAdapter, 0x34, BIT11, 1);
 		rtw_write16(pAdapter, 0x34, rtw_read16(pAdapter,0x34)| (BIT11) );
 		rtw_write32(pAdapter, EFUSE_CTRL, 0x90600000|((addr<<8 | data)) );
-	}
-	else
-	{
+	} else {
 		rtw_write32(pAdapter, EFUSE_CTRL, efuseValue);
 	}
 
@@ -550,7 +542,7 @@ efuse_OneByteWrite(
 	}
 
 	// disable Efuse program enable
-	if (IS_HARDWARE_TYPE_8723B(pAdapter) || (IS_CHIP_VENDOR_SMIC(pHalData->VersionID))) {
+	if (IS_CHIP_VENDOR_SMIC(pHalData->VersionID)) {
 		PHY_SetMacReg(pAdapter, EFUSE_TEST, BIT(11), 0);
 	}
 
@@ -975,16 +967,6 @@ u8 rtw_efuse_map_write(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 			if (data[idx] != map[addr + idx]) {
 				word_en &= ~BIT(i >> 1);
 				newdata[i] = data[idx];
-#ifdef CONFIG_RTL8723B
-				if (addr + idx == 0x8) {
-					if (IS_C_CUT(pHalData->VersionID) || IS_B_CUT(pHalData->VersionID)) {
-						if (pHalData->adjuseVoltageVal == 6) {
-							newdata[i] = map[addr + idx];
-							RTW_INFO(" %s ,\n adjuseVoltageVal = %d ,newdata[%d] = %x\n", __func__, pHalData->adjuseVoltageVal, i, newdata[i]);
-						}
-					}
-				}
-#endif
 			}
 		}
 

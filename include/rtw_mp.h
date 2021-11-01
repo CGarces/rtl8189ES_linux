@@ -258,9 +258,6 @@ typedef struct _MPT_CONTEXT
 #define EFUSE_MAP_SIZE		512
 #endif
 
-#ifdef CONFIG_RTL8723B
-#define EFUSE_MAP_SIZE		512
-#endif
 #ifdef CONFIG_RTL8814A
 #define EFUSE_MAP_SIZE		512
 #endif
@@ -641,13 +638,8 @@ typedef enum	_MPT_TXPWR_DEF{
 
 #ifdef CONFIG_RF_GAIN_OFFSET
 
-#if defined(CONFIG_RTL8723B)
-	#define 	REG_RF_BB_GAIN_OFFSET	0x7f
-	#define 	RF_GAIN_OFFSET_MASK 	0xfffff
-#else
-	#define 	REG_RF_BB_GAIN_OFFSET	0x55
-	#define 	RF_GAIN_OFFSET_MASK 	0xfffff
-#endif	//CONFIG_RTL8723B
+#define 	REG_RF_BB_GAIN_OFFSET	0x55
+#define 	RF_GAIN_OFFSET_MASK 	0xfffff
 
 #endif //CONFIG_RF_GAIN_OFFSET
 

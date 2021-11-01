@@ -2001,8 +2001,6 @@ hal_EfusePgPacketWrite1ByteHeader(
 
 	/*DBG_8192C("%s\n", __func__); */
 	pg_header = ((pTargetPkt->offset << 4) & 0xf0) | pTargetPkt->word_en;
-	if (IS_HARDWARE_TYPE_8723BE(pAdapter))
-		efuse_OneByteWrite(pAdapter, 0x1FF, 00, FALSE); /* increase current */
 
 	efuse_OneByteWrite(pAdapter, efuse_addr, pg_header, bPseudoTest);
 

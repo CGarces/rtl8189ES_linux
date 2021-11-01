@@ -456,15 +456,7 @@ odm_RxPhyStatus92CSeries_Parsing(
 					}
 				}
 			}
-			else if(pDM_Odm->SupportICType & (ODM_RTL8723B))
-			{
-#if (RTL8723B_SUPPORT == 1)			
-				rx_pwr_all = odm_CCKRSSI_8723B(LNA_idx,VGA_idx);
-				PWDB_ALL = odm_QueryRxPwrPercentage(rx_pwr_all);
-				if(PWDB_ALL>100)
-					PWDB_ALL = 100;	
-#endif				
-			} else if (pDM_Odm->SupportICType & (ODM_RTL8188F)) {
+			else if (pDM_Odm->SupportICType & (ODM_RTL8188F)) {
 #if (RTL8188F_SUPPORT == 1)
 				rx_pwr_all = odm_CCKRSSI_8188F(LNA_idx, VGA_idx);
 				PWDB_ALL = odm_QueryRxPwrPercentage(rx_pwr_all);
@@ -1511,15 +1503,6 @@ ODM_ConfigRFWithHeaderFile(
 	}
 #endif
 
-#if (RTL8723B_SUPPORT == 1)
-	if (pDM_Odm->SupportICType == ODM_RTL8723B)
-	{
-		if(ConfigType == CONFIG_RF_RADIO)
-			READ_AND_CONFIG_MP(8723B,_RadioA);
-		else if(ConfigType == CONFIG_RF_TXPWR_LMT)
-			READ_AND_CONFIG_MP(8723B,_TXPWR_LMT);
-	}
-#endif
 #endif//(DM_ODM_SUPPORT_TYPE !=  ODM_AP)
 
 //1 All platforms support
@@ -1572,23 +1555,6 @@ ODM_ConfigRFWithTxPwrTrackHeaderFile(
    	ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, 
 				 ("pDM_Odm->SupportPlatform: 0x%X, pDM_Odm->SupportInterface: 0x%X, pDM_Odm->BoardType: 0x%X\n",
 				 pDM_Odm->SupportPlatform, pDM_Odm->SupportInterface, pDM_Odm->BoardType));
-
-
-//1 AP doesn't use PHYDM power tracking table in these ICs
-#if (DM_ODM_SUPPORT_TYPE !=  ODM_AP)
-
-#if RTL8723B_SUPPORT 	
-	if(pDM_Odm->SupportICType == ODM_RTL8723B)
-	{
-		if (pDM_Odm->SupportInterface == ODM_ITRF_PCIE)
-			READ_AND_CONFIG_MP(8723B,_TxPowerTrack_PCIE);
-		else if (pDM_Odm->SupportInterface == ODM_ITRF_USB)
-			READ_AND_CONFIG_MP(8723B,_TxPowerTrack_USB);
-		else if (pDM_Odm->SupportInterface == ODM_ITRF_SDIO)
-			READ_AND_CONFIG_MP(8723B,_TxPowerTrack_SDIO); 			
-	}
-#endif	
-#endif//(DM_ODM_SUPPORT_TYPE !=  ODM_AP)
 
 //1 All platforms support
 #if RTL8814A_SUPPORT
@@ -1643,18 +1609,6 @@ ODM_ConfigBBWithHeaderFile(
 			READ_AND_CONFIG_MP(8723A,_AGC_TAB);
 		}		
 	}		
-#endif
-#if (RTL8723B_SUPPORT == 1)
-	if(pDM_Odm->SupportICType == ODM_RTL8723B)
-	{
-		if(ConfigType == CONFIG_BB_PHY_REG){
-			READ_AND_CONFIG_MP(8723B,_PHY_REG);
-		}else if(ConfigType == CONFIG_BB_AGC_TAB){
-			READ_AND_CONFIG_MP(8723B,_AGC_TAB);
-		}else if(ConfigType == CONFIG_BB_PHY_REG_PG){
-			READ_AND_CONFIG_MP(8723B,_PHY_REG_PG);
-		}
-	}
 #endif
 #endif//(DM_ODM_SUPPORT_TYPE !=  ODM_AP)
 
@@ -1716,11 +1670,6 @@ ODM_ConfigMACWithHeaderFile(
 		READ_AND_CONFIG_MP(8723A,_MAC_REG);
 	}
 #endif
-#if (RTL8723B_SUPPORT == 1)  
-	if (pDM_Odm->SupportICType == ODM_RTL8723B){
-		READ_AND_CONFIG_MP(8723B,_MAC_REG);
-	}
-#endif
 #endif//(DM_ODM_SUPPORT_TYPE !=  ODM_AP)
 
 //1 All platforms support
@@ -1751,16 +1700,6 @@ ODM_ConfigFWWithHeaderFile(
 	)
 {
 #if (DM_ODM_SUPPORT_TYPE != ODM_AP)
-
-#if (RTL8723B_SUPPORT == 1)  
-	if (pDM_Odm->SupportICType == ODM_RTL8723B)
-	{
-		if (ConfigType == CONFIG_FW_NIC)
-			READ_FIRMWARE_MP(8723B,_FW_NIC);
-		else if (ConfigType == CONFIG_FW_WoWLAN)
-			READ_FIRMWARE_MP(8723B,_FW_WoWLAN);
-	}
-#endif //#if (RTL8723B_SUPPORT == 1)  
 
 #if (RTL8814A_SUPPORT == 1)
 	if (pDM_Odm->SupportICType == ODM_RTL8814A)
@@ -1803,10 +1742,6 @@ ODM_GetHWImgVersion(
 #if (RTL8723A_SUPPORT == 1)  
 	if (pDM_Odm->SupportICType == ODM_RTL8723A)
 		Version = GET_VERSION_MP(8723A,_MAC_REG);
-#endif
-#if (RTL8723B_SUPPORT == 1)  
-	if (pDM_Odm->SupportICType == ODM_RTL8723B)
-		Version = GET_VERSION_MP(8723B,_MAC_REG);
 #endif
 #endif //(DM_ODM_SUPPORT_TYPE != ODM_AP)
 

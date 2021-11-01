@@ -105,14 +105,6 @@
 	#include <linux/fs.h>
 #endif
 
-#ifdef CONFIG_BT_COEXIST_SOCKET_TRX
-	#include <net/sock.h>
-	#include <net/tcp.h>
-	#include <linux/udp.h>
-	#include <linux/in.h>
-	#include <linux/netlink.h>
-#endif //CONFIG_BT_COEXIST_SOCKET_TRX
-
 	typedef struct 	semaphore _sema;
 	typedef	spinlock_t	_lock;
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,37))
