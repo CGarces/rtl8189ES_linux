@@ -874,66 +874,9 @@ efuse_IsMasked(
 	if(pAdapter->registrypriv.boffefusemask)
 		return FALSE;
 		
-#if DEV_BUS_TYPE == RT_USB_INTERFACE
-#if defined(CONFIG_RTL8812A)
-	if (IS_HARDWARE_TYPE_8812(pAdapter))  
-		return (IS_MASKED(8812A,_MUSB,Offset)) ? TRUE : FALSE;
-#endif
-#if defined(CONFIG_RTL8821A)
-	//if (IS_HARDWARE_TYPE_8811AU(pAdapter))  
-	//	return (IS_MASKED(8811A,_MUSB,Offset)) ? TRUE : FALSE;
-	if (IS_HARDWARE_TYPE_8821(pAdapter))  
-		return (IS_MASKED(8821A,_MUSB,Offset)) ? TRUE : FALSE;		
-#endif		
-#if defined(CONFIG_RTL8192E)
-	if (IS_HARDWARE_TYPE_8192E(pAdapter))  
-		return (IS_MASKED(8192E,_MUSB,Offset)) ? TRUE : FALSE;
-#endif
-#if defined(CONFIG_RTL8723B)
-	if (IS_HARDWARE_TYPE_8723B(pAdapter))  
-		return (IS_MASKED(8723B,_MUSB,Offset)) ? TRUE : FALSE;
-#endif
-#if defined(CONFIG_RTL8703B)
-	if (IS_HARDWARE_TYPE_8703B(pAdapter))
-		return (IS_MASKED(8703B, _MUSB, Offset)) ? TRUE : FALSE;
-#endif
-#if defined(CONFIG_RTL8814A)
-	if (IS_HARDWARE_TYPE_8814A(pAdapter))
-		return (IS_MASKED(8814A, _MUSB, Offset)) ? TRUE : FALSE;
-#endif
-#if defined(CONFIG_RTL8188F)
-	if (IS_HARDWARE_TYPE_8188F(pAdapter))
-		return (IS_MASKED(8188F, _MUSB, Offset)) ? TRUE : FALSE;
-#endif
-#elif DEV_BUS_TYPE == RT_PCI_INTERFACE
-#if defined(CONFIG_RTL8192E)
-   	if (IS_HARDWARE_TYPE_8192E(pAdapter))	
-		return (IS_MASKED(8192E,_MPCIE,Offset)) ? TRUE : FALSE;
-#endif	
-#if defined(CONFIG_RTL8812A)
-	if (IS_HARDWARE_TYPE_8812(pAdapter))  
-		return (IS_MASKED(8812A,_MPCIE,Offset)) ? TRUE : FALSE;
-#endif	
-#if defined(CONFIG_RTL8821A)
-	if (IS_HARDWARE_TYPE_8821(pAdapter))  
-		return (IS_MASKED(8821A,_MPCIE,Offset)) ? TRUE : FALSE;
-#endif
-#if defined(CONFIG_RTL8723B)
-	if (IS_HARDWARE_TYPE_8723B(pAdapter))  
-		return (IS_MASKED(8723B,_MPCIE,Offset)) ? TRUE : FALSE; 
-#endif
-#if defined(CONFIG_RTL8814A)
-	if (IS_HARDWARE_TYPE_8814A(pAdapter))
-		return (IS_MASKED(8814A, _MPCIE, Offset)) ? TRUE : FALSE;
-#endif
-	//else if (IS_HARDWARE_TYPE_8821B(pAdapter))  
-	//	return (IS_MASKED(8821B,_MPCIE,Offset)) ? TRUE : FALSE; 
-
-#elif DEV_BUS_TYPE == RT_SDIO_INTERFACE
 #ifdef CONFIG_RTL8188F_SDIO
 	if (IS_HARDWARE_TYPE_8188F(pAdapter))  
 		return (IS_MASKED(8188F, _MSDIO, Offset)) ? TRUE : FALSE;
-#endif
 #endif
 
 	return FALSE;	

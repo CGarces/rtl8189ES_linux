@@ -207,54 +207,7 @@ odm_SignalScaleMapping_92CSeries(
 )
 {
 	s4Byte RetSig = 0; 
-#if (DEV_BUS_TYPE == RT_PCI_INTERFACE) 
-	if(pDM_Odm->SupportInterface  == ODM_ITRF_PCIE) 
-	{
-		// Step 1. Scale mapping.
-		if(CurrSig >= 61 && CurrSig <= 100)
-		{
-			RetSig = 90 + ((CurrSig - 60) / 4);
-		}
-		else if(CurrSig >= 41 && CurrSig <= 60)
-		{
-			RetSig = 78 + ((CurrSig - 40) / 2);
-		}
-		else if(CurrSig >= 31 && CurrSig <= 40)
-		{
-			RetSig = 66 + (CurrSig - 30);
-		}
-		else if(CurrSig >= 21 && CurrSig <= 30)
-		{
-			RetSig = 54 + (CurrSig - 20);
-		}
-		else if(CurrSig >= 5 && CurrSig <= 20)
-		{
-			RetSig = 42 + (((CurrSig - 5) * 2) / 3);
-		}
-		else if(CurrSig == 4)
-		{
-			RetSig = 36;
-		}
-		else if(CurrSig == 3)
-		{
-			RetSig = 27;
-		}
-		else if(CurrSig == 2)
-		{
-			RetSig = 18;
-		}
-		else if(CurrSig == 1)
-		{
-			RetSig = 9;
-		}
-		else
-		{
-			RetSig = CurrSig;
-		}
-	}
-#endif
 
-#if ((DEV_BUS_TYPE == RT_USB_INTERFACE) ||(DEV_BUS_TYPE == RT_SDIO_INTERFACE))
 	if((pDM_Odm->SupportInterface  == ODM_ITRF_USB) || (pDM_Odm->SupportInterface  == ODM_ITRF_SDIO))
 	{
 		if(CurrSig >= 51 && CurrSig <= 100)
@@ -291,7 +244,6 @@ odm_SignalScaleMapping_92CSeries(
 		}
 	}
 
-#endif
 	return RetSig;
 }
 s4Byte
@@ -2083,14 +2035,6 @@ ODM_ConfigRFWithHeaderFile(
 			else if(eRFPath == ODM_RF_PATH_B)
 				READ_AND_CONFIG_MP(8192E,_RadioB);
 		} else if (ConfigType == CONFIG_RF_TXPWR_LMT) {
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN) && (DEV_BUS_TYPE == RT_PCI_INTERFACE)	/*Refine by Vincent Lan for 5mm SAR pwr limit*/
-			HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-
-			if ((pHalData->EEPROMSVID == 0x11AD && pHalData->EEPROMSMID == 0x8192) || 
-				(pHalData->EEPROMSVID == 0x11AD && pHalData->EEPROMSMID == 0x8193))
-				READ_AND_CONFIG_MP(8192E, _TXPWR_LMT_8192E_SAR_5mm);
-			else
-#endif	
 			READ_AND_CONFIG_MP(8192E,_TXPWR_LMT);
 	}
 	}
@@ -2157,7 +2101,6 @@ ODM_ConfigRFWithHeaderFile(
 			}	
 		}
 #endif
-#if ((DEV_BUS_TYPE == RT_USB_INTERFACE) || (DEV_BUS_TYPE == RT_SDIO_INTERFACE))
 #if (RTL8188F_SUPPORT == 1)
 		if (pDM_Odm->SupportICType == ODM_RTL8188F)
 		{
@@ -2166,7 +2109,6 @@ ODM_ConfigRFWithHeaderFile(
 					READ_AND_CONFIG_TC(8188F,_RadioA);
 			}	
 		}
-#endif
 #endif
 #endif//(DM_ODM_SUPPORT_TYPE &  ODM_WIN)
 
@@ -2279,12 +2221,10 @@ ODM_ConfigRFWithTxPwrTrackHeaderFile(
 			READ_AND_CONFIG_MP(8822B, _TxPowerTrack);			*/
 #endif	
 
-#if ((DEV_BUS_TYPE == RT_USB_INTERFACE) || (DEV_BUS_TYPE == RT_SDIO_INTERFACE))
 #if RTL8188F_SUPPORT
 	if(pDM_Odm->SupportICType == ODM_RTL8188F)
 			READ_AND_CONFIG_TC(8188F,_TxPowerTrack_PCIE);			
 #endif	
-#endif
 #endif//(DM_ODM_SUPPORT_TYPE &  ODM_WIN)
 
 
@@ -2452,7 +2392,6 @@ ODM_ConfigBBWithHeaderFile(
 			READ_AND_CONFIG_MP(8822B, _PHY_REG_MP); */
 	}
 #endif
-#if ((DEV_BUS_TYPE == RT_USB_INTERFACE) || (DEV_BUS_TYPE == RT_SDIO_INTERFACE))
 #if (RTL8188F_SUPPORT == 1)
 	if(pDM_Odm->SupportICType == ODM_RTL8188F)
 	{
@@ -2463,7 +2402,6 @@ ODM_ConfigBBWithHeaderFile(
 		else if(ConfigType == CONFIG_BB_PHY_REG_PG)
 			READ_AND_CONFIG_TC(8188F,_PHY_REG_PG);
 	}
-#endif
 #endif
 #if (RTL8195A_SUPPORT == 1)
 	if(pDM_Odm->SupportICType == ODM_RTL8195A)
@@ -2556,11 +2494,9 @@ ODM_ConfigMACWithHeaderFile(
 		READ_AND_CONFIG_MP(8822B, _MAC_REG);
 #endif
 
-#if ((DEV_BUS_TYPE == RT_USB_INTERFACE) || (DEV_BUS_TYPE == RT_SDIO_INTERFACE))
 #if (RTL8188F_SUPPORT == 1)  
 	if (pDM_Odm->SupportICType == ODM_RTL8188F)
 		READ_AND_CONFIG_TC(8188F,_MAC_REG);
-#endif
 #endif
 #if (RTL8195A_SUPPORT == 1)  
 	if (pDM_Odm->SupportICType == ODM_RTL8195A)

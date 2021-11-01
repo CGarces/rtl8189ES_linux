@@ -157,19 +157,6 @@ void DoIQK_8188F(
 
 	ODM_ResetIQKResult(pDM_Odm);
 
-#if(DM_ODM_SUPPORT_TYPE  & ODM_WIN)
-#if (DEV_BUS_TYPE == RT_PCI_INTERFACE)
-#if USE_WORKITEM
-	PlatformAcquireMutex(&pHalData->mxChnlBwControl);
-#else
-	PlatformAcquireSpinLock(Adapter, RT_CHANNEL_AND_BANDWIDTH_SPINLOCK);
-#endif
-#elif((DEV_BUS_TYPE == RT_USB_INTERFACE) || (DEV_BUS_TYPE == RT_SDIO_INTERFACE))
-	PlatformAcquireMutex(&pHalData->mxChnlBwControl);
-#endif
-#endif
-
-
 	pDM_Odm->RFCalibrateInfo.ThermalValue_IQK = ThermalValue;
 #if (DM_ODM_SUPPORT_TYPE & ODM_AP)
 	PHY_IQCalibrate_8188F(pDM_Odm, FALSE, FALSE);
@@ -177,17 +164,6 @@ void DoIQK_8188F(
 	PHY_IQCalibrate_8188F(Adapter, FALSE, FALSE);
 #endif
 
-#if(DM_ODM_SUPPORT_TYPE  & ODM_WIN)
-#if (DEV_BUS_TYPE == RT_PCI_INTERFACE)
-#if USE_WORKITEM
-	PlatformReleaseMutex(&pHalData->mxChnlBwControl);
-#else
-	PlatformReleaseSpinLock(Adapter, RT_CHANNEL_AND_BANDWIDTH_SPINLOCK);
-#endif
-#elif((DEV_BUS_TYPE == RT_USB_INTERFACE) || (DEV_BUS_TYPE == RT_SDIO_INTERFACE))
-	PlatformReleaseMutex(&pHalData->mxChnlBwControl);
-#endif
-#endif
 }
 
 /*-----------------------------------------------------------------------------

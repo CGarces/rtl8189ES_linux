@@ -399,9 +399,6 @@ int _WriteBTFWtoTxPktBuf8188F(
 	struct pkt_attrib	*pattrib;
 	u8			txdesc_offset = TXDESC_OFFSET;
 	u8			val8;
-#if (DEV_BUS_TYPE == RT_PCI_INTERFACE)
-	u8			u1bTmp;
-#endif
 
 #if 1/*(DEV_BUS_TYPE == RT_PCI_INTERFACE) */
 	TotalPktLen = FwBufLen;
@@ -428,20 +425,6 @@ int _WriteBTFWtoTxPktBuf8188F(
 
 #else
 	PlatformMoveMemory(ReservedPagePacket + Adapter->HWDescHeadLength , FwbufferPtr, FwBufLen);
-#endif
-
-	/*--------------------------------------------------------- */
-	/* 1. Pause BCN */
-	/*--------------------------------------------------------- */
-	/*Set REG_CR bit 8. DMA beacon by SW. */
-#if (DEV_BUS_TYPE == RT_PCI_INTERFACE)
-	u1bTmp = PlatformEFIORead1Byte(Adapter, REG_CR + 1);
-	PlatformEFIOWrite1Byte(Adapter,  REG_CR + 1, (u1bTmp | BIT0));
-#else
-	/* Remove for temparaily because of the code on v2002 is not sync to MERGE_TMEP for USB/SDIO. */
-	/* De not remove this part on MERGE_TEMP. by tynli. */
-	/*pHalData->RegCR_1 |= (BIT0); */
-	/*PlatformEFIOWrite1Byte(Adapter,  REG_CR+1, pHalData->RegCR_1); */
 #endif
 
 	/* Disable Hw protection for a time which revserd for Hw sending beacon. */
