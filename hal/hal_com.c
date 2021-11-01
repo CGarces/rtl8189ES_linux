@@ -37,10 +37,6 @@ void dump_chip_info(HAL_VERSION	ChipVersion)
 	
 	if (IS_8188F(ChipVersion))
 		cnt += sprintf((buf+cnt), "Chip Version Info: CHIP_8188F_");
-	else if (IS_8703B_SERIES(ChipVersion))
-		cnt += sprintf((buf+cnt), "Chip Version Info: CHIP_8703B_");
-	else if (IS_8814A_SERIES(ChipVersion))
-		cnt += sprintf((buf+cnt), "Chip Version Info: CHIP_8814A_");
 	else
 		cnt += sprintf((buf+cnt), "Chip Version Info: CHIP_UNKNOWN_");
 
@@ -724,43 +720,6 @@ s32 c2h_evt_read_88xx(_adapter *adapter, u8 *buf)
 	if (buf == NULL)
 		goto exit;
 
-#if defined(CONFIG_RTL8703B)
-
-	trigger = rtw_read8(adapter, REG_C2HEVT_CLEAR);
-
-	if (trigger == C2H_EVT_HOST_CLOSE) {
-		goto exit; /* Not ready */
-	} else if (trigger != C2H_EVT_FW_CLOSE) {
-		goto clear_evt; /* Not a valid value */
-	}
-
-	c2h_evt = (struct c2h_evt_hdr_88xx *)buf;
-
-	_rtw_memset(c2h_evt, 0, 16);
-
-	c2h_evt->id = rtw_read8(adapter, REG_C2HEVT_MSG_NORMAL);
-	c2h_evt->seq = rtw_read8(adapter, REG_C2HEVT_CMD_SEQ_88XX);
-	c2h_evt->plen = rtw_read8(adapter, REG_C2HEVT_CMD_LEN_88XX);
-
-	RT_PRINT_DATA(_module_hal_init_c_, _drv_info_, "c2h_evt_read(): ",
-		&c2h_evt , sizeof(c2h_evt));
-
-	/* Read the content */
-	for (i = 0; i < c2h_evt->plen; i++)
-		c2h_evt->payload[i] = rtw_read8(adapter, REG_C2HEVT_MSG_NORMAL + 2 + i);
-
-	RT_PRINT_DATA(_module_hal_init_c_, _drv_info_, "c2h_evt_read(): Command Content:\n",
-		c2h_evt->payload, c2h_evt->plen);
-
-	ret = _SUCCESS;
-
-clear_evt:
-	/* 
-	* Clear event to notify FW we have read the command.
-	* If this field isn't clear, the FW won't update the next command message.
-	*/
-	c2h_evt_clear(adapter);
-#endif
 exit:
 	return ret;
 }
@@ -4380,7 +4339,7 @@ void rtw_hal_check_rxfifo_full(_adapter *adapter)
 	int save_cnt=_FALSE;
 	
 	//switch counter to RX fifo
-	if (IS_8188F(pHalData->VersionID) || IS_8703B_SERIES(pHalData->VersionID)) {
+	if (IS_8188F(pHalData->VersionID)) {
 		rtw_write8(adapter, REG_RXERR_RPT+3, rtw_read8(adapter, REG_RXERR_RPT+3)|0xa0);
 		save_cnt = _TRUE;
 	} else {
@@ -4565,15 +4524,6 @@ int hal_efuse_macaddr_offset(_adapter *adapter)
 	interface_type = rtw_get_intf_type(adapter);
 
 	switch (rtw_get_chip_type(adapter)) {
-#ifdef CONFIG_RTL8703B
-	case RTL8703B:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_8703BU;
-		else if (interface_type == RTW_SDIO)
-			addr_offset = EEPROM_MAC_ADDR_8703BS;
-	break;
-#endif
-
 #ifdef CONFIG_RTL8188F
 	case RTL8188F:
 		if (interface_type == RTW_USB)
@@ -4583,14 +4533,6 @@ int hal_efuse_macaddr_offset(_adapter *adapter)
 		break;
 #endif
 
-#ifdef CONFIG_RTL8814A
-	case RTL8814A:
-		if (interface_type == RTW_USB)
-			addr_offset = EEPROM_MAC_ADDR_8814AU;
-		else if (interface_type == RTW_PCIE)
-			addr_offset = EEPROM_MAC_ADDR_8814AE;
-		break;
-#endif
 	}
 
 	if (addr_offset == -1) {
@@ -5100,7 +5042,7 @@ void rtw_dump_mac_rx_counters(_adapter* padapter,struct dbg_rx_counter *rx_count
 void rtw_reset_mac_rx_counters(_adapter* padapter)
 {
 
-	if (IS_HARDWARE_TYPE_8703B(padapter) || IS_HARDWARE_TYPE_8188F(padapter))
+	if (IS_HARDWARE_TYPE_8188F(padapter))
 		PHY_SetMacReg(padapter, 0x608, BIT19, 0x1); /* If no packet rx, MaxRx clock be gating ,BIT_DISGCLK bit19 set 1 for fix*/	
 
 	//reset mac counter
@@ -5371,21 +5313,7 @@ void hal_set_crystal_cap(_adapter *adapter, u8 crystal_cap)
 		PHY_SetBBReg(adapter, REG_AFE_XTAL_CTRL, 0x007FF800, (crystal_cap | (crystal_cap << 6)));
 		break;
 #endif
-#if defined(CONFIG_RTL8703B)
-	case RTL8723B:
-	case RTL8703B:
-	case RTL8821:
-	case RTL8192E:
-		/* write 0x2C[23:18] = 0x2C[17:12] = CrystalCap */
-		PHY_SetBBReg(adapter, REG_MAC_PHY_CTRL, 0x00FFF000, (crystal_cap | (crystal_cap << 6)));
-		break;
-#endif
-#if defined(CONFIG_RTL8814A)
-	case RTL8814A:
-		/* write 0x2C[26:21] = 0x2C[20:15] = CrystalCap*/
-		PHY_SetBBReg(adapter, REG_MAC_PHY_CTRL, 0x07FF8000, (crystal_cap | (crystal_cap << 6)));
-		break;
-#endif
+
 #if defined(CONFIG_RTL8821B) || defined(CONFIG_RTL8822B)
 	case RTL8821B:
 	case RTL8822B:
@@ -5408,23 +5336,12 @@ int hal_spec_init(_adapter *adapter)
 	interface_type = rtw_get_intf_type(adapter);
 
 	switch (rtw_get_chip_type(adapter)) {
-#ifdef CONFIG_RTL8703B
-	case RTL8703B:
-		init_hal_spec_8703b(adapter);
-		break;
-#endif
-
 #ifdef CONFIG_RTL8188F
 	case RTL8188F:
 		init_hal_spec_8188f(adapter);
 		break;
 #endif
 
-#ifdef CONFIG_RTL8814A
-	case RTL8814A:
-		init_hal_spec_8814a(adapter);
-		break;
-#endif
 	default:
 		DBG_871X_LEVEL(_drv_err_, "%s: unknown chip_type:%u\n"
 			, __func__, rtw_get_chip_type(adapter));

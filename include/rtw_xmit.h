@@ -103,14 +103,7 @@ do{\
 
 #define HWXMIT_ENTRY	4
 
-// For Buffer Descriptor ring architecture
-#ifdef BUF_DESC_ARCH	
-#if defined(CONFIG_RTL8814A)
-#define TX_BUFFER_SEG_NUM	1 /* 0:2 seg, 1: 4 seg, 2: 8 seg. */
-#endif
-#endif
-
-#if defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8188F)
+#if defined(CONFIG_RTL8188F)
 #define TXDESC_SIZE 40
 #else
 #define TXDESC_SIZE 32 /* old IC (ex: 8188E) */

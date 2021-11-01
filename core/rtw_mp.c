@@ -332,10 +332,7 @@ void mpt_InitHWConfig(PADAPTER Adapter)
 
 	if (IS_HARDWARE_TYPE_8188ES(Adapter))
 		PHY_SetMacReg(Adapter, 0x4C , BIT23, 0);		/*select DPDT_P and DPDT_N as output pin*/
-#ifdef CONFIG_RTL8814A	
-	  else if (IS_HARDWARE_TYPE_8814A(Adapter))
-		PlatformEFIOWrite2Byte(Adapter, REG_RXFLTMAP1_8814A, 0x2000);
-#endif		
+		
 	/*
 	else if(IS_HARDWARE_TYPE_8822B(Adapter))
 	{
@@ -350,23 +347,6 @@ void mpt_InitHWConfig(PADAPTER Adapter)
 	}
 #endif
 }
-
-#ifdef CONFIG_RTL8814A
-#define PHY_IQCalibrate(a,b)	PHY_IQCalibrate_8814A(&(GET_HAL_DATA(a)->odmpriv), b)
-#define PHY_LCCalibrate(a)	PHY_LCCalibrate_8814A(&(GET_HAL_DATA(a)->odmpriv))
-#define PHY_SetRFPathSwitch(a,b) PHY_SetRFPathSwitch_8814A(a,b)
-#endif /* CONFIG_RTL8814A */
-
-#ifdef CONFIG_RTL8703B
-static void PHY_IQCalibrate(PADAPTER padapter, u8 bReCovery) 
-{
-	PHY_IQCalibrate_8703B(padapter, bReCovery);
-}
-
-
-#define PHY_LCCalibrate(a)	PHY_LCCalibrate_8703B(&(GET_HAL_DATA(a)->odmpriv))
-#define PHY_SetRFPathSwitch(a, b)	
-#endif
 
 #ifdef CONFIG_RTL8188F
 static void PHY_IQCalibrate(PADAPTER padapter, u8 bReCovery)
@@ -423,14 +403,7 @@ MPT_InitializeAdapter(
 	pMptCtx->backup0xc30 = (u1Byte)PHY_QueryBBReg(pAdapter, rOFDM0_RxDetector1, bMaskByte0);
 	pMptCtx->backup0x52_RF_A = (u1Byte)PHY_QueryRFReg(pAdapter, RF_PATH_A, RF_0x52, 0x000F0);
 	pMptCtx->backup0x52_RF_B = (u1Byte)PHY_QueryRFReg(pAdapter, RF_PATH_B, RF_0x52, 0x000F0);
-#ifdef CONFIG_RTL8814A
-	if (IS_HARDWARE_TYPE_8814A(pAdapter)) {
-		pHalData->BackUp_IG_REG_4_Chnl_Section[0] = (u1Byte)PHY_QueryBBReg(pAdapter, rA_IGI_Jaguar, bMaskByte0);
-		pHalData->BackUp_IG_REG_4_Chnl_Section[1] = (u1Byte)PHY_QueryBBReg(pAdapter, rB_IGI_Jaguar, bMaskByte0);
-		pHalData->BackUp_IG_REG_4_Chnl_Section[2] = (u1Byte)PHY_QueryBBReg(pAdapter, rC_IGI_Jaguar2, bMaskByte0);
-		pHalData->BackUp_IG_REG_4_Chnl_Section[3] = (u1Byte)PHY_QueryBBReg(pAdapter, rD_IGI_Jaguar2, bMaskByte0);
-	}
-#endif
+
 	return	rtStatus;
 }
 
@@ -681,12 +654,6 @@ s32 mp_start_test(PADAPTER padapter)
 
 	//3 disable dynamic mechanism
 	disable_dm(padapter);
-	#ifdef CONFIG_RTL8814A
-	rtl8814_InitHalDm(padapter);
-	#endif /* CONFIG_RTL8814A */
-	#ifdef CONFIG_RTL8703B
-	rtl8703b_InitHalDm(padapter);
-	#endif /* CONFIG_RTL8703B */
 	#ifdef CONFIG_RTL8188F
 	rtl8188f_InitHalDm(padapter);
 	#endif
@@ -761,9 +728,6 @@ end_of_mp_stop_test:
 
 	_exit_critical_bh(&pmlmepriv->lock, &irqL);
 
-	#ifdef CONFIG_RTL8703B
-	rtl8703b_InitHalDm(padapter);
-	#endif
 	#ifdef CONFIG_RTL8188F
 	rtl8188f_InitHalDm(padapter);
 	#endif
@@ -1028,96 +992,6 @@ void fill_txdesc_for_mp(PADAPTER padapter, u8 *ptxdesc)
 	_rtw_memcpy(ptxdesc, pmp_priv->tx.desc, TXDESC_SIZE);
 }
 
-#if defined(CONFIG_RTL8814A)
-void fill_tx_desc_8814a(PADAPTER padapter)
-{
-	struct mp_priv *pmp_priv = &padapter->mppriv;
-	u8 *pDesc   = (u8 *)&(pmp_priv->tx.desc);
-	struct pkt_attrib *pattrib = &(pmp_priv->tx.attrib);
-	
-	u32	pkt_size = pattrib->last_txcmdsz;
-	s32 bmcast = IS_MCAST(pattrib->ra);
-	u8 data_rate,pwr_status,offset;
-
-	//SET_TX_DESC_FIRST_SEG_8814A(pDesc, 1);
-	SET_TX_DESC_LAST_SEG_8814A(pDesc, 1);
-	//SET_TX_DESC_OWN_(pDesc, 1);
-	
-	SET_TX_DESC_PKT_SIZE_8814A(pDesc, pkt_size);
-	
-	offset = TXDESC_SIZE + OFFSET_SZ;		
-
-	SET_TX_DESC_OFFSET_8814A(pDesc, offset);
-
-	SET_TX_DESC_PKT_OFFSET_8814A(pDesc, 1);
-
-	
-	if (bmcast) {
-		SET_TX_DESC_BMC_8814A(pDesc, 1);
-	}
-
-	SET_TX_DESC_MACID_8814A(pDesc, pattrib->mac_id);
-	SET_TX_DESC_RATE_ID_8814A(pDesc, pattrib->raid);
-	
-	//SET_TX_DESC_RATE_ID_8812(pDesc, RATEID_IDX_G);
-	SET_TX_DESC_QUEUE_SEL_8814A(pDesc,  pattrib->qsel);
-	//SET_TX_DESC_QUEUE_SEL_8812(pDesc,  QSLT_MGNT);
-
-	if ( pmp_priv->preamble ){
-		SET_TX_DESC_DATA_SHORT_8814A(pDesc, 1);
-	}
-	
-	if (!pattrib->qos_en) {
-		SET_TX_DESC_HWSEQ_EN_8814A(pDesc, 1); // Hw set sequence number
-	} else {
-		SET_TX_DESC_SEQ_8814A(pDesc, pattrib->seqnum);
-	}
-	
-	if (pmp_priv->bandwidth <= CHANNEL_WIDTH_160) {
-		SET_TX_DESC_DATA_BW_8814A(pDesc, pmp_priv->bandwidth);
-	} else {
-		DBG_871X("%s:Err: unknown bandwidth %d, use 20M\n", __func__,pmp_priv->bandwidth);
-		SET_TX_DESC_DATA_BW_8814A(pDesc, CHANNEL_WIDTH_20);
-	}
-
-	SET_TX_DESC_DISABLE_FB_8814A(pDesc, 1);
-	SET_TX_DESC_USE_RATE_8814A(pDesc, 1);
-	SET_TX_DESC_TX_RATE_8814A(pDesc, pmp_priv->rateidx);
-
-}
-#endif
-
-#if defined(CONFIG_RTL8703B)
-void fill_tx_desc_8703b(PADAPTER padapter) 
-{
-	struct mp_priv *pmp_priv = &padapter->mppriv;
-	struct pkt_attrib *pattrib = &(pmp_priv->tx.attrib);
-	u8 *ptxdesc = pmp_priv->tx.desc;
-
-	SET_TX_DESC_AGG_BREAK_8703B(ptxdesc, 1);
-	SET_TX_DESC_MACID_8703B(ptxdesc, pattrib->mac_id);
-	SET_TX_DESC_QUEUE_SEL_8703B(ptxdesc, pattrib->qsel);
-
-	SET_TX_DESC_RATE_ID_8703B(ptxdesc, pattrib->raid);
-	SET_TX_DESC_SEQ_8703B(ptxdesc, pattrib->seqnum);
-	SET_TX_DESC_HWSEQ_EN_8703B(ptxdesc, 1);
-	SET_TX_DESC_USE_RATE_8703B(ptxdesc, 1);
-	SET_TX_DESC_DISABLE_FB_8703B(ptxdesc, 1);
-
-	if (pmp_priv->preamble) {
-		if (HwRateToMPTRate(pmp_priv->rateidx) <=  MPT_RATE_54M)
-			SET_TX_DESC_DATA_SHORT_8703B(ptxdesc, 1);
-	}
-
-	if (pmp_priv->bandwidth == CHANNEL_WIDTH_40)
-		SET_TX_DESC_DATA_BW_8703B(ptxdesc, 1);
-
-	SET_TX_DESC_TX_RATE_8703B(ptxdesc, pmp_priv->rateidx);
-
-	SET_TX_DESC_DATA_RATE_FB_LIMIT_8703B(ptxdesc, 0x1F);
-	SET_TX_DESC_RTS_RATE_FB_LIMIT_8703B(ptxdesc, 0xF);
-}
-#endif
 
 #if defined(CONFIG_RTL8188F)
 void fill_tx_desc_8188f(PADAPTER padapter)
@@ -1218,16 +1092,6 @@ void SetPacketTx(PADAPTER padapter)
 	pkt_start = ptr;
 	pkt_end = pkt_start + pkt_size;
 
-#if defined(CONFIG_RTL8814A)
-	if(IS_HARDWARE_TYPE_8814A(padapter)) 
-		fill_tx_desc_8814a(padapter);
-#endif /* defined(CONFIG_RTL8814A) */
-
-#if defined(CONFIG_RTL8703B)
-	if (IS_HARDWARE_TYPE_8703B(padapter))
-		fill_tx_desc_8703b(padapter);
-#endif
-	
 #if defined(CONFIG_RTL8188F)
 	if (IS_HARDWARE_TYPE_8188F(padapter))
 		fill_tx_desc_8188f(padapter);
@@ -1381,13 +1245,8 @@ static u32 rtw_GetPSDData(PADAPTER pAdapter, u32 point)
 {
 	u32 psd_val=0;
 	
-#ifdef CONFIG_RTL8814A
-	u16 psd_reg = 0x910;
-	u16 psd_regL= 0xF44;
-#else	
 	u16 psd_reg = 0x808;
 	u16 psd_regL= 0x8B4;
-#endif
 
 	psd_val = rtw_read32(pAdapter, psd_reg);
 

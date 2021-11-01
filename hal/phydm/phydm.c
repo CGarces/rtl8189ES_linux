@@ -124,19 +124,7 @@ phydm_Init_cck_setting(
 	u4Byte value_824,value_82c;
 
 	pDM_Odm->bCckHighPower = (BOOLEAN) ODM_GetBBReg(pDM_Odm, ODM_REG(CCK_RPT_FORMAT,pDM_Odm), ODM_BIT(CCK_RPT_FORMAT,pDM_Odm));
-	
-	#if (RTL8703B_SUPPORT == 1)
-	if (pDM_Odm->SupportICType & (ODM_RTL8703B)) {
 
-		pDM_Odm->cck_agc_report_type = ODM_GetBBReg(pDM_Odm, 0x950, BIT11) ? 1 : 0; /*1: 4bit LNA , 0: 3bit LNA */
-		
-		if (pDM_Odm->cck_agc_report_type != 1) {
-			DbgPrint("[Warning] 8703B CCK should be 4bit LNA, ie. 0x950[11] = 1\n");
-			/**/
-		}
-	}
-	#endif
-	
 }
 
 u1Byte DummyHubUsbMode = 1;/* USB 2.0 */

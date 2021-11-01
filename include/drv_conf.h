@@ -151,10 +151,6 @@
 #define MACID_NUM_SW_LIMIT 32
 #define SEC_CAM_ENT_NUM_SW_LIMIT 32
 
-#ifdef CONFIG_RTL8814A
-	#define CONFIG_IEEE80211_BAND_5GHZ
-#endif
-
 /*
 	Mark CONFIG_DEAUTH_BEFORE_CONNECT by Arvin 2015/07/20
 	If the failure of Wi-Fi connection is due to some irregular disconnection behavior (like unplug dongle,

@@ -10506,13 +10506,6 @@ static int rtw_widi_set_probe_request(struct net_device *dev,
 
 #ifdef CONFIG_MAC_LOOPBACK_DRIVER
 
-#if defined(CONFIG_RTL8703B)
-/* extern void rtl8703b_cal_txdesc_chksum(struct tx_desc *ptxdesc); */
-#define cal_txdesc_chksum rtl8703b_cal_txdesc_chksum
-/* extern void rtl8703b_fill_default_txdesc(struct xmit_frame *pxmitframe, u8 *pbuf); */
-#define fill_default_txdesc rtl8703b_fill_default_txdesc
-#endif /* CONFIG_RTL8703B */
-
 static s32 initLoopback(PADAPTER padapter)
 {
 	PLOOPBACKDATA ploopback;

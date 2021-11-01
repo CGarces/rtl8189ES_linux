@@ -98,11 +98,8 @@ int rtw_uapsd_acbk_en = 0;
 int rtw_uapsd_acbe_en = 0;
 int rtw_uapsd_acvi_en = 0;
 int rtw_uapsd_acvo_en = 0;
-#ifdef CONFIG_RTL8814A
-int rtw_rfkfree_enable = 2; /* disable kfree */
-#else
+
 int rtw_rfkfree_enable = 0; /* Default Enalbe kfree by efuse config */
-#endif
 
 uint rtw_tx_bw_mode = 0x21;
 module_param(rtw_tx_bw_mode, uint, 0644);

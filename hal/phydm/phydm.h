@@ -35,12 +35,6 @@
 #include "phydm_acs.h"
 #include "phydm_adaptivity.h"
 
-
-#if (RTL8814A_SUPPORT == 1)
-#include "rtl8814a/phydm_iqk_8814a.h"
-#endif
-
-
 #include "phydm_beamforming.h"
 #include "phydm_noisemonitor.h"
 #include "halphyrf_ce.h"
@@ -710,11 +704,6 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 	SWAT_T						DM_SWAT_Table;
 	CFO_TRACKING    				DM_CfoTrack;
 	ACS							DM_ACS;
-
-
-#if (RTL8814A_SUPPORT == 1)
-	IQK_INFO	IQK_info;
-#endif /* (RTL8814A_SUPPORT==1) */
 
 	EDCA_T		DM_EDCA_Table;
 	u4Byte		WMMEDCA_BE;

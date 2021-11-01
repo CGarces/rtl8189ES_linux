@@ -194,19 +194,6 @@ void mac_reg_dump(void *sel, _adapter *adapter)
 		if((j++)%4 == 0)
 			DBG_871X_SEL(sel, "\n");
 	}
-	
-#ifdef CONFIG_RTL8814A
-	{
-		for(i=0x1000;i<0x1650;i+=4)
-		{
-			if(j%4==1)
-				DBG_871X_SEL_NL(sel, "0x%03x",i);
-			DBG_871X_SEL(sel, " 0x%08x ", rtw_read32(adapter,i));
-			if((j++)%4 == 0)
-				DBG_871X_SEL(sel, "\n");
-		}
-	}
-#endif /* CONFIG_RTL8814A */
 }
 
 void bb_reg_dump(void *sel, _adapter *adapter)
@@ -2059,24 +2046,7 @@ int proc_get_mac_rptbuf(struct seq_file *m, void *v)
 	u16 mac_id;
 	u32 shcut_addr = 0;
 	u32 read_addr = 0;
-#ifdef CONFIG_RTL8814A
-	DBG_871X_SEL_NL(m, "TX ShortCut:\n");
-	for (mac_id = 0; mac_id < 64; mac_id++) {
-		rtw_write16(padapter, 0x140, 0x662 | ((mac_id & BIT5)>>5));
-		shcut_addr = 0x8000;
-		shcut_addr = shcut_addr | ((mac_id&0x1f) << 7);
-		DBG_871X_SEL_NL(m, "mac_id=%d, 0x140=%x =>\n", mac_id, 0x662 | ((mac_id & BIT5)>>5));
-		for (i = 0; i < 30; i++) {
-			read_addr = 0;
-			read_addr = shcut_addr | (i<<2);
-			DBG_871X_SEL_NL(m, "i=%02d: MAC_%04x= %08x ", i, read_addr, rtw_read32(padapter, read_addr));
-			if (!((i+1) % 4))
-				DBG_871X_SEL_NL(m, "\n");
-			if (i == 29)
-				DBG_871X_SEL_NL(m, "\n");
-		}
-	}
-#endif /* CONFIG_RTL8814A */
+
 	return 0;
 }
 

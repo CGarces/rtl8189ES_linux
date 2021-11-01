@@ -20,9 +20,7 @@
 #ifndef __HAL_IC_CFG_H__
 #define __HAL_IC_CFG_H__
 
-#define RTL8814A_SUPPORT				0
 #define RTL8195A_SUPPORT				0
-#define RTL8703B_SUPPORT				0
 #define RTL8188F_SUPPORT				1
 #define RTL8822B_SUPPORT				0
 #define RTL8821B_SUPPORT				0

@@ -372,8 +372,7 @@ int rtw_mp_start(struct net_device *dev,
 		rtw_hal_deinit(padapter);
 		padapter->registrypriv.mp_mode = 1;
 		#ifdef CONFIG_RF_GAIN_OFFSET
-		if (!IS_HARDWARE_TYPE_8814A(padapter))
-			padapter->registrypriv.RegRfKFreeEnable = 1;
+		padapter->registrypriv.RegRfKFreeEnable = 1;
 		rtw_hal_read_chip_info(padapter);
 		#endif /*CONFIG_RF_GAIN_OFFSET*/
 		rtw_hal_init(padapter);
@@ -1062,13 +1061,6 @@ int rtw_mp_thermal(struct net_device *dev,
 	u8 val;
 	int bwrite = 1;
 
-#ifdef CONFIG_RTL8814A
-	u16 addr = EEPROM_THERMAL_METER_8812;
-#endif
-
-#ifdef CONFIG_RTL8703B
-	u16 addr = EEPROM_THERMAL_METER_8703B;
-#endif
 #ifdef CONFIG_RTL8188F
 	u16 addr = EEPROM_THERMAL_METER_8188F;
 #endif
