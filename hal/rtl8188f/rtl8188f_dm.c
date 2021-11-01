@@ -386,14 +386,10 @@ void rtl8188f_init_dm_priv(IN PADAPTER Adapter)
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
 	PDM_ODM_T 		podmpriv = &pHalData->odmpriv;
 	Init_ODM_ComInfo_8188f(Adapter);
-	ODM_InitAllTimers(podmpriv);
 }
 
 void rtl8188f_deinit_dm_priv(IN PADAPTER Adapter)
 {
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
 	PDM_ODM_T 		podmpriv = &pHalData->odmpriv;
-	ODM_CancelAllTimers(podmpriv);
-
 }
-

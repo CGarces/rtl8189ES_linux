@@ -155,12 +155,6 @@ ODM_Read1Byte(
 	IN	u4Byte			RegAddr
 	);
 
-u2Byte
-ODM_Read2Byte(
-	IN 	PDM_ODM_T		pDM_Odm,
-	IN	u4Byte			RegAddr
-	);
-
 u4Byte
 ODM_Read4Byte(
 	IN 	PDM_ODM_T		pDM_Odm,
@@ -194,13 +188,6 @@ ODM_SetMACReg(
 	IN	u4Byte		RegAddr,
 	IN	u4Byte		BitMask,
 	IN	u4Byte		Data
-	);
-
-u4Byte 
-ODM_GetMACReg(	
-	IN 	PDM_ODM_T	pDM_Odm,
-	IN	u4Byte		RegAddr,
-	IN	u4Byte		BitMask
 	);
 
 VOID
@@ -239,18 +226,6 @@ ODM_GetRFReg(
 //
 // Memory Relative Function.
 //
-VOID
-ODM_AllocateMemory(	
-	IN 	PDM_ODM_T	pDM_Odm,
-	OUT	PVOID		*pPtr,
-	IN	u4Byte		length
-	);
-VOID
-ODM_FreeMemory(	
-	IN 	PDM_ODM_T	pDM_Odm,
-	OUT	PVOID		pPtr,
-	IN	u4Byte		length
-	);
 
 VOID
 ODM_MoveMemory(	
@@ -259,13 +234,6 @@ ODM_MoveMemory(
 	IN  PVOID		pSrc,
 	IN  u4Byte		Length
 	);
-
-s4Byte ODM_CompareMemory(
-	IN 	PDM_ODM_T	pDM_Odm,
-	IN	PVOID           pBuf1,
-      IN	PVOID           pBuf2,
-      IN	u4Byte          length
-       );
 
 void ODM_Memory_Set
 	(IN 	PDM_ODM_T	pDM_Odm,
@@ -290,43 +258,6 @@ ODM_ReleaseSpinLock(
 
 
 //
-// ODM MISC-workitem relative API.
-//
-VOID
-ODM_InitializeWorkItem(	
-	IN 	PDM_ODM_T					pDM_Odm,
-	IN	PRT_WORK_ITEM				pRtWorkItem,
-	IN	RT_WORKITEM_CALL_BACK		RtWorkItemCallback,
-	IN	PVOID						pContext,
-	IN	const char*					szID
-	);
-
-VOID
-ODM_StartWorkItem(	
-	IN	PRT_WORK_ITEM	pRtWorkItem
-	);
-
-VOID
-ODM_StopWorkItem(	
-	IN	PRT_WORK_ITEM	pRtWorkItem
-	);
-
-VOID
-ODM_FreeWorkItem(	
-	IN	PRT_WORK_ITEM	pRtWorkItem
-	);
-
-VOID
-ODM_ScheduleWorkItem(	
-	IN	PRT_WORK_ITEM	pRtWorkItem
-	);
-
-VOID
-ODM_IsWorkItemScheduled(	
-	IN	PRT_WORK_ITEM	pRtWorkItem
-	);
-
-//
 // ODM Timer relative API.
 //
 VOID
@@ -344,43 +275,6 @@ ODM_delay_us(IN u4Byte	us);
 
 VOID
 ODM_sleep_ms(IN u4Byte	ms);
-
-VOID
-ODM_sleep_us(IN u4Byte	us);
-
-VOID
-ODM_SetTimer(	
-	IN 	PDM_ODM_T		pDM_Odm,
-	IN	PRT_TIMER 		pTimer, 
-	IN	u4Byte 			msDelay
-	);
-
-VOID
-ODM_InitializeTimer(
-	IN 	PDM_ODM_T			pDM_Odm,
-	IN	PRT_TIMER 			pTimer, 
-	IN	RT_TIMER_CALL_BACK	CallBackFunc, 
-	IN	PVOID				pContext,
-	IN	const char*			szID
-	);
-
-VOID
-ODM_CancelTimer(
-	IN 	PDM_ODM_T		pDM_Odm,
-	IN	PRT_TIMER		pTimer
-	);
-
-VOID
-ODM_ReleaseTimer(
-	IN 	PDM_ODM_T		pDM_Odm,
-	IN	PRT_TIMER		pTimer
-	);
-
-BOOLEAN
-phydm_actingDetermine(
-	IN	PDM_ODM_T		pDM_Odm,
-	IN	PHYDM_ACTING_TYPE	type
-	);
 
 //
 // ODM FW relative API.

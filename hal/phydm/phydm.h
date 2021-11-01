@@ -95,31 +95,10 @@
 // 2011/09/20 MH Add for AP/ADSLpseudo DM structuer requirement.
 // We need to remove to other position???
 //
-#if(DM_ODM_SUPPORT_TYPE & (ODM_CE|ODM_WIN))
 typedef		struct rtl8192cd_priv {
 	u1Byte		temp;
 
 }rtl8192cd_priv, *prtl8192cd_priv;
-#endif
-
-
-#if(DM_ODM_SUPPORT_TYPE & (ODM_AP|ODM_ADSL))
-typedef		struct _ADAPTER{
-	u1Byte		temp;
-	#ifdef AP_BUILD_WORKAROUND
-	HAL_DATA_TYPE*		temp2;
-	prtl8192cd_priv		priv;
-	#endif
-}ADAPTER, *PADAPTER;
-#endif
-
-#if (DM_ODM_SUPPORT_TYPE == ODM_AP)
-
-typedef		struct _WLAN_STA{
-	u1Byte		temp;
-} WLAN_STA, *PRT_WLAN_STA;
-
-#endif
 
 typedef struct _Dynamic_Primary_CCA{
 	u1Byte		PriCCA_flag;
@@ -131,17 +110,6 @@ typedef struct _Dynamic_Primary_CCA{
 	u1Byte  	MF_state;
 }Pri_CCA_T, *pPri_CCA_T;
 
-
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-
-
-#ifdef ADSL_AP_BUILD_WORKAROUND
-#define MAX_TOLERANCE			5
-#define IQK_DELAY_TIME			1		//ms
-#endif
-
-#endif//#if(DM_ODM_SUPPORT_TYPE & (ODM_AP|ODM_ADSL))
-
 #define		DM_Type_ByFW			0
 #define		DM_Type_ByDriver		1
 
@@ -152,41 +120,14 @@ typedef struct _Dynamic_Primary_CCA{
 #define IQK_THRESHOLD			8
 #define DPK_THRESHOLD			4
 
-
-#if (DM_ODM_SUPPORT_TYPE &  (ODM_AP))
-__PACK typedef struct _ODM_Phy_Status_Info_
-{
-	u1Byte		RxPWDBAll;
-	u1Byte		SignalQuality;					/* in 0-100 index. */
-	u1Byte		RxMIMOSignalStrength[4];		/* in 0~100 index */
-	s1Byte		RxMIMOSignalQuality[4];		/* EVM */
-	s1Byte		RxSNR[4];					/* per-path's SNR */
-#if (RTL8822B_SUPPORT == 1)
-	u1Byte		RxCount;						/* RX path counter---*/
-#endif
-	u1Byte		BandWidth;
-
-} __WLAN_ATTRIB_PACK__ ODM_PHY_INFO_T, *PODM_PHY_INFO_T;
-
-typedef struct _ODM_Phy_Status_Info_Append_
-{
-	u1Byte		MAC_CRC32;	
-
-}ODM_PHY_INFO_Append_T,*PODM_PHY_INFO_Append_T;
-
-#else
-
 typedef struct _ODM_Phy_Status_Info_
 {
 	//
 	// Be care, if you want to add any element please insert between 
 	// RxPWDBAll & SignalStrength.
 	//
-#if (DM_ODM_SUPPORT_TYPE &  (ODM_WIN))
-	u4Byte		RxPWDBAll;	
-#else
 	u1Byte		RxPWDBAll;	
-#endif
+
 	u1Byte		SignalQuality;				/* in 0-100 index. */
 	s1Byte		RxMIMOSignalQuality[4];		/* per-path's EVM */
 	u1Byte		RxMIMOEVMdbm[4];			/* per-path's EVM dbm */
@@ -213,7 +154,6 @@ typedef struct _ODM_Phy_Status_Info_
 	BOOLEAN		bBeamformed;				/* BF packet---*/
 #endif
 }ODM_PHY_INFO_T,*PODM_PHY_INFO_T;
-#endif
 
 typedef struct _ODM_Per_Pkt_Info_
 {
@@ -379,11 +319,7 @@ typedef enum _ODM_Common_Info_Definition
 	ODM_CMNINFO_BT_DIG,
 	ODM_CMNINFO_BT_BUSY,					//Check Bt is using or not//neil	
 	ODM_CMNINFO_BT_DISABLE_EDCA,
-#if(DM_ODM_SUPPORT_TYPE & ODM_AP)		// for repeater mode add by YuChen 2014.06.23
-#ifdef UNIVERSAL_REPEATER
-	ODM_CMNINFO_VXD_LINK,
-#endif
-#endif
+
 	ODM_CMNINFO_AP_TOTAL_NUM,
 	ODM_CMNINFO_POWER_TRAINING,
 //------------CALL BY VALUE-------------//
@@ -460,15 +396,7 @@ typedef enum _BASEBAND_CONFIG_PHY_REG_PG_VALUE_TYPE{
 //
 // 2011/09/22 MH Copy from SD4 defined structure. We use to support PHY DM integration.
 //
-#if(DM_ODM_SUPPORT_TYPE & ODM_WIN)
-#if (RT_PLATFORM != PLATFORM_LINUX)
-typedef 
-#endif
-	
-struct DM_Out_Source_Dynamic_Mechanism_Structure
-#else// for AP,ADSL,CE Team
 typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
-#endif
 {
 	//RT_TIMER 	FastAntTrainingTimer;
 	//
@@ -479,14 +407,6 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 	// WHen you use Adapter or priv pointer, you must make sure the pointer is ready.
 	BOOLEAN			odm_ready;
 
-#if(DM_ODM_SUPPORT_TYPE & (ODM_CE|ODM_WIN))
-	rtl8192cd_priv		fake_priv;
-#endif
-#if(DM_ODM_SUPPORT_TYPE & (ODM_AP|ODM_ADSL))
-	// ADSL_AP_BUILD_WORKAROUND
-	ADAPTER			fake_adapter;
-#endif
-	
 	PHY_REG_PG_TYPE		PhyRegPgValueType;
 	u1Byte				PhyRegPgVersion;
 
@@ -629,11 +549,7 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 	BOOLEAN			bWIFI_Display;
 	BOOLEAN			bLinked;
 	BOOLEAN			bsta_state;
-#if(DM_ODM_SUPPORT_TYPE & ODM_AP)		// for repeater mode add by YuChen 2014.06.23
-#ifdef UNIVERSAL_REPEATER
-	BOOLEAN			VXD_bLinked;
-#endif
-#endif									// for repeater mode add by YuChen 2014.06.23	
+	
 	u1Byte			RSSI_Min;	
 	u1Byte			InterfaceIndex; /*Add for 92D  dual MAC: 0--Mac0 1--Mac1*/
 	BOOLEAN			bIsMPChip;
@@ -743,9 +659,8 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 	BOOLEAN			pre_b_noisy;	
 	u4Byte			NoisyDecision_Smooth;
 
-#if (DM_ODM_SUPPORT_TYPE &  (ODM_CE))
 	ODM_NOISE_MONITOR noise_level;//[ODM_MAX_CHANNEL_NUM];
-#endif
+
 	//
 	//2 Define STA info.
 	// _ODM_STA_INFO
@@ -789,9 +704,6 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 
 	PS_T						DM_PSTable;
 	Pri_CCA_T					DM_PriCCA;
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-	RXHP_T						DM_RXHP_Table;
-#endif
 	RA_T						DM_RA_Table;  
 	FALSE_ALARM_STATISTICS		FalseAlmCnt;
 	FALSE_ALARM_STATISTICS		FlaseAlmCntBuddyAdapter;
@@ -803,12 +715,6 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 #if (RTL8814A_SUPPORT == 1)
 	IQK_INFO	IQK_info;
 #endif /* (RTL8814A_SUPPORT==1) */
-
-
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-	//Path Div Struct
-	PATHDIV_PARA	pathIQK;
-#endif
 
 	EDCA_T		DM_EDCA_Table;
 	u4Byte		WMMEDCA_BE;
@@ -845,7 +751,7 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 	u1Byte			bUseRAMask;
 
 	ODM_RATE_ADAPTIVE	RateAdaptive;
-//#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
+
 	ODM_RF_CAL_T	RFCalibrateInfo;
 
 	
@@ -853,7 +759,6 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 	// Dynamic ATC switch
 	//
 
-#if (DM_ODM_SUPPORT_TYPE &  (ODM_WIN|ODM_CE))	
 	//
 	// Power Training
 	//
@@ -862,7 +767,7 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 	u4Byte			PT_score;
 	u8Byte			OFDM_RX_Cnt;
 	u8Byte			CCK_RX_Cnt;
-#endif
+
 	BOOLEAN			bDisablePowerTraining;
 
 	//
@@ -877,30 +782,7 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 
 	RT_TIMER		sbdcnt_timer;
 
-	// ODM relative workitem.
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-#if USE_WORKITEM
-	RT_WORK_ITEM			PathDivSwitchWorkitem;
-	RT_WORK_ITEM			CCKPathDiversityWorkitem;
-	RT_WORK_ITEM			FastAntTrainingWorkitem;
-	RT_WORK_ITEM			MPT_DIGWorkitem;
-	RT_WORK_ITEM			RaRptWorkitem;
-	RT_WORK_ITEM			sbdcnt_workitem;
-#endif
-#endif
-
-#if(DM_ODM_SUPPORT_TYPE & ODM_WIN)
-	
-#if (RT_PLATFORM != PLATFORM_LINUX)
 } DM_ODM_T, *PDM_ODM_T;		// DM_Dynamic_Mechanism_Structure
-#else
-};
-#endif	
-
-#else// for AP,ADSL,CE Team
-} DM_ODM_T, *PDM_ODM_T;		// DM_Dynamic_Mechanism_Structure
-#endif
-
 
 typedef enum _PHYDM_STRUCTURE_TYPE{
 	PHYDM_FALSEALMCNT,
@@ -947,7 +829,6 @@ typedef enum _ODM_FW_Config_Type{
 } ODM_FW_Config_Type;
 
 // Status code
-#if (DM_ODM_SUPPORT_TYPE != ODM_WIN)
 typedef enum _RT_STATUS{
 	RT_STATUS_SUCCESS,
 	RT_STATUS_FAILURE,
@@ -958,7 +839,6 @@ typedef enum _RT_STATUS{
 	RT_STATUS_NOT_SUPPORT,
 	RT_STATUS_OS_API_FAILED,
 }RT_STATUS,*PRT_STATUS;
-#endif // end of RT_STATUS definition
 
 #ifdef REMOVE_PACK
 #pragma pack()
@@ -1033,13 +913,7 @@ typedef enum tag_RF_Type_Definition
 //
 // check Sta pointer valid or not
 //
-#if (DM_ODM_SUPPORT_TYPE & (ODM_AP|ODM_ADSL))
-#define IS_STA_VALID(pSta)		(pSta && pSta->expire_to)
-#elif (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-#define IS_STA_VALID(pSta)		(pSta && pSta->bUsed)
-#else
 #define IS_STA_VALID(pSta)		(pSta)
-#endif
 
 //Remove DIG by yuchen
 
@@ -1048,54 +922,15 @@ typedef enum tag_RF_Type_Definition
 //remove PT by yuchen
 
 //ODM_RAStateCheck() Remove by RS_James
-
-#if(DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_AP|ODM_ADSL))
-//============================================================
-// function prototype
-//============================================================
-//#define DM_ChangeDynamicInitGainThresh		ODM_ChangeDynamicInitGainThresh
-//void	ODM_ChangeDynamicInitGainThresh(IN	PADAPTER	pAdapter,
-//											IN	INT32		DM_Type,
-//											IN	INT32		DM_Value);
-
-//Remove DIG by yuchen
-
-
-BOOLEAN
-ODM_CheckPowerStatus(
-	IN	PADAPTER		Adapter
-	);
-
-
-//Remove ODM_RateAdaptiveStateApInit() by RS_James
-
-//Remove Edca by YuChen
-
-#endif
-
-
-
 u4Byte odm_ConvertTo_dB(u4Byte Value);
 
 u4Byte odm_ConvertTo_linear(u4Byte Value);
-
-#if((DM_ODM_SUPPORT_TYPE==ODM_WIN)||(DM_ODM_SUPPORT_TYPE==ODM_CE))
 
 u4Byte
 GetPSDData(
 	PDM_ODM_T	pDM_Odm,
 	unsigned int 	point,
 	u1Byte initial_gain_psd);
-
-#endif
-
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)	
-VOID
-ODM_DMWatchdog_LPS(
-	IN		PDM_ODM_T		pDM_Odm
-);
-#endif
-
 
 s4Byte
 ODM_PWdB_Conversion(
@@ -1163,100 +998,6 @@ ODM_CmnInfoUpdate(
 	IN		u8Byte			Value	
 	);
 
-#if(DM_ODM_SUPPORT_TYPE==ODM_AP)
-VOID 
-ODM_InitAllThreads(
-    IN PDM_ODM_T	pDM_Odm 
-    );
-
-VOID
-ODM_StopAllThreads(
-	IN PDM_ODM_T	pDM_Odm 
-	);
-#endif
-
-VOID 
-ODM_InitAllTimers(
-    IN PDM_ODM_T	pDM_Odm 
-    );
-
-VOID 
-ODM_CancelAllTimers(
-    IN PDM_ODM_T    pDM_Odm 
-    );
-
-VOID
-ODM_ReleaseAllTimers(
-    IN PDM_ODM_T	pDM_Odm 
-    );
-
-
-
-
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-VOID ODM_InitAllWorkItems(IN PDM_ODM_T	pDM_Odm );
-VOID ODM_FreeAllWorkItems(IN PDM_ODM_T	pDM_Odm );
-
-
-
-u8Byte
-PlatformDivision64(
-	IN u8Byte	x,
-	IN u8Byte	y
-);
-
-//====================================================
-//3 PathDiV End
-//====================================================
-
-
-#define DM_ChangeDynamicInitGainThresh		ODM_ChangeDynamicInitGainThresh
-//void	ODM_ChangeDynamicInitGainThresh(IN	PADAPTER	pAdapter,
-//											IN	INT32		DM_Type,
-//											IN	INT32		DM_Value);
-//
-// PathDiveristy Remove by RS_James
-
-typedef enum tag_DIG_Connect_Definition
-{
-	DIG_STA_DISCONNECT = 0,	
-	DIG_STA_CONNECT = 1,
-	DIG_STA_BEFORE_CONNECT = 2,
-	DIG_MultiSTA_DISCONNECT = 3,
-	DIG_MultiSTA_CONNECT = 4,
-	DIG_CONNECT_MAX
-}DM_DIG_CONNECT_E;
-
-
-//
-// 2012/01/12 MH Check afapter status. Temp fix BSOD.
-//
-#define	HAL_ADAPTER_STS_CHK(pDM_Odm)\
-	if (pDM_Odm->Adapter == NULL)\
-	{\
-		return;\
-	}\
-
-
-//
-// For new definition in MP temporarily fro power tracking,
-//
-/*
-#define odm_TXPowerTrackingDirectCall(_Adapter)	\
-	IS_HARDWARE_TYPE_8192D(_Adapter) ? odm_TXPowerTrackingCallback_ThermalMeter_92D(_Adapter) : \
-	IS_HARDWARE_TYPE_8192C(_Adapter) ? odm_TXPowerTrackingCallback_ThermalMeter_92C(_Adapter) : \
-	IS_HARDWARE_TYPE_8723A(_Adapter) ? odm_TXPowerTrackingCallback_ThermalMeter_8723A(_Adapter) :\
-	ODM_TXPowerTrackingCallback_ThermalMeter(_Adapter)
-*/
-
-
-#endif	// #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-
-VOID
-ODM_AsocEntry_Init(
-	IN		PDM_ODM_T		pDM_Odm
-	);
-
 //Remove ODM_DynamicARFBSelect() by RS_James
 
 PVOID
@@ -1265,7 +1006,6 @@ PhyDM_Get_Structure(
 	IN		u1Byte			Structure_Type
 );
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN) ||(DM_ODM_SUPPORT_TYPE == ODM_CE)
 /*===========================================================*/
 /* The following is for compile only*/
 /*===========================================================*/
@@ -1295,30 +1035,8 @@ PhyDM_Get_Structure(
 #define		rConfig_ram64x16				0xb2c
 
 #define TARGET_CHNL_NUM_2G_5G	59
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 
-VOID
-FillH2CCmd92C(	
-	IN	PADAPTER		Adapter,
-	IN	u1Byte 	ElementID,
-	IN	u4Byte 	CmdLen,
-	IN	pu1Byte	pCmdBuffer
-);
-VOID
-PHY_SetTxPowerLevel8192C(
-	IN	PADAPTER		Adapter,
-	IN	u1Byte			channel
-	);
-u1Byte GetRightChnlPlaceforIQK(u1Byte chnl);
-
-#endif
-
-//===========================================================
-#endif //#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 void odm_dtc(PDM_ODM_T pDM_Odm);
-#endif /* #if (DM_ODM_SUPPORT_TYPE == ODM_CE) */
 
 
 VOID phydm_NoisyDetection(IN	PDM_ODM_T	pDM_Odm	);
