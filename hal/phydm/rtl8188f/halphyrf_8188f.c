@@ -147,9 +147,6 @@ void DoIQK_8188F(
 #if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	PADAPTER Adapter = pDM_Odm->Adapter;
-#if(DM_ODM_SUPPORT_TYPE  & ODM_WIN)
-	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(Adapter);
-#endif
 #if(DM_ODM_SUPPORT_TYPE  & ODM_CE)
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(Adapter);
 #endif
@@ -230,8 +227,7 @@ ODM_TxPwrTrackSetPwr_8188F(
 
 	RT_TRACE(COMP_CMD, DBG_LOUD, ("Method=%d\n", Method));
 
-	if (Method == TXAGC) 
-	{
+	if (Method == TXAGC) {
 		//u1Byte	rf = 0;
 #if (MP_DRIVER == 1)
 		u4Byte pwr = 0, TxAGC = 0;
@@ -241,56 +237,10 @@ ODM_TxPwrTrackSetPwr_8188F(
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("odm_TxPwrTrackSetPwr8188F CH=%d\n", *(pDM_Odm->pChannel)));
 
 		pRFCalibrateInfo->Remnant_OFDMSwingIdx[RFPath] = pRFCalibrateInfo->Absolute_OFDMSwingIdx[RFPath];
-
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN))
-
-	#if (MP_DRIVER == 1)
-		if ( (pDM_Odm->mp_mode) == 1) {
-			pwr = PHY_QueryBBReg(Adapter, rTxAGC_B_CCK11_A_CCK2_11, bMaskByte1);  
-			pwr += pDM_Odm->RFCalibrateInfo.PowerIndexOffset[ODM_RF_PATH_A];
-			PHY_SetBBReg(Adapter, rTxAGC_A_CCK1_Mcs32, bMaskByte1, pwr);              //CCK 1M
-
-			if (pwr>0x3F)
-				pwr=0x3F;              //add by Mingzhi.Guo 2015-04-10
-			else if(pwr <= 0)
-				pwr=0;
-			
-			TxAGC = (pwr<<16)|(pwr<<8)|(pwr);
-			
-			PHY_SetBBReg(Adapter, rTxAGC_B_CCK11_A_CCK2_11, 0xffffff00, TxAGC);              //CCK 2~11M
-			ODM_RT_TRACE(pDM_Odm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("ODM_TxPwrTrackSetPwr8188F: CCK Tx-rf(A) Power = 0x%x\n", TxAGC));
-
-			pwr = PHY_QueryBBReg(Adapter, rTxAGC_A_Rate18_06, 0xFF);
-			pwr += (pRFCalibrateInfo->BbSwingIdxOfdm[ODM_RF_PATH_A] - pRFCalibrateInfo->BbSwingIdxOfdmBase[ODM_RF_PATH_A]);
-			TxAGC |= ((pwr << 24) | (pwr << 16) | (pwr << 8) | pwr);
-			PHY_SetBBReg(Adapter, rTxAGC_A_Rate18_06, bMaskDWord, TxAGC);
-			PHY_SetBBReg(Adapter, rTxAGC_A_Rate54_24, bMaskDWord, TxAGC);
-			PHY_SetBBReg(Adapter, rTxAGC_A_Mcs03_Mcs00, bMaskDWord, TxAGC);
-			PHY_SetBBReg(Adapter, rTxAGC_A_Mcs07_Mcs04, bMaskDWord, TxAGC);
-		//	PHY_SetBBReg(Adapter, rTxAGC_A_Mcs11_Mcs08, bMaskDWord, TxAGC);
-		//	PHY_SetBBReg(Adapter, rTxAGC_A_Mcs15_Mcs12, bMaskDWord, TxAGC);
-			ODM_RT_TRACE(pDM_Odm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("ODM_TxPwrTrackSetPwr8188F: OFDM Tx-rf(A) Power = 0x%x\n", TxAGC));
-		} else
-#endif
-		{
-			//PHY_SetTxPowerLevelByPath8188F(Adapter, pHalData->CurrentChannel, ODM_RF_PATH_A);
-			//PHY_SetTxPowerLevel8188F(pDM_Odm->Adapter, *pDM_Odm->pChannel);
-			pRFCalibrateInfo->Modify_TxAGC_Flag_PathA = TRUE;
-			pRFCalibrateInfo->Modify_TxAGC_Flag_PathA_CCK = TRUE;
-
-			if (RFPath == ODM_RF_PATH_A) {
-				PHY_SetTxPowerIndexByRateSection(Adapter, ODM_RF_PATH_A, pHalData->CurrentChannel, CCK);
-				PHY_SetTxPowerIndexByRateSection(Adapter, ODM_RF_PATH_A, pHalData->CurrentChannel, OFDM);
-				PHY_SetTxPowerIndexByRateSection(Adapter, ODM_RF_PATH_A, pHalData->CurrentChannel, HT_MCS0_MCS7);
-			}
-		}
-
-#endif
 #if (DM_ODM_SUPPORT_TYPE & ODM_AP)
 		//PHY_RF6052SetCCKTxPower(pDM_Odm->priv, *(pDM_Odm->pChannel));
 		//PHY_RF6052SetOFDMTxPower(pDM_Odm->priv, *(pDM_Odm->pChannel));
 #endif
-
 	} else if (Method == BBSWING) {
 		Final_OFDM_Swing_Index = pRFCalibrateInfo->DefaultOfdmIndex + pRFCalibrateInfo->Absolute_OFDMSwingIdx[RFPath];
 		Final_CCK_Swing_Index = pRFCalibrateInfo->DefaultCckIndex + pRFCalibrateInfo->Absolute_OFDMSwingIdx[RFPath];
@@ -306,9 +256,7 @@ ODM_TxPwrTrackSetPwr_8188F(
 		else if ((s1Byte)pRFCalibrateInfo->BbSwingIdxCck < 0)
 			Final_CCK_Swing_Index = 0;
 		
-		if (RFPath == ODM_RF_PATH_A)
-		{
-			
+		if (RFPath == ODM_RF_PATH_A) {
 			setIqkMatrix_8188F(pDM_Odm, Final_OFDM_Swing_Index, ODM_RF_PATH_A, 
 				pDM_Odm->RFCalibrateInfo.IQKMatrixRegSetting[ChannelMappedIndex].Value[0][0],
 				pDM_Odm->RFCalibrateInfo.IQKMatrixRegSetting[ChannelMappedIndex].Value[0][1]);	
@@ -348,10 +296,8 @@ ODM_TxPwrTrackSetPwr_8188F(
 				ODM_Write1Byte(pDM_Odm, 0xaa3, CCKSwingTable_Ch14_88F[Final_CCK_Swing_Index][15]);
 			}				
 		}
-		
 	}
-	else if (Method == MIX_MODE)
-	{
+	else if (Method == MIX_MODE) {
 	#if (MP_DRIVER == 1)
 		//u4Byte 	pwr = 0, TxAGC = 0;
 		u4Byte	TxAGC=0;              //add by Mingzhi.Guo 2015-04-10
@@ -626,31 +572,16 @@ GetDeltaSwingTable_8188F(
 	u1Byte				TxRate			= 0xFF;
 	u1Byte				channel			= pHalData->CurrentChannel;
 
-	if (pDM_Odm->mp_mode == TRUE) {
-		#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
-			#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-				#if (MP_DRIVER == 1)
-					PMPT_CONTEXT pMptCtx = &(Adapter->MptCtx);
-						
-					TxRate = MptToMgntRate(pMptCtx->MptRateIndex);
-				#endif
-			#elif (DM_ODM_SUPPORT_TYPE & ODM_CE)
-				PMPT_CONTEXT pMptCtx = &(Adapter->mppriv.MptCtx);
-					
-				TxRate = MptToMgntRate(pMptCtx->MptRateIndex);
-			#endif	
-		#endif
+	if (pDM_Odm->mp_mode) {
+		PMPT_CONTEXT pMptCtx = &(Adapter->mppriv.MptCtx);
+		TxRate = MptToMgntRate(pMptCtx->MptRateIndex);
 	} else {
 		u2Byte	rate	 = *(pDM_Odm->pForcedDataRate);
 		
 		if (!rate) { /*auto rate*/
 			if (rate != 0xFF) {
-				#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-					TxRate = Adapter->HalFunc.GetHwRateFromMRateHandler(pDM_Odm->TxRate);
-				#elif (DM_ODM_SUPPORT_TYPE & ODM_CE)
-					if (pDM_Odm->number_linked_client != 0)
-						TxRate = HwRateToMRate(pDM_Odm->TxRate);
-				#endif
+				if (pDM_Odm->number_linked_client != 0)
+					TxRate = HwRateToMRate(pDM_Odm->TxRate);
 			}
 		} else { /*force rate*/
 			TxRate = (u1Byte)rate;
@@ -723,9 +654,6 @@ phy_PathA_IQK_8188F(
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(pAdapter);
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
-#endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
 #endif
 #endif
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("Path A IQK!\n"));
@@ -810,9 +738,6 @@ phy_PathA_RxIQK8188F(
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(pAdapter);
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
-#endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
 #endif
 #endif
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("Path A Rx IQK!\n"));
@@ -969,9 +894,6 @@ phy_PathB_IQK_8188F(
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
 #endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
-#endif
 #endif
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("Path B IQK!\n"));
 
@@ -1057,9 +979,6 @@ phy_PathB_RxIQK8188F(
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(pAdapter);
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
-#endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
 #endif
 #endif
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("Path B Rx IQK!\n"));
@@ -1208,9 +1127,6 @@ _PHY_PathAFillIQKMatrix8188F(
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
 #endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
-#endif
 #endif
 	PODM_RF_CAL_T pRFCalibrateInfo = &(pDM_Odm->RFCalibrateInfo);
 
@@ -1301,9 +1217,6 @@ _PHY_PathBFillIQKMatrix8188F(
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(pAdapter);
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
-#endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
 #endif
 #endif
 	PODM_RF_CAL_T pRFCalibrateInfo = &(pDM_Odm->RFCalibrateInfo);
@@ -1426,10 +1339,6 @@ _PHY_SaveADDARegisters8188F(
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
 #endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
-#endif
-
 	if (ODM_CheckPowerStatus(pAdapter) == FALSE)
 		return;
 #endif
@@ -1456,9 +1365,6 @@ _PHY_SaveMACRegisters8188F(
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(pAdapter);
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
-#endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
 #endif
 #endif
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("Save MAC parameters.\n"));
@@ -1487,9 +1393,6 @@ _PHY_ReloadADDARegisters8188F(
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
 #endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
-#endif
 #endif
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("Reload ADDA power saving parameters !\n"));
@@ -1513,9 +1416,6 @@ _PHY_ReloadMACRegisters8188F(
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(pAdapter);
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
-#endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
 #endif
 #endif
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("Reload MAC parameters !\n"));
@@ -1543,9 +1443,6 @@ _PHY_PathADDAOn8188F(
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(pAdapter);
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
-#endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
 #endif
 #endif
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("ADDA ON.\n"));
@@ -1579,9 +1476,6 @@ _PHY_MACSettingCalibration8188F(
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
 #endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
-#endif
 #endif
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("MAC settings for Calibration.\n"));
 
@@ -1601,9 +1495,6 @@ _PHY_PathAStandBy8188F(
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(pAdapter);
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
-#endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
 #endif
 #endif
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("Path-A standby mode!\n"));
@@ -1632,9 +1523,6 @@ _PHY_PIModeSwitch8188F(
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
 #endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
-#endif
 #endif
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("BB Switch to %s mode!\n", (PIMode ? "PI" : "SI")));
 
@@ -1661,9 +1549,6 @@ phy_SimularityCompare_8188F(
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(pAdapter);
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
-#endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
 #endif
 #endif
 #endif
@@ -1771,9 +1656,6 @@ phy_IQCalibrate_8188F(
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(pAdapter);
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
-#endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
 #endif
 #endif
 	u4Byte i;
@@ -2116,18 +1998,10 @@ PHY_IQCalibrate_8188F(
 #if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(pAdapter);
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
-#else  // (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
-#endif
 
 #if (MP_DRIVER == 1)
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PMPT_CONTEXT pMptCtx = &(pAdapter->MptCtx);
-#else// (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PMPT_CONTEXT pMptCtx = &(pAdapter->mppriv.MptCtx);
-#endif
 #endif//(MP_DRIVER == 1)
 #endif
 
@@ -2440,11 +2314,7 @@ PHY_LCCalibrate_8188F(
 #if MP_DRIVER == 1
 	PADAPTER pAdapter = pDM_Odm->Adapter;
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PMPT_CONTEXT pMptCtx = &(pAdapter->MptCtx);
-#else// (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PMPT_CONTEXT pMptCtx = &(pAdapter->mppriv.MptCtx);
-#endif
 #endif
 #endif
 
@@ -2499,10 +2369,6 @@ VOID phy_SetRFPathSwitch_8188F(
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
 #endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
-#endif
-
 	if (bMain)   // Left antenna
 		ODM_SetBBReg(pDM_Odm, 0x92C, bMaskDWord, 0x1);
 	else
@@ -2528,115 +2394,6 @@ VOID PHY_SetRFPathSwitch_8188F(
 #endif
 
 }
-
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-//digital predistortion
-VOID
-phy_DigitalPredistortion8188F(
-#if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PADAPTER pAdapter,
-#else
-	IN PDM_ODM_T pDM_Odm,
-#endif
-	IN BOOLEAN is2T
-)
-{
-}
-
-VOID
-PHY_DigitalPredistortion_8188F(
-#if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PADAPTER pAdapter
-#else
-	IN PDM_ODM_T pDM_Odm
-#endif
-)
-{
-#if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
-	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(pAdapter);
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
-	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
-#endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
-#endif
-#endif
-#if DISABLE_BB_RF
-	return;
-#endif
-
-	return;
-
-	if (pDM_Odm->RFCalibrateInfo.bDPdone)
-		return;
-#if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
-
-	if (IS_92C_SERIAL(pHalData->VersionID))
-		phy_DigitalPredistortion8188F(pAdapter, TRUE);
-	else
-#endif
-	{
-		// For 88C 1T1R
-		phy_DigitalPredistortion8188F(pAdapter, FALSE);
-	}
-}
-
-
-
-//return value TRUE => Main; FALSE => Aux
-
-BOOLEAN phy_QueryRFPathSwitch_8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm,
-#else
-	IN PADAPTER pAdapter,
-#endif
-	IN BOOLEAN is2T
-)
-{
-#if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
-	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(pAdapter);
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
-	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
-#endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T pDM_Odm = &pHalData->DM_OutSrc;
-#endif
-#endif
-
-
-	if (ODM_GetBBReg(pDM_Odm, 0x92C, bMaskDWord) == 0x01)
-		return TRUE;
-	else
-		return FALSE;
-
-}
-
-
-
-//return value TRUE => Main; FALSE => Aux
-BOOLEAN PHY_QueryRFPathSwitch_8188F(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	IN PDM_ODM_T pDM_Odm
-#else
-	IN PADAPTER pAdapter
-#endif
-)
-{
-	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(pAdapter);
-
-#if DISABLE_BB_RF
-	return TRUE;
-#endif
-
-#if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
-	return phy_QueryRFPathSwitch_8188F(pAdapter, FALSE);
-#else
-	return phy_QueryRFPathSwitch_8188F(pDM_Odm, FALSE);
-#endif
-
-}
-#endif
 
 u32 phy_psd_log2base(u32 val)
 {

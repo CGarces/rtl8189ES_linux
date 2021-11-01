@@ -2287,9 +2287,6 @@ ODM_ReadFirmware_MP_8188F_FW_AP(
 #endif /* #if (DM_ODM_SUPPORT_TYPE & (ODM_AP)) */
 
 
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN)) || (DM_ODM_SUPPORT_TYPE & (ODM_CE))
-
-
 u1Byte Array_MP_8188F_FW_NIC[] = {
 0xF1, 0x88, 0x10, 0x00, 0x04, 0x00, 0x00, 0x00,
 0x08, 0x22, 0x17, 0x36, 0xFC, 0x51, 0x02, 0x00,
@@ -7835,7 +7832,6 @@ ODM_ReadFirmware_MP_8188F_FW_WoWLAN(
 
 
 
-#endif /* end of (DM_ODM_SUPPORT_TYPE & (ODM_AP)))*/
 
 
 #endif /* end of HWIMG_SUPPORT*/

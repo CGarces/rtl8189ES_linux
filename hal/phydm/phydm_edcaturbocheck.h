@@ -62,39 +62,8 @@ ODM_EdcaTurboInit(
 	IN 	PVOID	 	pDM_VOID
 );
 
-#if(DM_ODM_SUPPORT_TYPE==ODM_WIN)
-VOID
-odm_EdcaTurboCheckMP(
-	IN 	PVOID	 	pDM_VOID
-	);
-
-//check if edca turbo is disabled
-BOOLEAN
-odm_IsEdcaTurboDisable(
-	IN 	PVOID	 	pDM_VOID
-);
-//choose edca paramter for special IOT case
-VOID 
-ODM_EdcaParaSelByIot(
-	IN		PVOID					pDM_VOID,
-	OUT	u4Byte		*EDCA_BE_UL,
-	OUT u4Byte		*EDCA_BE_DL
-	);
-//check if it is UL or DL
-VOID
-odm_EdcaChooseTrafficIdx( 
-	IN 	PVOID	 	pDM_VOID,
-	IN	u8Byte  			cur_tx_bytes,  
-	IN	u8Byte  			cur_rx_bytes, 
-	IN	BOOLEAN 		bBiasOnRx,
-	OUT BOOLEAN 		*pbIsCurRDLState
-	);
-
-#elif (DM_ODM_SUPPORT_TYPE==ODM_CE)
 VOID
 odm_EdcaTurboCheckCE(
 	IN 	PVOID	 	pDM_VOID
 	);
-#endif
-
 #endif

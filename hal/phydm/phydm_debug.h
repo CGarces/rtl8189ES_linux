@@ -114,16 +114,9 @@
 #define	ODM_COMP_NOISY_DETECT		BIT32
 
 /*------------------------Export Marco Definition---------------------------*/
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	#define RT_PRINTK				DbgPrint
-#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
-	#define DbgPrint	printk
-	#define RT_PRINTK(fmt, args...)	DbgPrint( "%s(): " fmt, __FUNCTION__, ## args);
-	#define	RT_DISP(dbgtype, dbgflag, printstr)
-#else
-	#define DbgPrint	panic_printk
-	#define RT_PRINTK(fmt, args...)	DbgPrint( "%s(): " fmt, __FUNCTION__, ## args);
-#endif
+#define DbgPrint	printk
+#define RT_PRINTK(fmt, args...)	DbgPrint( "%s(): " fmt, __FUNCTION__, ## args);
+#define	RT_DISP(dbgtype, dbgflag, printstr)
 
 #ifndef ASSERT
 	#define ASSERT(expr)
@@ -203,36 +196,12 @@
 VOID 
 PHYDM_InitDebugSetting(IN		PDM_ODM_T		pDM_Odm);
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-VOID phydm_BB_RxHang_Info(IN PDM_ODM_T pDM_Odm);
-#endif
-
 #define	BB_TMP_BUF_SIZE		100
 VOID phydm_BB_Debug_Info(IN PDM_ODM_T pDM_Odm);
 VOID phydm_BasicDbgMessage(	IN		PVOID			pDM_VOID);
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-#define	PHYDM_DBGPRINT		0
-#define	PHYDM_SSCANF(x, y, z)	DCMD_Scanf(x, y, z)
-#if (PHYDM_DBGPRINT == 1)
-#define	PHYDM_SNPRINTF(msg)	\
-		do {\
-			rsprintf msg;\
-			DbgPrint(output);\
-		} while (0)
-#else
-#define	PHYDM_SNPRINTF(msg)	\
-		do {\
-			rsprintf msg;\
-			DCMD_Printf(output);\
-		} while (0)
-#endif
-#else
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
-#define	PHYDM_DBGPRINT		0
-#else
+
 #define	PHYDM_DBGPRINT		1
-#endif
 #define	MAX_ARGC				20
 #define	MAX_ARGV				16
 #define	DCMD_DECIMAL			"%d"
@@ -252,7 +221,6 @@ VOID phydm_BasicDbgMessage(	IN		PVOID			pDM_VOID);
 			if(out_len > used)\
 				used+=snprintf msg;\
 		} while (0)
-#endif
 #endif
 
 
@@ -282,20 +250,6 @@ phydm_cmd_parser(
 	OUT char	*output,
 	IN u4Byte	out_len
 );
-
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-void phydm_sbd_check(
-	IN	PDM_ODM_T					pDM_Odm
-	);
-
-void phydm_sbd_callback(
-	PRT_TIMER		pTimer
-	);
-
-void phydm_sbd_workitem_callback(
-    IN PVOID            pContext
-	);
-#endif
 
 VOID
 phydm_fw_trace_en_h2c(

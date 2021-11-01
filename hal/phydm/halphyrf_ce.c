@@ -128,14 +128,8 @@ ODM_TXPowerTrackingCallback_ThermalMeter(
 	)
 {
 
-#if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T		pDM_Odm = &pHalData->DM_OutSrc;
-	#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T		pDM_Odm = &pHalData->odmpriv;
-	#endif
-#endif
 	PODM_RF_CAL_T	pRFCalibrateInfo = &(pDM_Odm->RFCalibrateInfo);
 
 	u1Byte			ThermalValue = 0, delta, delta_LCK, delta_IQK, p = 0, i = 0;
@@ -176,9 +170,6 @@ ODM_TXPowerTrackingCallback_ThermalMeter(
 	pDM_Odm->RFCalibrateInfo.bTXPowerTrackingInit = TRUE;
     
 #if (MP_DRIVER == 1)
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = pHalData->TxPowerTrackControl; // <Kordan> We should keep updating the control variable according to HalData.
-#endif
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	if (pDM_Odm->mp_mode == TRUE)
@@ -628,11 +619,6 @@ odm_IQCalibrate(
 {
 	PADAPTER	Adapter = pDM_Odm->Adapter;
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)	
-	if (*pDM_Odm->pIsFcsModeEnable)
-		return;
-#endif
-	
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))
 		return;
 #endif

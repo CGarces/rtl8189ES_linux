@@ -391,13 +391,7 @@ odm_TXPowerTrackingThermalMeterInit(
 	u1Byte defaultSwingIndex = getSwingIndex(pDM_Odm);
 	u1Byte 			p = 0;
 	PODM_RF_CAL_T	pRFCalibrateInfo = &(pDM_Odm->RFCalibrateInfo);
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PADAPTER		Adapter = pDM_Odm->Adapter;
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 
-	if(pDM_Odm->mp_mode == FALSE)
-		pHalData->TxPowerTrackControl = TRUE;
-#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PADAPTER		Adapter = pDM_Odm->Adapter;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 
@@ -414,7 +408,6 @@ odm_TXPowerTrackingThermalMeterInit(
 		pRFCalibrateInfo->TxPowerTrackControl = _TRUE;
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("pDM_Odm TxPowerTrackControl = %d\n", pRFCalibrateInfo->TxPowerTrackControl));
-#endif
 
 	//pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = TRUE;
 	pRFCalibrateInfo->ThermalValue = pHalData->EEPROMThermalMeter;
@@ -493,3 +486,28 @@ odm_TXPowerTrackingCheckCE(
 		pDM_Odm->RFCalibrateInfo.TM_Trigger = 0;
 	}
 }
+
+VOID
+odm_TXPowerTrackingCheckMP(
+	IN	PVOID	pDM_VOID
+	)
+{
+	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
+}
+
+
+VOID
+odm_TXPowerTrackingCheckAP(
+	IN	PVOID	pDM_VOID
+	)
+{
+	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
+#if (DM_ODM_SUPPORT_TYPE == ODM_AP)
+	prtl8192cd_priv	priv		= pDM_Odm->priv;
+
+	return;
+	
+#endif
+}
+
+
