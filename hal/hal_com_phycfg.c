@@ -355,36 +355,6 @@ static u8 hal_chk_pg_txpwr_info_2g(_adapter *adapter, TxPowerInfo24G *pwr_info)
 	return _SUCCESS;
 }
 
-static u8 hal_chk_pg_txpwr_info_5g(_adapter *adapter, TxPowerInfo5G *pwr_info)
-{
-#ifdef CONFIG_IEEE80211_BAND_5GHZ
-	struct hal_spec_t *hal_spec = GET_HAL_SPEC(adapter);
-	u8 path, group, tx_idx;
-
-	if (pwr_info == NULL || !hal_chk_band_cap(adapter, BAND_CAP_5G))
-		return _SUCCESS;
-
-	for (path = 0; path < MAX_RF_PATH; path++) {
-		if (!HAL_SPEC_CHK_RF_PATH(hal_spec, path))
-			continue;
-		for (group = 0; group < MAX_CHNL_GROUP_5G; group++)
-			if (IS_PG_TXPWR_BASE_INVALID(pwr_info->IndexBW40_Base[path][group]))
-				return _FAIL;
-		for (tx_idx = 0; tx_idx < MAX_TX_COUNT; tx_idx++) {
-			if (!HAL_SPEC_CHK_TX_CNT(hal_spec, tx_idx))
-				continue;
-			if (IS_PG_TXPWR_DIFF_INVALID(pwr_info->OFDM_Diff[path][tx_idx])
-				|| IS_PG_TXPWR_DIFF_INVALID(pwr_info->BW20_Diff[path][tx_idx])
-				|| IS_PG_TXPWR_DIFF_INVALID(pwr_info->BW40_Diff[path][tx_idx])
-				|| IS_PG_TXPWR_DIFF_INVALID(pwr_info->BW80_Diff[path][tx_idx])
-				|| IS_PG_TXPWR_DIFF_INVALID(pwr_info->BW160_Diff[path][tx_idx]))
-				return _FAIL;
-		}
-	}
-#endif /* CONFIG_IEEE80211_BAND_5GHZ */
-	return _SUCCESS;
-}
-
 static inline void hal_init_pg_txpwr_info_2g(_adapter *adapter, TxPowerInfo24G *pwr_info)
 {
 	struct hal_spec_t *hal_spec = GET_HAL_SPEC(adapter);
@@ -420,39 +390,6 @@ static inline void hal_init_pg_txpwr_info_2g(_adapter *adapter, TxPowerInfo24G *
 		pwr_info->CCK_Diff[path][0] = 0; /* 2.4G CCK-1TX */
 		pwr_info->BW40_Diff[path][0] = 0; /* 2.4G BW40-1S */
 	}
-}
-
-static inline void hal_init_pg_txpwr_info_5g(_adapter *adapter, TxPowerInfo5G *pwr_info)
-{
-#ifdef CONFIG_IEEE80211_BAND_5GHZ
-	struct hal_spec_t *hal_spec = GET_HAL_SPEC(adapter);
-	u8 path, group, tx_idx;
-
-	if (pwr_info == NULL)
-		return;
-
-	_rtw_memset(pwr_info, 0, sizeof(TxPowerInfo5G));
-
-	/* init with invalid value */
-	for (path = 0; path < MAX_RF_PATH; path++) {
-		for (group = 0; group < MAX_CHNL_GROUP_5G; group++)
-			pwr_info->IndexBW40_Base[path][group] = PG_TXPWR_INVALID_BASE;
-		for (tx_idx = 0; tx_idx < MAX_TX_COUNT; tx_idx++) {
-			pwr_info->OFDM_Diff[path][tx_idx] = PG_TXPWR_INVALID_DIFF;
-			pwr_info->BW20_Diff[path][tx_idx] = PG_TXPWR_INVALID_DIFF;
-			pwr_info->BW40_Diff[path][tx_idx] = PG_TXPWR_INVALID_DIFF;
-			pwr_info->BW80_Diff[path][tx_idx] = PG_TXPWR_INVALID_DIFF;
-			pwr_info->BW160_Diff[path][tx_idx] = PG_TXPWR_INVALID_DIFF;
-		}
-	}
-
-	for (path = 0; path < MAX_RF_PATH; path++) {
-		if (!HAL_SPEC_CHK_RF_PATH(hal_spec, path))
-			break;
-		/* dummy diff */
-		pwr_info->BW40_Diff[path][0] = 0; /* 5G BW40-1S */
-	}
-#endif /* CONFIG_IEEE80211_BAND_5GHZ */
 }
 
 #if DBG_PG_TXPWR_READ
@@ -608,147 +545,8 @@ u16 hal_load_pg_txpwr_info_path_5g(
 	u8 tmp_base;
 	s8 tmp_diff;
 
-#ifdef CONFIG_IEEE80211_BAND_5GHZ
-	if (pwr_info == NULL || !hal_chk_band_cap(adapter, BAND_CAP_5G))
-#endif
-	{
-		offset += PG_TXPWR_1PATH_BYTE_NUM_5G;
-		goto exit;
-	}
-	
-#ifdef CONFIG_IEEE80211_BAND_5GHZ
-	if (DBG_PG_TXPWR_READ)
-		RTW_INFO("%s[%c] eaddr:0x%03x\n", __func__, rf_path_char(path), offset);
+	offset += PG_TXPWR_1PATH_BYTE_NUM_5G;
 
-	for (group = 0; group < MAX_CHNL_GROUP_5G; group++) {
-		if (HAL_SPEC_CHK_RF_PATH(hal_spec, path)) {
-			tmp_base = map_read8(txpwr_map, offset);
-			if (!IS_PG_TXPWR_BASE_INVALID(tmp_base)
-				&& IS_PG_TXPWR_BASE_INVALID(pwr_info->IndexBW40_Base[path][group])
-			) {
-				pwr_info->IndexBW40_Base[path][group] = tmp_base;
-				if (LOAD_PG_TXPWR_WARN_COND(txpwr_src))
-					RTW_INFO("[%c] 5G G%02d BW40-1S base:%u from %s\n", rf_path_char(path), group, tmp_base, pg_txpwr_src_str(txpwr_src));
-			}
-		}
-		offset++;
-	}
-
-	for (tx_idx = 0; tx_idx < MAX_TX_COUNT; tx_idx++) {
-		if (tx_idx == 0) {
-			if (HAL_SPEC_CHK_RF_PATH(hal_spec, path) && HAL_SPEC_CHK_TX_CNT(hal_spec, tx_idx)) {
-				val = map_read8(txpwr_map, offset);
-				tmp_diff = PG_TXPWR_MSB_DIFF_TO_S8BIT(val);
-				if (!IS_PG_TXPWR_DIFF_INVALID(tmp_diff)
-					&& IS_PG_TXPWR_DIFF_INVALID(pwr_info->BW20_Diff[path][tx_idx])
-				) {
-					pwr_info->BW20_Diff[path][tx_idx] = tmp_diff;
-					if (LOAD_PG_TXPWR_WARN_COND(txpwr_src))
-						RTW_INFO("[%c] 5G BW20-%dS diff:%d from %s\n", rf_path_char(path), tx_idx + 1, tmp_diff, pg_txpwr_src_str(txpwr_src));
-				}
-				tmp_diff = PG_TXPWR_LSB_DIFF_TO_S8BIT(val);
-				if (!IS_PG_TXPWR_DIFF_INVALID(tmp_diff)
-					&& IS_PG_TXPWR_DIFF_INVALID(pwr_info->OFDM_Diff[path][tx_idx])
-				) {
-					pwr_info->OFDM_Diff[path][tx_idx] = tmp_diff;
-					if (LOAD_PG_TXPWR_WARN_COND(txpwr_src))
-						RTW_INFO("[%c] 5G OFDM-%dT diff:%d from %s\n", rf_path_char(path), tx_idx + 1, tmp_diff, pg_txpwr_src_str(txpwr_src));
-				}
-			}
-			offset++;
-		} else {
-			if (HAL_SPEC_CHK_RF_PATH(hal_spec, path) && HAL_SPEC_CHK_TX_CNT(hal_spec, tx_idx)) {
-				val = map_read8(txpwr_map, offset);
-				tmp_diff = PG_TXPWR_MSB_DIFF_TO_S8BIT(val);
-				if (!IS_PG_TXPWR_DIFF_INVALID(tmp_diff)
-					&& IS_PG_TXPWR_DIFF_INVALID(pwr_info->BW40_Diff[path][tx_idx])
-				) {
-					pwr_info->BW40_Diff[path][tx_idx] = tmp_diff;
-					if (LOAD_PG_TXPWR_WARN_COND(txpwr_src))
-						RTW_INFO("[%c] 5G BW40-%dS diff:%d from %s\n", rf_path_char(path), tx_idx + 1, tmp_diff, pg_txpwr_src_str(txpwr_src));
-				}
-				tmp_diff = PG_TXPWR_LSB_DIFF_TO_S8BIT(val);
-				if (!IS_PG_TXPWR_DIFF_INVALID(tmp_diff)
-					&& IS_PG_TXPWR_DIFF_INVALID(pwr_info->BW20_Diff[path][tx_idx])
-				) {
-					pwr_info->BW20_Diff[path][tx_idx] = tmp_diff;
-					if (LOAD_PG_TXPWR_WARN_COND(txpwr_src))
-						RTW_INFO("[%c] 5G BW20-%dS diff:%d from %s\n", rf_path_char(path), tx_idx + 1, tmp_diff, pg_txpwr_src_str(txpwr_src));
-				}
-			}
-			offset++;
-		}
-	}	
-
-	/* OFDM diff 2T ~ 3T */
-	if (HAL_SPEC_CHK_RF_PATH(hal_spec, path) && HAL_SPEC_CHK_TX_CNT(hal_spec, 1)) {
-		val = map_read8(txpwr_map, offset);
-		tmp_diff = PG_TXPWR_MSB_DIFF_TO_S8BIT(val);
-		if (!IS_PG_TXPWR_DIFF_INVALID(tmp_diff)
-			&& IS_PG_TXPWR_DIFF_INVALID(pwr_info->OFDM_Diff[path][1])
-		) {
-			pwr_info->OFDM_Diff[path][1] = tmp_diff;
-			if (LOAD_PG_TXPWR_WARN_COND(txpwr_src))
-				RTW_INFO("[%c] 5G OFDM-%dT diff:%d from %s\n", rf_path_char(path), 2, tmp_diff, pg_txpwr_src_str(txpwr_src));
-		}
-		if (HAL_SPEC_CHK_TX_CNT(hal_spec, 2)) {
-			tmp_diff = PG_TXPWR_LSB_DIFF_TO_S8BIT(val);
-			if (!IS_PG_TXPWR_DIFF_INVALID(tmp_diff)
-				&& IS_PG_TXPWR_DIFF_INVALID(pwr_info->OFDM_Diff[path][2])
-			) {
-				pwr_info->OFDM_Diff[path][2] = tmp_diff;
-				if (LOAD_PG_TXPWR_WARN_COND(txpwr_src))
-					RTW_INFO("[%c] 5G OFDM-%dT diff:%d from %s\n", rf_path_char(path), 3, tmp_diff, pg_txpwr_src_str(txpwr_src));
-			}
-		}
-	}
-	offset++;
-
-	/* OFDM diff 4T */
-	if (HAL_SPEC_CHK_RF_PATH(hal_spec, path) && HAL_SPEC_CHK_TX_CNT(hal_spec, 3)) {
-		val = map_read8(txpwr_map, offset);
-		tmp_diff = PG_TXPWR_LSB_DIFF_TO_S8BIT(val);
-		if (!IS_PG_TXPWR_DIFF_INVALID(tmp_diff)
-			&& IS_PG_TXPWR_DIFF_INVALID(pwr_info->OFDM_Diff[path][3])
-		) {
-			pwr_info->OFDM_Diff[path][3] = tmp_diff;
-			if (LOAD_PG_TXPWR_WARN_COND(txpwr_src))
-				RTW_INFO("[%c] 5G OFDM-%dT diff:%d from %s\n", rf_path_char(path), 4, tmp_diff, pg_txpwr_src_str(txpwr_src));
-		}
-	}
-	offset++;
-
-	for (tx_idx = 0; tx_idx < MAX_TX_COUNT; tx_idx++) {
-		if (HAL_SPEC_CHK_RF_PATH(hal_spec, path) && HAL_SPEC_CHK_TX_CNT(hal_spec, tx_idx)) {
-			val = map_read8(txpwr_map, offset);
-			tmp_diff = PG_TXPWR_MSB_DIFF_TO_S8BIT(val);
-			if (!IS_PG_TXPWR_DIFF_INVALID(tmp_diff)
-				&& IS_PG_TXPWR_DIFF_INVALID(pwr_info->BW80_Diff[path][tx_idx])
-			) {
-				pwr_info->BW80_Diff[path][tx_idx] = tmp_diff;
-				if (LOAD_PG_TXPWR_WARN_COND(txpwr_src))
-					RTW_INFO("[%c] 5G BW80-%dS diff:%d from %s\n", rf_path_char(path), tx_idx + 1, tmp_diff, pg_txpwr_src_str(txpwr_src));
-			}
-			tmp_diff = PG_TXPWR_LSB_DIFF_TO_S8BIT(val);
-			if (!IS_PG_TXPWR_DIFF_INVALID(tmp_diff)
-				&& IS_PG_TXPWR_DIFF_INVALID(pwr_info->BW160_Diff[path][tx_idx])
-			) {
-				pwr_info->BW160_Diff[path][tx_idx] = tmp_diff;
-				if (LOAD_PG_TXPWR_WARN_COND(txpwr_src))
-					RTW_INFO("[%c] 5G BW160-%dS diff:%d from %s\n", rf_path_char(path), tx_idx + 1, tmp_diff, pg_txpwr_src_str(txpwr_src));
-			}
-		}
-		offset++;
-	}
-
-	if (offset != pg_offset + PG_TXPWR_1PATH_BYTE_NUM_5G) {
-		RTW_ERR("%s parse %d bytes != %d\n", __func__, offset - pg_offset, PG_TXPWR_1PATH_BYTE_NUM_5G);
-		rtw_warn_on(1);
-	}
-
-#endif /* #ifdef CONFIG_IEEE80211_BAND_5GHZ */
-
-exit:
 	return offset;
 }
 
@@ -769,7 +567,6 @@ void hal_load_pg_txpwr_info(
 
 	/* init with invalid value and some dummy base and diff */
 	hal_init_pg_txpwr_info_2g(adapter, pwr_info_2g);
-	hal_init_pg_txpwr_info_5g(adapter, pwr_info_5g);
 
 select_src:
 	pg_offset = 0x10;
@@ -797,8 +594,7 @@ select_src:
 		pg_offset = hal_load_pg_txpwr_info_path_5g(adapter, pwr_info_5g, path, txpwr_src, txpwr_map, pg_offset);
 	}
 
-	if (hal_chk_pg_txpwr_info_2g(adapter, pwr_info_2g) == _SUCCESS
-		&& hal_chk_pg_txpwr_info_5g(adapter, pwr_info_5g) == _SUCCESS)
+	if (hal_chk_pg_txpwr_info_2g(adapter, pwr_info_2g) == _SUCCESS)
 		goto exit;
 
 end_parse:
@@ -806,8 +602,7 @@ end_parse:
 	if (txpwr_src < PG_TXPWR_SRC_NUM)
 		goto select_src;
 
-	if (hal_chk_pg_txpwr_info_2g(adapter, pwr_info_2g) != _SUCCESS
-		|| hal_chk_pg_txpwr_info_5g(adapter, pwr_info_5g) != _SUCCESS)
+	if (hal_chk_pg_txpwr_info_2g(adapter, pwr_info_2g) != _SUCCESS)
 		rtw_warn_on(1);
 
 exit:
@@ -867,39 +662,6 @@ void hal_load_txpwr_info(
 			hal_data->BW40_24G_Diff[rfpath][tx_idx] = pwr_info_2g->BW40_Diff[rfpath][tx_idx];
 		}
 
-#ifdef CONFIG_IEEE80211_BAND_5GHZ
-		if (!pwr_info_5g)
-			continue;
-
-		/* 5G base */
-		for (ch_idx = 0; ch_idx < CENTER_CH_5G_ALL_NUM; ch_idx++) {
-			if (rtw_get_ch_group(center_ch_5g_all[ch_idx], &group, NULL) != BAND_ON_5G)
-				continue;
-			hal_data->Index5G_BW40_Base[rfpath][ch_idx] = pwr_info_5g->IndexBW40_Base[rfpath][group];
-		}
-
-		for (ch_idx = 0 ; ch_idx < CENTER_CH_5G_80M_NUM; ch_idx++) {
-			u8 upper, lower;
-
-			if (rtw_get_ch_group(center_ch_5g_80m[ch_idx], &group, NULL) != BAND_ON_5G)
-				continue;
-
-			upper = pwr_info_5g->IndexBW40_Base[rfpath][group];
-			lower = pwr_info_5g->IndexBW40_Base[rfpath][group + 1];
-			hal_data->Index5G_BW80_Base[rfpath][ch_idx] = (upper + lower) / 2;
-		}
-
-		/* 5G diff */
-		for (tx_idx = 0; tx_idx < MAX_TX_COUNT; tx_idx++) {
-			if (tx_idx >= max_tx_cnt)
-				break;
-
-			hal_data->OFDM_5G_Diff[rfpath][tx_idx] = pwr_info_5g->OFDM_Diff[rfpath][tx_idx];
-			hal_data->BW20_5G_Diff[rfpath][tx_idx] = pwr_info_5g->BW20_Diff[rfpath][tx_idx];
-			hal_data->BW40_5G_Diff[rfpath][tx_idx] = pwr_info_5g->BW40_Diff[rfpath][tx_idx];
-			hal_data->BW80_5G_Diff[rfpath][tx_idx] = pwr_info_5g->BW80_Diff[rfpath][tx_idx];
-		}
-#endif /* CONFIG_IEEE80211_BAND_5GHZ */
 	}
 }
 
@@ -988,111 +750,6 @@ void dump_hal_txpwr_info_2g(void *sel, _adapter *adapter, u8 rfpath_num, u8 max_
 	RTW_PRINT_SEL(sel, "\n");
 }
 
-void dump_hal_txpwr_info_5g(void *sel, _adapter *adapter, u8 rfpath_num, u8 max_tx_cnt)
-{
-#ifdef CONFIG_IEEE80211_BAND_5GHZ
-	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(adapter);
-	int path, ch_idx, tx_idx;
-	u8 dump_section = 0;
-	u8 ch_idx_s = 0;
-
-	RTW_PRINT_SEL(sel, "5G\n");
-	RTW_PRINT_SEL(sel, "BW40-1S base:\n");
-	do {
-		#define DUMP_5G_BW40_BASE_SECTION_NUM 3
-		u8 end[DUMP_5G_BW40_BASE_SECTION_NUM] = {64, 144, 177};
-
-		RTW_PRINT_SEL(sel, "%4s ", "");
-		for (ch_idx = ch_idx_s; ch_idx < CENTER_CH_5G_ALL_NUM; ch_idx++) {
-			_RTW_PRINT_SEL(sel, "%3d ", center_ch_5g_all[ch_idx]);
-			if (end[dump_section] == center_ch_5g_all[ch_idx])
-				break;
-		}
-		_RTW_PRINT_SEL(sel, "\n");
-		for (path = 0; path < MAX_RF_PATH && path < rfpath_num; path++) {
-			RTW_PRINT_SEL(sel, "[%c]: ", rf_path_char(path));
-			for (ch_idx = ch_idx_s; ch_idx < CENTER_CH_5G_ALL_NUM; ch_idx++) {
-				_RTW_PRINT_SEL(sel, "%3u ", hal_data->Index5G_BW40_Base[path][ch_idx]);
-				if (end[dump_section] == center_ch_5g_all[ch_idx])
-					break;
-			}
-			_RTW_PRINT_SEL(sel, "\n");
-		}
-		RTW_PRINT_SEL(sel, "\n");
-
-		ch_idx_s = ch_idx + 1;
-		dump_section++;
-		if (dump_section >= DUMP_5G_BW40_BASE_SECTION_NUM)
-			break;
-	} while (1);
-
-	RTW_PRINT_SEL(sel, "BW80-1S base:\n");
-	RTW_PRINT_SEL(sel, "%4s ", "");
-	for (ch_idx = 0; ch_idx < CENTER_CH_5G_80M_NUM; ch_idx++)
-		_RTW_PRINT_SEL(sel, "%3d ", center_ch_5g_80m[ch_idx]);
-	_RTW_PRINT_SEL(sel, "\n");
-	for (path = 0; path < MAX_RF_PATH && path < rfpath_num; path++) {
-		RTW_PRINT_SEL(sel, "[%c]: ", rf_path_char(path));
-		for (ch_idx = 0; ch_idx < CENTER_CH_5G_80M_NUM; ch_idx++)
-			_RTW_PRINT_SEL(sel, "%3u ", hal_data->Index5G_BW80_Base[path][ch_idx]);
-		_RTW_PRINT_SEL(sel, "\n");
-	}
-	RTW_PRINT_SEL(sel, "\n");
-
-	RTW_PRINT_SEL(sel, "OFDM diff:\n");
-	RTW_PRINT_SEL(sel, "%4s ", "");
-	for (tx_idx = RF_1TX; tx_idx < MAX_TX_COUNT && tx_idx < max_tx_cnt; tx_idx++)
-		_RTW_PRINT_SEL(sel, "%dT ", tx_idx + 1);
-	_RTW_PRINT_SEL(sel, "\n");
-	for (path = 0; path < MAX_RF_PATH && path < rfpath_num; path++) {
-		RTW_PRINT_SEL(sel, "[%c]: ", rf_path_char(path));
-		for (tx_idx = RF_1TX; tx_idx < MAX_TX_COUNT && tx_idx < max_tx_cnt; tx_idx++)
-			_RTW_PRINT_SEL(sel, "%2d ", hal_data->OFDM_5G_Diff[path][tx_idx]);
-		_RTW_PRINT_SEL(sel, "\n");
-	}
-	RTW_PRINT_SEL(sel, "\n");
-
-	RTW_PRINT_SEL(sel, "BW20 diff:\n");
-	RTW_PRINT_SEL(sel, "%4s ", "");
-	for (tx_idx = RF_1TX; tx_idx < MAX_TX_COUNT && tx_idx < max_tx_cnt; tx_idx++)
-		_RTW_PRINT_SEL(sel, "%dS ", tx_idx + 1);
-	_RTW_PRINT_SEL(sel, "\n");
-	for (path = 0; path < MAX_RF_PATH && path < rfpath_num; path++) {
-		RTW_PRINT_SEL(sel, "[%c]: ", rf_path_char(path));
-		for (tx_idx = RF_1TX; tx_idx < MAX_TX_COUNT && tx_idx < max_tx_cnt; tx_idx++)
-			_RTW_PRINT_SEL(sel, "%2d ", hal_data->BW20_5G_Diff[path][tx_idx]);
-		_RTW_PRINT_SEL(sel, "\n");
-	}
-	RTW_PRINT_SEL(sel, "\n");
-
-	RTW_PRINT_SEL(sel, "BW40 diff:\n");
-	RTW_PRINT_SEL(sel, "%4s ", "");
-	for (tx_idx = RF_1TX; tx_idx < MAX_TX_COUNT && tx_idx < max_tx_cnt; tx_idx++)
-		_RTW_PRINT_SEL(sel, "%dS ", tx_idx + 1);
-	_RTW_PRINT_SEL(sel, "\n");
-	for (path = 0; path < MAX_RF_PATH && path < rfpath_num; path++) {
-		RTW_PRINT_SEL(sel, "[%c]: ", rf_path_char(path));
-		for (tx_idx = RF_1TX; tx_idx < MAX_TX_COUNT && tx_idx < max_tx_cnt; tx_idx++)
-			_RTW_PRINT_SEL(sel, "%2d ", hal_data->BW40_5G_Diff[path][tx_idx]);
-		_RTW_PRINT_SEL(sel, "\n");
-	}
-	RTW_PRINT_SEL(sel, "\n");
-
-	RTW_PRINT_SEL(sel, "BW80 diff:\n");
-	RTW_PRINT_SEL(sel, "%4s ", "");
-	for (tx_idx = RF_1TX; tx_idx < MAX_TX_COUNT && tx_idx < max_tx_cnt; tx_idx++)
-		_RTW_PRINT_SEL(sel, "%dS ", tx_idx + 1);
-	_RTW_PRINT_SEL(sel, "\n");
-	for (path = 0; path < MAX_RF_PATH && path < rfpath_num; path++) {
-		RTW_PRINT_SEL(sel, "[%c]: ", rf_path_char(path));
-		for (tx_idx = RF_1TX; tx_idx < MAX_TX_COUNT && tx_idx < max_tx_cnt; tx_idx++)
-			_RTW_PRINT_SEL(sel, "%2d ", hal_data->BW80_5G_Diff[path][tx_idx]);
-		_RTW_PRINT_SEL(sel, "\n");
-	}
-	RTW_PRINT_SEL(sel, "\n");
-#endif /* CONFIG_IEEE80211_BAND_5GHZ */
-}
-
 /*
 * rtw_regsty_get_target_tx_power -
 *
@@ -1113,20 +770,12 @@ s8 rtw_regsty_get_target_tx_power(
 		return -1;
 	}
 
-	if (Band != BAND_ON_2_4G
-		#ifdef CONFIG_IEEE80211_BAND_5GHZ
-		&& Band != BAND_ON_5G
-		#endif
-	) {
+	if (Band != BAND_ON_2_4G) {
 		DBG_871X_LEVEL(_drv_always_, "%s invalid Band:%d\n", __func__, Band);
 		return -1;
 	}
 
-	if (RateSection >= RATE_SECTION_NUM
-		#ifdef CONFIG_IEEE80211_BAND_5GHZ
-		|| (Band == BAND_ON_5G && RateSection == CCK)
-		#endif
-	) {
+	if (RateSection >= RATE_SECTION_NUM) {
 		DBG_871X_LEVEL(_drv_always_, "%s invalid RateSection:%d in %sG, RfPath:%d\n", __func__
 			, RateSection, (Band == BAND_ON_2_4G) ? "2.4" : "5", RfPath);
 		return -1;
@@ -1134,10 +783,6 @@ s8 rtw_regsty_get_target_tx_power(
 
 	if (Band == BAND_ON_2_4G)
 		value = regsty->target_tx_pwr_2g[RfPath][RateSection];
-#ifdef CONFIG_IEEE80211_BAND_5GHZ
-	else /* BAND_ON_5G */
-		value = regsty->target_tx_pwr_5g[RfPath][RateSection - 1];
-#endif
 
 	return value;
 }
@@ -2311,84 +1956,6 @@ PHY_GetTxPowerIndexBase(
 			//	pHalData->BW40_24G_Diff[RFPath][TX_3S], pHalData->BW40_24G_Diff[RFPath][TX_4S]);
 		}
 	}
-#ifdef CONFIG_IEEE80211_BAND_5GHZ
-	else { /* 3 ============================== 5 G ============================== */
-		if (MGN_6M <= Rate)
-		{
-			txPower = pHalData->Index5G_BW40_Base[RFPath][chnlIdx];
-		}
-		else
-		{
-			DBG_871X("===> mpt_ProQueryCalTxPower_Jaguar: INVALID Rate.\n");
-		}
-
-		//DBG_871X("Base Tx power(RF-%c, Rate #%d, Channel Index %d) = 0x%X\n", 
-		//	((RFPath==0)?'A':'B'), Rate, chnlIdx, txPower);
-
-		// OFDM-1T
-		if ( (MGN_6M <= Rate && Rate <= MGN_54M) && ! IS_CCK_RATE(Rate))
-		{
-			txPower += pHalData->OFDM_5G_Diff[RFPath][TX_1S];
-			//DBG_871X("+PowerDiff 5G (RF-%c): (OFDM-1T) = (%d)\n", ((RFPath==0)?'A':'B'), pHalData->OFDM_5G_Diff[RFPath][TX_1S]);
-		}
-		
-		// BW20-1S, BW20-2S
-		if (BandWidth == CHANNEL_WIDTH_20)
-		{
-			if ( (MGN_MCS0 <= Rate && Rate <= MGN_MCS31)  || (MGN_VHT1SS_MCS0 <= Rate && Rate <= MGN_VHT4SS_MCS9))
-				txPower += pHalData->BW20_5G_Diff[RFPath][TX_1S];
-			if ( (MGN_MCS8 <= Rate && Rate <= MGN_MCS31) || (MGN_VHT2SS_MCS0 <= Rate && Rate <= MGN_VHT4SS_MCS9))
-				txPower += pHalData->BW20_5G_Diff[RFPath][TX_2S];
-			if ( (MGN_MCS16 <= Rate && Rate <= MGN_MCS31) || (MGN_VHT3SS_MCS0 <= Rate && Rate <= MGN_VHT4SS_MCS9))
-				txPower += pHalData->BW20_5G_Diff[RFPath][TX_3S];
-			if ( (MGN_MCS24 <= Rate && Rate <= MGN_MCS31) || (MGN_VHT4SS_MCS0 <= Rate && Rate <= MGN_VHT4SS_MCS9))
-				txPower += pHalData->BW20_5G_Diff[RFPath][TX_4S];
-
-			//DBG_871X("+PowerDiff 5G (RF-%c): (BW20-1S, BW20-2S, BW20-3S, BW20-4S) = (%d, %d, %d, %d)\n", ((RFPath==0)?'A':(RFPath==1)?'B':(RFPath==2)?'C':'D'), 
-			//	pHalData->BW20_5G_Diff[RFPath][TX_1S], pHalData->BW20_5G_Diff[RFPath][TX_2S],
-			//	pHalData->BW20_5G_Diff[RFPath][TX_3S], pHalData->BW20_5G_Diff[RFPath][TX_4S]);
-		}
-		// BW40-1S, BW40-2S
-		else if (BandWidth == CHANNEL_WIDTH_40)
-		{
-			if ( (MGN_MCS0 <= Rate && Rate <= MGN_MCS31)  || (MGN_VHT1SS_MCS0 <= Rate && Rate <= MGN_VHT4SS_MCS9))
-				txPower += pHalData->BW40_5G_Diff[RFPath][TX_1S];
-			if ( (MGN_MCS8 <= Rate && Rate <= MGN_MCS31) || (MGN_VHT2SS_MCS0 <= Rate && Rate <= MGN_VHT4SS_MCS9))
-				txPower += pHalData->BW40_5G_Diff[RFPath][TX_2S];
-			if ( (MGN_MCS16 <= Rate && Rate <= MGN_MCS31) || (MGN_VHT3SS_MCS0 <= Rate && Rate <= MGN_VHT4SS_MCS9))
-				txPower += pHalData->BW40_5G_Diff[RFPath][TX_3S];
-			if ( (MGN_MCS24 <= Rate && Rate <= MGN_MCS31) || (MGN_VHT4SS_MCS0 <= Rate && Rate <= MGN_VHT4SS_MCS9))
-				txPower += pHalData->BW40_5G_Diff[RFPath][TX_4S];
-
-			//DBG_871X("+PowerDiff 5G(RF-%c): (BW40-1S, BW40-2S) = (%d, %d, %d, %d)\n", ((RFPath==0)?'A':(RFPath==1)?'B':(RFPath==2)?'C':'D'), 
-			//	pHalData->BW40_5G_Diff[RFPath][TX_1S], pHalData->BW40_5G_Diff[RFPath][TX_2S],
-			//	pHalData->BW40_5G_Diff[RFPath][TX_3S], pHalData->BW40_5G_Diff[RFPath][TX_4S]);
-		}
-		// BW80-1S, BW80-2S
-		else if (BandWidth== CHANNEL_WIDTH_80)
-		{
-			// <20121220, Kordan> Get the index of array "Index5G_BW80_Base".
-			for (i = 0; i < CENTER_CH_5G_80M_NUM; ++i)
-				if (center_ch_5g_80m[i] == Channel)
-					chnlIdx = i;
-
-			txPower = pHalData->Index5G_BW80_Base[RFPath][chnlIdx];
-
-			if ( (MGN_MCS0 <= Rate && Rate <= MGN_MCS31)  || (MGN_VHT1SS_MCS0 <= Rate && Rate <= MGN_VHT4SS_MCS9))
-				txPower += + pHalData->BW80_5G_Diff[RFPath][TX_1S];
-			if ( (MGN_MCS8 <= Rate && Rate <= MGN_MCS31) || (MGN_VHT2SS_MCS0 <= Rate && Rate <= MGN_VHT4SS_MCS9))
-				txPower += pHalData->BW80_5G_Diff[RFPath][TX_2S];
-			if ( (MGN_MCS16 <= Rate && Rate <= MGN_MCS31) || (MGN_VHT3SS_MCS0 <= Rate && Rate <= MGN_VHT4SS_MCS9))
-				txPower += pHalData->BW80_5G_Diff[RFPath][TX_3S];
-			if ( (MGN_MCS23 <= Rate && Rate <= MGN_MCS31) || (MGN_VHT4SS_MCS0 <= Rate && Rate <= MGN_VHT4SS_MCS9))
-				txPower += pHalData->BW80_5G_Diff[RFPath][TX_4S];
-
-			//DBG_871X("+PowerDiff 5G(RF-%c): (BW80-1S, BW80-2S, BW80-3S, BW80-4S) = (%d, %d, %d, %d)\n",((RFPath==0)?'A':(RFPath==1)?'B':(RFPath==2)?'C':'D'), 
-			//	pHalData->BW80_5G_Diff[RFPath][TX_1S], pHalData->BW80_5G_Diff[RFPath][TX_2S],
-			//	pHalData->BW80_5G_Diff[RFPath][TX_3S], pHalData->BW80_5G_Diff[RFPath][TX_4S]);
-		}
-	}
-#endif /* CONFIG_IEEE80211_BAND_5GHZ */
 
 	return txPower;	
 }
