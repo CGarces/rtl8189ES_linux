@@ -35,11 +35,8 @@ static const char *_security_type_str[] = {
 
 const char *security_type_str(u8 value)
 {
-#ifdef CONFIG_IEEE80211W
-	if (value <= _BIP_)
-#else
+
 	if (value <= _WEP_WPA_MIXED_)
-#endif
 		return _security_type_str[value];
 	return NULL;
 }
@@ -1285,11 +1282,7 @@ _func_enter_;
     if (qc_exists && a4_exists) mic_iv[1] = mpdu[30] & 0x0f;    /* QoS_TC           */
     if (qc_exists && !a4_exists) mic_iv[1] = mpdu[24] & 0x0f;   /* mute bits 7-4    */
     if (!qc_exists) mic_iv[1] = 0x00;
-#ifdef CONFIG_IEEE80211W
-	//802.11w management frame should set management bit(4)
-    if(frtype == WIFI_MGT_TYPE)
-		mic_iv[1] |= BIT(4);
-#endif //CONFIG_IEEE80211W
+
     for (i = 2; i < 8; i++)
         mic_iv[i] = mpdu[i + 8];                    /* mic_iv[2:7] = A2[0:5] = mpdu[10:15] */
     #ifdef CONSISTENT_PN_ORDER
@@ -1321,13 +1314,8 @@ static void construct_mic_header1(
 _func_enter_;	
     mic_header1[0] = (u8)((header_length - 2) / 256);
     mic_header1[1] = (u8)((header_length - 2) % 256);
-#ifdef CONFIG_IEEE80211W
-    //802.11w management frame don't AND subtype bits 4,5,6 of frame control field
-    if(frtype == WIFI_MGT_TYPE)
-		mic_header1[2] = mpdu[0];
-	else
-#endif //CONFIG_IEEE80211W
-		mic_header1[2] = mpdu[0] & 0xcf;    /* Mute CF poll & CF ack bits */
+
+	mic_header1[2] = mpdu[0] & 0xcf;    /* Mute CF poll & CF ack bits */
     
     mic_header1[3] = mpdu[1] & 0xc7;    /* Mute retry, more data and pwr mgt bits */
     mic_header1[4] = mpdu[4];       /* A1 */
@@ -1425,11 +1413,6 @@ _func_enter_;
 		ctr_preload[1] = mpdu[30] & 0x0f;   /* QoC_Control */
     if (qc_exists && !a4_exists) 
 		ctr_preload[1] = mpdu[24] & 0x0f;
-#ifdef CONFIG_IEEE80211W
-	//802.11w management frame should set management bit(4)
-	if(frtype == WIFI_MGT_TYPE)
-		ctr_preload[1] |= BIT(4);
-#endif //CONFIG_IEEE80211W
     for (i = 2; i < 8; i++)
         ctr_preload[i] = mpdu[i + 8];                       /* ctr_preload[2:7] = A2[0:5] = mpdu[10:15] */
     #ifdef CONSISTENT_PN_ORDER
@@ -2142,107 +2125,6 @@ _func_exit_;
 exit:
 	return res;
 }
-
-#ifdef CONFIG_IEEE80211W
-u32	rtw_BIP_verify(_adapter *padapter, u8 *precvframe)
-{
-	struct rx_pkt_attrib *pattrib = &((union recv_frame *)precvframe)->u.hdr.attrib;
-	u8 *pframe;
-	u8 *BIP_AAD, *p;
-	u32	res=_FAIL;
-	uint len, ori_len;
-	struct rtw_ieee80211_hdr *pwlanhdr;
-	u8 mic[16];
-	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
-	ori_len = pattrib->pkt_len-WLAN_HDR_A3_LEN+BIP_AAD_SIZE;
-	BIP_AAD = rtw_zmalloc(ori_len);
-	
-	if(BIP_AAD == NULL)
-	{
-		DBG_871X("BIP AAD allocate fail\n");
-		return _FAIL;
-	}
-	//PKT start
-	pframe=(unsigned char *)((union recv_frame*)precvframe)->u.hdr.rx_data;
-	//mapping to wlan header
-	pwlanhdr = (struct rtw_ieee80211_hdr *)pframe;
-	//save the frame body + MME
-	_rtw_memcpy(BIP_AAD+BIP_AAD_SIZE, pframe+WLAN_HDR_A3_LEN, pattrib->pkt_len-WLAN_HDR_A3_LEN);
-	//find MME IE pointer
-	p = rtw_get_ie(BIP_AAD+BIP_AAD_SIZE, _MME_IE_, &len, pattrib->pkt_len-WLAN_HDR_A3_LEN);
-	//Baron
-	if(p)
-	{
-		u16 keyid=0;
-		u64 temp_ipn=0;
-		//save packet number
-		_rtw_memcpy(&temp_ipn, p+4, 6);
-		temp_ipn = le64_to_cpu(temp_ipn);
-		//BIP packet number should bigger than previous BIP packet
-		if (temp_ipn < pmlmeext->mgnt_80211w_IPN_rx) {
-			DBG_871X("replay BIP packet\n");
-			goto BIP_exit;
-		}
-		//copy key index
-		_rtw_memcpy(&keyid, p+2, 2);
-		keyid = le16_to_cpu(keyid);
-		if(keyid != padapter->securitypriv.dot11wBIPKeyid)
-		{
-			DBG_871X("BIP key index error!\n");
-			goto BIP_exit;
-		}
-		//clear the MIC field of MME to zero
-		_rtw_memset(p+2+len-8, 0, 8);
-		
-		//conscruct AAD, copy frame control field
-		_rtw_memcpy(BIP_AAD, &pwlanhdr->frame_ctl, 2);
-		ClearRetry(BIP_AAD);
-		ClearPwrMgt(BIP_AAD);
-		ClearMData(BIP_AAD);
-		//conscruct AAD, copy address 1 to address 3
-		_rtw_memcpy(BIP_AAD+2, pwlanhdr->addr1, 18);
-		
-		if(omac1_aes_128(padapter->securitypriv.dot11wBIPKey[padapter->securitypriv.dot11wBIPKeyid].skey
-			, BIP_AAD, ori_len, mic))
-			goto BIP_exit;
-		
-		/*//management packet content
-		{
-			int pp;
-			DBG_871X("pkt: ");
-			for(pp=0;pp< pattrib->pkt_len; pp++)
-				printk(" %02x ", pframe[pp]);
-			DBG_871X("\n");
-			//BIP AAD + management frame body + MME(MIC is zero)
-			DBG_871X("AAD+PKT: ");
-			for(pp=0;pp< ori_len; pp++)
-				DBG_871X(" %02x ", BIP_AAD[pp]);
-			DBG_871X("\n");
-			//show the MIC result
-			DBG_871X("mic: ");
-			for(pp=0;pp<16; pp++)
-				DBG_871X(" %02x ", mic[pp]);
-			DBG_871X("\n");
-		}
-		*/
-		//MIC field should be last 8 bytes of packet (packet without FCS)
-		if(_rtw_memcmp(mic, pframe+pattrib->pkt_len-8, 8))
-		{
-			pmlmeext->mgnt_80211w_IPN_rx = temp_ipn;
-			res=_SUCCESS;
-		}
-		else
-			DBG_871X("BIP MIC error!\n");
-		
-	}
-	else
-		res = RTW_RX_HANDLED;
-BIP_exit:
-
-	rtw_mfree(BIP_AAD, ori_len);
-	return res;
-}
-#endif //CONFIG_IEEE80211W
 
 /* compress 512-bits */
 static int sha256_compress(struct rtw_sha256_state *md, unsigned char *buf)

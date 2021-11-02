@@ -520,9 +520,6 @@ _func_enter_;
 		pstapriv->asoc_sta_count , hwaddr[0], hwaddr[1], hwaddr[2],hwaddr[3],hwaddr[4],hwaddr[5]));
 
 		init_addba_retry_timer(pstapriv->padapter, psta);
-#ifdef CONFIG_IEEE80211W
-		init_dot11w_expire_timer(pstapriv->padapter, psta);
-#endif /* CONFIG_IEEE80211W */
 
 		//for A-MPDU Rx reordering buffer control
 		for(i=0; i < 16 ; i++)
@@ -667,9 +664,6 @@ _func_enter_;
 	// re-init sta_info; 20061114 // will be init in alloc_stainfo
 	//_rtw_init_sta_xmit_priv(&psta->sta_xmitpriv);
 	//_rtw_init_sta_recv_priv(&psta->sta_recvpriv);
-#ifdef CONFIG_IEEE80211W
-	_cancel_timer_ex(&psta->dot11w_expire_timer);
-#endif /* CONFIG_IEEE80211W */
 	_cancel_timer_ex(&psta->addba_retry_timer);
 
 	//for A-MPDU Rx reordering buffer control, cancel reordering_ctrl_timer

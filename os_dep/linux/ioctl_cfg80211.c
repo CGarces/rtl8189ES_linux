@@ -72,9 +72,6 @@ static const u32 rtw_cipher_suites[] = {
 #ifdef CONFIG_WAPI_SUPPORT
 	WLAN_CIPHER_SUITE_SMS4,
 #endif // CONFIG_WAPI_SUPPORT
-#ifdef CONFIG_IEEE80211W
-	WLAN_CIPHER_SUITE_AES_CMAC,
-#endif //CONFIG_IEEE80211W
 };
 
 #define RATETAB_ENT(_rate, _rateid, _flags) \
@@ -910,12 +907,7 @@ static int rtw_cfg80211_ap_set_encryption(struct net_device *dev, struct ieee_pa
 	    param->sta_addr[2] == 0xff && param->sta_addr[3] == 0xff &&
 	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff) 
 	{
-		if (param->u.crypt.idx >= WEP_KEYS
-#ifdef CONFIG_IEEE80211W
-			&& param->u.crypt.idx > BIP_MAX_KEYID
-#endif /* CONFIG_IEEE80211W */
-		)
-		{
+		if (param->u.crypt.idx >= WEP_KEYS)	{
 			ret = -EINVAL;
 			goto exit;
 		}	
@@ -1030,26 +1022,7 @@ static int rtw_cfg80211_ap_set_encryption(struct net_device *dev, struct ieee_pa
 				psecuritypriv->dot118021XGrpPrivacy = _AES_;
 
 				_rtw_memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey,  param->u.crypt.key, (param->u.crypt.key_len>16 ?16:param->u.crypt.key_len));
-			}
-#ifdef CONFIG_IEEE80211W
-			else if (strcmp(param->u.crypt.alg, "BIP") == 0) {
-				int no;
-				
-				DBG_871X("BIP key_len=%d , index=%d\n", param->u.crypt.key_len, param->u.crypt.idx);
-				/* save the IGTK key, length 16 bytes */
-				_rtw_memcpy(padapter->securitypriv.dot11wBIPKey[param->u.crypt.idx].skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16:param->u.crypt.key_len));
-				/* DBG_871X("IGTK key below:\n");
-				for(no=0;no<16;no++)
-					printk(" %02x ", padapter->securitypriv.dot11wBIPKey[param->u.crypt.idx].skey[no]);
-				DBG_871X("\n"); */
-				padapter->securitypriv.dot11wBIPKeyid = param->u.crypt.idx;
-				padapter->securitypriv.binstallBIPkey = _TRUE;
-				DBG_871X(" ~~~~set sta key:IGKT\n");
-				goto exit;
-			}
-#endif /* CONFIG_IEEE80211W */
-			else
-			{
+			} else {
 				DBG_8192C("%s, set group_key, none\n", __FUNCTION__);
 				
 				psecuritypriv->dot118021XGrpPrivacy = _NO_PRIVACY_;
@@ -1222,12 +1195,7 @@ _func_enter_;
 	    param->sta_addr[2] == 0xff && param->sta_addr[3] == 0xff &&
 	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff) 
 	{
-		if (param->u.crypt.idx >= WEP_KEYS
-#ifdef CONFIG_IEEE80211W
-			&& param->u.crypt.idx > BIP_MAX_KEYID
-#endif //CONFIG_IEEE80211W
-		)
-		{
+		if (param->u.crypt.idx >= WEP_KEYS) {
 			ret = -EINVAL;
 			goto exit;
 		}
@@ -1346,23 +1314,7 @@ _func_enter_;
 						padapter->securitypriv.dot118021XGrpKeyid = param->u.crypt.idx;
 						rtw_set_key(padapter,&padapter->securitypriv,param->u.crypt.idx, 1, _TRUE);
 					}
-#ifdef CONFIG_IEEE80211W
-					else if(strcmp(param->u.crypt.alg, "BIP") == 0)
-					{
-						int no;
-						//DBG_871X("BIP key_len=%d , index=%d @@@@@@@@@@@@@@@@@@\n", param->u.crypt.key_len, param->u.crypt.idx);
-						//save the IGTK key, length 16 bytes
-						_rtw_memcpy(padapter->securitypriv.dot11wBIPKey[param->u.crypt.idx].skey,  param->u.crypt.key,(param->u.crypt.key_len>16 ?16:param->u.crypt.key_len));
-						/*DBG_871X("IGTK key below:\n");
-						for(no=0;no<16;no++)
-							printk(" %02x ", padapter->securitypriv.dot11wBIPKey[param->u.crypt.idx].skey[no]);
-						DBG_871X("\n");*/
-						padapter->securitypriv.dot11wBIPKeyid = param->u.crypt.idx;
-						padapter->securitypriv.binstallBIPkey = _TRUE;
-						DBG_871X(" ~~~~set sta key:IGKT\n");
-					}
-#endif //CONFIG_IEEE80211W
-					
+
 #ifdef CONFIG_P2P
 					if(pwdinfo->driver_interface == DRIVER_CFG80211 )
 					{
@@ -1526,11 +1478,7 @@ static int cfg80211_rtw_add_key(struct wiphy *wiphy, struct net_device *ndev,
 	case WLAN_CIPHER_SUITE_CCMP:
 		alg_name = "CCMP";
 		break;
-#ifdef CONFIG_IEEE80211W
-	case WLAN_CIPHER_SUITE_AES_CMAC:
-		alg_name = "BIP";
-		break;
-#endif //CONFIG_IEEE80211W
+
 #ifdef CONFIG_WAPI_SUPPORT
 	case WLAN_CIPHER_SUITE_SMS4:
 		alg_name= "SMS4";

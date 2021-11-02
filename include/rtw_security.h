@@ -29,9 +29,7 @@
 #define _WEP104_			0x5
 #define _WEP_WPA_MIXED_	0x07  // WEP + WPA
 #define _SMS4_				0x06
-#ifdef CONFIG_IEEE80211W
-#define _BIP_				0x8
-#endif //CONFIG_IEEE80211W
+
 /* 802.11W use wrong key */
 #define IEEE80211W_RIGHT_KEY	0x0
 #define IEEE80211W_WRONG_KEY	0x1
@@ -139,12 +137,7 @@ struct security_priv
 	union Keytype	dot118021XGrprxmickey[4];
 	union pn48		dot11Grptxpn;			// PN48 used for Grp Key xmit.
 	union pn48		dot11Grprxpn;			// PN48 used for Grp Key recv.
-#ifdef CONFIG_IEEE80211W
-	u32	dot11wBIPKeyid;						// key id used for BIP Key ( tx key index)
-	union Keytype	dot11wBIPKey[6];		// BIP Key, for index4 and index5
-	union pn48		dot11wBIPtxpn;			// PN48 used for Grp Key xmit.
-	union pn48		dot11wBIPrxpn;			// PN48 used for Grp Key recv.
-#endif //CONFIG_IEEE80211W
+
 #ifdef CONFIG_AP_MODE
 	//extend security capabilities for AP_MODE 
 	unsigned int dot8021xalg;//0:disable, 1:psk, 2:802.1x
@@ -163,9 +156,7 @@ struct security_priv
 #ifdef CONFIG_GTK_OL
 	u8	binstallKCK_KEK;
 #endif //CONFIG_GTK_OL
-#ifdef CONFIG_IEEE80211W
-	u8	binstallBIPkey;
-#endif //CONFIG_IEEE80211W
+
 	u8	busetkipkey;
 	//_timer tkip_timer;
 	u8	bcheck_grpkey;
@@ -437,9 +428,7 @@ static const unsigned long K[64] = {
 #ifndef MIN
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #endif
-#ifdef CONFIG_IEEE80211W
-int omac1_aes_128(u8 *key, u8 *data, size_t data_len, u8 *mac);
-#endif //CONFIG_IEEE80211W
+
 void rtw_secmicsetkey(struct mic_data *pmicdata, u8 * key );
 void rtw_secmicappendbyte(struct mic_data *pmicdata, u8 b );
 void rtw_secmicappend(struct mic_data *pmicdata, u8 * src, u32 nBytes );
@@ -460,9 +449,6 @@ void rtw_wep_encrypt(_adapter *padapter, u8  *pxmitframe);
 u32 rtw_aes_decrypt(_adapter *padapter, u8  *precvframe);
 u32 rtw_tkip_decrypt(_adapter *padapter, u8  *precvframe);
 void rtw_wep_decrypt(_adapter *padapter, u8  *precvframe);
-#ifdef CONFIG_IEEE80211W
-u32	rtw_BIP_verify(_adapter *padapter, u8 *precvframe);
-#endif //CONFIG_IEEE80211W
 
 void rtw_use_tkipkey_handler(RTW_TIMER_HDL_ARGS);
 

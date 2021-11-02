@@ -938,18 +938,11 @@ _func_enter_;
 	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff) 
 	{
 
-		if (param->u.crypt.idx >= WEP_KEYS
-#ifdef CONFIG_IEEE80211W
-			&& param->u.crypt.idx > BIP_MAX_KEYID
-#endif //CONFIG_IEEE80211W
-			)
-		{
+		if (param->u.crypt.idx >= WEP_KEYS) {
 			ret = -EINVAL;
 			goto exit;
 		}
-	} 
-	else 
-	{
+	} else {
 #ifdef CONFIG_WAPI_SUPPORT
 		if (strcmp(param->u.crypt.alg, "SMS4"))
 #endif
@@ -1064,22 +1057,6 @@ _func_enter_;
 	
 						rtw_set_key(padapter,&padapter->securitypriv,param->u.crypt.idx, 1, _TRUE);
 					}
-#ifdef CONFIG_IEEE80211W
-					else if(strcmp(param->u.crypt.alg, "BIP") == 0)
-					{
-						int no;
-						//printk("BIP key_len=%d , index=%d @@@@@@@@@@@@@@@@@@\n", param->u.crypt.key_len, param->u.crypt.idx);
-						//save the IGTK key, length 16 bytes
-						_rtw_memcpy(padapter->securitypriv.dot11wBIPKey[param->u.crypt.idx].skey,  param->u.crypt.key,(param->u.crypt.key_len>16 ?16:param->u.crypt.key_len));
-						/*printk("IGTK key below:\n");
-						for(no=0;no<16;no++)
-							printk(" %02x ", padapter->securitypriv.dot11wBIPKey[param->u.crypt.idx].skey[no]);
-						printk("\n");*/
-						padapter->securitypriv.dot11wBIPKeyid = param->u.crypt.idx;
-						padapter->securitypriv.binstallBIPkey = _TRUE;
-						DBG_871X(" ~~~~set sta key:IGKT\n");
-					}
-#endif //CONFIG_IEEE80211W
 					
 #ifdef CONFIG_P2P
 					if(rtw_p2p_chk_state(pwdinfo, P2P_STATE_PROVISIONING_ING))
@@ -3337,11 +3314,6 @@ static int rtw_wx_set_enc_ext(struct net_device *dev,
 	case IW_ENCODE_ALG_CCMP:
 		alg_name = "CCMP";
 		break;
-#ifdef CONFIG_IEEE80211W
-	case IW_ENCODE_ALG_AES_CMAC:
-		alg_name = "BIP";
-		break;
-#endif //CONFIG_IEEE80211W
 #ifdef CONFIG_WAPI_SUPPORT
 #ifndef CONFIG_IOCTL_CFG80211
 	case IW_ENCODE_ALG_SM4:
@@ -3367,12 +3339,7 @@ static int rtw_wx_set_enc_ext(struct net_device *dev,
 	 * just not checking GROUP key setting 
 	 */
 	if ((pext->alg != IW_ENCODE_ALG_WEP) &&
-		((pext->ext_flags & IW_ENCODE_EXT_GROUP_KEY)
-#ifdef CONFIG_IEEE80211W
-		|| (pext->ext_flags & IW_ENCODE_ALG_AES_CMAC)
-#endif //CONFIG_IEEE80211W
-	))
-	{
+		((pext->ext_flags & IW_ENCODE_EXT_GROUP_KEY))) {
 		param->u.crypt.set_tx = 0;
 	}
 
@@ -7596,12 +7563,7 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 	    param->sta_addr[2] == 0xff && param->sta_addr[3] == 0xff &&
 	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff) 
 	{
-		if (param->u.crypt.idx >= WEP_KEYS
-#ifdef CONFIG_IEEE80211W
-			&& param->u.crypt.idx > BIP_MAX_KEYID
-#endif /* CONFIG_IEEE80211W */
-			)
-		{
+		if (param->u.crypt.idx >= WEP_KEYS)	{
 			ret = -EINVAL;
 			goto exit;
 		}	
@@ -7752,26 +7714,7 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 				psecuritypriv->dot118021XGrpPrivacy = _AES_;
 
 				_rtw_memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey,  param->u.crypt.key, (param->u.crypt.key_len>16 ?16:param->u.crypt.key_len));
-			}
-#ifdef CONFIG_IEEE80211W
-			else if (strcmp(param->u.crypt.alg, "BIP") == 0) {
-				int no;
-				
-				DBG_871X("BIP key_len=%d , index=%d\n", param->u.crypt.key_len, param->u.crypt.idx);
-				/* save the IGTK key, length 16 bytes */
-				_rtw_memcpy(padapter->securitypriv.dot11wBIPKey[param->u.crypt.idx].skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16:param->u.crypt.key_len));
-				/* DBG_871X("IGTK key below:\n");
-				for(no=0;no<16;no++)
-					printk(" %02x ", padapter->securitypriv.dot11wBIPKey[param->u.crypt.idx].skey[no]);
-				DBG_871X("\n"); */
-				padapter->securitypriv.dot11wBIPKeyid = param->u.crypt.idx;
-				padapter->securitypriv.binstallBIPkey = _TRUE;
-				DBG_871X(" ~~~~set sta key:IGKT\n");
-				goto exit;
-			}
-#endif /* CONFIG_IEEE80211W */
-			else
-			{
+			} else {
 				DBG_871X("%s, set group_key, none\n", __FUNCTION__);
 				
 				psecuritypriv->dot118021XGrpPrivacy = _NO_PRIVACY_;

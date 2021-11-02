@@ -212,10 +212,7 @@ void rtw_reset_securitypriv( _adapter *adapter )
 		backupPMKIDIndex = adapter->securitypriv.PMKIDIndex;
 		backupTKIPCountermeasure = adapter->securitypriv.btkip_countermeasure;
 		backupTKIPcountermeasure_time = adapter->securitypriv.btkip_countermeasure_time;		
-#ifdef CONFIG_IEEE80211W
-		//reset RX BIP packet number
-		pmlmeext->mgnt_80211w_IPN_rx = 0;
-#endif //CONFIG_IEEE80211W
+
 		_rtw_memset((unsigned char *)&adapter->securitypriv, 0, sizeof (struct security_priv));
 		//_init_timer(&(adapter->securitypriv.tkip_timer),adapter->pnetdev, rtw_use_tkipkey_handler, adapter);
 
@@ -348,22 +345,6 @@ void _addba_timer_hdl(void *FunctionContext)
 	struct sta_info *psta = (struct sta_info *)FunctionContext;
 	addba_timer_hdl(psta);
 }
-
-#ifdef CONFIG_IEEE80211W
-
-void _sa_query_timer_hdl (void *FunctionContext)
-{
-	struct sta_info *psta = (struct sta_info *)FunctionContext;
-	
-	sa_query_timer_hdl(psta);
-}
-
-void init_dot11w_expire_timer(_adapter *padapter, struct sta_info *psta)
-{
-	_init_timer(&psta->dot11w_expire_timer, padapter->pnetdev, _sa_query_timer_hdl, psta);
-}
-
-#endif //CONFIG_IEEE80211W
 
 void init_addba_retry_timer(_adapter *padapter, struct sta_info *psta)
 {

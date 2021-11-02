@@ -351,27 +351,6 @@ s32	rtw_hal_mgnt_xmit(_adapter *padapter, struct xmit_frame *pmgntframe)
 	//pwlanhdr = (struct rtw_ieee80211_hdr *)pframe;
 	//_rtw_memcpy(pmgntframe->attrib.ra, pwlanhdr->addr1, ETH_ALEN);
 
-#ifdef CONFIG_IEEE80211W
-	if (padapter->securitypriv.binstallBIPkey == _TRUE && (subtype == WIFI_DEAUTH || subtype == WIFI_DISASSOC ||
-			subtype == WIFI_ACTION))
-	{
-		if (IS_MCAST(pmgntframe->attrib.ra) && pmgntframe->attrib.key_type != IEEE80211W_NO_KEY) {
-			pmgntframe->attrib.encrypt = _BIP_;
-			/* pmgntframe->attrib.bswenc = _TRUE; */
-		} else if (pmgntframe->attrib.key_type != IEEE80211W_NO_KEY) {
-			psta = rtw_get_stainfo(pstapriv, pmgntframe->attrib.ra);
-			if (psta && psta->bpairwise_key_installed == _TRUE) {
-				pmgntframe->attrib.encrypt = _AES_;
-				pmgntframe->attrib.bswenc = _TRUE;
-			} else {
-				DBG_871X("%s, %d, bpairwise_key_installed is FALSE\n", __func__, __LINE__);
-				goto no_mgmt_coalesce;
-			}
-		}
-		DBG_871X("encrypt=%d, bswenc=%d\n", pmgntframe->attrib.encrypt, pmgntframe->attrib.bswenc);
-		rtw_mgmt_xmitframe_coalesce(padapter, pmgntframe->pkt, pmgntframe);
-	}
-#endif //CONFIG_IEEE80211W
 no_mgmt_coalesce:
 	ret = padapter->HalFunc.mgnt_xmit(padapter, pmgntframe);
 	return ret;

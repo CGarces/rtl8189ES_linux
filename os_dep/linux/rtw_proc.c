@@ -1648,11 +1648,6 @@ const struct rtw_proc_hdl adapter_proc_hdls[] = {
 	RTW_PROC_HDL_SSEQ("rtkm_info", proc_get_rtkm_info, NULL),
 #endif
 	RTW_PROC_HDL_SSEQ("efuse_map", proc_get_efuse_map, NULL),
-#ifdef CONFIG_IEEE80211W
-	RTW_PROC_HDL_SSEQ("11w_tx_sa_query", proc_get_tx_sa_query, proc_set_tx_sa_query),
-	RTW_PROC_HDL_SSEQ("11w_tx_deauth", proc_get_tx_deauth, proc_set_tx_deauth),
-	RTW_PROC_HDL_SSEQ("11w_tx_auth", proc_get_tx_auth, proc_set_tx_auth),
-#endif /* CONFIG_IEEE80211W */
 	RTW_PROC_HDL_SSEQ("hal_spec", proc_get_hal_spec, NULL),
 };
 

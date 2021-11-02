@@ -81,12 +81,7 @@ struct action_handler OnAction_tbl[]={
 	{RTW_WLAN_CATEGORY_RADIO_MEASUREMENT, "ACTION_RADIO_MEASUREMENT", &DoReserved},
 	{RTW_WLAN_CATEGORY_FT, "ACTION_FT",	&DoReserved},
 	{RTW_WLAN_CATEGORY_HT,	"ACTION_HT",	&OnAction_ht},
-#ifdef CONFIG_IEEE80211W
-	{RTW_WLAN_CATEGORY_SA_QUERY, "ACTION_SA_QUERY", &OnAction_sa_query},
-#else
 	{RTW_WLAN_CATEGORY_SA_QUERY, "ACTION_SA_QUERY", &DoReserved},
-#endif //CONFIG_IEEE80211W
-	//add for CONFIG_IEEE80211W
 	{RTW_WLAN_CATEGORY_UNPROTECTED_WNM, "ACTION_UNPROTECTED_WNM", &DoReserved},
 	{RTW_WLAN_CATEGORY_SELF_PROTECTED, "ACTION_SELF_PROTECTED", &DoReserved},
 	{RTW_WLAN_CATEGORY_WMM, "ACTION_WMM", &OnAction_wmm},
@@ -743,11 +738,6 @@ static void init_mlme_ext_priv_value(_adapter* padapter)
 
 	ATOMIC_SET(&pmlmeext->event_seq, 0);
 	pmlmeext->mgnt_seq = 0;//reset to zero when disconnect at client mode
-#ifdef CONFIG_IEEE80211W
-	pmlmeext->sa_query_seq = 0;
-	pmlmeext->mgnt_80211w_IPN=0;
-	pmlmeext->mgnt_80211w_IPN_rx=0;
-#endif //CONFIG_IEEE80211W
 	pmlmeext->cur_channel = padapter->registrypriv.channel;
 	pmlmeext->cur_bwmode = CHANNEL_WIDTH_20;
 	pmlmeext->cur_ch_offset = HAL_PRIME_CHNL_OFFSET_DONT_CARE;
@@ -1889,38 +1879,23 @@ unsigned int OnAuth(_adapter *padapter, union recv_frame *precv_frame)
 		//pstat->flags = 0;
 		//pstat->capability = 0;
 	} else {
-#ifdef CONFIG_IEEE80211W
-		if (pstat->bpairwise_key_installed != _TRUE && !(pstat->state & WIFI_FW_ASSOC_SUCCESS))
-#endif /* CONFIG_IEEE80211W */
-		{
-
-			_enter_critical_bh(&pstapriv->asoc_list_lock, &irqL);
-			if (rtw_is_list_empty(&pstat->asoc_list) == _FALSE) {			
-				rtw_list_delete(&pstat->asoc_list);
-				pstapriv->asoc_list_cnt--;
-				if (pstat->expire_to > 0)
-					;/* TODO: STA re_auth within expire_to */
-			}
-			_exit_critical_bh(&pstapriv->asoc_list_lock, &irqL);
-
-			if (seq == 1)
-				; /* TODO: STA re_auth and auth timeout */
-
+		_enter_critical_bh(&pstapriv->asoc_list_lock, &irqL);
+		if (rtw_is_list_empty(&pstat->asoc_list) == _FALSE) {			
+			rtw_list_delete(&pstat->asoc_list);
+			pstapriv->asoc_list_cnt--;
+			if (pstat->expire_to > 0)
+				;/* TODO: STA re_auth within expire_to */
 		}
+		_exit_critical_bh(&pstapriv->asoc_list_lock, &irqL);
 	}
 
-#ifdef CONFIG_IEEE80211W
-	if (pstat->bpairwise_key_installed != _TRUE && !(pstat->state & WIFI_FW_ASSOC_SUCCESS)) 
-#endif /* CONFIG_IEEE80211W */
-	{
-		_enter_critical_bh(&pstapriv->auth_list_lock, &irqL);
-		if (rtw_is_list_empty(&pstat->auth_list)) {		
-	
-			rtw_list_insert_tail(&pstat->auth_list, &pstapriv->auth_list);
-			pstapriv->auth_list_cnt++;
-		}	
-		_exit_critical_bh(&pstapriv->auth_list_lock, &irqL);
-	}
+	_enter_critical_bh(&pstapriv->auth_list_lock, &irqL);
+	if (rtw_is_list_empty(&pstat->auth_list)) {		
+
+		rtw_list_insert_tail(&pstat->auth_list, &pstapriv->auth_list);
+		pstapriv->auth_list_cnt++;
+	}	
+	_exit_critical_bh(&pstapriv->auth_list_lock, &irqL);
 
 	if (pstat->auth_seq == 0)
 		pstat->expire_to = pstapriv->auth_to;
@@ -1936,41 +1911,27 @@ unsigned int OnAuth(_adapter *padapter, union recv_frame *precv_frame)
 
 	if (algorithm==0 && (auth_mode == 0 || auth_mode == 2 || auth_mode == 3))
 	{
-		if (seq == 1)
-		{
-#ifdef CONFIG_IEEE80211W
-			if (pstat->bpairwise_key_installed != _TRUE && !(pstat->state & WIFI_FW_ASSOC_SUCCESS)) 
-#endif /* CONFIG_IEEE80211W */
-			{
-				pstat->state &= ~WIFI_FW_AUTH_NULL;
-				pstat->state |= WIFI_FW_AUTH_SUCCESS;
-				pstat->expire_to = pstapriv->assoc_to;
-			}
+		if (seq == 1) {
+			pstat->state &= ~WIFI_FW_AUTH_NULL;
+			pstat->state |= WIFI_FW_AUTH_SUCCESS;
+			pstat->expire_to = pstapriv->assoc_to;
 			pstat->authalg = algorithm;
-		}
-		else
-		{
+		} else {
 			DBG_871X("(2)auth rejected because out of seq [rx_seq=%d, exp_seq=%d]!\n",
 				seq, pstat->auth_seq+1);
 			status = _STATS_OUT_OF_AUTH_SEQ_;
 			goto auth_fail;
 		}
-	}
-	else // shared system or auto authentication
-	{
-		if (seq == 1)
-		{
+	} else {
+		// shared system or auto authentication
+		if (seq == 1) {
 			//prepare for the challenging txt...
 
 			//get_random_bytes((void *)pstat->chg_txt, 128);//TODO:
 			_rtw_memset((void *)pstat->chg_txt, 78, 128);
-#ifdef CONFIG_IEEE80211W
-			if (pstat->bpairwise_key_installed != _TRUE && !(pstat->state & WIFI_FW_ASSOC_SUCCESS)) 
-#endif /* CONFIG_IEEE80211W */
-			{
-				pstat->state &= ~WIFI_FW_AUTH_NULL;
-				pstat->state |= WIFI_FW_AUTH_STATE;
-			}
+			pstat->state &= ~WIFI_FW_AUTH_NULL;
+			pstat->state |= WIFI_FW_AUTH_STATE;
+
 			pstat->authalg = algorithm;
 			pstat->auth_seq = 2;
 		}
@@ -1989,27 +1950,17 @@ unsigned int OnAuth(_adapter *padapter, union recv_frame *precv_frame)
 				goto auth_fail;
 			}
 			
-			if (_rtw_memcmp((void *)(p + 2), pstat->chg_txt, 128))
-			{
-#ifdef CONFIG_IEEE80211W
-				if (pstat->bpairwise_key_installed != _TRUE && !(pstat->state & WIFI_FW_ASSOC_SUCCESS)) 
-#endif /* CONFIG_IEEE80211W */
-				{
-					pstat->state &= (~WIFI_FW_AUTH_STATE);
-					pstat->state |= WIFI_FW_AUTH_SUCCESS;
-					/* challenging txt is correct... */
-					pstat->expire_to =  pstapriv->assoc_to;
-				}
-			}
-			else
-			{
+			if (_rtw_memcmp((void *)(p + 2), pstat->chg_txt, 128)) {
+				pstat->state &= (~WIFI_FW_AUTH_STATE);
+				pstat->state |= WIFI_FW_AUTH_SUCCESS;
+				/* challenging txt is correct... */
+				pstat->expire_to =  pstapriv->assoc_to;
+			} else {
 				DBG_871X("auth rejected because challenge failure!\n");
 				status = _STATS_CHALLENGE_FAIL_;
 				goto auth_fail;
 			}
-		}
-		else
-		{
+		} else {
 			DBG_871X("(3)auth rejected because out of seq [rx_seq=%d, exp_seq=%d]!\n",
 				seq, pstat->auth_seq+1);
 			status = _STATS_OUT_OF_AUTH_SEQ_;
@@ -2648,42 +2599,30 @@ unsigned int OnAssocReq(_adapter *padapter, union recv_frame *precv_frame)
 	pstat->state |= WIFI_FW_ASSOC_SUCCESS;
 	/* DBG_871X("==================%s, %d,  (%x), bpairwise_key_installed=%d, MAC:"MAC_FMT"\n"
 	, __func__, __LINE__, pstat->state, pstat->bpairwise_key_installed, MAC_ARG(pstat->hwaddr)); */
-#ifdef CONFIG_IEEE80211W
-	if (pstat->bpairwise_key_installed != _TRUE)
-#endif /* CONFIG_IEEE80211W */
-	{
-		_enter_critical_bh(&pstapriv->auth_list_lock, &irqL);
-		if (!rtw_is_list_empty(&pstat->auth_list)) {
-			rtw_list_delete(&pstat->auth_list);
-			pstapriv->auth_list_cnt--;
-		}
-		_exit_critical_bh(&pstapriv->auth_list_lock, &irqL);
-	
-		_enter_critical_bh(&pstapriv->asoc_list_lock, &irqL);	
-		if (rtw_is_list_empty(&pstat->asoc_list)) {
-			pstat->expire_to = pstapriv->expire_to;
-			rtw_list_insert_tail(&pstat->asoc_list, &pstapriv->asoc_list);
-			pstapriv->asoc_list_cnt++;
-		}
-		_exit_critical_bh(&pstapriv->asoc_list_lock, &irqL);
+
+	_enter_critical_bh(&pstapriv->auth_list_lock, &irqL);
+	if (!rtw_is_list_empty(&pstat->auth_list)) {
+		rtw_list_delete(&pstat->auth_list);
+		pstapriv->auth_list_cnt--;
 	}
+	_exit_critical_bh(&pstapriv->auth_list_lock, &irqL);
+
+	_enter_critical_bh(&pstapriv->asoc_list_lock, &irqL);	
+	if (rtw_is_list_empty(&pstat->asoc_list)) {
+		pstat->expire_to = pstapriv->expire_to;
+		rtw_list_insert_tail(&pstat->asoc_list, &pstapriv->asoc_list);
+		pstapriv->asoc_list_cnt++;
+	}
+	_exit_critical_bh(&pstapriv->asoc_list_lock, &irqL);
 
 	// now the station is qualified to join our BSS...	
 	if(pstat && (pstat->state & WIFI_FW_ASSOC_SUCCESS) && (_STATS_SUCCESSFUL_==status))
 	{
 #ifdef CONFIG_NATIVEAP_MLME
-#ifdef CONFIG_IEEE80211W
-		if (pstat->bpairwise_key_installed != _TRUE)
-#endif /* CONFIG_IEEE80211W */
-		{
-			/* .1 bss_cap_update & sta_info_update */
-			bss_cap_update_on_sta_join(padapter, pstat);
-			sta_info_update(padapter, pstat);
-		}
-#ifdef CONFIG_IEEE80211W
-		if (pstat->bpairwise_key_installed == _TRUE)
-			status = _STATS_REFUSED_TEMPORARILY_;
-#endif /* CONFIG_IEEE80211W */
+		/* .1 bss_cap_update & sta_info_update */
+		bss_cap_update_on_sta_join(padapter, pstat);
+		sta_info_update(padapter, pstat);
+
 		//.2 issue assoc rsp before notify station join event.
 		if (frame_type == WIFI_ASSOCREQ)
 			issue_asocrsp(padapter, status, pstat, WIFI_ASSOCRSP);
@@ -2707,19 +2646,8 @@ unsigned int OnAssocReq(_adapter *padapter, union recv_frame *precv_frame)
 		}
 		_exit_critical_bh(&pstat->lock, &irqL);
 #endif //CONFIG_IOCTL_CFG80211
-#ifdef CONFIG_IEEE80211W
-		if (pstat->bpairwise_key_installed != _TRUE)
-#endif /* CONFIG_IEEE80211W */
-		{
-			/* .3-(1) report sta add event */
-			report_add_sta_event(padapter, pstat->hwaddr);
-		}
-#ifdef CONFIG_IEEE80211W
-		if (pstat->bpairwise_key_installed == _TRUE && padapter->securitypriv.binstallBIPkey == _TRUE) {
-			DBG_871X(MAC_FMT"\n", MAC_ARG(pstat->hwaddr));
-			issue_action_SA_Query(padapter, pstat->hwaddr, 0, 0, IEEE80211W_RIGHT_KEY);
-		}
-#endif /* CONFIG_IEEE80211W */
+		/* .3-(1) report sta add event */
+		report_add_sta_event(padapter, pstat->hwaddr);
 #endif //CONFIG_NATIVEAP_MLME
 	}
 
@@ -6857,44 +6785,6 @@ exit:
 	return _SUCCESS;
 }
 
-#ifdef CONFIG_IEEE80211W
-unsigned int OnAction_sa_query(_adapter *padapter, union recv_frame *precv_frame)
-{
-	u8 *pframe = precv_frame->u.hdr.rx_data;
-	struct rx_pkt_attrib *pattrib = &precv_frame->u.hdr.attrib;
-	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
-	struct sta_info		*psta;
-	struct sta_priv		*pstapriv = &padapter->stapriv;
-	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
-	u16 tid;
-	//Baron
-	
-	DBG_871X("OnAction_sa_query\n");
-	
-	switch (pframe[WLAN_HDR_A3_LEN+1])
-	{
-		case 0: //SA Query req
-			_rtw_memcpy(&tid, &pframe[WLAN_HDR_A3_LEN+2], sizeof(u16));
-			DBG_871X("OnAction_sa_query request,action=%d, tid=%04x, pframe=%02x-%02x\n"
-			, pframe[WLAN_HDR_A3_LEN+1], tid, pframe[WLAN_HDR_A3_LEN+2], pframe[WLAN_HDR_A3_LEN+3]);
-			issue_action_SA_Query(padapter, GetAddr2Ptr(pframe), 1, tid, IEEE80211W_RIGHT_KEY);
-			break;
-
-		case 1: //SA Query rsp
-			psta = rtw_get_stainfo(pstapriv, GetAddr2Ptr(pframe));
-			if (psta != NULL)
-				_cancel_timer_ex(&psta->dot11w_expire_timer);
-			
-			_rtw_memcpy(&tid, &pframe[WLAN_HDR_A3_LEN+2], sizeof(u16));
-			DBG_871X("OnAction_sa_query response,action=%d, tid=%04x, cancel timer\n", pframe[WLAN_HDR_A3_LEN+1], tid);
-			break;
-		default:
-			break;
-	}
-	return _SUCCESS;
-}
-#endif //CONFIG_IEEE80211W
-
 unsigned int OnAction_wmm(_adapter *padapter, union recv_frame *precv_frame)
 {
 	return _SUCCESS;
@@ -8319,27 +8209,12 @@ void issue_asocrsp(_adapter *padapter, unsigned short status, struct sta_info *p
 	val = cpu_to_le16(pstat->aid | BIT(14) | BIT(15));
 	pframe = rtw_set_fixed_ie(pframe, _ASOC_ID_ , (unsigned char *)&val, &(pattrib->pktlen));
 
-	if (pstat->bssratelen <= 8)
-	{
+	if (pstat->bssratelen <= 8) {
 		pframe = rtw_set_ie(pframe, _SUPPORTEDRATES_IE_, pstat->bssratelen, pstat->bssrateset, &(pattrib->pktlen));
-	}	
-	else 
-	{
+	} else {
 		pframe = rtw_set_ie(pframe, _SUPPORTEDRATES_IE_, 8, pstat->bssrateset, &(pattrib->pktlen));
 		pframe = rtw_set_ie(pframe, _EXT_SUPPORTEDRATES_IE_, (pstat->bssratelen-8), pstat->bssrateset+8, &(pattrib->pktlen));
 	}
-
-#ifdef CONFIG_IEEE80211W	
-	if (status == _STATS_REFUSED_TEMPORARILY_) {
-		u8 timeout_itvl[5];
-		u32 timeout_interval = 3000;
-		/* Association Comeback time */
-		timeout_itvl[0] = 0x03;
-		timeout_interval = cpu_to_le32(timeout_interval);
-		_rtw_memcpy(timeout_itvl+1, &timeout_interval, 4);
-		pframe = rtw_set_ie(pframe, _TIMEOUT_ITVL_IE_, 5, timeout_itvl, &(pattrib->pktlen));
-	}
-#endif /* CONFIG_IEEE80211W */
 
 #ifdef CONFIG_80211N_HT
 	if ((pstat->flags & WLAN_STA_HT) && (pmlmepriv->htpriv.ht_option))
@@ -9325,14 +9200,6 @@ int issue_deauth(_adapter *padapter, unsigned char *da, unsigned short reason)
 	return _issue_deauth(padapter, da, reason, _FALSE, IEEE80211W_RIGHT_KEY);
 }
 
-#ifdef CONFIG_IEEE80211W
-int issue_deauth_11w(_adapter *padapter, unsigned char *da, unsigned short reason, u8 key_type)
-{
-	DBG_871X("%s to "MAC_FMT"\n", __func__, MAC_ARG(da));
-	return _issue_deauth(padapter, da, reason, _FALSE, key_type);
-}
-#endif /* CONFIG_IEEE80211W */
-
 /*
  * wait_ms == 0 means that there is no need to wait ack through C2H_CCX_TX_RPT
  * wait_ms > 0 means you want to wait ack through C2H_CCX_TX_RPT, and the value of wait_ms means the interval between each TX
@@ -9448,94 +9315,6 @@ void issue_action_spct_ch_switch(_adapter *padapter, u8 *ra, u8 new_ch, u8 ch_of
 	dump_mgntframe(padapter, pmgntframe);
 
 }
-
-#ifdef CONFIG_IEEE80211W
-void issue_action_SA_Query(_adapter *padapter, unsigned char *raddr, unsigned char action, unsigned short tid, u8 key_type)
-{
-	u8	category = RTW_WLAN_CATEGORY_SA_QUERY;
-	u16	reason_code;
-	struct xmit_frame		*pmgntframe;
-	struct pkt_attrib		*pattrib;
-	u8					*pframe;
-	struct rtw_ieee80211_hdr	*pwlanhdr;
-	u16					*fctrl;
-	struct xmit_priv		*pxmitpriv = &(padapter->xmitpriv);
-	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
-	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
-	struct sta_info		*psta;
-	struct sta_priv		*pstapriv = &padapter->stapriv;
-	struct registry_priv	 	*pregpriv = &padapter->registrypriv;
-	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
-
-	if (rtw_rfctl_is_tx_blocked_by_cac(adapter_to_rfctl(padapter)))
-		return;
-
-	DBG_871X("%s, %04x\n", __FUNCTION__, tid);
-
-	if ((pmgntframe = alloc_mgtxmitframe(pxmitpriv)) == NULL)
-	{
-		DBG_871X("%s: alloc_mgtxmitframe fail\n", __FUNCTION__);
-		return;
-	}
-
-	//update attribute
-	pattrib = &pmgntframe->attrib;
-	update_mgntframe_attrib(padapter, pattrib);
-	pattrib->key_type = key_type;
-	_rtw_memset(pmgntframe->buf_addr, 0, WLANHDR_OFFSET + TXDESC_OFFSET);
-
-	pframe = (u8 *)(pmgntframe->buf_addr) + TXDESC_OFFSET;
-	pwlanhdr = (struct rtw_ieee80211_hdr *)pframe;
-
-	fctrl = &(pwlanhdr->frame_ctl);
-	*(fctrl) = 0;
-
-	if(raddr)
-		_rtw_memcpy(pwlanhdr->addr1, raddr, ETH_ALEN);
-	else
-		_rtw_memcpy(pwlanhdr->addr1, get_my_bssid(&(pmlmeinfo->network)), ETH_ALEN);
-	_rtw_memcpy(pwlanhdr->addr2, adapter_mac_addr(padapter), ETH_ALEN);
-	_rtw_memcpy(pwlanhdr->addr3, get_my_bssid(&(pmlmeinfo->network)), ETH_ALEN);
-
-	SetSeqNum(pwlanhdr, pmlmeext->mgnt_seq);
-	pmlmeext->mgnt_seq++;
-	SetFrameSubType(pframe, WIFI_ACTION);
-
-	pframe += sizeof(struct rtw_ieee80211_hdr_3addr);
-	pattrib->pktlen = sizeof(struct rtw_ieee80211_hdr_3addr);
-
-	pframe = rtw_set_fixed_ie(pframe, 1, &category, &pattrib->pktlen);
-	pframe = rtw_set_fixed_ie(pframe, 1, &action, &pattrib->pktlen);
-
-	switch (action)
-	{
-		case 0: //SA Query req
-			pframe = rtw_set_fixed_ie(pframe, 2, (unsigned char *)&pmlmeext->sa_query_seq, &pattrib->pktlen);
-			pmlmeext->sa_query_seq++;
-			/* send sa query request to AP, AP should reply sa query response in 1 second */
-			if (pattrib->key_type == IEEE80211W_RIGHT_KEY) {
-				psta = rtw_get_stainfo(pstapriv, raddr);
-				if (psta != NULL) {
-					/* DBG_871X("%s, %d, set dot11w_expire_timer\n", __func__, __LINE__); */
-					_set_timer(&psta->dot11w_expire_timer, 1000);
-				}
-			}
-			break;
-
-		case 1: //SA Query rsp
-			tid = cpu_to_le16(tid);
-			/* DBG_871X("rtw_set_fixed_ie, %04x\n", tid); */
-			pframe = rtw_set_fixed_ie(pframe, 2, (unsigned char *)&tid, &pattrib->pktlen);
-			break;
-		default:
-			break;
-	}
-
-	pattrib->last_txcmdsz = pattrib->pktlen;
-
-	dump_mgntframe(padapter, pmgntframe);
-}
-#endif //CONFIG_IEEE80211W
 
 /**
  * issue_action_ba - internal function to TX Block Ack action frame
@@ -12229,90 +12008,6 @@ void addba_timer_hdl(struct sta_info *psta)
 	}
 #endif //CONFIG_80211N_HT
 }
-
-#ifdef CONFIG_IEEE80211W
-void report_sta_timeout_event(_adapter *padapter, u8 *MacAddr, unsigned short reason)
-{
-	struct cmd_obj *pcmd_obj;
-	u8	*pevtcmd;
-	u32 cmdsz;
-	struct sta_info *psta;
-	int	mac_id;
-	struct stadel_event			*pdel_sta_evt;
-	struct C2HEvent_Header	*pc2h_evt_hdr;
-	struct mlme_ext_priv		*pmlmeext = &padapter->mlmeextpriv;
-	struct cmd_priv *pcmdpriv = &padapter->cmdpriv;
-	
-	pcmd_obj = (struct cmd_obj *)rtw_zmalloc(sizeof(struct cmd_obj));
-	if (pcmd_obj == NULL)
-		return;
-
-	cmdsz = (sizeof(struct stadel_event) + sizeof(struct C2HEvent_Header));
-	pevtcmd = (u8 *)rtw_zmalloc(cmdsz);
-	if (pevtcmd == NULL) {
-		rtw_mfree((u8 *)pcmd_obj, sizeof(struct cmd_obj));
-		return;
-	}
-
-	_rtw_init_listhead(&pcmd_obj->list);
-
-	pcmd_obj->cmdcode = GEN_CMD_CODE(_Set_MLME_EVT);
-	pcmd_obj->cmdsz = cmdsz;
-	pcmd_obj->parmbuf = pevtcmd;
-
-	pcmd_obj->rsp = NULL;
-	pcmd_obj->rspsz  = 0;
-
-	pc2h_evt_hdr = (struct C2HEvent_Header *)(pevtcmd);
-	pc2h_evt_hdr->len = sizeof(struct stadel_event);
-	pc2h_evt_hdr->ID = GEN_EVT_CODE(_TimeoutSTA);
-	pc2h_evt_hdr->seq = ATOMIC_INC_RETURN(&pmlmeext->event_seq);
-
-	pdel_sta_evt = (struct stadel_event *)(pevtcmd + sizeof(struct C2HEvent_Header));
-	_rtw_memcpy((unsigned char *)(&(pdel_sta_evt->macaddr)), MacAddr, ETH_ALEN);
-	_rtw_memcpy((unsigned char *)(pdel_sta_evt->rsvd), (unsigned char *)(&reason), 2);
-
-
-	psta = rtw_get_stainfo(&padapter->stapriv, MacAddr);
-	if (psta)
-		mac_id = (int)psta->mac_id;	
-	else
-		mac_id = (-1);
-
-	pdel_sta_evt->mac_id = mac_id;
-
-	DBG_871X("report_del_sta_event: delete STA, mac_id=%d\n", mac_id);
-
-	rtw_enqueue_cmd(pcmdpriv, pcmd_obj);
-
-	return;
-}
-
-void clnt_sa_query_timeout(_adapter *padapter)
-{
-
-	rtw_disassoc_cmd(padapter, 0, _TRUE);
-	rtw_indicate_disconnect(padapter, 0,  _FALSE);
-	rtw_free_assoc_resources(padapter, 1);	
-
-	DBG_871X("SA query timeout client disconnect\n");
-}
-
-void sa_query_timer_hdl(struct sta_info *psta)
-{
-	_adapter *padapter = psta->padapter;
-	_irqL irqL;
-	struct sta_priv *pstapriv = &padapter->stapriv;
-	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
-
-	if (check_fwstate(pmlmepriv, WIFI_STATION_STATE) == _TRUE &&
-					check_fwstate(pmlmepriv, _FW_LINKED) == _TRUE)
-		clnt_sa_query_timeout(padapter);
-	else if (check_fwstate(pmlmepriv, WIFI_AP_STATE) == _TRUE)
-		report_sta_timeout_event(padapter, psta->hwaddr, WLAN_REASON_PREV_AUTH_NOT_VALID);
-}
-
-#endif //CONFIG_IEEE80211W
 
 u8 NULL_hdl(_adapter *padapter, u8 *pbuf)
 {

@@ -712,9 +712,7 @@ extern void rtw_stadel_event_callback(_adapter *adapter, u8 *pbuf);
 extern void rtw_atimdone_event_callback(_adapter *adapter, u8 *pbuf);
 extern void rtw_cpwm_event_callback(_adapter *adapter, u8 *pbuf);
 extern void rtw_wmm_event_callback(PADAPTER padapter, u8 *pbuf);
-#ifdef CONFIG_IEEE80211W
-void rtw_sta_timeout_event_callback(_adapter *adapter, u8 *pbuf);
-#endif /* CONFIG_IEEE80211W */
+
 extern void rtw_join_timeout_handler(RTW_TIMER_HDL_ARGS);
 extern void _rtw_scan_timeout_handler(RTW_TIMER_HDL_ARGS);
 

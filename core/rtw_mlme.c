@@ -1864,9 +1864,6 @@ static struct sta_info *rtw_joinbss_update_stainfo(_adapter *padapter, struct wl
 						
 			_rtw_memset((u8 *)&psta->dot11txpn, 0, sizeof (union pn48));
 			psta->dot11txpn.val = psta->dot11txpn.val + 1;
-#ifdef CONFIG_IEEE80211W
-			_rtw_memset((u8 *)&psta->dot11wtxpn, 0, sizeof (union pn48));
-#endif //CONFIG_IEEE80211W
 			_rtw_memset((u8 *)&psta->dot11rxpn, 0, sizeof (union pn48));	
 		}
 
@@ -2455,38 +2452,6 @@ exit:
 _func_exit_;	
 
 }
-
-#ifdef CONFIG_IEEE80211W
-void rtw_sta_timeout_event_callback(_adapter *adapter, u8 *pbuf)
-{
-	_irqL irqL;
-	struct sta_info *psta;
-	struct stadel_event *pstadel = (struct stadel_event *)pbuf;
-	struct sta_priv *pstapriv = &adapter->stapriv;
-	
-_func_enter_;
-	
-	psta = rtw_get_stainfo(&adapter->stapriv, pstadel->macaddr);
-
-	if (psta) {
-		u8 updated = _FALSE;
-		
-		_enter_critical_bh(&pstapriv->asoc_list_lock, &irqL);
-		if (rtw_is_list_empty(&psta->asoc_list) == _FALSE) {
-			rtw_list_delete(&psta->asoc_list);
-			pstapriv->asoc_list_cnt--;
-			updated = ap_free_sta(adapter, psta, _TRUE, WLAN_REASON_PREV_AUTH_NOT_VALID, _TRUE);
-		}
-		_exit_critical_bh(&pstapriv->asoc_list_lock, &irqL);
-
-		associated_clients_update(adapter, updated, STA_INFO_UPDATE_ALL);
-	}
-
-	
-_func_exit_;	
-
-}
-#endif /* CONFIG_IEEE80211W */
 
 void rtw_stadel_event_callback(_adapter *adapter, u8 *pbuf)
 {

@@ -548,11 +548,6 @@ struct mlme_ext_priv
 	u8	mlmeext_init;
 	ATOMIC_T		event_seq;
 	u16	mgnt_seq;
-#ifdef CONFIG_IEEE80211W
-	u16	sa_query_seq;
-	u64 mgnt_80211w_IPN;
-	u64 mgnt_80211w_IPN_rx;
-#endif //CONFIG_IEEE80211W
 	//struct fw_priv 	fwpriv;
 	
 	unsigned char	cur_channel;
@@ -869,11 +864,6 @@ void issue_addba_rsp(_adapter *adapter, unsigned char *ra, u8 tid, u16 status, u
 void issue_del_ba(_adapter *adapter, unsigned char *ra, u8 tid, u16 reason, u8 initiator);
 int issue_del_ba_ex(_adapter *adapter, unsigned char *ra, u8 tid, u16 reason, u8 initiator, int try_cnt, int wait_ms);
 
-#ifdef CONFIG_IEEE80211W
-void issue_action_SA_Query(_adapter *padapter, unsigned char *raddr, unsigned char action, unsigned short tid, u8 key_type);
-int issue_deauth_11w(_adapter *padapter, unsigned char *da, unsigned short reason, u8 key_type);
-extern void init_dot11w_expire_timer(_adapter *padapter, struct sta_info *psta);
-#endif //CONFIG_IEEE80211W
 int issue_action_SM_PS(_adapter *padapter ,  unsigned char *raddr , u8 NewMimoPsMode);
 int issue_action_SM_PS_wait_ack(_adapter *padapter, unsigned char *raddr, u8 NewMimoPsMode, int try_cnt, int wait_ms);
 
@@ -924,9 +914,7 @@ u16 rtw_rx_ampdu_apply(_adapter *adapter);
 unsigned int OnAction_back(_adapter *padapter, union recv_frame *precv_frame);
 unsigned int on_action_public(_adapter *padapter, union recv_frame *precv_frame);
 unsigned int OnAction_ht(_adapter *padapter, union recv_frame *precv_frame);
-#ifdef CONFIG_IEEE80211W
-unsigned int OnAction_sa_query(_adapter *padapter, union recv_frame *precv_frame);
-#endif //CONFIG_IEEE80211W
+
 unsigned int OnAction_wmm(_adapter *padapter, union recv_frame *precv_frame);
 unsigned int OnAction_vht(_adapter *padapter, union recv_frame *precv_frame);
 unsigned int OnAction_p2p(_adapter *padapter, union recv_frame *precv_frame);
@@ -943,9 +931,7 @@ void _linked_info_dump(_adapter *padapter);
 void survey_timer_hdl (_adapter *padapter);
 void link_timer_hdl (_adapter *padapter);
 void addba_timer_hdl(struct sta_info *psta);
-#ifdef CONFIG_IEEE80211W
-void sa_query_timer_hdl(struct sta_info *psta);
-#endif //CONFIG_IEEE80211W
+
 //void reauth_timer_hdl(_adapter *padapter);
 //void reassoc_timer_hdl(_adapter *padapter);
 
@@ -1160,9 +1146,7 @@ enum rtw_c2h_event
 	GEN_EVT_CODE(_ReportPwrState),		//filen: only for PCIE, USB	
 	GEN_EVT_CODE(_CloseRF),				//filen: only for PCIE, work around ASPM
 	GEN_EVT_CODE(_WMM),					/*25*/
-#ifdef CONFIG_IEEE80211W
-	GEN_EVT_CODE(_TimeoutSTA),
-#endif /* CONFIG_IEEE80211W */
+
  	MAX_C2HEVT
 };
 
@@ -1198,9 +1182,6 @@ static struct fwevent wlanevents[] =
 	{0, &rtw_cpwm_event_callback},
 	{0, NULL},
 	{0, &rtw_wmm_event_callback}, /*25*/
-#ifdef CONFIG_IEEE80211W
-	{sizeof(struct stadel_event), &rtw_sta_timeout_event_callback},
-#endif /* CONFIG_IEEE80211W */
 
 };
 
