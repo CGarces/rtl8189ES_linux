@@ -2138,9 +2138,6 @@ static void rtw_hal_construct_P2PProbeRsp(_adapter *padapter, u8 *pframe, u32 *p
 #ifdef CONFIG_WFD
 	u32					wfdielen = 0;
 #endif
-#ifdef CONFIG_INTEL_WIDI
-	u8 zero_array_check[L2SDTA_SERVICE_VE_LEN] = { 0x00 };
-#endif //CONFIG_INTEL_WIDI
 
 	//for debug
 	u8 *dbgbuf = pframe;
@@ -2237,41 +2234,6 @@ static void rtw_hal_construct_P2PProbeRsp(_adapter *padapter, u8 *pframe, u32 *p
 
 		//	Value:
 		wpsie[wpsielen++] = WPS_VERSION_1;	//	Version 1.0
-
-#ifdef CONFIG_INTEL_WIDI
-		//	Commented by Kurt
-		//	Appended WiDi info. only if we did issued_probereq_widi(), and then we saved ven. ext. in pmlmepriv->sa_ext.
-		if(  _rtw_memcmp(pmlmepriv->sa_ext, zero_array_check, L2SDTA_SERVICE_VE_LEN) == _FALSE 
-			|| pmlmepriv->num_p2p_sdt != 0 )
-		{
-			//Sec dev type
-			*(u16*) ( wpsie + wpsielen ) = cpu_to_be16( WPS_ATTR_SEC_DEV_TYPE_LIST );
-			wpsielen += 2;
-
-			//	Length:
-			*(u16*) ( wpsie + wpsielen ) = cpu_to_be16( 0x0008 );
-			wpsielen += 2;
-
-			//	Value:
-			//	Category ID
-			*(u16*) ( wpsie + wpsielen ) = cpu_to_be16( WPS_PDT_CID_DISPLAYS );
-			wpsielen += 2;
-
-			//	OUI
-			*(u32*) ( wpsie + wpsielen ) = cpu_to_be32( INTEL_DEV_TYPE_OUI );
-			wpsielen += 4;
-
-			*(u16*) ( wpsie + wpsielen ) = cpu_to_be16( WPS_PDT_SCID_WIDI_CONSUMER_SINK );
-			wpsielen += 2;
-
-			if(  _rtw_memcmp(pmlmepriv->sa_ext, zero_array_check, L2SDTA_SERVICE_VE_LEN) == _FALSE )
-			{
-				//	Vendor Extension
-				_rtw_memcpy( wpsie + wpsielen, pmlmepriv->sa_ext, L2SDTA_SERVICE_VE_LEN );
-				wpsielen += L2SDTA_SERVICE_VE_LEN;
-			}
-		}
-#endif //CONFIG_INTEL_WIDI
 
 		//	WiFi Simple Config State
 		//	Type:
