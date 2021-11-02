@@ -798,23 +798,6 @@ struct proxim {
 };
 #endif	//CONFIG_INTEL_PROXIM
 
-#ifdef CONFIG_MAC_LOOPBACK_DRIVER
-typedef struct loopbackdata
-{
-	_sema	sema;
-	_thread_hdl_ lbkthread;
-	u8 bstop;
-	u32 cnt;
-	u16 size;
-	u16 txsize;
-	u8 txbuf[0x8000];
-	u16 rxsize;
-	u8 rxbuf[0x8000];
-	u8 msg[100];
-
-}LOOPBACKDATA, *PLOOPBACKDATA;
-#endif
-
 #define ADAPTER_TX_BW_2G(adapter) BW_MODE_2G((adapter)->driver_tx_bw_mode)
 #define ADAPTER_TX_BW_5G(adapter) BW_MODE_5G((adapter)->driver_tx_bw_mode)
 
@@ -959,9 +942,6 @@ struct _ADAPTER{
 	//	The driver will show the current P2P status when the upper application reads it.
 	u8 bShowGetP2PState;
 #endif
-#ifdef CONFIG_AUTOSUSPEND
-	u8	bDisableAutosuspend;
-#endif
 
 	//pbuddy_adapter is used only in  two inteface case, (iface_nums=2 in struct dvobj_priv)
 	//PRIMARY_ADAPTER's buddy is SECONDARY_ADAPTER
@@ -1007,10 +987,6 @@ struct _ADAPTER{
 	 * be used in intel Proximity mode */
 	struct proxim proximity;
 #endif	//CONFIG_INTEL_PROXIM
-
-#ifdef CONFIG_MAC_LOOPBACK_DRIVER
-	PLOOPBACKDATA ploopback;
-#endif
 
 	//for debug purpose
 	u8 fix_rate;

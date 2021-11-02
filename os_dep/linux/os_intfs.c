@@ -143,11 +143,8 @@ int rtw_lowrate_two_xmit = 1;//Use 2 path Tx to transmit MCS0~7 and legacy mode
 int rtw_rf_config = RF_MAX_TYPE;  //auto
 
 int rtw_low_power = 0;
-#ifdef CONFIG_WIFI_TEST
-int rtw_wifi_spec = 1;//for wifi test
-#else
+
 int rtw_wifi_spec = 0;
-#endif
 
 int rtw_special_rf_path = 0; //0: 2T2R ,1: only turn on path A 1T1R
 
@@ -175,19 +172,11 @@ int rtw_antdiv_type = 0 ; //0:decide by efuse  1: for 88EE, 1Tx and 1RxCG are di
 
 int rtw_switch_usb3 = _FALSE; /* _FALSE: doesn't switch, _TRUE: switch from usb2.0 to usb 3.0 */
 
-#ifdef CONFIG_USB_AUTOSUSPEND
-int rtw_enusbss = 1;//0:disable,1:enable
-#else
 int rtw_enusbss = 0;//0:disable,1:enable
-#endif
 
 int rtw_hwpdn_mode=2;//0:disable,1:enable,2: by EFUSE config
 
-#ifdef CONFIG_HW_PWRP_DETECTION
-int rtw_hwpwrp_detect = 1;
-#else
 int rtw_hwpwrp_detect = 0; //HW power  ping detect 0:disable , 1:enable
-#endif
 
 int rtw_hw_wps_pbc = 0;
 
@@ -611,9 +600,6 @@ _func_enter_;
 	
 	registry_par->switch_usb3 = (u8)rtw_switch_usb3;
 
-#ifdef CONFIG_AUTOSUSPEND
-	registry_par->usbss_enable = (u8)rtw_enusbss;//0:disable,1:enable
-#endif
 #ifdef SUPPORT_HW_RFOFF_DETECTED
 	registry_par->hwpdn_mode = (u8)rtw_hwpdn_mode;//0:disable,1:enable,2:by EFUSE config
 	registry_par->hwpwrp_detect = (u8)rtw_hwpwrp_detect;//0:disable,1:enable
@@ -1537,12 +1523,6 @@ u8 rtw_reset_drv_sw(_adapter *padapter)
 	pmlmepriv->LinkDetectInfo.LowPowerTransitionCount = 0;
 
 	_clr_fwstate_(pmlmepriv, _FW_UNDER_SURVEY |_FW_UNDER_LINKING);
-
-#ifdef CONFIG_AUTOSUSPEND
-	#if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,22) && LINUX_VERSION_CODE<=KERNEL_VERSION(2,6,34))
-		adapter_to_dvobj(padapter)->pusbdev->autosuspend_disabled = 1;//autosuspend disabled by the user
-	#endif
-#endif
 
 #ifdef DBG_CONFIG_ERROR_DETECT
 	if (is_primary_adapter(padapter))
@@ -2723,12 +2703,7 @@ int rtw_ips_pwr_up(_adapter *padapter)
 	u32 start_time = rtw_get_current_time();
 	DBG_871X("===>  rtw_ips_pwr_up..............\n");
 
-#if defined(CONFIG_SWLPS_IN_IPS) || defined(CONFIG_FWLPS_IN_IPS)
-#ifdef DBG_CONFIG_ERROR_DETECT
-	if (psrtpriv->silent_reset_inprogress == _TRUE)
-#endif//#ifdef DBG_CONFIG_ERROR_DETECT		
-#endif //defined(CONFIG_SWLPS_IN_IPS) || defined(CONFIG_FWLPS_IN_IPS)
-		rtw_reset_drv_sw(padapter);
+	rtw_reset_drv_sw(padapter);
 
 	result = ips_netdrv_open(padapter);
 
@@ -2759,25 +2734,15 @@ void rtw_ips_dev_unload(_adapter *padapter)
 	struct sreset_priv *psrtpriv = &pHalData->srestpriv;
 #endif//#ifdef DBG_CONFIG_ERROR_DETECT
 	DBG_871X("====> %s...\n",__FUNCTION__);
+	rtw_hal_set_hwreg(padapter, HW_VAR_FIFO_CLEARN_UP, 0);
 
-
-#if defined(CONFIG_SWLPS_IN_IPS) || defined(CONFIG_FWLPS_IN_IPS)
-#ifdef DBG_CONFIG_ERROR_DETECT
-	if (psrtpriv->silent_reset_inprogress == _TRUE)
-#endif //#ifdef DBG_CONFIG_ERROR_DETECT		
-#endif //defined(CONFIG_SWLPS_IN_IPS) || defined(CONFIG_FWLPS_IN_IPS)
+	if (padapter->intf_stop)
 	{
-		rtw_hal_set_hwreg(padapter, HW_VAR_FIFO_CLEARN_UP, 0);
-
-		if (padapter->intf_stop)
-		{
-			padapter->intf_stop(padapter);
-		}
+		padapter->intf_stop(padapter);
 	}
 
 	if (!rtw_is_surprise_removed(padapter))
 		rtw_hal_deinit(padapter);
-
 }
 
 
@@ -3016,9 +2981,6 @@ int rtw_suspend_free_assoc_resource(_adapter *padapter)
 	rtw_free_assoc_resources(padapter, 1);
 
 	//s2-4.
-#ifdef CONFIG_AUTOSUSPEND
-	if(is_primary_adapter(padapter) && (!adapter_to_pwrctl(padapter)->bInternalAutoSuspend ))
-#endif
 		rtw_free_network_queue(padapter, _TRUE);
 
 	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY)) {

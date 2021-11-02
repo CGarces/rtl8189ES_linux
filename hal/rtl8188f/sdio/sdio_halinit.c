@@ -167,21 +167,6 @@ _init_power_on:
 	if ((regsty->pll_ref_clk_sel & 0x0F) != 0x0F)
 		rtl8188f_set_pll_ref_clk_sel(padapter, regsty->pll_ref_clk_sel);
 
-#ifdef CONFIG_EXT_CLK
-	// Use external crystal(XTAL)
-	value8 = rtw_read8(padapter, REG_PAD_CTRL1_8188F+2);
-	value8 |=  BIT(7);
-	rtw_write8(padapter, REG_PAD_CTRL1_8188F+2, value8);
-
-	// CLK_REQ High active or Low Active
-	// Request GPIO polarity:
-	// 0: low active
-	// 1: high active
-	value8 = rtw_read8(padapter, REG_MULTI_FUNC_CTRL+1);
-	value8 |= BIT(5);
-	rtw_write8(padapter, REG_MULTI_FUNC_CTRL+1, value8);
-#endif // CONFIG_EXT_CLK
-
 	// only cmd52 can be used before power on(card enable)
 	ret = CardEnable(padapter);
 	if (ret == _FALSE) {
@@ -524,10 +509,7 @@ void _InitWMACSetting(PADAPTER padapter)
 	pHalData->ReceiveConfig |= RCR_CBSSID_DATA | RCR_CBSSID_BCN | RCR_AMF;
 	pHalData->ReceiveConfig |= RCR_HTC_LOC_CTRL;
 	pHalData->ReceiveConfig |= RCR_APP_PHYST_RXFF | RCR_APP_ICV | RCR_APP_MIC;
-#ifdef CONFIG_MAC_LOOPBACK_DRIVER
-	pHalData->ReceiveConfig |= RCR_AAP;
-	pHalData->ReceiveConfig |= RCR_ADD3 | RCR_APWRMGT | RCR_ACRC32 | RCR_ADF;
-#endif
+
 	rtw_write32(padapter, REG_RCR, pHalData->ReceiveConfig);
 
 	// Accept all multicast address
@@ -870,99 +852,6 @@ static u32 rtl8188fs_hal_init(PADAPTER padapter)
 	pwrctrlpriv = adapter_to_pwrctl(padapter);
 	pregistrypriv = &padapter->registrypriv;
 
-#ifdef CONFIG_SWLPS_IN_IPS
-	if (adapter_to_pwrctl(padapter)->bips_processing == _TRUE)
-	{
-		u8 val8, bMacPwrCtrlOn = _TRUE;
-
-		DBG_871X("%s: run LPS flow in IPS\n", __FUNCTION__);
-
-		//ser rpwm
-		val8 = rtw_read8(padapter, SDIO_LOCAL_BASE|SDIO_REG_HRPWM1);
-		val8 &= 0x80;
-		val8 += 0x80;	
-		val8 |= BIT(6);		
-		rtw_write8(padapter, SDIO_LOCAL_BASE|SDIO_REG_HRPWM1, val8);
-		
-		adapter_to_pwrctl(padapter)->tog = (val8 + 0x80) & 0x80;
-		
-		rtw_mdelay_os(5); //wait set rpwm already
-		
-		ret = HalPwrSeqCmdParsing(padapter, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_SDIO_MSK, rtl8188F_leave_swlps_flow);
-		if (ret == _FALSE) {
-			DBG_8192C("%s: run LPS flow in IPS fail!\n", __FUNCTION__);
-			return _FAIL;
-		}
-
-		rtw_hal_set_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);
-
-		pHalData->LastHMEBoxNum = 0;
-
-
-		return _SUCCESS;
-	}
-#elif defined(CONFIG_FWLPS_IN_IPS)
-	if (adapter_to_pwrctl(padapter)->bips_processing == _TRUE && psrtpriv->silent_reset_inprogress == _FALSE
-		&& adapter_to_pwrctl(padapter)->pre_ips_type == 0)
-	{
-		u32 start_time;
-		u8 cpwm_orig, cpwm_now;
-		u8 val8, bMacPwrCtrlOn = _TRUE;
-
-		DBG_871X("%s: Leaving IPS in FWLPS state\n", __FUNCTION__);
-
-		//for polling cpwm
-		cpwm_orig = 0;
-		rtw_hal_get_hwreg(padapter, HW_VAR_CPWM, &cpwm_orig);
-
-		//ser rpwm
-		val8 = rtw_read8(padapter, SDIO_LOCAL_BASE|SDIO_REG_HRPWM1);
-		val8 &= 0x80;
-		val8 += 0x80;	
-		val8 |= BIT(6);		
-		rtw_write8(padapter, SDIO_LOCAL_BASE|SDIO_REG_HRPWM1, val8);
-		DBG_871X("%s: write rpwm=%02x\n", __FUNCTION__, val8);
-		adapter_to_pwrctl(padapter)->tog = (val8 + 0x80) & 0x80;
-
-		//do polling cpwm
-		start_time = rtw_get_current_time();		
-		do {
-
-			rtw_mdelay_os(1);
-			
-			rtw_hal_get_hwreg(padapter, HW_VAR_CPWM, &cpwm_now);
-			if ((cpwm_orig ^ cpwm_now) & 0x80)
-			{		
-#ifdef DBG_CHECK_FW_PS_STATE				
-				DBG_871X("%s: polling cpwm ok when leaving IPS in FWLPS state, cpwm_orig=%02x, cpwm_now=%02x, 0x100=0x%x \n"
-				, __FUNCTION__, cpwm_orig, cpwm_now, rtw_read8(padapter, REG_CR));
-#endif //DBG_CHECK_FW_PS_STATE
-				break;
-			}
-
-			if (rtw_get_passing_time_ms(start_time) > 100)
-			{
-				DBG_871X("%s: polling cpwm timeout when leaving IPS in FWLPS state\n", __FUNCTION__);
-				break;
-			}			
-		} while (1);
-
-		rtl8188f_set_FwPwrModeInIPS_cmd(padapter, 0);
-
-		rtw_hal_set_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);		
-
-
-#ifdef DBG_CHECK_FW_PS_STATE
-		if(rtw_fw_ps_state(padapter) == _FAIL)
-		{
-			DBG_871X("after hal init, fw ps state in 32k\n");
-			pdbgpriv->dbg_ips_drvopen_fail_cnt++;
-		}
-#endif //DBG_CHECK_FW_PS_STATE
-		return _SUCCESS;
-	}	
-#endif //CONFIG_SWLPS_IN_IPS
-
 	// Disable Interrupt first.
 //	rtw_hal_disable_interrupt(padapter);
 
@@ -1144,18 +1033,6 @@ static u32 rtl8188fs_hal_init(PADAPTER padapter)
 	// set 0x0 to 0xFF by tynli. Default enable HW SEQ NUM.
 	rtw_write8(padapter, REG_HWSEQ_CTRL, 0xFF);
 
-
-#ifdef CONFIG_MAC_LOOPBACK_DRIVER
-	u1bTmp = rtw_read8(padapter, REG_SYS_FUNC_EN);
-	u1bTmp &= ~(FEN_BBRSTB|FEN_BB_GLB_RSTn);
-	rtw_write8(padapter, REG_SYS_FUNC_EN,u1bTmp);
-
-	rtw_write8(padapter, REG_RD_CTRL, 0x0F);
-	rtw_write8(padapter, REG_RD_CTRL+1, 0xCF);
-	rtw_write8(padapter, REG_TXPKTBUF_WMAC_LBK_BF_HD_8188F, 0x80);
-	rtw_write32(padapter, REG_CR, 0x0b0202ff);
-#endif
-
 	/*
 	* onfigure SDIO TxRx Control to enable Rx DMA timer masking.
 	* 2010.02.24.
@@ -1312,111 +1189,15 @@ static u32 rtl8188fs_hal_deinit(PADAPTER padapter)
 #endif
 
 	if (rtw_is_hw_init_completed(padapter)) {
-#ifdef CONFIG_SWLPS_IN_IPS				
-		if (adapter_to_pwrctl(padapter)->bips_processing == _TRUE)
-		{
-			u8	bMacPwrCtrlOn;
-			u8 ret =  _TRUE;
-
-			DBG_871X("%s: run LPS flow in IPS\n", __FUNCTION__);
-
-			rtw_write32(padapter, 0x130, 0x0);
-			rtw_write32(padapter, 0x138, 0x100);
-			rtw_write8(padapter, 0x13d, 0x1);
-
-
-			bMacPwrCtrlOn = _FALSE;	// Disable CMD53 R/W	
-			rtw_hal_set_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);
-			
-			ret = HalPwrSeqCmdParsing(padapter, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_SDIO_MSK, rtl8188F_enter_swlps_flow);
-			if (ret == _FALSE) {
-				DBG_8192C("%s: run LPS flow in IPS fail!\n", __FUNCTION__);
-				return _FAIL;
-			}
-		}
-		else
-#elif defined(CONFIG_FWLPS_IN_IPS)
-		if (adapter_to_pwrctl(padapter)->bips_processing == _TRUE && psrtpriv->silent_reset_inprogress == _FALSE)
-		{
-			if(padapter->netif_up == _TRUE)
-			{
-				int cnt=0;
-				u8 val8 = 0;
-			
-				DBG_871X("%s: issue H2C to FW when entering IPS\n", __FUNCTION__);
-			
-				rtl8188f_set_FwPwrModeInIPS_cmd(padapter, 0x3);
-				//poll 0x1cc to make sure H2C command already finished by FW; MAC_0x1cc=0 means H2C done by FW.
-				do{
-					val8 = rtw_read8(padapter, REG_HMETFR);
-					cnt++;
-					DBG_871X("%s  polling REG_HMETFR=0x%x, cnt=%d \n", __FUNCTION__, val8, cnt);
-					rtw_mdelay_os(10);
-				}while(cnt<100 && (val8!=0));
-				//H2C done, enter 32k
-				if(val8 == 0)
-				{
-					//ser rpwm to enter 32k
-					val8 = rtw_read8(padapter, SDIO_LOCAL_BASE|SDIO_REG_HRPWM1);
-					val8 += 0x80;
-					val8 |= BIT(0);
-					rtw_write8(padapter, SDIO_LOCAL_BASE|SDIO_REG_HRPWM1, val8);
-					DBG_871X("%s: write rpwm=%02x\n", __FUNCTION__, val8);
-					adapter_to_pwrctl(padapter)->tog = (val8 + 0x80) & 0x80;
-					cnt = val8 = 0;
-					do{
-						val8 = rtw_read8(padapter, REG_CR);
-						cnt++;
-						DBG_871X("%s  polling 0x100=0x%x, cnt=%d \n", __FUNCTION__, val8, cnt);			
-						rtw_mdelay_os(10);
-					}while(cnt<100 && (val8!=0xEA));
+		pdbgpriv->dbg_carddisable_cnt++;
 #ifdef DBG_CHECK_FW_PS_STATE
-				if(val8 != 0xEA)
-					DBG_871X("MAC_1C0=%08x, MAC_1C4=%08x, MAC_1C8=%08x, MAC_1CC=%08x\n", rtw_read32(padapter, 0x1c0), rtw_read32(padapter, 0x1c4)
-					, rtw_read32(padapter, 0x1c8), rtw_read32(padapter, 0x1cc));
-#endif //DBG_CHECK_FW_PS_STATE
-				}
-				else
-				{
-					DBG_871X("MAC_1C0=%08x, MAC_1C4=%08x, MAC_1C8=%08x, MAC_1CC=%08x\n", rtw_read32(padapter, 0x1c0), rtw_read32(padapter, 0x1c4)
-					, rtw_read32(padapter, 0x1c8), rtw_read32(padapter, 0x1cc));
-				}
-			
-				DBG_871X("polling done when entering IPS, check result : 0x100=0x%x, cnt=%d, MAC_1cc=0x%02x\n"
-				, rtw_read8(padapter, REG_CR), cnt, rtw_read8(padapter, REG_HMETFR));
-
-				adapter_to_pwrctl(padapter)->pre_ips_type = 0;
-				
-			}
-			else
-			{
-				pdbgpriv->dbg_carddisable_cnt++;
-#ifdef DBG_CHECK_FW_PS_STATE
-				if(rtw_fw_ps_state(padapter) == _FAIL)
-				{
-					DBG_871X("card disable should leave 32k\n");
-					pdbgpriv->dbg_carddisable_error_cnt++;
-				}
-#endif //DBG_CHECK_FW_PS_STATE
-				rtw_hal_power_off(padapter);
-
-				adapter_to_pwrctl(padapter)->pre_ips_type = 1;
-			}
-			
-		}
-		else
-#endif //CONFIG_SWLPS_IN_IPS
+		if(rtw_fw_ps_state(padapter) == _FAIL)
 		{
-			pdbgpriv->dbg_carddisable_cnt++;
-#ifdef DBG_CHECK_FW_PS_STATE
-			if(rtw_fw_ps_state(padapter) == _FAIL)
-			{
-				DBG_871X("card disable should leave 32k\n");
-				pdbgpriv->dbg_carddisable_error_cnt++;
-			}
-#endif //DBG_CHECK_FW_PS_STATE
-			rtw_hal_power_off(padapter);
+			DBG_871X("card disable should leave 32k\n");
+			pdbgpriv->dbg_carddisable_error_cnt++;
 		}
+#endif //DBG_CHECK_FW_PS_STATE
+		rtw_hal_power_off(padapter);
 	}
 	else
 	{

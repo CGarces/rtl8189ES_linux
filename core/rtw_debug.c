@@ -104,14 +104,8 @@ void dump_drv_cfg(void *sel)
 
 #ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 	DBG_871X_SEL_NL(sel, "LOAD_PHY_PARA_FROM_FILE - REALTEK_CONFIG_PATH=%s\n", REALTEK_CONFIG_PATH);
-	#if defined(CONFIG_MULTIDRV) || defined(REALTEK_CONFIG_PATH_WITH_IC_NAME_FOLDER)
+	#if defined(REALTEK_CONFIG_PATH_WITH_IC_NAME_FOLDER)
 	RTW_PRINT_SEL(sel, "LOAD_PHY_PARA_FROM_FILE - REALTEK_CONFIG_PATH_WITH_IC_NAME_FOLDER\n");
-	#endif
-	#ifdef CONFIG_CALIBRATE_TX_POWER_BY_REGULATORY
-	DBG_871X_SEL_NL(sel, "CONFIG_CALIBRATE_TX_POWER_BY_REGULATORY\n");
-	#endif
-	#ifdef CONFIG_CALIBRATE_TX_POWER_TO_MAX
-	DBG_871X_SEL_NL(sel, "CONFIG_CALIBRATE_TX_POWER_TO_MAX\n");
 	#endif
 #endif
 
@@ -2781,11 +2775,7 @@ int proc_get_ps_info(struct seq_file *m, void *v)
 	DBG_871X_SEL_NL(m, "*IPS:\n");
 
 	if (ips_mode == IPS_NORMAL) {
-#ifdef CONFIG_FWLPS_IN_IPS
-		str = "FW_LPS_IN_IPS";
-#else
 		str = "Card Disable";
-#endif
 	} else if (ips_mode == IPS_NONE) {
 		str = "NO IPS";
 	} else if (ips_mode == IPS_LEVEL_2) {

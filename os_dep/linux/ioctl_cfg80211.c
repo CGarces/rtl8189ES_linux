@@ -6112,9 +6112,6 @@ static void rtw_cfg80211_preinit_wiphy(_adapter *adapter, struct wiphy *wiphy)
 								| BIT(NL80211_IFTYPE_ADHOC)
 #ifdef CONFIG_AP_MODE
 								| BIT(NL80211_IFTYPE_AP)
-								#ifdef CONFIG_WIFI_MONITOR
-								| BIT(NL80211_IFTYPE_MONITOR)
-								#endif
 #endif
 #if defined(CONFIG_P2P) && ((LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,37)) || defined(COMPAT_KERNEL_RELEASE))
 								| BIT(NL80211_IFTYPE_P2P_CLIENT)
@@ -6127,12 +6124,6 @@ static void rtw_cfg80211_preinit_wiphy(_adapter *adapter, struct wiphy *wiphy)
 	wiphy->mgmt_stypes = rtw_cfg80211_default_mgmt_stypes;
 #endif //CONFIG_AP_MODE	
 #endif		
-
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,0))
-	#ifdef CONFIG_WIFI_MONITOR
-	wiphy->software_iftypes |= BIT(NL80211_IFTYPE_MONITOR);
-	#endif
-#endif
 
 	#if defined(RTW_SINGLE_WIPHY) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 0, 0))
 	wiphy->iface_combinations = rtw_combinations;

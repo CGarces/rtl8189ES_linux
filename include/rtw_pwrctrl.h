@@ -344,9 +344,6 @@ int ips_leave(_adapter * padapter);
 
 void rtw_ps_processor(_adapter*padapter);
 
-#ifdef CONFIG_AUTOSUSPEND
-int autoresume_enter(_adapter* padapter);
-#endif
 #ifdef SUPPORT_HW_RFOFF_DETECTED
 rt_rf_power_state RfOnOffDetect(IN	PADAPTER pAdapter );
 #endif

@@ -168,10 +168,7 @@ static u8 gpio_hostwakeup_alloc_irq(PADAPTER padapter)
 	status = IRQF_NO_SUSPEND;
 #endif
 
-	if (HIGH_ACTIVE)
-		status |= IRQF_TRIGGER_RISING;
-	else
-		status |= IRQF_TRIGGER_FALLING;
+	status |= IRQF_TRIGGER_FALLING;
 
 	err = request_threaded_irq(oob_irq, gpio_hostwakeup_irq_thread, NULL,
 		status, "rtw_wifi_gpio_wakeup", padapter);

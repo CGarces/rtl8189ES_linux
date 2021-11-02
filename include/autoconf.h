@@ -130,7 +130,6 @@
 /*
  * Others
  */
-//#define CONFIG_MAC_LOOPBACK_DRIVER
 
 #define CONFIG_SKB_COPY	//for amsdu
 
@@ -147,13 +146,6 @@
 /*
  * Auto Config Section
  */
-#ifdef CONFIG_MAC_LOOPBACK_DRIVER
-	#undef CONFIG_IOCTL_CFG80211
-	#undef CONFIG_AP_MODE
-	#undef CONFIG_NATIVEAP_MLME
-	#undef CONFIG_POWER_SAVING
-	#undef SUPPORT_HW_RFOFF_DETECTED
-#endif
 #ifndef CONFIG_MP_INCLUDED
 	#define CONFIG_MP_INCLUDED
 #endif
@@ -185,8 +177,6 @@
 
 	#ifdef CONFIG_IPS
 		#define CONFIG_IPS_CHECK_IN_WD /* Do IPS Check in WatchDog */
-		//#define CONFIG_SWLPS_IN_IPS /* Do SW LPS flow when entering and leaving IPS */
-		//#define CONFIG_FWLPS_IN_IPS /* issue H2C command to let FW do LPS when entering IPS */
 	#endif
 #endif /* CONFIG_POWER_SAVING */
 

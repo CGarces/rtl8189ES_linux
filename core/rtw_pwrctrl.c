@@ -163,11 +163,6 @@ int ips_leave(_adapter * padapter)
 }
 #endif /* CONFIG_IPS */
 
-#ifdef CONFIG_AUTOSUSPEND
-extern void autosuspend_enter(_adapter* padapter);	
-extern int autoresume_enter(_adapter* padapter);
-#endif
-
 #ifdef SUPPORT_HW_RFOFF_DETECTED
 int rtw_hw_suspend(_adapter *padapter );
 int rtw_hw_resume(_adapter *padapter);
@@ -307,54 +302,24 @@ void rtw_ps_processor(_adapter*padapter)
 		goto exit;
 	
 	//DBG_871X("==> fw report state(0x%x)\n",rtw_read8(padapter,0x1ca));	
-	if(pwrpriv->bHWPwrPindetect) 
-	{
-	#ifdef CONFIG_AUTOSUSPEND
-		if(padapter->registrypriv.usbss_enable)
-		{
-			if(pwrpriv->rf_pwrstate == rf_on)
-			{
-				if(padapter->net_closed == _TRUE)
-					pwrpriv->ps_flag = _TRUE;
+	if(pwrpriv->bHWPwrPindetect) {
+		rfpwrstate = RfOnOffDetect(padapter);
+		DBG_871X("@@@@- #2  %s==> rfstate:%s \n",__FUNCTION__,(rfpwrstate==rf_on)?"rf_on":"rf_off");
 
-				rfpwrstate = RfOnOffDetect(padapter);
-				DBG_871X("@@@@- #1  %s==> rfstate:%s \n",__FUNCTION__,(rfpwrstate==rf_on)?"rf_on":"rf_off");
-				if(rfpwrstate!= pwrpriv->rf_pwrstate)
-				{
-					if(rfpwrstate == rf_off)
-					{
-						pwrpriv->change_rfpwrstate = rf_off;
-						
-						pwrpriv->bkeepfwalive = _TRUE;	
-						pwrpriv->brfoffbyhw = _TRUE;						
-						
-						autosuspend_enter(padapter);							
-					}
-				}
-			}			
-		}
-		else
-	#endif //CONFIG_AUTOSUSPEND
+		if(rfpwrstate!= pwrpriv->rf_pwrstate)
 		{
-			rfpwrstate = RfOnOffDetect(padapter);
-			DBG_871X("@@@@- #2  %s==> rfstate:%s \n",__FUNCTION__,(rfpwrstate==rf_on)?"rf_on":"rf_off");
-
-			if(rfpwrstate!= pwrpriv->rf_pwrstate)
-			{
-				if(rfpwrstate == rf_off)
-				{	
-					pwrpriv->change_rfpwrstate = rf_off;														
-					pwrpriv->brfoffbyhw = _TRUE;
-					rtw_hw_suspend(padapter );	
-				}
-				else
-				{
-					pwrpriv->change_rfpwrstate = rf_on;
-					rtw_hw_resume(padapter );			
-				}
-				DBG_871X("current rf_pwrstate(%s)\n",(pwrpriv->rf_pwrstate == rf_off)?"rf_off":"rf_on");
+			if(rfpwrstate == rf_off)
+			{	
+				pwrpriv->change_rfpwrstate = rf_off;														
+				pwrpriv->brfoffbyhw = _TRUE;
+				rtw_hw_suspend(padapter );	
+			} else {
+				pwrpriv->change_rfpwrstate = rf_on;
+				rtw_hw_resume(padapter );			
 			}
+			DBG_871X("current rf_pwrstate(%s)\n",(pwrpriv->rf_pwrstate == rf_off)?"rf_off":"rf_on");
 		}
+
 		pwrpriv->pwr_state_check_cnts ++;	
 	}
 #endif //SUPPORT_HW_RFOFF_DETECTED
@@ -365,31 +330,12 @@ void rtw_ps_processor(_adapter*padapter)
 	if (rtw_pwr_unassociated_idle(padapter) == _FALSE)
 		goto exit;
 
-	if((pwrpriv->rf_pwrstate == rf_on) && ((pwrpriv->pwr_state_check_cnts%4)==0))
-	{
+	if((pwrpriv->rf_pwrstate == rf_on) && ((pwrpriv->pwr_state_check_cnts%4)==0)) {
 		DBG_871X("==>%s .fw_state(%x)\n",__FUNCTION__,get_fwstate(pmlmepriv));
 		pwrpriv->change_rfpwrstate = rf_off;
-		#ifdef CONFIG_AUTOSUSPEND
-		if(padapter->registrypriv.usbss_enable)
-		{
-			if(pwrpriv->bHWPwrPindetect) 
-				pwrpriv->bkeepfwalive = _TRUE;
-			
-			if(padapter->net_closed == _TRUE)
-				pwrpriv->ps_flag = _TRUE;
-
-			autosuspend_enter(padapter);
-		}		
-		else if(pwrpriv->bHWPwrPindetect)
-		{
-		}
-		else
-		#endif //CONFIG_AUTOSUSPEND
-		{
-			#ifdef CONFIG_IPS
-			ips_enter(padapter);			
-			#endif
-		}
+		#ifdef CONFIG_IPS
+		ips_enter(padapter);			
+		#endif
 	}
 exit:
 #ifndef CONFIG_IPS_CHECK_IN_WD
@@ -669,111 +615,6 @@ u8 PS_RDY_CHECK(_adapter * padapter)
 
 	return _TRUE;
 }
-
-#if defined(CONFIG_FWLPS_IN_IPS)
-void rtw_set_fw_in_ips_mode(PADAPTER padapter, u8 enable)
-{
-	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
-	int cnt=0;
-	u32 start_time;
-	u8 val8 = 0;
-	u8 cpwm_orig = 0, cpwm_now = 0;
-	u8 parm[H2C_INACTIVE_PS_LEN]={0};
-
-	if (padapter->netif_up == _FALSE) {
-		DBG_871X("%s: ERROR, netif is down\n", __func__);
-		return;
-	}
-
-	//u8 cmd_param; //BIT0:enable, BIT1:NoConnect32k
-	if (enable) {
-		//Enter IPS
-		DBG_871X("%s: issue H2C to FW when entering IPS\n", __func__);
-
-		parm[0] = 0x03;
-		parm[1] = 0x0;
-		parm[2] = 0x0;
-
-		rtw_hal_fill_h2c_cmd(padapter, //H2C_FWLPS_IN_IPS_,
-					H2C_INACTIVE_PS_,
-					H2C_INACTIVE_PS_LEN, parm);
-		//poll 0x1cc to make sure H2C command already finished by FW; MAC_0x1cc=0 means H2C done by FW.
-		do{
-			val8 = rtw_read8(padapter, REG_HMETFR);
-			cnt++;
-			DBG_871X("%s  polling REG_HMETFR=0x%x, cnt=%d \n",
-					__func__, val8, cnt);
-			rtw_mdelay_os(10);
-		}while(cnt<100 && (val8!=0));
-
-		//H2C done, enter 32k
-		if (val8 == 0) {
-			//ser rpwm to enter 32k
-			val8 = rtw_read8(padapter, SDIO_LOCAL_BASE|SDIO_REG_HRPWM1);
-			DBG_871X("%s: read rpwm=%02x\n", __FUNCTION__, val8);
-			val8 += 0x80;
-			val8 |= BIT(0);
-			rtw_write8(padapter, SDIO_LOCAL_BASE|SDIO_REG_HRPWM1, val8);
-			DBG_871X("%s: write rpwm=%02x\n", __FUNCTION__, val8);
-			adapter_to_pwrctl(padapter)->tog = (val8 + 0x80) & 0x80;
-			cnt = val8 = 0;
-			if (parm[1] == 0 || parm[2] == 0) {
-				do {
-					val8 = rtw_read8(padapter, REG_CR);
-					cnt++;
-					DBG_871X("%s  polling 0x100=0x%x, cnt=%d \n",
-							__func__, val8, cnt);
-					DBG_871X("%s 0x08:%02x, 0x03:%02x\n",
-							__func__,
-							rtw_read8(padapter, 0x08),
-							rtw_read8(padapter, 0x03));
-					rtw_mdelay_os(10);
-				} while(cnt<20 && (val8!=0xEA));
-			}
-		}
-	} else {
-		//Leave IPS
-		DBG_871X("%s: Leaving IPS in FWLPS state\n", __func__);
-
-		//for polling cpwm
-		cpwm_orig = 0;
-		rtw_hal_get_hwreg(padapter, HW_VAR_CPWM, &cpwm_orig);
-
-		//ser rpwm
-		val8 = rtw_read8(padapter, SDIO_LOCAL_BASE|SDIO_REG_HRPWM1);
-		val8 &= 0x80;
-		val8 += 0x80;
-		val8 |= BIT(6);
-		rtw_write8(padapter, SDIO_LOCAL_BASE|SDIO_REG_HRPWM1, val8);
-		DBG_871X("%s: write rpwm=%02x\n", __FUNCTION__, val8);
-		adapter_to_pwrctl(padapter)->tog = (val8 + 0x80) & 0x80;
-
-		//do polling cpwm
-		start_time = rtw_get_current_time();
-		do {
-
-			rtw_mdelay_os(1);
-
-			rtw_hal_get_hwreg(padapter, HW_VAR_CPWM, &cpwm_now);
-			if ((cpwm_orig ^ cpwm_now) & 0x80) {
-				break;
-			}
-
-			if (rtw_get_passing_time_ms(start_time) > 100)
-			{
-				DBG_871X("%s: polling cpwm timeout when leaving IPS in FWLPS state\n", __FUNCTION__);
-				break;
-			}
-		} while (1);
-
-		parm[0] = 0x0;
-		parm[1] = 0x0;
-		parm[2] = 0x0;
-		rtw_hal_fill_h2c_cmd(padapter, H2C_INACTIVE_PS_,
-					H2C_INACTIVE_PS_LEN, parm);
-	}
-}
-#endif //CONFIG_FWLPS_IN_IPS
 
 void rtw_set_ps_mode(PADAPTER padapter, u8 ps_mode, u8 smart_ps, u8 bcn_ant_mode, const char *msg)
 {
@@ -1139,33 +980,6 @@ _func_enter_;
 		rtw_lps_ctrl_wk_cmd(pri_padapter, LPS_CTRL_LEAVE, 0);
 #endif
 	}
-	else
-	{
-		if(pwrpriv->rf_pwrstate== rf_off)
-		{
-			#ifdef CONFIG_AUTOSUSPEND
-			if(Adapter->registrypriv.usbss_enable)
-			{
-				#if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,35))
-				usb_disable_autosuspend(adapter_to_dvobj(Adapter)->pusbdev);
-				#elif (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,22) && LINUX_VERSION_CODE<=KERNEL_VERSION(2,6,34))
-				adapter_to_dvobj(Adapter)->pusbdev->autosuspend_disabled = Adapter->bDisableAutosuspend;//autosuspend disabled by the user
-				#endif
-			}
-			else
-			#endif
-			{
-#if defined(CONFIG_FWLPS_IN_IPS) || defined(CONFIG_SWLPS_IN_IPS)
-				#ifdef CONFIG_IPS
-				if(_FALSE == ips_leave(pri_padapter))
-				{
-					DBG_871X("======> ips_leave fail.............\n");			
-				}
-				#endif
-#endif //CONFIG_SWLPS_IN_IPS
-			}
-		}
-	}
 
 _func_exit_;
 }
@@ -1220,33 +1034,6 @@ _func_enter_;
 #ifdef CONFIG_LPS_LCLK
 		LPS_Leave_check(Adapter);
 #endif	
-	}
-	else
-	{
-		if(adapter_to_pwrctl(Adapter)->rf_pwrstate== rf_off)
-		{
-			#ifdef CONFIG_AUTOSUSPEND
-			if(Adapter->registrypriv.usbss_enable)
-			{
-				#if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,35))
-				usb_disable_autosuspend(adapter_to_dvobj(Adapter)->pusbdev);
-				#elif (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,22) && LINUX_VERSION_CODE<=KERNEL_VERSION(2,6,34))
-				adapter_to_dvobj(Adapter)->pusbdev->autosuspend_disabled = Adapter->bDisableAutosuspend;//autosuspend disabled by the user
-				#endif
-			}
-			else
-			#endif
-			{
-#if defined(CONFIG_FWLPS_IN_IPS) || defined(CONFIG_SWLPS_IN_IPS)
-				#ifdef CONFIG_IPS
-				if(_FALSE == ips_leave(Adapter))
-				{
-					DBG_871X("======> ips_leave fail.............\n");			
-				}
-				#endif
-#endif //CONFIG_SWLPS_IN_IPS
-			}				
-		}	
 	}
 
 _func_exit_;
@@ -1912,12 +1699,6 @@ _func_enter_;
 	pwrctrlpriv->bInSuspend = _FALSE;
 	pwrctrlpriv->bkeepfwalive = _FALSE;
 
-#ifdef CONFIG_AUTOSUSPEND
-#ifdef SUPPORT_HW_RFOFF_DETECTED
-	pwrctrlpriv->pwr_state_check_interval = (pwrctrlpriv->bHWPwrPindetect) ?1000:2000;		
-#endif
-#endif
-
 	pwrctrlpriv->LpsIdleCount = 0;
 	//pwrctrlpriv->FWCtrlPSMode =padapter->registrypriv.power_mgnt;// PS_MODE_MIN;
 	if (padapter->registrypriv.mp_mode == 1)
@@ -1968,7 +1749,7 @@ _func_enter_;
 
 #ifdef CONFIG_GPIO_WAKEUP
 	/*default low active*/
-	pwrctrlpriv->is_high_active = HIGH_ACTIVE;
+	pwrctrlpriv->is_high_active = 0;
 	val8 = (pwrctrlpriv->is_high_active == 0) ? 1 : 0;
 	rtw_hal_switch_gpio_wl_ctrl(padapter, WAKEUP_GPIO_IDX, _TRUE);
 	rtw_hal_set_output_gpio(padapter, WAKEUP_GPIO_IDX, val8);

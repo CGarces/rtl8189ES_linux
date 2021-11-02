@@ -679,21 +679,11 @@ odm_RxPhyStatus92CSeries_Parsing(
 	//It is assigned to the BSS List in GetValueFromBeaconOrProbeRsp().
 	if(isCCKrate)
 	{		
-	#ifdef CONFIG_SIGNAL_SCALE_MAPPING
-		pPhyInfo->SignalStrength = (u1Byte)(odm_SignalScaleMapping(pDM_Odm, PWDB_ALL));/*PWDB_ALL;*/
-	#else
 		pPhyInfo->SignalStrength = (u1Byte)PWDB_ALL;
-	#endif
-	}
-	else
-	{	
+	} else {	
 		if (rf_rx_num != 0) {
-			#ifdef CONFIG_SIGNAL_SCALE_MAPPING
-			pPhyInfo->SignalStrength = (u1Byte)(odm_SignalScaleMapping(pDM_Odm, total_rssi /= rf_rx_num));
-			#else
 			total_rssi/=rf_rx_num;
 			pPhyInfo->SignalStrength = (u1Byte)total_rssi;
-			#endif
 		}
 	}
 #endif /*#if (DM_ODM_SUPPORT_TYPE &  (ODM_WIN|ODM_CE))*/

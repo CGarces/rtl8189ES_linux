@@ -31,40 +31,29 @@ EXTRA_LDFLAGS += --strip-debug
 CONFIG_AUTOCFG_CP = n
 
 ########################## WIFI IC ############################
-CONFIG_MULTIDRV = n
 CONFIG_RTL8188F = y
 ######################### Interface ###########################
 CONFIG_SDIO_HCI = y
 ########################## Features ###########################
 CONFIG_MP_INCLUDED = y
 CONFIG_POWER_SAVING = y
-CONFIG_USB_AUTOSUSPEND = n
-CONFIG_HW_PWRP_DETECTION = n
-CONFIG_WIFI_TEST = n
 CONFIG_INTEL_WIDI = n
 CONFIG_WAPI_SUPPORT = n
 CONFIG_EFUSE_CONFIG_FILE = y
-CONFIG_EXT_CLK = n
 CONFIG_TRAFFIC_PROTECT = y
 CONFIG_LOAD_PHY_PARA_FROM_FILE = y
 CONFIG_TXPWR_BY_RATE_EN = y
 CONFIG_TXPWR_LIMIT_EN = n
 CONFIG_RTW_ADAPTIVITY_EN = disable
 CONFIG_RTW_ADAPTIVITY_MODE = normal
-CONFIG_SIGNAL_SCALE_MAPPING = n
 CONFIG_80211W = n
-CONFIG_REDUCE_TX_CPU_LOADING = n
 CONFIG_BR_EXT = y
-CONFIG_WIFI_MONITOR = n
 ######################## Wake On Lan ##########################
 CONFIG_GPIO_WAKEUP = n
 CONFIG_WAKEUP_GPIO_IDX = default
-CONFIG_HIGH_ACTIVE = n
-CONFIG_PNO_SET_DEBUG = n
 ######### Notify SDIO Host Keep Power During Syspend ##########
 CONFIG_RTW_SDIO_PM_KEEP_POWER = y
-###################### MP HW TX MODE FOR VHT #######################
-CONFIG_MP_VHT_HW_TX_MODE = n
+
 ###################### Platform Related #######################
 CONFIG_PLATFORM_I386_PC = n
 CONFIG_PLATFORM_ANDROID_X86 = n
@@ -221,16 +210,11 @@ endif
 
 ifeq ($(CONFIG_AUTOCFG_CP), y)
 
-ifeq ($(CONFIG_MULTIDRV), y)
-$(shell cp $(TopDIR)/autoconf_multidrv_$(HCI_NAME)_linux.h $(TopDIR)/include/autoconf.h)
-else
 ifeq ($(CONFIG_RTL8188F)$(CONFIG_SDIO_HCI),yy)
 $(shell cp $(TopDIR)/autoconf_rtl8189f_$(HCI_NAME)_linux.h $(TopDIR)/include/autoconf.h)
 else
 $(shell cp $(TopDIR)/autoconf_$(RTL871X)_$(HCI_NAME)_linux.h $(TopDIR)/include/autoconf.h)
 endif
-endif
-
 endif
 
 ########### END OF PATH  #################################
@@ -243,14 +227,6 @@ endif
 
 ifeq ($(CONFIG_POWER_SAVING), y)
 EXTRA_CFLAGS += -DCONFIG_POWER_SAVING
-endif
-
-ifeq ($(CONFIG_HW_PWRP_DETECTION), y)
-EXTRA_CFLAGS += -DCONFIG_HW_PWRP_DETECTION
-endif
-
-ifeq ($(CONFIG_WIFI_TEST), y)
-EXTRA_CFLAGS += -DCONFIG_WIFI_TEST
 endif
 
 ifeq ($(CONFIG_INTEL_WIDI), y)
@@ -287,10 +263,6 @@ endif
 
 endif
 
-ifeq ($(CONFIG_EXT_CLK), y)
-EXTRA_CFLAGS += -DCONFIG_EXT_CLK
-endif
-
 ifeq ($(CONFIG_TRAFFIC_PROTECT), y)
 EXTRA_CFLAGS += -DCONFIG_TRAFFIC_PROTECT
 endif
@@ -318,14 +290,6 @@ else ifeq ($(CONFIG_TXPWR_LIMIT_EN), auto)
 EXTRA_CFLAGS += -DCONFIG_TXPWR_LIMIT_EN=2
 endif
 
-ifeq ($(CONFIG_CALIBRATE_TX_POWER_BY_REGULATORY), y)
-EXTRA_CFLAGS += -DCONFIG_CALIBRATE_TX_POWER_BY_REGULATORY
-endif
-
-ifeq ($(CONFIG_CALIBRATE_TX_POWER_TO_MAX), y)
-EXTRA_CFLAGS += -DCONFIG_CALIBRATE_TX_POWER_TO_MAX
-endif
-
 ifeq ($(CONFIG_RTW_ADAPTIVITY_EN), disable)
 EXTRA_CFLAGS += -DCONFIG_RTW_ADAPTIVITY_EN=0
 else ifeq ($(CONFIG_RTW_ADAPTIVITY_EN), enable)
@@ -338,21 +302,12 @@ else ifeq ($(CONFIG_RTW_ADAPTIVITY_MODE), carrier_sense)
 EXTRA_CFLAGS += -DCONFIG_RTW_ADAPTIVITY_MODE=1
 endif
 
-ifeq ($(CONFIG_SIGNAL_SCALE_MAPPING), y)
-EXTRA_CFLAGS += -DCONFIG_SIGNAL_SCALE_MAPPING
-endif
-
 ifeq ($(CONFIG_80211W), y)
 EXTRA_CFLAGS += -DCONFIG_IEEE80211W
 endif
 
 ifeq ($(CONFIG_GPIO_WAKEUP), y)
 EXTRA_CFLAGS += -DCONFIG_GPIO_WAKEUP
-ifeq ($(CONFIG_HIGH_ACTIVE), y)
-EXTRA_CFLAGS += -DHIGH_ACTIVE=1
-else
-EXTRA_CFLAGS += -DHIGH_ACTIVE=0
-endif
 endif
 
 ifneq ($(CONFIG_WAKEUP_GPIO_IDX), default)
@@ -365,29 +320,10 @@ EXTRA_CFLAGS += -DCONFIG_RTW_SDIO_PM_KEEP_POWER
 endif
 endif
 
-ifeq ($(CONFIG_REDUCE_TX_CPU_LOADING), y)
-EXTRA_CFLAGS += -DCONFIG_REDUCE_TX_CPU_LOADING
-endif
-
 ifeq ($(CONFIG_BR_EXT), y)
 BR_NAME = br0
 EXTRA_CFLAGS += -DCONFIG_BR_EXT
 EXTRA_CFLAGS += '-DCONFIG_BR_EXT_BRNAME="'$(BR_NAME)'"'
-endif
-
-ifeq ($(CONFIG_WIFI_MONITOR), y)
-EXTRA_CFLAGS += -DCONFIG_WIFI_MONITOR
-endif
-
-ifeq ($(CONFIG_MP_VHT_HW_TX_MODE), y)
-EXTRA_CFLAGS += -DCONFIG_MP_VHT_HW_TX_MODE
-ifeq ($(CONFIG_PLATFORM_I386_PC), y)
-## For I386 X86 ToolChain use Hardware FLOATING
-EXTRA_CFLAGS += -mhard-float
-else
-## For ARM ToolChain use Hardware FLOATING
-EXTRA_CFLAGS += -mfloat-abi=hard
-endif
 endif
 
 EXTRA_CFLAGS += -DDM_ODM_SUPPORT_TYPE=0x04
@@ -853,13 +789,6 @@ KSRC := /home/android_sdk/Telechips/v13.05_r1-tcc-android-4.2.2_tcc893x-evm_buil
 MODULE_NAME := wlan
 endif 
 
-ifeq ($(CONFIG_MULTIDRV), y)
-
-ifeq ($(CONFIG_SDIO_HCI), y)
-MODULE_NAME := rtw_sdio
-endif
-
-endif
 
 USER_MODULE_NAME ?=
 ifneq ($(USER_MODULE_NAME),)
