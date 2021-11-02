@@ -844,12 +844,6 @@ struct _ADAPTER{
 	struct wifidirect_info	wdinfo;
 #endif //CONFIG_P2P
 
-#ifdef CONFIG_WAPI_SUPPORT
-	u8	WapiSupport;
-	RT_WAPI_T	wapiInfo;
-#endif
-
-
 #ifdef CONFIG_WFD
 	struct wifi_display_info wfd_info;
 #endif //CONFIG_WFD

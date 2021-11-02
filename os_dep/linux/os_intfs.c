@@ -1652,11 +1652,6 @@ _func_enter_;
 	rtw_hal_sreset_init(padapter);
 #endif
 
-#ifdef CONFIG_WAPI_SUPPORT
-	padapter->WapiSupport = true; //set true temp, will revise according to Efuse or Registry value later.
-	rtw_wapi_init(padapter);
-#endif
-
 #ifdef CONFIG_BR_EXT
 	_rtw_spinlock_init(&padapter->br_ext_lock);
 #endif	// CONFIG_BR_EXT
@@ -1720,10 +1715,6 @@ void rtw_cancel_all_timer(_adapter *padapter)
 u8 rtw_free_drv_sw(_adapter *padapter)
 {
 	RT_TRACE(_module_os_intfs_c_,_drv_info_,("==>rtw_free_drv_sw"));
-
-#ifdef CONFIG_WAPI_SUPPORT
-	rtw_wapi_free(padapter);
-#endif
 
 	//we can call rtw_p2p_enable here, but:
 	// 1. rtw_p2p_enable may have IO operation
@@ -2818,10 +2809,6 @@ static int netdev_close(struct net_device *pnetdev)
 	adapter_wdev_data(padapter)->bandroid_scan = _FALSE;
 	//padapter->rtw_wdev->iftype = NL80211_IFTYPE_MONITOR; //set this at the end
 #endif //CONFIG_IOCTL_CFG80211
-
-#ifdef CONFIG_WAPI_SUPPORT
-	rtw_wapi_disable_tx(padapter);
-#endif
 
 	RT_TRACE(_module_os_intfs_c_,_drv_info_,("-871x_drv - drv_close\n"));
 	DBG_871X("-871x_drv - drv_close, bup=%d\n", padapter->bup);

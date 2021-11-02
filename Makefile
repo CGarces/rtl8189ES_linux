@@ -37,7 +37,6 @@ CONFIG_SDIO_HCI = y
 ########################## Features ###########################
 CONFIG_MP_INCLUDED = y
 CONFIG_POWER_SAVING = y
-CONFIG_WAPI_SUPPORT = n
 CONFIG_EFUSE_CONFIG_FILE = y
 CONFIG_TRAFFIC_PROTECT = y
 CONFIG_LOAD_PHY_PARA_FROM_FILE = y
@@ -223,11 +222,6 @@ endif
 ifeq ($(CONFIG_POWER_SAVING), y)
 EXTRA_CFLAGS += -DCONFIG_POWER_SAVING
 endif
-
-ifeq ($(CONFIG_WAPI_SUPPORT), y)
-EXTRA_CFLAGS += -DCONFIG_WAPI_SUPPORT
-endif
-
 
 ifeq ($(CONFIG_EFUSE_CONFIG_FILE), y)
 EXTRA_CFLAGS += -DCONFIG_EFUSE_CONFIG_FILE
@@ -798,9 +792,6 @@ rtk_core :=	core/rtw_cmd.o \
 		core/efuse/rtw_efuse.o 
 
 $(MODULE_NAME)-y += $(rtk_core)
-
-$(MODULE_NAME)-$(CONFIG_WAPI_SUPPORT) += core/rtw_wapi.o	\
-					core/rtw_wapi_sms4.o
 
 $(MODULE_NAME)-y += $(_OS_INTFS_FILES)
 $(MODULE_NAME)-y += $(_HAL_INTFS_FILES)

@@ -721,54 +721,6 @@ static inline char * iwe_stream_wps_process(_adapter *padapter,
 	return start;
 }
 
-static inline char * iwe_stream_wapi_process(_adapter *padapter,
-				struct iw_request_info* info, struct wlan_network *pnetwork,
-				char *start, char *stop,struct iw_event *iwe)
-{
-#ifdef CONFIG_WAPI_SUPPORT
-	char *p;
-		
-	if (pnetwork->network.Reserved[0] != 2) // Probe Request
-	{		
-		sint out_len_wapi=0;
-		/* here use static for stack size */
-		static u8 buf_wapi[MAX_WAPI_IE_LEN*2]={0};
-		static u8 wapi_ie[MAX_WAPI_IE_LEN]={0};
-		u16 wapi_len=0;
-		u16  i;
-
-		out_len_wapi=rtw_get_wapi_ie(pnetwork->network.IEs ,pnetwork->network.IELength,wapi_ie,&wapi_len);
-		RT_TRACE(_module_rtl871x_mlme_c_,_drv_info_,("rtw_wx_get_scan: ssid=%s\n",pnetwork->network.Ssid.Ssid));
-		RT_TRACE(_module_rtl871x_mlme_c_,_drv_info_,("rtw_wx_get_scan: wapi_len=%d \n",wapi_len));
-
-		DBG_871X("rtw_wx_get_scan: %s ",pnetwork->network.Ssid.Ssid);
-		DBG_871X("rtw_wx_get_scan: ssid = %d ",wapi_len);
-
-
-		if (wapi_len > 0)
-		{
-			p=buf_wapi;
-			//_rtw_memset(buf_wapi, 0, MAX_WAPI_IE_LEN*2);
-			p += sprintf(p, "wapi_ie=");
-			for (i = 0; i < wapi_len; i++) {
-				p += sprintf(p, "%02x", wapi_ie[i]);
-			}
-
-			_rtw_memset(iwe, 0, sizeof(*iwe));
-			iwe->cmd = IWEVCUSTOM;
-			iwe->u.data.length = strlen(buf_wapi);
-			start = iwe_stream_add_point(info, start, stop, iwe,buf_wapi);
-
-			_rtw_memset(iwe, 0, sizeof(*iwe));
-			iwe->cmd =IWEVGENIE;
-			iwe->u.data.length = wapi_len;
-			start = iwe_stream_add_point(info, start, stop, iwe, wapi_ie);
-		}
-	}
-#endif//#ifdef CONFIG_WAPI_SUPPORT
-	return start;
-}
-
 static inline char *  iwe_stream_rssi_process(_adapter *padapter,
 				struct iw_request_info* info, struct wlan_network *pnetwork,
 				char *start, char *stop,struct iw_event *iwe)
@@ -849,7 +801,6 @@ static char *translate_scan(_adapter *padapter,
 	start = iwe_stream_rate_process(padapter,info,pnetwork,start,stop,&iwe);	
 	start = iwe_stream_wpa_wpa2_process(padapter,info,pnetwork,start,stop,&iwe);
 	start = iwe_stream_wps_process(padapter,info,pnetwork,start,stop,&iwe);
-	start = iwe_stream_wapi_process(padapter,info,pnetwork,start,stop,&iwe);
 	start = iwe_stream_rssi_process(padapter,info,pnetwork,start,stop,&iwe);
 	start = iwe_stream_net_rsv_process(padapter,info,pnetwork,start,stop,&iwe);	
 	
@@ -943,13 +894,8 @@ _func_enter_;
 			goto exit;
 		}
 	} else {
-#ifdef CONFIG_WAPI_SUPPORT
-		if (strcmp(param->u.crypt.alg, "SMS4"))
-#endif
-		{
-			ret = -EINVAL;
-			goto exit;
-		}
+		ret = -EINVAL;
+		goto exit;
 	}
 
 	if (strcmp(param->u.crypt.alg, "WEP") == 0)
@@ -1086,76 +1032,7 @@ _func_enter_;
 				}					
 			}				
 		}
-		else if(check_fwstate(pmlmepriv, WIFI_ADHOC_STATE)) //adhoc mode
-		{		
-		}			
 	}
-
-#ifdef CONFIG_WAPI_SUPPORT
-	if (strcmp(param->u.crypt.alg, "SMS4") == 0)
-	{
-		PRT_WAPI_T			pWapiInfo = &padapter->wapiInfo;
-		PRT_WAPI_STA_INFO	pWapiSta;
-		u8					WapiASUEPNInitialValueSrc[16] = {0x36,0x5C,0x36,0x5C,0x36,0x5C,0x36,0x5C,0x36,0x5C,0x36,0x5C,0x36,0x5C,0x36,0x5C} ;
-		u8					WapiAEPNInitialValueSrc[16] = {0x37,0x5C,0x36,0x5C,0x36,0x5C,0x36,0x5C,0x36,0x5C,0x36,0x5C,0x36,0x5C,0x36,0x5C} ;
-		u8 					WapiAEMultiCastPNInitialValueSrc[16] = {0x36,0x5C,0x36,0x5C,0x36,0x5C,0x36,0x5C,0x36,0x5C,0x36,0x5C,0x36,0x5C,0x36,0x5C} ;
-
-		if(param->u.crypt.set_tx == 1)
-		{
-			list_for_each_entry(pWapiSta, &pWapiInfo->wapiSTAUsedList, list) {
-				if(_rtw_memcmp(pWapiSta->PeerMacAddr,param->sta_addr,6))
-				{
-					_rtw_memcpy(pWapiSta->lastTxUnicastPN,WapiASUEPNInitialValueSrc,16);
-
-					pWapiSta->wapiUsk.bSet = true;
-					_rtw_memcpy(pWapiSta->wapiUsk.dataKey,param->u.crypt.key,16);
-					_rtw_memcpy(pWapiSta->wapiUsk.micKey,param->u.crypt.key+16,16);
-					pWapiSta->wapiUsk.keyId = param->u.crypt.idx ;
-					pWapiSta->wapiUsk.bTxEnable = true;
-
-					_rtw_memcpy(pWapiSta->lastRxUnicastPNBEQueue,WapiAEPNInitialValueSrc,16);
-					_rtw_memcpy(pWapiSta->lastRxUnicastPNBKQueue,WapiAEPNInitialValueSrc,16);
-					_rtw_memcpy(pWapiSta->lastRxUnicastPNVIQueue,WapiAEPNInitialValueSrc,16);
-					_rtw_memcpy(pWapiSta->lastRxUnicastPNVOQueue,WapiAEPNInitialValueSrc,16);
-					_rtw_memcpy(pWapiSta->lastRxUnicastPN,WapiAEPNInitialValueSrc,16);
-					pWapiSta->wapiUskUpdate.bTxEnable = false;
-					pWapiSta->wapiUskUpdate.bSet = false;
-
-					if (psecuritypriv->sw_encrypt== false || psecuritypriv->sw_decrypt == false)
-					{
-						//set unicast key for ASUE
-						rtw_wapi_set_key(padapter, &pWapiSta->wapiUsk, pWapiSta, false, false);
-					}
-				}
-			}
-		}
-		else
-		{
-			list_for_each_entry(pWapiSta, &pWapiInfo->wapiSTAUsedList, list) {
-				if(_rtw_memcmp(pWapiSta->PeerMacAddr,get_bssid(pmlmepriv),6))
-				{
-					pWapiSta->wapiMsk.bSet = true;
-					_rtw_memcpy(pWapiSta->wapiMsk.dataKey,param->u.crypt.key,16);
-					_rtw_memcpy(pWapiSta->wapiMsk.micKey,param->u.crypt.key+16,16);
-					pWapiSta->wapiMsk.keyId = param->u.crypt.idx ;
-					pWapiSta->wapiMsk.bTxEnable = false;
-					if(!pWapiSta->bSetkeyOk)
-						pWapiSta->bSetkeyOk = true;
-					pWapiSta->bAuthenticateInProgress = false;
-
-					_rtw_memcpy(pWapiSta->lastRxMulticastPN, WapiAEMultiCastPNInitialValueSrc, 16);
-
-					if (psecuritypriv->sw_decrypt == false)
-					{
-						//set rx broadcast key for ASUE
-						rtw_wapi_set_key(padapter, &pWapiSta->wapiMsk, pWapiSta, true, false);
-					}
-				}
-
-			}
-		}
-	}
-#endif
 
 exit:
 	
@@ -3144,21 +3021,6 @@ static int rtw_wx_set_auth(struct net_device *dev,
 	switch (param->flags & IW_AUTH_INDEX) {
 
 	case IW_AUTH_WPA_VERSION:
-#ifdef CONFIG_WAPI_SUPPORT
-#ifndef CONFIG_IOCTL_CFG80211
-		 padapter->wapiInfo.bWapiEnable = false;
-		 if(value == IW_AUTH_WAPI_VERSION_1)
-		 {
-			padapter->wapiInfo.bWapiEnable = true;
-			psecuritypriv->dot11PrivacyAlgrthm = _SMS4_;
-			psecuritypriv->dot118021XGrpPrivacy = _SMS4_;
-			psecuritypriv->dot11AuthAlgrthm = dot11AuthAlgrthm_WAPI;
-			pmlmeinfo->auth_algo = psecuritypriv->dot11AuthAlgrthm;
-			padapter->wapiInfo.extra_prefix_len = WAPI_EXT_LEN;
-			padapter->wapiInfo.extra_postfix_len = SMS4_MIC_LEN;
-		}
-#endif
-#endif
 		break;
 	case IW_AUTH_CIPHER_PAIRWISE:
 		
@@ -3167,16 +3029,6 @@ static int rtw_wx_set_auth(struct net_device *dev,
 		
 		break;
 	case IW_AUTH_KEY_MGMT:
-#ifdef CONFIG_WAPI_SUPPORT
-#ifndef CONFIG_IOCTL_CFG80211
-		DBG_871X("rtw_wx_set_auth: IW_AUTH_KEY_MGMT case \n");
-		if(value == IW_AUTH_KEY_MGMT_WAPI_PSK)
-			padapter->wapiInfo.bWapiPSK = true;
-		else
-			padapter->wapiInfo.bWapiPSK = false;
-		DBG_871X("rtw_wx_set_auth: IW_AUTH_KEY_MGMT bwapipsk %d \n",padapter->wapiInfo.bWapiPSK);
-#endif
-#endif
 		/*
 		 *  ??? does not use these parameters
 		 */
@@ -3260,14 +3112,6 @@ static int rtw_wx_set_auth(struct net_device *dev,
 	case IW_AUTH_PRIVACY_INVOKED:
 		//ieee->privacy_invoked = param->value;
 		break;
-
-#ifdef CONFIG_WAPI_SUPPORT
-#ifndef CONFIG_IOCTL_CFG80211
-	case IW_AUTH_WAPI_ENABLED:
-		break;
-#endif
-#endif
-
 	default:
 		return -EOPNOTSUPP;
 		
@@ -3314,15 +3158,6 @@ static int rtw_wx_set_enc_ext(struct net_device *dev,
 	case IW_ENCODE_ALG_CCMP:
 		alg_name = "CCMP";
 		break;
-#ifdef CONFIG_WAPI_SUPPORT
-#ifndef CONFIG_IOCTL_CFG80211
-	case IW_ENCODE_ALG_SM4:
-		alg_name= "SMS4";
-		_rtw_memcpy(param->sta_addr, pext->addr.sa_data, ETH_ALEN);
-		DBG_871X("rtw_wx_set_enc_ext: SMS4 case \n");
-		break;
-#endif
-#endif
 	default:
 		ret = -1;
 		goto exit;
@@ -3345,15 +3180,7 @@ static int rtw_wx_set_enc_ext(struct net_device *dev,
 
 	param->u.crypt.idx = (pencoding->flags&0x00FF) -1 ;
 
-	if (pext->ext_flags & IW_ENCODE_EXT_RX_SEQ_VALID)
-	{
-#ifdef CONFIG_WAPI_SUPPORT
-#ifndef CONFIG_IOCTL_CFG80211
-		if(pext->alg == IW_ENCODE_ALG_SM4)
-			_rtw_memcpy(param->u.crypt.seq, pext->rx_seq, 16);
-		else
-#endif //CONFIG_IOCTL_CFG80211
-#endif //CONFIG_WAPI_SUPPORT
+	if (pext->ext_flags & IW_ENCODE_EXT_RX_SEQ_VALID) {
 		_rtw_memcpy(param->u.crypt.seq, pext->rx_seq, 8);
 	}
 
