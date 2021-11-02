@@ -133,19 +133,6 @@
 	#define CONFIG_TXPWR_BY_RATE_EN 1
 	#define CONFIG_TXPWR_LIMIT_EN 0
 #endif
-
-#ifndef RTW_DEF_MODULE_REGULATORY_CERT
-	#define RTW_DEF_MODULE_REGULATORY_CERT 0
-#endif
-
-#if RTW_DEF_MODULE_REGULATORY_CERT
-	/* force enable TX power by rate and TX power limit */
-	#undef CONFIG_TXPWR_BY_RATE_EN
-	#undef CONFIG_TXPWR_LIMIT_EN
-	#define CONFIG_TXPWR_BY_RATE_EN 1
-	#define CONFIG_TXPWR_LIMIT_EN 1
-#endif
-
 #ifndef CONFIG_RTW_TARGET_TX_PWR_2G_A
 	#define CONFIG_RTW_TARGET_TX_PWR_2G_A {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
 #endif
