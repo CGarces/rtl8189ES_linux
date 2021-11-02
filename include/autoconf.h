@@ -182,12 +182,6 @@
 
 #define BT_30_SUPPORT 0
 
-#ifdef CONFIG_GPIO_WAKEUP
-	#ifndef WAKEUP_GPIO_IDX
-		#define WAKEUP_GPIO_IDX	0
-	#endif
-#endif
-
 /*
  * Debug Related Config
  */

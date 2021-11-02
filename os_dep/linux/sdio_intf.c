@@ -138,62 +138,6 @@ void sdio_free_irq(struct dvobj_priv *dvobj)
     }
 }
 
-#ifdef CONFIG_GPIO_WAKEUP
-extern unsigned int oob_irq;
-extern unsigned int oob_gpio;
-static irqreturn_t gpio_hostwakeup_irq_thread(int irq, void *data)
-{
-	PADAPTER padapter = (PADAPTER)data;
-	DBG_871X_LEVEL(_drv_always_, "gpio_hostwakeup_irq_thread\n");
-	/* Disable interrupt before calling handler */
-	//disable_irq_nosync(oob_irq);
-	rtw_lock_suspend_timeout(HZ/2);
-
-	return IRQ_HANDLED;
-}
-
-static u8 gpio_hostwakeup_alloc_irq(PADAPTER padapter)
-{
-	int err;
-	u32 status = 0;
-
-	if (oob_irq == 0) {
-		DBG_871X("oob_irq ZERO!\n");
-		return _FAIL;
-	}
-
-	DBG_871X("%s : oob_irq = %d\n", __func__, oob_irq);
-
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 32))
-	status = IRQF_NO_SUSPEND;
-#endif
-
-	status |= IRQF_TRIGGER_FALLING;
-
-	err = request_threaded_irq(oob_irq, gpio_hostwakeup_irq_thread, NULL,
-		status, "rtw_wifi_gpio_wakeup", padapter);
-
-	if (err < 0) {
-		DBG_871X("Oops: can't allocate gpio irq %d err:%d\n", oob_irq, err);
-		return _FALSE;
-	} else {
-		DBG_871X("allocate gpio irq %d ok\n", oob_irq);
-	}
-	enable_irq_wake(oob_irq);
-	return _SUCCESS;
-}
-
-static void gpio_hostwakeup_free_irq(PADAPTER padapter)
-{
-	wifi_free_gpio(oob_gpio);
-
-	if (oob_irq == 0)
-		return;
-		
-	disable_irq_wake(oob_irq);
-}
-#endif
-
 static u32 sdio_init(struct dvobj_priv *dvobj)
 {
 	PSDIO_DATA psdio_data;
@@ -498,10 +442,6 @@ static void rtw_sdio_if1_deinit(_adapter *if1)
 	#endif
 #endif
 
-#ifdef CONFIG_GPIO_WAKEUP
-	gpio_hostwakeup_free_irq(if1);
-#endif
-
 	rtw_cancel_all_timer(if1);
 
 	rtw_dev_unload(if1);
@@ -574,10 +514,6 @@ static int rtw_drv_init(
 
 	if (sdio_alloc_irq(dvobj) != _SUCCESS)
 		goto os_ndevs_deinit;
-
-#ifdef	CONFIG_GPIO_WAKEUP
-	gpio_hostwakeup_alloc_irq(if1);
-#endif
 
 #ifdef CONFIG_GLOBAL_UI_PID
 	if(ui_pid[1]!=0) {

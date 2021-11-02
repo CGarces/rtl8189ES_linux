@@ -470,11 +470,6 @@ int rtw_hal_register_gpio_interrupt(_adapter* adapter, int gpio_num, void(*callb
 int rtw_hal_disable_gpio_interrupt(_adapter* adapter, int gpio_num);
 #endif
 
-#ifdef CONFIG_GPIO_WAKEUP
-void rtw_hal_switch_gpio_wl_ctrl(_adapter *padapter, u8 index, u8 enable);
-void rtw_hal_set_output_gpio(_adapter *padapter, u8 index, u8 outputval);
-#endif
-
 typedef enum _HAL_PHYDM_OPS {
 	HAL_PHYDM_DIS_ALL_FUNC,
 	HAL_PHYDM_FUNC_SET,
