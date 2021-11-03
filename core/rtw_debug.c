@@ -82,9 +82,6 @@ void dump_drv_cfg(void *sel)
 	#ifdef RTW_USE_CFG80211_STA_EVENT
 	DBG_871X_SEL_NL(sel, "RTW_USE_CFG80211_STA_EVENT\n");
 	#endif
-	#ifdef CONFIG_RADIO_WORK
-	DBG_871X_SEL_NL(sel, "CONFIG_RADIO_WORK\n");
-	#endif
 #else
 	DBG_871X_SEL_NL(sel, "WEXT\n");
 #endif
@@ -115,10 +112,6 @@ void dump_drv_cfg(void *sel)
 
 #ifdef CONFIG_DISABLE_ODM
 	DBG_871X_SEL_NL(sel, "CONFIG_DISABLE_ODM\n");
-#endif
-
-#ifdef CONFIG_MINIMAL_MEMORY_USAGE
-	DBG_871X_SEL_NL(sel, "CONFIG_MINIMAL_MEMORY_USAGE\n");
 #endif
 
 	DBG_871X_SEL_NL(sel, "CONFIG_RTW_ADAPTIVITY_EN = %d\n", CONFIG_RTW_ADAPTIVITY_EN);
@@ -2480,28 +2473,6 @@ int proc_get_all_sta_info(struct seq_file *m, void *v)
 }
 
 #endif		
-
-#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
-int proc_get_rtkm_info(struct seq_file *m, void *v)
-{
-	struct net_device *dev = m->private;
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	struct recv_priv	*precvpriv = &padapter->recvpriv;
-	struct recv_buf *precvbuf;
-	
-	precvbuf = (struct recv_buf *)precvpriv->precv_buf;
-
-	DBG_871X_SEL_NL(m, "============[RTKM Info]============\n");
-	DBG_871X_SEL_NL(m, "MAX_RTKM_NR_PREALLOC_RECV_SKB: %d\n", rtw_rtkm_get_nr_recv_skb());
-	DBG_871X_SEL_NL(m, "MAX_RTKM_RECVBUF_SZ: %d\n", rtw_rtkm_get_buff_size());
-
-	DBG_871X_SEL_NL(m, "============[Driver Info]============\n");
-	DBG_871X_SEL_NL(m, "NR_PREALLOC_RECV_SKB: %d\n", NR_PREALLOC_RECV_SKB);
-	DBG_871X_SEL_NL(m, "MAX_RECVBUF_SZ: %d\n", precvbuf->alloc_sz);
-
-	return 0;
-}
-#endif /* CONFIG_PREALLOC_RX_SKB_BUFFER */
 
 #ifdef DBG_MEMORY_LEAK
 #include <asm/atomic.h>

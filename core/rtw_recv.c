@@ -157,10 +157,6 @@ void rtw_mfree_recv_priv_lock(struct recv_priv *precvpriv)
 	_rtw_spinlock_free(&precvpriv->recv_pending_queue.lock);
 
 	_rtw_spinlock_free(&precvpriv->free_recv_buf_queue.lock);
-
-#ifdef CONFIG_USE_USB_BUFFER_ALLOC_RX
-	_rtw_spinlock_free(&precvpriv->recv_buf_pending_queue.lock);
-#endif	// CONFIG_USE_USB_BUFFER_ALLOC_RX
 }
 
 void _rtw_free_recv_priv (struct recv_priv *precvpriv)
@@ -1828,21 +1824,6 @@ _func_enter_;
 			pmlmeext->channel_set[ch_set_idx].rx_count++;
 	}
 #endif
-
-#ifdef RTK_DMP_PLATFORM
-	if ( 0 )
-	{
-		DBG_871X("++\n");
-		{
-			int i;
-			for(i=0; i<64;i=i+8)
-				DBG_871X("%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:", *(ptr+i),
-				*(ptr+i+1), *(ptr+i+2) ,*(ptr+i+3) ,*(ptr+i+4),*(ptr+i+5), *(ptr+i+6), *(ptr+i+7));
-
-		}
-		DBG_871X("--\n");
-	}
-#endif //RTK_DMP_PLATFORM
 
 	//add version chk
 	if(ver!=0){

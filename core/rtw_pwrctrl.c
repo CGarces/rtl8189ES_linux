@@ -1663,10 +1663,6 @@ _func_exit_;
 }
 #endif	/* CONFIG_LPS_LCLK */
 
-#ifdef CONFIG_RESUME_IN_WORKQUEUE
-static void resume_workitem_callback(struct work_struct *work);
-#endif //CONFIG_RESUME_IN_WORKQUEUE
-
 void rtw_init_pwrctrl_priv(PADAPTER padapter)
 {
 	struct pwrctrl_priv *pwrctrlpriv = adapter_to_pwrctl(padapter);
@@ -1737,11 +1733,6 @@ _func_enter_;
 	pwrctrlpriv->wowlan_ap_mode = _FALSE;
 	pwrctrlpriv->wowlan_p2p_mode = _FALSE;
 
-	#ifdef CONFIG_RESUME_IN_WORKQUEUE
-	_init_workitem(&pwrctrlpriv->resume_work, resume_workitem_callback, NULL);
-	pwrctrlpriv->rtw_workqueue = create_singlethread_workqueue("rtw_workqueue");
-	#endif //CONFIG_RESUME_IN_WORKQUEUE
-
 	#if defined(CONFIG_HAS_EARLYSUSPEND)
 	pwrctrlpriv->early_suspend.suspend = NULL;
 	rtw_register_early_suspend(pwrctrlpriv);
@@ -1765,14 +1756,6 @@ _func_enter_;
 
 	//_rtw_memset((unsigned char *)pwrctrlpriv, 0, sizeof(struct pwrctrl_priv));
 
-
-	#ifdef CONFIG_RESUME_IN_WORKQUEUE
-	if (pwrctrlpriv->rtw_workqueue) { 
-		flush_workqueue(pwrctrlpriv->rtw_workqueue);
-		destroy_workqueue(pwrctrlpriv->rtw_workqueue);
-	}
-	#endif
-
 	#if defined(CONFIG_HAS_EARLYSUSPEND)
 	rtw_unregister_early_suspend(pwrctrlpriv);
 	#endif //CONFIG_HAS_EARLYSUSPEND
@@ -1782,33 +1765,6 @@ _func_enter_;
 
 _func_exit_;
 }
-
-#ifdef CONFIG_RESUME_IN_WORKQUEUE
-extern int rtw_resume_process(_adapter *padapter);
-
-static void resume_workitem_callback(struct work_struct *work)
-{
-	struct pwrctrl_priv *pwrpriv = container_of(work, struct pwrctrl_priv, resume_work);
-	struct dvobj_priv *dvobj = pwrctl_to_dvobj(pwrpriv);
-	_adapter *adapter = dvobj->padapters[IFACE_ID0];
-
-	DBG_871X("%s\n",__FUNCTION__);
-
-	rtw_resume_process(adapter);
-
-	rtw_resume_unlock_suspend();
-}
-
-void rtw_resume_in_workqueue(struct pwrctrl_priv *pwrpriv)
-{
-	// accquire system's suspend lock preventing from falliing asleep while resume in workqueue
-	//rtw_lock_suspend();
-
-	rtw_resume_lock_suspend();
-	
-	queue_work(pwrpriv->rtw_workqueue, &pwrpriv->resume_work);	
-}
-#endif //CONFIG_RESUME_IN_WORKQUEUE
 
 #if defined(CONFIG_HAS_EARLYSUSPEND)
 inline bool rtw_is_earlysuspend_registered(struct pwrctrl_priv *pwrpriv)

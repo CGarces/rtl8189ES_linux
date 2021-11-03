@@ -20,16 +20,9 @@
 #ifndef _RTW_RECV_H_
 #define _RTW_RECV_H_
 
-#ifdef CONFIG_SINGLE_RECV_BUF
-	#define NR_RECVBUFF (1)
-#else
-	#define NR_RECVBUFF (8)
-#endif //CONFIG_SINGLE_RECV_BUF
-#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
-	#define NR_PREALLOC_RECV_SKB (rtw_rtkm_get_nr_recv_skb()>>1)
-#else /*!CONFIG_PREALLOC_RX_SKB_BUFFER */
-	#define NR_PREALLOC_RECV_SKB 8
-#endif /* CONFIG_PREALLOC_RX_SKB_BUFFER */
+#define NR_RECVBUFF (8)
+
+#define NR_PREALLOC_RECV_SKB 8
 
 #define NR_RECVFRAME 256
 

@@ -1385,10 +1385,6 @@ _func_enter_;
 	rtw_os_xmit_schedule(adapter->pbuddy_adapter);
 #endif
 
-#ifdef CONFIG_DRVEXT_MODULE_WSC
-	drvext_surveydone_callback(&adapter->drvextpriv);
-#endif
-
 #ifdef DBG_CONFIG_ERROR_DETECT
 	{
 		struct mlme_ext_priv *pmlmeext = &adapter->mlmeextpriv;		
@@ -1581,25 +1577,12 @@ _func_enter_;
  
 	pmlmepriv->to_join = _FALSE;
 
-	if(!check_fwstate(&padapter->mlmepriv, _FW_LINKED)) 
-	{
-
+	if(!check_fwstate(&padapter->mlmepriv, _FW_LINKED)) {
 		set_fwstate(pmlmepriv, _FW_LINKED);
 
 		rtw_led_control(padapter, LED_CTL_LINK);
 
-	
-#ifdef CONFIG_DRVEXT_MODULE
-		if(padapter->drvextpriv.enable_wpa)
-		{
-			indicate_l2_connect(padapter);
-		}
-		else
-#endif
-		{
-			rtw_os_indicate_connect(padapter);
-		}
-
+		rtw_os_indicate_connect(padapter);
 	}
 
 	rtw_set_to_roam(padapter, 0);
@@ -1731,11 +1714,6 @@ static u32 _rtw_wait_scan_done(_adapter *adapter, u8 abort, u32 timeout_ms)
 		if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY)) {
 			if (!RTW_CANNOT_RUN(adapter))
 				DBG_871X(FUNC_NDEV_FMT"waiting for scan_abort time out!\n", FUNC_NDEV_ARG(adapter->pnetdev));
-			#ifdef CONFIG_PLATFORM_MSTAR
-			/*_clr_fwstate_(pmlmepriv, _FW_UNDER_SURVEY);*/
-			set_survey_timer(pmlmeext, 0);
-			mlme_set_scan_to_timer(pmlmepriv, 50);
-			#endif
 			rtw_indicate_scan_done(adapter, _TRUE);
 		}
 	}
@@ -2665,13 +2643,7 @@ _func_enter_;
  	}
 
 	_exit_critical_bh(&pmlmepriv->lock, &irqL);
-	
 
-#ifdef CONFIG_DRVEXT_MODULE_WSC	
-	drvext_assoc_fail_indicate(&adapter->drvextpriv);	
-#endif	
-
-	
 _func_exit_;
 
 }
@@ -3555,10 +3527,6 @@ _func_enter_;
 		}*/
 		ielength+=psecuritypriv->supplicant_ie[1]+2;
 		rtw_report_sec_ie(adapter, authmode, psecuritypriv->supplicant_ie);
-	
-#ifdef CONFIG_DRVEXT_MODULE
-		drvext_report_sec_ie(&adapter->drvextpriv, authmode, sec_ie);	
-#endif
 	}
 
 	iEntry = SecIsInPMKIDList(adapter, pmlmepriv->assoc_bssid);

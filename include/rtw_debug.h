@@ -501,11 +501,6 @@ int proc_get_ps_info(struct seq_file *m, void *v);
 int proc_get_monitor(struct seq_file *m, void *v);
 ssize_t proc_set_monitor(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
 
-
-#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
-int proc_get_rtkm_info(struct seq_file *m, void *v);
-#endif /* CONFIG_PREALLOC_RX_SKB_BUFFER */
-
 #endif /* CONFIG_PROC_DEBUG */
 
 int proc_get_efuse_map(struct seq_file *m, void *v);

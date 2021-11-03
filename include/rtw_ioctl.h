@@ -167,10 +167,6 @@ static NDIS_STATUS oid_null_function(struct oid_par_priv* poid_par_priv)
 }
 #endif
 
-#if defined(PLATFORM_LINUX) && defined(CONFIG_WIRELESS_EXT)
-extern struct iw_handler_def  rtw_handlers_def;
-#endif
-
 extern void rtw_request_wps_pbc_event(_adapter *padapter);
 
 extern	NDIS_STATUS drv_query_info(

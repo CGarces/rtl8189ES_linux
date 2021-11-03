@@ -631,12 +631,6 @@ struct mlme_priv {
 
 #endif
 
-#ifdef RTK_DMP_PLATFORM
-	// DMP kobject_hotplug function  signal need in passive level
-	_workitem	Linkup_workitem;
-	_workitem	Linkdown_workitem;
-#endif
-
 #ifdef CONFIG_CONCURRENT_MODE
 	u8	scanning_via_buddy_intf;
 #endif

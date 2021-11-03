@@ -29,20 +29,12 @@
 
 #endif
 
-#ifdef USB_XMITBUF_ALIGN_SZ
-#define XMITBUF_ALIGN_SZ (USB_XMITBUF_ALIGN_SZ)
-#else
 #define XMITBUF_ALIGN_SZ 512
-#endif
 
 // xmit extension buff defination
 #define MAX_XMIT_EXTBUF_SZ	(1536)
 
-#ifdef CONFIG_SINGLE_XMIT_BUF
-#define NR_XMIT_EXTBUFF	(1)
-#else
 #define NR_XMIT_EXTBUFF	(32)
-#endif
 
 #define MAX_CMDBUF_SZ	(5120)	//(4096)
 

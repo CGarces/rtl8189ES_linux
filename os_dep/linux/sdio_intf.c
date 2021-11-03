@@ -322,11 +322,6 @@ static void sd_intf_stop(PADAPTER padapter)
 	rtw_hal_disable_interrupt(padapter);
 }
 
-
-#ifdef RTW_SUPPORT_PLATFORM_SHUTDOWN
-PADAPTER g_test_adapter = NULL;
-#endif // RTW_SUPPORT_PLATFORM_SHUTDOWN
-
 _adapter *rtw_sdio_if1_init(struct dvobj_priv *dvobj)
 {
 	int status = _FAIL;
@@ -340,9 +335,6 @@ _adapter *rtw_sdio_if1_init(struct dvobj_priv *dvobj)
 	if (loadparam(padapter) != _SUCCESS)
 		goto free_adapter;
 
-#ifdef RTW_SUPPORT_PLATFORM_SHUTDOWN
-	g_test_adapter = padapter;
-#endif // RTW_SUPPORT_PLATFORM_SHUTDOWN
 	padapter->dvobj = dvobj;
 
 	rtw_set_drv_stopped(padapter);/*init*/
@@ -453,15 +445,6 @@ static void rtw_sdio_if1_deinit(_adapter *if1)
 	rtw_os_ndev_free(if1);
 
 	rtw_vmfree((u8 *)if1, sizeof(_adapter));
-
-#ifdef CONFIG_PLATFORM_RTD2880B
-	DBG_871X("wlan link down\n");
-	rtd2885_wlan_netlink_sendMsg("linkdown", "8712");
-#endif
-
-#ifdef RTW_SUPPORT_PLATFORM_SHUTDOWN
-	g_test_adapter = NULL;
-#endif // RTW_SUPPORT_PLATFORM_SHUTDOWN
 }
 
 /*
@@ -505,11 +488,6 @@ static int rtw_drv_init(
 
 #ifdef CONFIG_HOSTAPD_MLME
 	hostapd_mode_init(if1);
-#endif
-
-#ifdef CONFIG_PLATFORM_RTD2880B
-	DBG_871X("wlan link up\n");
-	rtd2885_wlan_netlink_sendMsg("linkup", "8712");
 #endif
 
 	if (sdio_alloc_irq(dvobj) != _SUCCESS)
@@ -700,21 +678,15 @@ static int rtw_sdio_resume(struct device *dev)
 			ret = rtw_resume_process(padapter);
 			rtw_resume_unlock_suspend();
 		} else {
-#ifdef CONFIG_RESUME_IN_WORKQUEUE
-			rtw_resume_in_workqueue(pwrpriv);
-#else			
 			if (rtw_is_earlysuspend_registered(pwrpriv))
 			{
 				/* jeff: bypass resume here, do in late_resume */
 				rtw_set_do_late_resume(pwrpriv, _TRUE);
-			}	
-			else
-			{
+			} else {
 				rtw_resume_lock_suspend();			
 				ret = rtw_resume_process(padapter);
 				rtw_resume_unlock_suspend();
 			}
-#endif
 		}
 	}
 	pmlmeext->last_scan_time = rtw_get_current_time();

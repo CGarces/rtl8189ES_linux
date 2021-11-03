@@ -185,30 +185,6 @@ static void request_wps_pbc_event(_adapter *padapter)
 
 }
 
-#ifdef CONFIG_SUPPORT_HW_WPS_PBC
-void rtw_request_wps_pbc_event(_adapter *padapter)
-{
-#ifdef RTK_DMP_PLATFORM
-#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,12))
-	kobject_uevent(&padapter->pnetdev->dev.kobj, KOBJ_NET_PBC);
-#else
-	kobject_hotplug(&padapter->pnetdev->class_dev.kobj, KOBJ_NET_PBC);
-#endif
-#else
-
-	if ( padapter->pid[0] == 0 )
-	{	//	0 is the default value and it means the application monitors the HW PBC doesn't privde its pid to driver.
-		return;
-	}
-
-	rtw_signal_process(padapter->pid[0], SIGUSR1);
-
-#endif
-
-	rtw_led_control(padapter, LED_CTL_START_WPS_BOTTON);
-}
-#endif//#ifdef CONFIG_SUPPORT_HW_WPS_PBC
-
 void indicate_wx_scan_complete_event(_adapter *padapter)
 {	
 	union iwreq_data wrqu;
@@ -824,13 +800,8 @@ static int wpa_set_auth_algs(struct net_device *dev, u32 value)
 		DBG_871X("wpa_set_auth_algs, AUTH_ALG_SHARED_KEY  [value:0x%x]\n",value);
 		padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
 
-#ifdef CONFIG_PLATFORM_MT53XX
-		padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeAutoSwitch;
-		padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_Auto;
-#else
 		padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeShared;
 		padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_Shared;
-#endif
 	} 
 	else if(value & AUTH_ALG_OPEN_SYSTEM)
 	{
@@ -838,13 +809,8 @@ static int wpa_set_auth_algs(struct net_device *dev, u32 value)
 		//padapter->securitypriv.ndisencryptstatus = Ndis802_11EncryptionDisabled;
 		if(padapter->securitypriv.ndisauthtype < Ndis802_11AuthModeWPAPSK)
 		{
-#ifdef CONFIG_PLATFORM_MT53XX
-			padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeAutoSwitch;
-			padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_Auto;
-#else
 			padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeOpen;
  			padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_Open;
-#endif
 		}
 		
 	}
@@ -2787,11 +2753,7 @@ static int rtw_wx_set_enc(struct net_device *dev,
 		DBG_871X("rtw_wx_set_enc():IW_ENCODE_OPEN\n");
 		padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;//Ndis802_11EncryptionDisabled;
 
-#ifdef CONFIG_PLATFORM_MT53XX
-		padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_Auto;
-#else
 		padapter->securitypriv.dot11AuthAlgrthm= dot11AuthAlgrthm_Open;
-#endif
 
 		padapter->securitypriv.dot11PrivacyAlgrthm=_NO_PRIVACY_;
 		padapter->securitypriv.dot118021XGrpPrivacy=_NO_PRIVACY_;
@@ -2803,11 +2765,7 @@ static int rtw_wx_set_enc(struct net_device *dev,
 		DBG_871X("rtw_wx_set_enc():IW_ENCODE_RESTRICTED\n");
 		padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
 
-#ifdef CONFIG_PLATFORM_MT53XX
-		padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_Auto;
-#else
 		padapter->securitypriv.dot11AuthAlgrthm= dot11AuthAlgrthm_Shared;
-#endif
 
 		padapter->securitypriv.dot11PrivacyAlgrthm=_WEP40_;
 		padapter->securitypriv.dot118021XGrpPrivacy=_WEP40_;			
@@ -3419,14 +3377,6 @@ static int rtw_wx_set_mtk_wps_probe_ie(struct net_device *dev,
 		struct iw_request_info *a,
 		union iwreq_data *wrqu, char *b)
 {
-#ifdef CONFIG_PLATFORM_MT53XX
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
-
-	RT_TRACE(_module_rtl871x_ioctl_os_c, _drv_notice_,
-		 ("WLAN IOCTL: cmd_code=%x, fwstate=0x%x\n",
-		  a->cmd, get_fwstate(pmlmepriv)));
-#endif
 	return 0;
 }
 
@@ -3434,14 +3384,6 @@ static int rtw_wx_get_sensitivity(struct net_device *dev,
 				struct iw_request_info *info,
 				union iwreq_data *wrqu, char *buf)
 {
-#ifdef CONFIG_PLATFORM_MT53XX
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-
-	//	Modified by Albert 20110914
-	//	This is in dbm format for MTK platform.
-	wrqu->qual.level = padapter->recvpriv.rssi;
-	DBG_871X(" level = %u\n",  wrqu->qual.level );
-#endif
 	return 0;
 }
 
@@ -3449,13 +3391,7 @@ static int rtw_wx_set_mtk_wps_ie(struct net_device *dev,
 				struct iw_request_info *info,
 				union iwreq_data *wrqu, char *extra)
 {
-#ifdef CONFIG_PLATFORM_MT53XX
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-
-	return rtw_set_wpa_ie(padapter, wrqu->data.pointer, wrqu->data.length);
-#else
 	return 0;
-#endif
 }
 
 /*
@@ -3469,104 +3405,7 @@ typedef int (*iw_handler)(struct net_device *dev, struct iw_request_info *info,
 static  int rtw_drvext_hdl(struct net_device *dev, struct iw_request_info *info,
 						union iwreq_data *wrqu, char *extra)
 {
-
-#ifdef CONFIG_DRVEXT_MODULE
-	u8 res;
-	struct drvext_handler *phandler;	
-	struct drvext_oidparam *poidparam;		
-	int ret;
-	u16 len;
-	u8 *pparmbuf, bset;
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	struct iw_point *p = &wrqu->data;
-
-	if( (!p->length) || (!p->pointer)){
-		ret = -EINVAL;
-		goto _rtw_drvext_hdl_exit;
-	}
-	
-	
-	bset = (u8)(p->flags&0xFFFF);
-	len = p->length;
-	pparmbuf = (u8*)rtw_malloc(len);
-	if (pparmbuf == NULL){
-		ret = -ENOMEM;
-		goto _rtw_drvext_hdl_exit;
-	}
-	
-	if(bset)//set info
-	{
-		if (copy_from_user(pparmbuf, p->pointer,len)) {
-			rtw_mfree(pparmbuf, len);
-			ret = -EFAULT;
-			goto _rtw_drvext_hdl_exit;
-		}		
-	}
-	else//query info
-	{
-	
-	}
-
-	
-	//
-	poidparam = (struct drvext_oidparam *)pparmbuf;	
-	
-	RT_TRACE(_module_rtl871x_ioctl_os_c,_drv_info_,("drvext set oid subcode [%d], len[%d], InformationBufferLength[%d]\r\n",
-        					 poidparam->subcode, poidparam->len, len));
-
-
-	//check subcode	
-	if ( poidparam->subcode >= MAX_DRVEXT_HANDLERS)
-	{
-		RT_TRACE(_module_rtl871x_ioctl_os_c,_drv_err_,("no matching drvext handlers\r\n"));		
-		ret = -EINVAL;
-		goto _rtw_drvext_hdl_exit;
-	}
-
-
-	if ( poidparam->subcode >= MAX_DRVEXT_OID_SUBCODES)
-	{
-		RT_TRACE(_module_rtl871x_ioctl_os_c,_drv_err_,("no matching drvext subcodes\r\n"));		
-		ret = -EINVAL;
-		goto _rtw_drvext_hdl_exit;
-	}
-
-
-	phandler = drvextoidhandlers + poidparam->subcode;
-
-	if (poidparam->len != phandler->parmsize)
-	{
-		RT_TRACE(_module_rtl871x_ioctl_os_c,_drv_err_,("no matching drvext param size %d vs %d\r\n",			
-						poidparam->len , phandler->parmsize));		
-		ret = -EINVAL;		
-		goto _rtw_drvext_hdl_exit;
-	}
-
-
-	res = phandler->handler(&padapter->drvextpriv, bset, poidparam->data);
-
-	if(res==0)
-	{
-		ret = 0;
-			
-		if (bset == 0x00) {//query info
-			//_rtw_memcpy(p->pointer, pparmbuf, len);
-			if (copy_to_user(p->pointer, pparmbuf, len))
-				ret = -EFAULT;
-		}		
-	}		
-	else
-		ret = -EFAULT;
-
-	
-_rtw_drvext_hdl_exit:	
-	
-	return ret;	
-	
-#endif
-
 	return 0;
-
 }
 
 static void rtw_dbg_mode_hdl(_adapter *padapter, u32 id, u8 *pdata, u32 len)
@@ -10546,34 +10385,11 @@ static struct iw_statistics *rtw_get_wireless_stats(struct net_device *dev)
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,14))
 	piwstats->qual.updated = IW_QUAL_ALL_UPDATED ;//|IW_QUAL_DBM;
 #else
-#ifdef RTK_DMP_PLATFORM
-	//IW_QUAL_DBM= 0x8, if driver use this flag, wireless extension will show value of dbm.
-	//remove this flag for show percentage 0~100
-	piwstats->qual.updated = 0x07;
-#else
 	piwstats->qual.updated = 0x0f;
-#endif
 #endif
 
 	return &padapter->iwstats;
 }
-#endif
-
-#ifdef CONFIG_WIRELESS_EXT
-struct iw_handler_def rtw_handlers_def =
-{
-	.standard = rtw_handlers,
-	.num_standard = sizeof(rtw_handlers) / sizeof(iw_handler),
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,33)) || defined(CONFIG_WEXT_PRIV)
-	.private = rtw_private_handler,
-	.private_args = (struct iw_priv_args *)rtw_private_args,
-	.num_private = sizeof(rtw_private_handler) / sizeof(iw_handler),
- 	.num_private_args = sizeof(rtw_private_args) / sizeof(struct iw_priv_args),
-#endif
-#if WIRELESS_EXT >= 17
-	.get_wireless_stats = rtw_get_wireless_stats,
-#endif
-};
 #endif
 
 // copy from net/wireless/wext.c start
@@ -11019,11 +10835,6 @@ int rtw_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 		case RTL_IOCTL_HOSTAPD:
 			ret = rtw_hostapd_ioctl(dev, &wrq->u.data);
 			break;
-#ifdef CONFIG_WIRELESS_EXT
-		case SIOCSIWMODE:
-			ret = rtw_wx_set_mode(dev, NULL, &wrq->u, NULL);
-			break;
-#endif
 #endif // CONFIG_AP_MODE
 		case SIOCDEVPRIVATE:				
 			 ret = rtw_ioctl_wext_private(dev, rq);

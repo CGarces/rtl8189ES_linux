@@ -1037,10 +1037,6 @@ struct net_device *rtw_init_netdev(_adapter *old_padapter)
 	//pnetdev->tx_timeout = NULL;
 	pnetdev->watchdog_timeo = HZ*3; /* 3 second timeout */
 
-#ifdef CONFIG_WIRELESS_EXT
-	pnetdev->wireless_handlers = (struct iw_handler_def *)&rtw_handlers_def;
-#endif
-
 #ifdef WIRELESS_SPY
 	//priv->wireless_data.spy_data = &priv->spy_data;
 	//pnetdev->wireless_data = &priv->wireless_data;
@@ -1706,10 +1702,6 @@ void rtw_cancel_all_timer(_adapter *padapter)
 #endif
 	//cancel dm timer
 	rtw_hal_dm_deinit(padapter);
-
-#ifdef CONFIG_PLATFORM_FS_MX61
-	msleep(50);
-#endif
 }
 
 u8 rtw_free_drv_sw(_adapter *padapter)
@@ -1760,10 +1752,6 @@ u8 rtw_free_drv_sw(_adapter *padapter)
 	rtw_free_pwrctrl_priv(padapter);
 
 	//rtw_mfree((void *)padapter, sizeof (padapter));
-
-#ifdef CONFIG_DRVEXT_MODULE
-	free_drvext(&padapter->drvextpriv);
-#endif
 
 	rtw_hal_free_data(padapter);
 
@@ -2546,10 +2534,6 @@ int _netdev_open(struct net_device *pnetdev)
 			goto netdev_open_error;
 		}
 
-#ifdef CONFIG_DRVEXT_MODULE
-		init_drvext(padapter);
-#endif
-
 		if (padapter->intf_start)
 		{
 			padapter->intf_start(padapter);
@@ -3221,9 +3205,6 @@ _func_enter_;
 	}
 	#endif
 
-#ifdef CONFIG_RESUME_IN_WORKQUEUE
-	//rtw_unlock_suspend();
-#endif //CONFIG_RESUME_IN_WORKQUEUE
 	DBG_871X("<== "FUNC_ADPT_FMT" exit....\n", FUNC_ADPT_ARG(padapter));
 
 exit:	

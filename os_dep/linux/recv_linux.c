@@ -71,19 +71,7 @@ int rtw_os_alloc_recvframe(_adapter *padapter, union recv_frame *precvframe, u8 
 		skb_reserve(pkt_copy, shift_sz);//force ip_hdr at 8-byte alignment address according to shift_sz.
 		_rtw_memcpy(pkt_copy->data, pdata, skb_len);
 		precvframe->u.hdr.rx_data = precvframe->u.hdr.rx_tail = pkt_copy->data;
-	}
-	else
-	{
-#ifdef CONFIG_USE_USB_BUFFER_ALLOC_RX
-		DBG_871X("%s:can not allocate memory for skb copy\n", __FUNCTION__);
-
-		precvframe->u.hdr.pkt = NULL;
-
-		//rtw_free_recvframe(precvframe, pfree_recv_queue);
-		//goto _exit_recvbuf2recvframe;
-
-		res = _FAIL;	
-#else
+	} else {
 		if((pattrib->mfrag == 1)&&(pattrib->frag_num == 0))
 		{				
 			DBG_871X("%s: alloc_skb fail , drop frag frame \n", __FUNCTION__);
@@ -103,15 +91,12 @@ int rtw_os_alloc_recvframe(_adapter *padapter, union recv_frame *precvframe, u8 
 		{
 			precvframe->u.hdr.rx_head = precvframe->u.hdr.rx_data = precvframe->u.hdr.rx_tail = pdata;
 			precvframe->u.hdr.rx_end =  pdata + alloc_sz;
-		}
-		else
-		{
+		} else {
 			DBG_871X("%s: rtw_skb_clone fail\n", __FUNCTION__);
 			//rtw_free_recvframe(precvframe, pfree_recv_queue);
 			//goto _exit_recvbuf2recvframe;
 			res = _FAIL;
 		}
-#endif			
 	}		
 
 exit_rtw_os_recv_resource_alloc:
@@ -180,12 +165,8 @@ int rtw_os_recvbuf_resource_free(_adapter *padapter, struct recv_buf *precvbuf)
 	int ret = _SUCCESS;
 
 	if(precvbuf->pskb)
-	{
-#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
-		if(rtw_free_skb_premem(precvbuf->pskb)!=0)
-#endif
 		rtw_skb_free(precvbuf->pskb);
-	}
+
 	return ret;
 
 }
@@ -581,13 +562,6 @@ int rtw_recv_indicatepkt(_adapter *padapter, union recv_frame *precv_frame)
 	pattrib = &precv_frame->u.hdr.attrib;
 	precvpriv = &(padapter->recvpriv);
 	pfree_recv_queue = &(precvpriv->free_recv_queue);
-
-#ifdef CONFIG_DRVEXT_MODULE
-	if (drvext_rx_handler(padapter, precv_frame->u.hdr.rx_data, precv_frame->u.hdr.len) == _SUCCESS)
-	{
-		goto _recv_indicatepkt_drop;
-	}
-#endif
 
 	skb = precv_frame->u.hdr.pkt;
 	if(skb == NULL)

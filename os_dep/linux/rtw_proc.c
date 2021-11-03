@@ -1641,9 +1641,7 @@ const struct rtw_proc_hdl adapter_proc_hdls[] = {
 #ifdef CONFIG_AUTO_CHNL_SEL_NHM
 	RTW_PROC_HDL_SSEQ("acs", proc_get_best_chan, proc_set_acs),
 #endif
-#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
-	RTW_PROC_HDL_SSEQ("rtkm_info", proc_get_rtkm_info, NULL),
-#endif
+
 	RTW_PROC_HDL_SSEQ("efuse_map", proc_get_efuse_map, NULL),
 	RTW_PROC_HDL_SSEQ("hal_spec", proc_get_hal_spec, NULL),
 };
