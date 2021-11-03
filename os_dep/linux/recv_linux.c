@@ -235,9 +235,7 @@ void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, struct rx_pkt_attri
 {
 	struct mlme_priv*pmlmepriv = &padapter->mlmepriv;
 	struct recv_priv *precvpriv = &(padapter->recvpriv);
-#ifdef CONFIG_BR_EXT
 	void *br_port = NULL;
-#endif
 	int ret;
 
 	/* Indicat the packets to upper layer */
@@ -293,7 +291,6 @@ void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, struct rx_pkt_attri
 			}
 		}
 		
-#ifdef CONFIG_BR_EXT
 		// Insert NAT2.5 RX here!
 #if (LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 35))
 		br_port = padapter->pnetdev->br_port;
@@ -315,7 +312,6 @@ void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, struct rx_pkt_attri
 				// bypass this frame to upper layer!!
 			}							
 		}
-#endif	// CONFIG_BR_EXT
 		if( precvpriv->sink_udpport > 0)
 			rtw_sink_rtp_seq_dbg(padapter,pkt);
 #ifdef DBG_UDP_PKT_LOSE_11AC

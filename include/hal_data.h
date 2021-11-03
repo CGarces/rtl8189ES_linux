@@ -476,7 +476,6 @@ typedef struct hal_com_data {
 	u32			SysIntrMask;
 #endif /*endif CONFIG_RTL8188F	*/
 
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 	char	para_file_buf[MAX_PARA_FILE_BUF_LEN];
 	char *mac_reg;
 	u32	mac_reg_len;
@@ -496,7 +495,6 @@ typedef struct hal_com_data {
 	u32	rf_tx_pwr_track_len;
 	char *rf_tx_pwr_lmt;
 	u32	rf_tx_pwr_lmt_len;
-#endif
 
 #ifdef CONFIG_BACKGROUND_NOISE_MONITOR
 	s16 noise[ODM_MAX_CHANNEL_NUM];

@@ -420,11 +420,9 @@ void rtw_dump_raw_rssi_info(_adapter *padapter);
 #endif
 
 #define		HWSET_MAX_SIZE			512
-#ifdef CONFIG_EFUSE_CONFIG_FILE
 #define		EFUSE_FILE_COLUMN_NUM		16
 u32 Hal_readPGDataFromConfigFile(PADAPTER padapter);
 u32 Hal_ReadMACAddrFromFile(PADAPTER padapter, u8 *mac_addr);
-#endif /* CONFIG_EFUSE_CONFIG_FILE */
 
 int check_phy_efuse_tx_power_info_valid(PADAPTER padapter);
 int hal_efuse_macaddr_offset(_adapter *adapter);
@@ -514,11 +512,9 @@ static inline u32 rtw_phydm_ability_get(_adapter *adapter)
 	return rtw_phydm_ability_ops(adapter, HAL_PHYDM_ABILITY_GET, 0);
 }
 
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 extern char *rtw_phy_file_path;
 extern char rtw_phy_para_file_path[PATH_LENGTH_MAX];
 #define GetLineFromBuffer(buffer)   strsep(&buffer, "\r\n")
-#endif
 
 #ifdef CONFIG_FW_C2H_DEBUG
 void Debug_FwC2H(PADAPTER padapter, u8 *pdata, u8 len);

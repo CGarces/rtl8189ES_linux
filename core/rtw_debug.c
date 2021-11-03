@@ -95,16 +95,12 @@ void dump_drv_cfg(void *sel)
 	DBG_871X_SEL_NL(sel, "CONFIG_CONCURRENT_MODE\n");
 #endif
 
-#ifdef CONFIG_POWER_SAVING
 	DBG_871X_SEL_NL(sel, "CONFIG_POWER_SAVING\n");
-#endif
 
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 	DBG_871X_SEL_NL(sel, "LOAD_PHY_PARA_FROM_FILE - REALTEK_CONFIG_PATH=%s\n", REALTEK_CONFIG_PATH);
 	#if defined(REALTEK_CONFIG_PATH_WITH_IC_NAME_FOLDER)
 	RTW_PRINT_SEL(sel, "LOAD_PHY_PARA_FROM_FILE - REALTEK_CONFIG_PATH_WITH_IC_NAME_FOLDER\n");
 	#endif
-#endif
 
 	RTW_PRINT_SEL(sel, "CONFIG_TXPWR_BY_RATE_EN=%d\n", CONFIG_TXPWR_BY_RATE_EN);
 	RTW_PRINT_SEL(sel, "CONFIG_TXPWR_LIMIT_EN=%d\n", CONFIG_TXPWR_LIMIT_EN);
@@ -2675,7 +2671,6 @@ ssize_t proc_set_new_bcn_max(struct file *file, const char __user *buffer, size_
 	return count;
 }
 
-#ifdef CONFIG_POWER_SAVING
 int proc_get_ps_info(struct seq_file *m, void *v)
 {	
 	struct net_device *dev = m->private;
@@ -2725,7 +2720,6 @@ int proc_get_ps_info(struct seq_file *m, void *v)
 	DBG_871X_SEL_NL(m, "=============================\n");
 	return 0;
 }
-#endif //CONFIG_POWER_SAVING
 
 int proc_get_monitor(struct seq_file *m, void *v)
 {

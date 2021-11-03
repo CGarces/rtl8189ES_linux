@@ -46,16 +46,11 @@ int rtw_scan_mode = 1;//active, passive
 int rtw_adhoc_tx_pwr = 1;
 int rtw_soft_ap = 0;
 //int smart_ps = 1;
-#ifdef CONFIG_POWER_SAVING
 int rtw_power_mgnt = PS_MODE_MAX;
 #ifdef CONFIG_IPS_LEVEL_2
 int rtw_ips_mode = IPS_LEVEL_2;
 #else
 int rtw_ips_mode = IPS_NORMAL;
-#endif
-#else
-int rtw_power_mgnt = PS_MODE_ACTIVE;
-int rtw_ips_mode = IPS_NONE;
 #endif
 module_param(rtw_ips_mode, int, 0644);
 MODULE_PARM_DESC(rtw_ips_mode,"The default IPS mode");
@@ -434,7 +429,6 @@ static int rtw_target_tx_pwr_2g_d_num = 0;
 module_param_array(rtw_target_tx_pwr_2g_d, int, &rtw_target_tx_pwr_2g_d_num, 0644);
 MODULE_PARM_DESC(rtw_target_tx_pwr_2g_d, "2.4G target tx power (unit:dBm) of RF path D for each rate section, should match the real calibrate power, -1: undefined");
 
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 char *rtw_phy_file_path = REALTEK_CONFIG_PATH;
 module_param(rtw_phy_file_path, charp, 0644);
 MODULE_PARM_DESC(rtw_phy_file_path, "The path of phy parameter");
@@ -452,7 +446,6 @@ MODULE_PARM_DESC(rtw_load_phy_file,"PHY File Bit Map");
 int rtw_decrypt_phy_file = 0;
 module_param(rtw_decrypt_phy_file, int, 0644);
 MODULE_PARM_DESC(rtw_decrypt_phy_file,"Enable Decrypt PHY File");
-#endif
 
 int _netdev_open(struct net_device *pnetdev);
 int netdev_open (struct net_device *pnetdev);
@@ -653,10 +646,8 @@ _func_enter_;
 	registry_par->AmplifierType_2G = (u8)rtw_amplifier_type_2g;
 	registry_par->AmplifierType_5G = (u8)rtw_amplifier_type_5g;
 	registry_par->GLNA_Type = (u8)rtw_GLNA_type;
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 	registry_par->load_phy_file = (u8)rtw_load_phy_file;
 	registry_par->RegDecryptCustomFile = (u8)rtw_decrypt_phy_file;
-#endif
 	registry_par->qos_opt_enable = (u8)rtw_qos_opt_enable;
 
 	registry_par->hiq_filter = (u8)rtw_hiq_filter;
@@ -1648,9 +1639,7 @@ _func_enter_;
 	rtw_hal_sreset_init(padapter);
 #endif
 
-#ifdef CONFIG_BR_EXT
 	_rtw_spinlock_init(&padapter->br_ext_lock);
-#endif	// CONFIG_BR_EXT
 
 exit:
 
@@ -1729,9 +1718,7 @@ u8 rtw_free_drv_sw(_adapter *padapter)
 	// add for CONFIG_IEEE80211W, none 11w also can use
 	_rtw_spinlock_free(&padapter->security_key_mutex);
 	
-#ifdef CONFIG_BR_EXT
 	_rtw_spinlock_free(&padapter->br_ext_lock);
-#endif	// CONFIG_BR_EXT
 
 	free_mlme_ext_priv(&padapter->mlmeextpriv);
 
@@ -2448,7 +2435,6 @@ void rtw_os_ndevs_deinit(struct dvobj_priv *dvobj)
 	rtw_os_ndevs_free(dvobj);
 }
 
-#ifdef CONFIG_BR_EXT
 void netdev_br_init(struct net_device *netdev)
 {
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(netdev);
@@ -2495,7 +2481,6 @@ void netdev_br_init(struct net_device *netdev)
 	rcu_read_unlock();
 #endif	// (LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 35))
 }
-#endif //CONFIG_BR_EXT
 
 int _netdev_open(struct net_device *pnetdev)
 {
@@ -2559,9 +2544,7 @@ int _netdev_open(struct net_device *pnetdev)
 	//netif_carrier_on(pnetdev);//call this func when rtw_joinbss_event_callback return success
 	rtw_netif_wake_queue(pnetdev);
 
-#ifdef CONFIG_BR_EXT
 	netdev_br_init(pnetdev);
-#endif	// CONFIG_BR_EXT
 
 netdev_open_normal_process:
 
@@ -2774,13 +2757,11 @@ static int netdev_close(struct net_device *pnetdev)
 		rtw_led_control(padapter, LED_CTL_POWER_OFF);
 	}
 
-#ifdef CONFIG_BR_EXT
 	//if (OPMODE & (WIFI_STATION_STATE | WIFI_ADHOC_STATE))
 	{
 		//void nat25_db_cleanup(_adapter *priv);
 		nat25_db_cleanup(padapter);
 	}
-#endif	// CONFIG_BR_EXT
 
 #ifdef CONFIG_P2P
 	if (!rtw_p2p_chk_role(&padapter->wdinfo, P2P_ROLE_DISABLE))

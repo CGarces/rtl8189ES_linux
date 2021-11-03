@@ -2867,14 +2867,12 @@ int phy_load_tx_power_by_rate(_adapter *adapter, u8 chk_file)
 	/* tx power limit is based on tx power by rate */
 	hal_data->txpwr_limit_loaded = 0;
 
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 	if (chk_file
 		&& phy_ConfigBBWithPgParaFile(adapter, PHY_FILE_PHY_REG_PG) == _SUCCESS
 	) {
 		hal_data->txpwr_by_rate_from_file = 1;
 		goto post_hdl;
 	}
-#endif
 
 #ifdef CONFIG_EMBEDDED_FWIMG
 	if (HAL_STATUS_SUCCESS == ODM_ConfigBBWithHeaderFile(&hal_data->odmpriv, CONFIG_BB_PHY_REG_PG)) {
@@ -2916,14 +2914,12 @@ int phy_load_tx_power_limit(_adapter *adapter, u8 chk_file)
 		goto exit;
 	}
 
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 	if (chk_file
 		&& PHY_ConfigRFWithPowerLimitTableParaFile(adapter, PHY_FILE_TXPWR_LMT) == _SUCCESS
 	) {
 		hal_data->txpwr_limit_from_file = 1;
 		goto post_hdl;
 	}
-#endif
 
 #ifdef CONFIG_EMBEDDED_FWIMG
 	if (HAL_STATUS_SUCCESS == ODM_ConfigRFWithHeaderFile(&hal_data->odmpriv, CONFIG_RF_TXPWR_LMT, (ODM_RF_RADIO_PATH_E)0)) {
@@ -3278,7 +3274,6 @@ void dump_tx_power_limit(void *sel, _adapter *adapter)
  */
 int rtw_get_phy_file_path(_adapter *adapter, const char *file_name)
 {
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 	struct hal_spec_t *hal_spec = GET_HAL_SPEC(adapter);
 	int len = 0;
 
@@ -3291,11 +3286,9 @@ int rtw_get_phy_file_path(_adapter *adapter, const char *file_name)
 
 		return _TRUE;
 	}
-#endif
 	return _FALSE;
 }
 
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 int
 phy_ConfigMACWithParaFile(
 	IN	PADAPTER	Adapter,
@@ -4759,5 +4752,4 @@ inline void phy_free_filebuf(_adapter *padapter)
 	phy_free_filebuf_mask(padapter, 0xFF);
 }
 
-#endif
 

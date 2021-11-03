@@ -26,9 +26,7 @@
 
 //#define CONFIG_GTK_OL_DBG
 
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 char rtw_phy_para_file_path[PATH_LENGTH_MAX];
-#endif
 
 void dump_chip_info(HAL_VERSION	ChipVersion)
 {
@@ -4485,7 +4483,6 @@ void rtw_dump_cur_efuse(PADAPTER padapter)
 #endif
 }
 
-#ifdef CONFIG_EFUSE_CONFIG_FILE
 u32 Hal_readPGDataFromConfigFile(PADAPTER padapter)
 {
 	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(padapter);
@@ -4525,7 +4522,6 @@ u32 Hal_ReadMACAddrFromFile(PADAPTER padapter, u8 *mac_addr)
 
 	return ret;
 }
-#endif /* CONFIG_EFUSE_CONFIG_FILE */
 
 int hal_config_macaddr(_adapter *adapter, bool autoload_fail)
 {
@@ -4541,11 +4537,9 @@ int hal_config_macaddr(_adapter *adapter, bool autoload_fail)
 	if (addr_offset != -1)
 		hw_addr = &hal_data->efuse_eeprom_data[addr_offset];
 
-#ifdef CONFIG_EFUSE_CONFIG_FILE
 	/* if the hw_addr is written by efuse file, set to NULL */
 	if (hal_data->efuse_file_status == EFUSE_FILE_LOADED)
 		hw_addr = NULL;
-#endif
 
 	if (!hw_addr) {
 		/* try getting hw pg data */
@@ -4561,13 +4555,11 @@ int hal_config_macaddr(_adapter *adapter, bool autoload_fail)
 	
 bypass_hw_pg:
 
-#ifdef CONFIG_EFUSE_CONFIG_FILE
 	/* check wifi mac file */
 	if (Hal_ReadMACAddrFromFile(adapter, addr) == _SUCCESS) {
 		_rtw_memcpy(hal_data->EEPROMMACAddr, addr, ETH_ALEN);
 		goto exit;
 	}
-#endif
 
 	_rtw_memset(hal_data->EEPROMMACAddr, 0, ETH_ALEN);
 	ret = _FAIL;

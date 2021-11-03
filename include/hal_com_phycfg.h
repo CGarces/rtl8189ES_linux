@@ -289,7 +289,6 @@ void dump_tx_power_limit(void *sel, _adapter *adapter);
 
 int rtw_get_phy_file_path(_adapter *adapter, const char *file_name);
 
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 #define MAC_FILE_FW_NIC			"FW_NIC.bin"
 #define MAC_FILE_FW_WW_IMG		"FW_WoWLAN.bin"
 #define PHY_FILE_MAC_REG		"MAC_REG.txt"
@@ -334,7 +333,6 @@ int PHY_ConfigRFWithPowerLimitTableParaFile(IN PADAPTER	Adapter, IN const char *
 
 void phy_free_filebuf_mask(_adapter *padapter, u8 mask);
 void phy_free_filebuf(_adapter *padapter);
-#endif /* CONFIG_LOAD_PHY_PARA_FROM_FILE */
 
 #endif /* __HAL_COMMON_H__ */
 

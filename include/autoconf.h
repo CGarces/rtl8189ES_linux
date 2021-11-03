@@ -28,7 +28,6 @@
 #ifndef CONFIG_RTL8188F
 #define CONFIG_RTL8188F
 #endif
-#define CONFIG_SDIO_HCI
 
 #define PLATFORM_LINUX
 
@@ -153,13 +152,10 @@
 #define MP_DRIVER	1
 #define CONFIG_MP_IWPRIV_SUPPORT
 
-#ifdef CONFIG_POWER_SAVING
 	#define CONFIG_IPS
 	#define CONFIG_LPS
 
-	#if defined(CONFIG_LPS) && defined(CONFIG_SDIO_HCI)
-		#define CONFIG_LPS_LCLK
-	#endif
+	#define CONFIG_LPS_LCLK
 
 	#ifdef CONFIG_LPS
 		#define CONFIG_CHECK_LEAVE_LPS
@@ -178,7 +174,6 @@
 	#ifdef CONFIG_IPS
 		#define CONFIG_IPS_CHECK_IN_WD /* Do IPS Check in WatchDog */
 	#endif
-#endif /* CONFIG_POWER_SAVING */
 
 #define BT_30_SUPPORT 0
 

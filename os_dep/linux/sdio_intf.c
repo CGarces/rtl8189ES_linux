@@ -614,7 +614,7 @@ static int rtw_sdio_suspend(struct device *dev)
 	ret = rtw_suspend_common(padapter);		
 
 exit:
-#ifdef CONFIG_RTW_SDIO_PM_KEEP_POWER 
+
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,34))
 	//Android 4.0 don't support WIFI close power
 	//or power down or clock will close after wifi resume,
@@ -636,7 +636,7 @@ exit:
 		}
 	}
 #endif	
-#endif
+
 	return ret;
 }
 int rtw_resume_process(_adapter *padapter)

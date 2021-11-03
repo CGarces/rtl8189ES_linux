@@ -1521,7 +1521,6 @@ int retriveAdaptorInfoFile(char *path, u8* efuse_data)
 }
 #endif /* CONFIG_ADAPTOR_INFO_CACHING_FILE */
 
-#ifdef CONFIG_EFUSE_CONFIG_FILE
 u32 rtw_read_efuse_from_file(const char *path, u8 *buf, int map_size)
 {
 	u32 i;
@@ -1670,7 +1669,6 @@ u32 rtw_read_macaddr_from_file(const char *path, u8 *buf)
 exit:
 	return ret;
 }
-#endif /* CONFIG_EFUSE_CONFIG_FILE */
 
 #endif /* PLATFORM_LINUX */
 

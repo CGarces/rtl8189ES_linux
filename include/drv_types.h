@@ -93,9 +93,7 @@ typedef struct _ADAPTER _adapter, ADAPTER,*PADAPTER;
 #include <rtw_mp.h>
 #endif // CONFIG_MP_INCLUDED
 
-#ifdef CONFIG_BR_EXT
 #include <rtw_br_ext.h>
-#endif // CONFIG_BR_EXT
 
 #include <ip.h>
 #include <if_ether.h>
@@ -272,10 +270,8 @@ struct registry_priv
 	u8  check_fw_ps;
 	u8	RegRfKFreeEnable;
 	
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 	u8	load_phy_file;
 	u8	RegDecryptCustomFile;
-#endif
 
 #ifdef CONFIG_MULTI_VIR_IFACES
 	u8 ext_iface_num;//primary/secondary iface is excluded
@@ -956,7 +952,6 @@ struct _ADAPTER{
        //IFACE_ID1 is equals to SECONDARY_ADAPTER
 	u8 iface_id;
 
-#ifdef CONFIG_BR_EXT
 	_lock					br_ext_lock;
 	//unsigned int			macclone_completed;
 	struct nat25_network_db_entry	*nethash[NAT25_HASH_SIZE];
@@ -969,7 +964,6 @@ struct _ADAPTER{
 	unsigned char			br_ip[4];
 
 	struct br_ext_info		ethBrExtInfo;
-#endif	// CONFIG_BR_EXT
 
 #ifdef CONFIG_INTEL_PROXIM
 	/* intel Proximity, should be alloc mem
