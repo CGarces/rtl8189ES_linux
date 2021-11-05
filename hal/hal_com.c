@@ -1792,9 +1792,7 @@ static void rtw_hal_construct_P2PBeacon(_adapter *padapter, u8 *pframe, u32 *pLe
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	WLAN_BSSID_EX 		*cur_network = &(pmlmeinfo->network);
 	u8	bc_addr[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-#ifdef CONFIG_P2P
 	struct wifidirect_info	*pwdinfo = &(padapter->wdinfo);
-#endif //CONFIG_P2P
 
 	//for debug
 	u8 *dbgbuf = pframe;
@@ -1825,7 +1823,6 @@ static void rtw_hal_construct_P2PBeacon(_adapter *padapter, u8 *pframe, u32 *pLe
 	if( (pmlmeinfo->state&0x03) == WIFI_FW_AP_STATE)
 	{
 		//DBG_871X("ie len=%d\n", cur_network->IELength);
-#ifdef CONFIG_P2P
 		// for P2P : Primary Device Type & Device Name
 		u32 wpsielen=0, insert_len=0;
 		u8 *wpsie=NULL;		
@@ -1927,7 +1924,6 @@ static void rtw_hal_construct_P2PBeacon(_adapter *padapter, u8 *pframe, u32 *pLe
 			}
 		}
 		else
-#endif //CONFIG_P2P
 		{
 			int len_diff;
 			_rtw_memcpy(pframe, cur_network->IEs, cur_network->IELength);
@@ -1939,7 +1935,6 @@ static void rtw_hal_construct_P2PBeacon(_adapter *padapter, u8 *pframe, u32 *pLe
 			pframe += (cur_network->IELength+len_diff);
 			pktlen += (cur_network->IELength+len_diff);
 		}
-#ifdef CONFIG_P2P
 		if(rtw_p2p_chk_role(pwdinfo, P2P_ROLE_GO))
 		{
 			u32 len;
@@ -1959,14 +1954,11 @@ static void rtw_hal_construct_P2PBeacon(_adapter *padapter, u8 *pframe, u32 *pLe
 			pframe += len;
 			pktlen += len;
 
-			#ifdef CONFIG_WFD
 			len = rtw_append_beacon_wfd_ie(padapter, pframe);
 			pframe += len;
 			pktlen += len;
-			#endif
 
 		}
-#endif //CONFIG_P2P
 
 		goto _issue_bcn;
 
@@ -2066,9 +2058,7 @@ static void rtw_hal_construct_P2PProbeRsp(_adapter *padapter, u8 *pframe, u32 *p
 	u8					wpsie[255] = { 0x00 };
 	u32					wpsielen = 0, p2pielen = 0;
 	u32					pktlen;
-#ifdef CONFIG_WFD
 	u32					wfdielen = 0;
-#endif
 
 	//for debug
 	u8 *dbgbuf = pframe;
@@ -2316,11 +2306,9 @@ static void rtw_hal_construct_P2PProbeRsp(_adapter *padapter, u8 *pframe, u32 *p
 		pktlen += p2pielen;
 	}
 
-#ifdef CONFIG_WFD
 	wfdielen = rtw_append_probe_resp_wfd_ie(padapter, pframe);
 	pframe += wfdielen;
 	pktlen += wfdielen;
-#endif
 
 	*pLength = pktlen;
 
@@ -2352,9 +2340,7 @@ static void rtw_hal_construct_P2PNegoRsp(_adapter *padapter, u8 *pframe, u32 *pL
 	struct wifidirect_info	*pwdinfo = &( padapter->wdinfo);
 	//WLAN_BSSID_EX 		*cur_network = &(pmlmeinfo->network);
 
-#ifdef CONFIG_WFD
 	u32					wfdielen = 0;
-#endif
 
 	//for debug
 	u8 *dbgbuf = pframe;
@@ -2761,11 +2747,9 @@ static void rtw_hal_construct_P2PNegoRsp(_adapter *padapter, u8 *pframe, u32 *pL
 	
 	pframe = rtw_set_ie(pframe, _VENDOR_SPECIFIC_IE_, p2pielen, (unsigned char *) p2pie, &pktlen );	
 	
-#ifdef CONFIG_WFD
 	wfdielen = build_nego_resp_wfd_ie(pwdinfo, pframe);
 	pframe += wfdielen;
 	pktlen += wfdielen;
-#endif
 	
 	*pLength = pktlen;
 }
@@ -2788,9 +2772,7 @@ static void rtw_hal_construct_P2PInviteRsp(_adapter * padapter, u8 * pframe, u32
 	struct mlme_priv		*pbuddy_mlmepriv = &pbuddy_adapter->mlmepriv;
 	struct mlme_ext_priv	*pbuddy_mlmeext = &pbuddy_adapter->mlmeextpriv;
 #endif	
-#ifdef CONFIG_WFD
 	u32					wfdielen = 0;
-#endif
 	
 	//struct xmit_frame			*pmgntframe;
 	//struct pkt_attrib			*pattrib;
@@ -2876,11 +2858,9 @@ static void rtw_hal_construct_P2PInviteRsp(_adapter * padapter, u8 * pframe, u32
 
 	pframe = rtw_set_ie(pframe, _VENDOR_SPECIFIC_IE_, p2pielen, (unsigned char *) p2pie, &pktlen );	
 	
-#ifdef CONFIG_WFD
 	wfdielen = build_invitation_resp_wfd_ie(pwdinfo, pframe);
 	pframe += wfdielen;
 	pktlen += wfdielen;
-#endif
 
 	*pLength = pktlen;
 }
@@ -2896,9 +2876,7 @@ static void rtw_hal_construct_P2PProvisionDisRsp(_adapter * padapter, u8 * pfram
 	u8			wpsie[ 100 ] = { 0x00 };
 	u8			wpsielen = 0;
 	u32			pktlen;
-#ifdef CONFIG_WFD
 	u32					wfdielen = 0;
-#endif
 	
 	//struct xmit_frame			*pmgntframe;
 	//struct pkt_attrib			*pattrib;
@@ -2963,11 +2941,9 @@ static void rtw_hal_construct_P2PProvisionDisRsp(_adapter * padapter, u8 * pfram
 
 	pframe = rtw_set_ie(pframe, _VENDOR_SPECIFIC_IE_, wpsielen, (unsigned char *) wpsie, &pktlen );	
 
-#ifdef CONFIG_WFD
 	wfdielen = build_provdisc_resp_wfd_ie(pwdinfo, pframe);
 	pframe += wfdielen;
 	pktlen += wfdielen;
-#endif
 
 	*pLength = pktlen;
 }

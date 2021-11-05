@@ -291,7 +291,6 @@ struct sta_info {
 	u8 has_legacy_ac;
 	unsigned int sleepq_ac_len;
 
-#ifdef CONFIG_P2P
 	//p2p priv data
 	u8 is_p2p_device;
 	u8 p2p_status_code;
@@ -306,11 +305,8 @@ struct sta_info {
 	u8 secdev_types_list[32];// 32/8 == 4;
 	u16 dev_name_len;
 	u8 dev_name[32];	
-#endif //CONFIG_P2P
 
-#ifdef CONFIG_WFD
 	u8 op_wfd_mode;
-#endif
 
 	u8 under_exist_checking;
 	
@@ -449,13 +445,8 @@ struct sta_info {
 
 #define STA_PKTS_FMT "(m:%llu, c:%llu, d:%llu)"
 
-#ifdef CONFIG_WFD
 #define STA_OP_WFD_MODE(sta) (sta)->op_wfd_mode
 #define STA_SET_OP_WFD_MODE(sta, mode) (sta)->op_wfd_mode = (mode)
-#else
-#define STA_OP_WFD_MODE(sta) 0
-#define STA_SET_OP_WFD_MODE(sta, mode) do {} while (0)
-#endif
 
 struct	sta_priv {
 	

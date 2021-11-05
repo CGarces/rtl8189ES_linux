@@ -825,18 +825,12 @@ struct _ADAPTER{
 	struct	hostapd_priv	*phostapdpriv;
 
 #ifdef CONFIG_IOCTL_CFG80211
-#ifdef CONFIG_P2P
 	struct cfg80211_wifidirect_info	cfg80211_wdinfo;
-#endif //CONFIG_P2P
 #endif //CONFIG_IOCTL_CFG80211
 	u32	setband;
-#ifdef CONFIG_P2P
 	struct wifidirect_info	wdinfo;
-#endif //CONFIG_P2P
 
-#ifdef CONFIG_WFD
 	struct wifi_display_info wfd_info;
-#endif //CONFIG_WFD
 	
 	ERROR_CODE		LastError; /* <20130613, Kordan> Only the functions associated with MP records the error code by now. */
 	
@@ -921,11 +915,9 @@ struct _ADAPTER{
 	//	Added by Albert 2012/10/26
 	//	The driver will show up the desired channel number when this flag is 1.
 	u8 bNotifyChannelChange;
-#ifdef CONFIG_P2P
 	//	Added by Albert 2012/12/06
 	//	The driver will show the current P2P status when the upper application reads it.
 	u8 bShowGetP2PState;
-#endif
 
 	//pbuddy_adapter is used only in  two inteface case, (iface_nums=2 in struct dvobj_priv)
 	//PRIMARY_ADAPTER's buddy is SECONDARY_ADAPTER

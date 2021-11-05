@@ -52,20 +52,6 @@
 	/*#define SUPPLICANT_RTK_VERSION_LOWER_THAN_JB42*/ /* wpa_supplicant realtek version <= jb42 will be defined this */
 #endif
 
-#define CONFIG_P2P
-#ifdef CONFIG_P2P
-	//Added by Albert 20110812
-	//The CONFIG_WFD is for supporting the Wi-Fi display
-	#define CONFIG_WFD
-
-	#define CONFIG_P2P_REMOVE_GROUP_INFO
-
-	//#define CONFIG_DBG_P2P
-	#define CONFIG_P2P_PS
-	#define CONFIG_P2P_OP_CHK_SOCIAL_CH
-	#define CONFIG_CFG80211_ONECHANNEL_UNDER_CONCURRENT  //replace CONFIG_P2P_CHK_INVITE_CH_LIST flag
-	#define CONFIG_P2P_INVITE_IOT
-#endif
 
 //#define CONFIG_CONCURRENT_MODE	// Set from Makefile
 #ifdef CONFIG_CONCURRENT_MODE

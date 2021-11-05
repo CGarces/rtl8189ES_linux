@@ -1475,7 +1475,6 @@ void flush_all_cam_entry(_adapter *padapter)
 	}
 }
 
-#if defined(CONFIG_P2P) && defined(CONFIG_WFD)
 void rtw_process_wfd_ie(_adapter *adapter, u8 *wfd_ie, u8 wfd_ielen, const char *tag)
 {
 	struct wifidirect_info *wdinfo = &adapter->wdinfo;
@@ -1508,7 +1507,6 @@ void rtw_process_wfd_ies(_adapter *adapter, u8 *ies, u8 ies_len, const char *tag
 		wfd_ie = rtw_get_wfd_ie(wfd_ie + wfd_ielen, (ies + ies_len) - (wfd_ie + wfd_ielen), NULL, &wfd_ielen);
 	}
 }
-#endif /* defined(CONFIG_P2P) && defined(CONFIG_WFD) */
 
 int WMM_param_handler(_adapter *padapter, PNDIS_802_11_VARIABLE_IEs	pIE)
 {
@@ -2678,7 +2676,6 @@ void update_tx_basic_rate(_adapter *padapter, u8 wirelessmode)
 {
 	NDIS_802_11_RATES_EX	supported_rates;
 	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
-#ifdef CONFIG_P2P
 	struct wifidirect_info*	pwdinfo = &padapter->wdinfo;
 
 	//	Added by Albert 2011/03/22
@@ -2686,7 +2683,6 @@ void update_tx_basic_rate(_adapter *padapter, u8 wirelessmode)
 	//	So, the Tx packet shouldn't use the CCK rate
 	if(!rtw_p2p_chk_state(pwdinfo, P2P_STATE_NONE))
 		return;
-#endif //CONFIG_P2P
 
 	_rtw_memset(supported_rates, 0, NDIS_802_11_LENGTH_RATES_EX);
 
@@ -2884,9 +2880,7 @@ void update_wireless_mode(_adapter *padapter)
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	WLAN_BSSID_EX 		*cur_network = &(pmlmeinfo->network);
 	unsigned char			*rate = cur_network->SupportedRates;
-#ifdef CONFIG_P2P
 	struct wifidirect_info	*pwdinfo= &(padapter->wdinfo);
-#endif //CONFIG_P2P
 
 	ratelen = rtw_get_rateset_len(cur_network->SupportedRates);
 
@@ -2943,9 +2937,7 @@ void update_wireless_mode(_adapter *padapter)
 	rtw_hal_set_hwreg( padapter, HW_VAR_WIRELESS_MODE,  (u8 *)&(pmlmeext->cur_wireless_mode));
 
 	if ((pmlmeext->cur_wireless_mode & WIRELESS_11B)
-#ifdef CONFIG_P2P
 		&& rtw_p2p_chk_state(pwdinfo, P2P_STATE_NONE)
-#endif /* CONFIG_P2P */
 		)
 		update_mgnt_tx_rate(padapter, IEEE80211_CCK_RATE_1MB);
 	else

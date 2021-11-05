@@ -520,9 +520,7 @@ void rtl8188f_set_FwPwrMode_cmd(PADAPTER padapter, u8 psmode)
 	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
 	u8 u1H2CPwrModeParm[H2C_PWRMODE_LEN] = {0};
 	u8 PowerState = 0, awake_intvl = 1, byte5 = 0, rlbm = 0;
-#ifdef CONFIG_P2P
 	struct wifidirect_info *wdinfo = &(padapter->wdinfo);
-#endif /* CONFIG_P2P */
 
 	_func_enter_;
 
@@ -554,12 +552,10 @@ void rtl8188f_set_FwPwrMode_cmd(PADAPTER padapter, u8 psmode)
 		smart_ps = pwrpriv->smart_ps;
 	}
 
-#ifdef CONFIG_P2P
 	if (!rtw_p2p_chk_state(wdinfo, P2P_STATE_NONE)) {
 		awake_intvl = 2;
 		rlbm = 1;
 	}
-#endif /* CONFIG_P2P */
 
 	if (padapter->registrypriv.wifi_spec == 1) {
 		awake_intvl = 2;
@@ -866,7 +862,6 @@ void rtl8188f_Add_RateATid(PADAPTER pAdapter, u64 rate_bitmap, u8 *arg, u8 rssi_
 	rtw_update_tx_rate_bmp(adapter_to_dvobj(pAdapter));
 }
 
-#ifdef CONFIG_P2P
 void rtl8188f_set_p2p_ps_offload_cmd(_adapter *padapter, u8 p2p_ps_state)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
@@ -946,7 +941,6 @@ void rtl8188f_set_p2p_ps_offload_cmd(_adapter *padapter, u8 p2p_ps_state)
 	_func_exit_;
 
 }
-#endif /*CONFIG_P2P */
 
 
 #ifdef CONFIG_TSF_RESET_OFFLOAD
