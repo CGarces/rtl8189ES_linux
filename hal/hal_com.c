@@ -665,10 +665,6 @@ Hal_MappingOutPipe(
 void hal_init_macaddr(_adapter *adapter)
 {
 	rtw_hal_set_hwreg(adapter, HW_VAR_MAC_ADDR, adapter_mac_addr(adapter));
-#ifdef  CONFIG_CONCURRENT_MODE
-	if (adapter->pbuddy_adapter)
-		rtw_hal_set_hwreg(adapter->pbuddy_adapter, HW_VAR_MAC_ADDR, adapter_mac_addr(adapter->pbuddy_adapter));
-#endif
 }
 
 void rtw_init_hal_com_default_value(PADAPTER Adapter)
@@ -1435,196 +1431,6 @@ bool rtw_sec_read_cam_is_gk(_adapter *adapter, u8 id)
 
 	res = (ctrl & BIT6) ? _TRUE : _FALSE;
 	return res;
-}
-
-void hw_var_port_switch(_adapter *adapter)
-{
-#ifdef CONFIG_CONCURRENT_MODE
-#ifdef CONFIG_RUNTIME_PORT_SWITCH
-/*
-0x102: MSR
-0x550: REG_BCN_CTRL
-0x551: REG_BCN_CTRL_1
-0x55A: REG_ATIMWND
-0x560: REG_TSFTR
-0x568: REG_TSFTR1
-0x570: REG_ATIMWND_1
-0x610: REG_MACID
-0x618: REG_BSSID
-0x700: REG_MACID1
-0x708: REG_BSSID1
-*/
-
-	int i;
-	u8 msr;
-	u8 bcn_ctrl;
-	u8 bcn_ctrl_1;
-	u8 atimwnd[2];
-	u8 atimwnd_1[2];
-	u8 tsftr[8];
-	u8 tsftr_1[8];
-	u8 macid[6];
-	u8 bssid[6];
-	u8 macid_1[6];
-	u8 bssid_1[6];
-
-	u8 iface_type;
-
-	msr = rtw_read8(adapter, MSR);
-	bcn_ctrl = rtw_read8(adapter, REG_BCN_CTRL);
-	bcn_ctrl_1 = rtw_read8(adapter, REG_BCN_CTRL_1);
-
-	for (i=0; i<2; i++)
-		atimwnd[i] = rtw_read8(adapter, REG_ATIMWND+i);
-	for (i=0; i<2; i++)
-		atimwnd_1[i] = rtw_read8(adapter, REG_ATIMWND_1+i);
-
-	for (i=0; i<8; i++)
-		tsftr[i] = rtw_read8(adapter, REG_TSFTR+i);
-	for (i=0; i<8; i++)
-		tsftr_1[i] = rtw_read8(adapter, REG_TSFTR1+i);
-
-	for (i=0; i<6; i++)
-		macid[i] = rtw_read8(adapter, REG_MACID+i);
-
-	for (i=0; i<6; i++)
-		bssid[i] = rtw_read8(adapter, REG_BSSID+i);
-
-	for (i=0; i<6; i++)
-		macid_1[i] = rtw_read8(adapter, REG_MACID1+i);
-
-	for (i=0; i<6; i++)
-		bssid_1[i] = rtw_read8(adapter, REG_BSSID1+i);
-
-#ifdef DBG_RUNTIME_PORT_SWITCH
-	DBG_871X(FUNC_ADPT_FMT" before switch\n"
-		"msr:0x%02x\n"
-		"bcn_ctrl:0x%02x\n"
-		"bcn_ctrl_1:0x%02x\n"
-		"atimwnd:0x%04x\n"
-		"atimwnd_1:0x%04x\n"
-		"tsftr:%llu\n"
-		"tsftr1:%llu\n"
-		"macid:"MAC_FMT"\n"
-		"bssid:"MAC_FMT"\n"
-		"macid_1:"MAC_FMT"\n"
-		"bssid_1:"MAC_FMT"\n"
-		, FUNC_ADPT_ARG(adapter)
-		, msr
-		, bcn_ctrl
-		, bcn_ctrl_1
-		, *((u16*)atimwnd)
-		, *((u16*)atimwnd_1)
-		, *((u64*)tsftr)
-		, *((u64*)tsftr_1)
-		, MAC_ARG(macid)
-		, MAC_ARG(bssid)
-		, MAC_ARG(macid_1)
-		, MAC_ARG(bssid_1)
-	);
-#endif /* DBG_RUNTIME_PORT_SWITCH */
-
-	/* disable bcn function, disable update TSF  */
-	rtw_write8(adapter, REG_BCN_CTRL, (bcn_ctrl & (~EN_BCN_FUNCTION)) | DIS_TSF_UDT);
-	rtw_write8(adapter, REG_BCN_CTRL_1, (bcn_ctrl_1 & (~EN_BCN_FUNCTION)) | DIS_TSF_UDT);
-
-	/* switch msr */
-	msr = (msr&0xf0) |((msr&0x03) << 2) | ((msr&0x0c) >> 2);
-	rtw_write8(adapter, MSR, msr);
-
-	/* write port0 */
-	rtw_write8(adapter, REG_BCN_CTRL, bcn_ctrl_1 & ~EN_BCN_FUNCTION);
-	for (i=0; i<2; i++)
-		rtw_write8(adapter, REG_ATIMWND+i, atimwnd_1[i]);
-	for (i=0; i<8; i++)
-		rtw_write8(adapter, REG_TSFTR+i, tsftr_1[i]);
-	for (i=0; i<6; i++)
-		rtw_write8(adapter, REG_MACID+i, macid_1[i]);
-	for (i=0; i<6; i++)
-		rtw_write8(adapter, REG_BSSID+i, bssid_1[i]);
-
-	/* write port1 */
-	rtw_write8(adapter, REG_BCN_CTRL_1, bcn_ctrl & ~EN_BCN_FUNCTION);
-	for (i=0; i<2; i++)
-		rtw_write8(adapter, REG_ATIMWND_1 + i, atimwnd[i]);
-	for (i=0; i<8; i++)
-		rtw_write8(adapter, REG_TSFTR1+i, tsftr[i]);
-	for (i=0; i<6; i++)
-		rtw_write8(adapter, REG_MACID1+i, macid[i]);
-	for (i=0; i<6; i++)
-		rtw_write8(adapter, REG_BSSID1+i, bssid[i]);
-
-	rtw_write8(adapter, REG_BCN_CTRL, bcn_ctrl_1);
-	rtw_write8(adapter, REG_BCN_CTRL_1, bcn_ctrl);
-
-	if (adapter->iface_type == IFACE_PORT0) {
-		adapter->iface_type = IFACE_PORT1;
-		adapter->pbuddy_adapter->iface_type = IFACE_PORT0;
-		DBG_871X_LEVEL(_drv_always_, "port switch - port0("ADPT_FMT"), port1("ADPT_FMT")\n",
-			ADPT_ARG(adapter->pbuddy_adapter), ADPT_ARG(adapter));
-	} else {
-		adapter->iface_type = IFACE_PORT0;
-		adapter->pbuddy_adapter->iface_type = IFACE_PORT1;
-		DBG_871X_LEVEL(_drv_always_, "port switch - port0("ADPT_FMT"), port1("ADPT_FMT")\n",
-			ADPT_ARG(adapter), ADPT_ARG(adapter->pbuddy_adapter));
-	}
-
-#ifdef DBG_RUNTIME_PORT_SWITCH
-	msr = rtw_read8(adapter, MSR);
-	bcn_ctrl = rtw_read8(adapter, REG_BCN_CTRL);
-	bcn_ctrl_1 = rtw_read8(adapter, REG_BCN_CTRL_1);
-
-	for (i=0; i<2; i++)
-		atimwnd[i] = rtw_read8(adapter, REG_ATIMWND+i);
-	for (i=0; i<2; i++)
-		atimwnd_1[i] = rtw_read8(adapter, REG_ATIMWND_1+i);
-
-	for (i=0; i<8; i++)
-		tsftr[i] = rtw_read8(adapter, REG_TSFTR+i);
-	for (i=0; i<8; i++)
-		tsftr_1[i] = rtw_read8(adapter, REG_TSFTR1+i);
-
-	for (i=0; i<6; i++)
-		macid[i] = rtw_read8(adapter, REG_MACID+i);
-
-	for (i=0; i<6; i++)
-		bssid[i] = rtw_read8(adapter, REG_BSSID+i);
-
-	for (i=0; i<6; i++)
-		macid_1[i] = rtw_read8(adapter, REG_MACID1+i);
-
-	for (i=0; i<6; i++)
-		bssid_1[i] = rtw_read8(adapter, REG_BSSID1+i);
-
-	DBG_871X(FUNC_ADPT_FMT" after switch\n"
-		"msr:0x%02x\n"
-		"bcn_ctrl:0x%02x\n"
-		"bcn_ctrl_1:0x%02x\n"
-		"atimwnd:%u\n"
-		"atimwnd_1:%u\n"
-		"tsftr:%llu\n"
-		"tsftr1:%llu\n"
-		"macid:"MAC_FMT"\n"
-		"bssid:"MAC_FMT"\n"
-		"macid_1:"MAC_FMT"\n"
-		"bssid_1:"MAC_FMT"\n"
-		, FUNC_ADPT_ARG(adapter)
-		, msr
-		, bcn_ctrl
-		, bcn_ctrl_1
-		, *((u16*)atimwnd)
-		, *((u16*)atimwnd_1)
-		, *((u64*)tsftr)
-		, *((u64*)tsftr_1)
-		, MAC_ARG(macid)
-		, MAC_ARG(bssid)
-		, MAC_ARG(macid_1)
-		, MAC_ARG(bssid_1)
-	);
-#endif /* DBG_RUNTIME_PORT_SWITCH */
-
-#endif /* CONFIG_RUNTIME_PORT_SWITCH */
-#endif /* CONFIG_CONCURRENT_MODE */
 }
 
 const char * const _h2c_msr_role_str[] = {
@@ -2581,20 +2387,8 @@ static void rtw_hal_construct_P2PNegoRsp(_adapter *padapter, u8 *pframe, u32 *pL
 	   + (1 + 1) * (u16)pmlmeext->channel_list.reg_classes
 	   + get_reg_classes_full_count(pmlmeext->channel_list);
 
-#ifdef CONFIG_CONCURRENT_MODE
-	if ( check_buddy_fwstate(padapter, _FW_LINKED ) )
-	{
-		*(u16*) ( p2pie + p2pielen ) = cpu_to_le16( 5 + 1 );
-	}
-	else
-	{
-		*(u16*) ( p2pie + p2pielen ) = cpu_to_le16( len_channellist_attr );
-	}
-#else
-
 	*(u16*) ( p2pie + p2pielen ) = cpu_to_le16( len_channellist_attr );
 
- #endif
 	p2pielen += 2;
 
 	//	Value:
@@ -2608,71 +2402,20 @@ static void rtw_hal_construct_P2PNegoRsp(_adapter *padapter, u8 *pframe, u32 *pL
 
 	//	Channel Entry List
 
-#ifdef CONFIG_CONCURRENT_MODE
-	if ( check_buddy_fwstate(padapter, _FW_LINKED ) )
-	{
-		_adapter *pbuddy_adapter = padapter->pbuddy_adapter;	
-		struct mlme_ext_priv	*pbuddy_mlmeext = &pbuddy_adapter->mlmeextpriv;
-
+	int i, j;
+	for (j = 0; j < pmlmeext->channel_list.reg_classes; j++) {
 		//	Operating Class
-		if ( pbuddy_mlmeext->cur_channel > 14 )
-		{
-			if ( pbuddy_mlmeext->cur_channel >= 149 )
-			{
-				p2pie[ p2pielen++ ] = 0x7c;
-			}
-			else
-			{
-				p2pie[ p2pielen++ ] = 0x73;
-			}
-		}
-		else
-		{
-			p2pie[ p2pielen++ ] = 0x51;
-		}
+		p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].reg_class;
 
 		//	Number of Channels
-		//	Just support 1 channel and this channel is AP's channel
-		p2pie[ p2pielen++ ] = 1;
+		p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channels;
 
 		//	Channel List
-		p2pie[ p2pielen++ ] = pbuddy_mlmeext->cur_channel;
-	}
-	else
-	{
-		int i, j;
-		for (j = 0; j < pmlmeext->channel_list.reg_classes; j++) {
-			//	Operating Class
-			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].reg_class;
-
-			//	Number of Channels
-			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channels;
-
-			//	Channel List
-			for (i = 0; i < pmlmeext->channel_list.reg_class[j].channels; i++) {
-				p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channel[i];
-			}
+		for (i = 0; i < pmlmeext->channel_list.reg_class[j].channels; i++) {
+			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channel[i];
 		}
 	}
-#else // CONFIG_CONCURRENT_MODE
-	{
-		int i, j;
-		for (j = 0; j < pmlmeext->channel_list.reg_classes; j++) {
-			//	Operating Class
-			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].reg_class;
 
-			//	Number of Channels
-			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channels;
-
-			//	Channel List
-			for (i = 0; i < pmlmeext->channel_list.reg_class[j].channels; i++) {
-				p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channel[i];
-			}
-		}
-	}
-#endif // CONFIG_CONCURRENT_MODE
-
-	
 	//	Device Info
 	//	Type:
 	p2pie[ p2pielen++ ] = P2P_ATTR_DEVICE_INFO;
@@ -2766,12 +2509,7 @@ static void rtw_hal_construct_P2PInviteRsp(_adapter * padapter, u8 * pframe, u32
 	u16			len_channellist_attr = 0;
 	u32			pktlen;
 	u8			dialogToken = 0;
-#ifdef CONFIG_CONCURRENT_MODE
-	_adapter				*pbuddy_adapter = padapter->pbuddy_adapter;
-	struct wifidirect_info	*pbuddy_wdinfo = &pbuddy_adapter->wdinfo;
-	struct mlme_priv		*pbuddy_mlmepriv = &pbuddy_adapter->mlmepriv;
-	struct mlme_ext_priv	*pbuddy_mlmeext = &pbuddy_adapter->mlmeextpriv;
-#endif	
+	
 	u32					wfdielen = 0;
 	
 	//struct xmit_frame			*pmgntframe;
@@ -3584,9 +3322,6 @@ void SetHwReg(_adapter *adapter, u8 variable, u8 *val)
 _func_enter_;
 
 	switch (variable) {
-		case HW_VAR_PORT_SWITCH:
-			hw_var_port_switch(adapter);
-			break;
 		case HW_VAR_INIT_RTS_RATE:
 		{
 			u16 brate_cfg = *((u16*)val);
@@ -3597,10 +3332,7 @@ _func_enter_;
 			break;
 		case HW_VAR_SEC_CFG:
 		{
-			#if defined(CONFIG_CONCURRENT_MODE) && !defined(DYNAMIC_CAMID_ALLOC)
-			// enable tx enc and rx dec engine, and no key search for MC/BC
-			rtw_write8(adapter, REG_SECCFG, SCR_NoSKMC|SCR_RxDecEnable|SCR_TxEncEnable);
-			#elif defined(DYNAMIC_CAMID_ALLOC)
+			#if defined(DYNAMIC_CAMID_ALLOC)
 			u16 reg_scr_ori;
 			u16 reg_scr;
 
@@ -4602,9 +4334,6 @@ void dm_DynamicUsbTxAgg(_adapter *padapter, u8 from_timer)
 	struct mlme_ext_priv	*pmlmeextpriv = &(padapter->mlmeextpriv);
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	u8 cur_wireless_mode = pmlmeextpriv->cur_wireless_mode;
-#ifdef CONFIG_CONCURRENT_MODE
-	struct mlme_ext_priv	*pbuddymlmeextpriv = &(padapter->pbuddy_adapter->mlmeextpriv);
-#endif //CONFIG_CONCURRENT_MODE
 }
 
 //bus-agg check for SoftAP mode

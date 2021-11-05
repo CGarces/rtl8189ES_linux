@@ -346,15 +346,7 @@ struct ss_res {
 	u8 rx_ampdu_size;
 	u8 igi_scan;
 	u8 igi_before_scan; /* used for restoring IGI value without enable DIG & FA_CNT */
-#ifdef CONFIG_SCAN_BACKOP
-	u8 backop_flags_sta; /* policy for station mode*/
-	u8 backop_flags_ap; /* policy for ap mode */
-	u8 backop_flags; /* per backop runtime decision */
-	u8 scan_cnt;
-	u8 scan_cnt_max;
-	u32 backop_time; /* the start time of backop */
-	u16 backop_ms;
-#endif
+
 	u8 ssid_num;
 	u8 ch_num;
 	NDIS_802_11_SSID ssid[RTW_SSID_SCAN_AMOUNT];
@@ -624,29 +616,6 @@ struct mlme_ext_priv
 		/* DBG_871X("set_scan_next_state:%s\n", scan_state_str(_state)); */ \
 	} while (0)
 
-#ifdef CONFIG_SCAN_BACKOP
-#define mlmeext_scan_backop_flags(mlmeext) ((mlmeext)->sitesurvey_res.backop_flags)
-#define mlmeext_chk_scan_backop_flags(mlmeext, flags) ((mlmeext)->sitesurvey_res.backop_flags & (flags))
-#define mlmeext_assign_scan_backop_flags(mlmeext, flags) \
-		do { \
-			((mlmeext)->sitesurvey_res.backop_flags = (flags)); \
-			DBG_871X("assign_scan_backop_flags:0x%02x\n", (mlmeext)->sitesurvey_res.backop_flags); \
-		} while (0)
-
-#define mlmeext_scan_backop_flags_sta(mlmeext) ((mlmeext)->sitesurvey_res.backop_flags_sta)
-#define mlmeext_chk_scan_backop_flags_sta(mlmeext, flags) ((mlmeext)->sitesurvey_res.backop_flags_sta & (flags))
-#define mlmeext_assign_scan_backop_flags_sta(mlmeext, flags) \
-	do { \
-		((mlmeext)->sitesurvey_res.backop_flags_sta = (flags)); \
-	} while (0)
-
-#define mlmeext_scan_backop_flags_ap(mlmeext) ((mlmeext)->sitesurvey_res.backop_flags_ap)
-#define mlmeext_chk_scan_backop_flags_ap(mlmeext, flags) ((mlmeext)->sitesurvey_res.backop_flags_ap & (flags))
-#define mlmeext_assign_scan_backop_flags_ap(mlmeext, flags) \
-	do { \
-		((mlmeext)->sitesurvey_res.backop_flags_ap = (flags)); \
-	} while (0)
-#else
 #define mlmeext_scan_backop_flags(mlmeext) (0)
 #define mlmeext_chk_scan_backop_flags(mlmeext, flags) (0)
 #define mlmeext_assign_scan_backop_flags(mlmeext, flags) do {} while (0)
@@ -658,7 +627,6 @@ struct mlme_ext_priv
 #define mlmeext_scan_backop_flags_ap(mlmeext) (0)
 #define mlmeext_chk_scan_backop_flags_ap(mlmeext, flags) (0)
 #define mlmeext_assign_scan_backop_flags_ap(mlmeext, flags) do {} while (0)
-#endif
 
 void init_mlme_default_rate_set(_adapter* padapter);
 int init_mlme_ext_priv(_adapter* padapter);
@@ -818,7 +786,6 @@ void report_survey_event(_adapter *padapter, union recv_frame *precv_frame);
 void report_surveydone_event(_adapter *padapter);
 void report_del_sta_event(_adapter *padapter, unsigned char *MacAddr, unsigned short reason, bool enqueue, u8 locally_generated);
 void report_add_sta_event(_adapter *padapter, unsigned char *MacAddr);
-bool rtw_port_switch_chk(_adapter *adapter);
 void report_wmm_edca_update(_adapter *padapter);
 
 void beacon_timing_control(_adapter *padapter);
@@ -950,11 +917,6 @@ extern void update_TSF(struct mlme_ext_priv *pmlmeext, u8 *pframe, uint len);
 extern void correct_TSF(_adapter *padapter, struct mlme_ext_priv *pmlmeext);
 extern void adaptive_early_32k(struct mlme_ext_priv *pmlmeext, u8 *pframe, uint len);
 extern u8 traffic_status_watchdog(_adapter *padapter, u8 from_timer);
-
-
-#ifdef CONFIG_CONCURRENT_MODE
-sint check_buddy_mlmeinfo_state(_adapter *padapter, u32 state);
-#endif
 
 void rtw_join_done_chk_ch(_adapter *padapter, int join_res);
 

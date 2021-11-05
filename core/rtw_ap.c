@@ -1407,11 +1407,8 @@ void start_bss_network(_adapter *padapter, struct createbss_parm *parm)
 	rtw_hal_set_hwreg(padapter, HW_VAR_BSSID, pnetwork->MacAddress);
 
 	//Set EDCA param reg
-#ifdef CONFIG_CONCURRENT_MODE
-	acparm = 0x005ea42b;
-#else
 	acparm = 0x002F3217; // VO
-#endif
+
 	rtw_hal_set_hwreg(padapter, HW_VAR_AC_PARAM_VO, (u8 *)(&acparm));
 	acparm = 0x005E4317; // VI
 	rtw_hal_set_hwreg(padapter, HW_VAR_AC_PARAM_VI, (u8 *)(&acparm));
@@ -1464,9 +1461,6 @@ change_chbw:
 	if (_TRUE == pmlmeext->bstart_bss
 		&& !check_fwstate(pmlmepriv, WIFI_SITE_MONITOR)
 		&& !check_fwstate(pmlmepriv, WIFI_OP_CH_SWITCHING)
-		#ifdef CONFIG_CONCURRENT_MODE
-		&& !check_buddy_fwstate(padapter, WIFI_SITE_MONITOR)
-		#endif
 	) {
 
 	       if ((pmlmepriv->olbc == _TRUE) || (pmlmepriv->olbc_ht == _TRUE)) {
@@ -3825,11 +3819,7 @@ bool rtw_ap_chbw_decision(_adapter *adapter, u8 req_ch, u8 req_bw, u8 req_offset
 		set_dec_ch = _TRUE;
 	}
 
-	if (check_fwstate(&adapter->mlmepriv, _FW_UNDER_SURVEY)
-		#ifdef CONFIG_CONCURRENT_MODE
-		|| check_buddy_fwstate(adapter, _FW_UNDER_SURVEY)
-		#endif
-	) {
+	if (check_fwstate(&adapter->mlmepriv, _FW_UNDER_SURVEY)) {
 		/* scanning, leave ch setting to scan state machine */
 		set_u_ch = set_dec_ch = _FALSE;
 	}

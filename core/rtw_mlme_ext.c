@@ -735,13 +735,7 @@ static void init_mlme_ext_priv_value(_adapter* padapter)
 	pmlmeext->sitesurvey_res.scan_ch_ms = SURVEY_TO;
 	pmlmeext->sitesurvey_res.rx_ampdu_accept = RX_AMPDU_ACCEPT_INVALID;
 	pmlmeext->sitesurvey_res.rx_ampdu_size = RX_AMPDU_SIZE_INVALID;
-	#ifdef CONFIG_SCAN_BACKOP
-	mlmeext_assign_scan_backop_flags_sta(pmlmeext, /*SS_BACKOP_EN|*/SS_BACKOP_PS_ANNC|SS_BACKOP_TX_RESUME);
-	mlmeext_assign_scan_backop_flags_ap(pmlmeext, SS_BACKOP_EN|SS_BACKOP_PS_ANNC|SS_BACKOP_TX_RESUME);
-	pmlmeext->sitesurvey_res.scan_cnt = 0;
-	pmlmeext->sitesurvey_res.scan_cnt_max = RTW_SCAN_NUM_OF_CH;
-	pmlmeext->sitesurvey_res.backop_ms = RTW_BACK_OP_CH_MS;
-	#endif
+
 	pmlmeext->scan_abort = _FALSE;
 
 	pmlmeinfo->state = WIFI_FW_NULL_STATE;
@@ -1097,7 +1091,7 @@ void mgt_dispatcher(_adapter *padapter, union recv_frame *precv_frame)
 	switch (GetFrameSubType(pframe)) 
 	{
 		case WIFI_AUTH:
-			if(check_fwstate(pmlmepriv, WIFI_AP_STATE) == _TRUE)
+			if (check_fwstate(pmlmepriv, WIFI_AP_STATE))
 				ptable->func = &OnAuth;
 			else
 				ptable->func = &OnAuthClient;
@@ -1411,16 +1405,6 @@ _non_rc_device:
 	return _SUCCESS;
 
 #endif //CONFIG_AUTO_AP_MODE
-	
-
-#ifdef CONFIG_CONCURRENT_MODE
-	if(((pmlmeinfo->state&0x03) == WIFI_FW_AP_STATE) &&
-		check_buddy_fwstate(padapter, _FW_UNDER_LINKING|_FW_UNDER_SURVEY))
-	{
-		//don't process probe req
-		return _SUCCESS;
-	}
-#endif	
 
 	p = rtw_get_ie(pframe + WLAN_HDR_A3_LEN + _PROBEREQ_IE_OFFSET_, _SSID_IE_, (int *)&ielen,
 			len - WLAN_HDR_A3_LEN - _PROBEREQ_IE_OFFSET_);
@@ -1519,9 +1503,6 @@ unsigned int OnProbeRsp(_adapter *padapter, union recv_frame *precv_frame)
 
 	if (mlmeext_chk_scan_state(pmlmeext, SCAN_PROCESS)) {
 		report_survey_event(padapter, precv_frame);	
-#ifdef CONFIG_CONCURRENT_MODE
-		report_survey_event(padapter->pbuddy_adapter, precv_frame);	
-#endif
 		return _SUCCESS;
 	}
 
@@ -1558,9 +1539,6 @@ unsigned int OnBeacon(_adapter *padapter, union recv_frame *precv_frame)
 
 	if (mlmeext_chk_scan_state(pmlmeext, SCAN_PROCESS)) {
 		report_survey_event(padapter, precv_frame);
-#ifdef CONFIG_CONCURRENT_MODE
-		report_survey_event(padapter->pbuddy_adapter, precv_frame);	
-#endif
 		return _SUCCESS;
 	}
 
@@ -1608,17 +1586,6 @@ unsigned int OnBeacon(_adapter *padapter, union recv_frame *precv_frame)
 			_rtw_memset(pmlmeext->bcn_delay_ratio, 0, sizeof(pmlmeext->bcn_delay_ratio));
 
 			process_p2p_ps_ie(padapter, (pframe + WLAN_HDR_A3_LEN), (len - WLAN_HDR_A3_LEN));
-
-#ifdef CONFIG_CONCURRENT_MODE
-			if (padapter->registrypriv.wifi_spec) {
-				if (process_p2p_cross_connect_ie(padapter, (pframe + WLAN_HDR_A3_LEN), (len - WLAN_HDR_A3_LEN)) == _FALSE) {
-					if((padapter->pbuddy_adapter->mlmeextpriv.mlmext_info.state&0x03) == WIFI_FW_AP_STATE) {
-						DBG_871X_LEVEL(_drv_always_, "no issue auth, P2P cross-connect does not permit\n ");
-						return _SUCCESS;
-					}
-				}
-			}
-#endif // CONFIG_CONCURRENT_MODE
 
 			//start auth
 			start_clnt_auth(padapter);
@@ -1734,16 +1701,6 @@ unsigned int OnAuth(_adapter *padapter, union recv_frame *precv_frame)
 	u8 *pframe = precv_frame->u.hdr.rx_data; 
 	uint len = precv_frame->u.hdr.len;
 	u8	offset = 0;
-
-	
-#ifdef CONFIG_CONCURRENT_MODE	
-	if(((pmlmeinfo->state&0x03) == WIFI_FW_AP_STATE) &&
-		check_buddy_fwstate(padapter, _FW_UNDER_LINKING|_FW_UNDER_SURVEY))
-	{
-		//don't process auth request;
-		return _SUCCESS;
-	}
-#endif //CONFIG_CONCURRENT_MODE
 
 	if((pmlmeinfo->state&0x03) != WIFI_FW_AP_STATE)
 		return _FAIL;
@@ -2063,15 +2020,6 @@ unsigned int OnAssocReq(_adapter *padapter, union recv_frame *precv_frame)
 	u8 p2p_status_code = P2P_STATUS_SUCCESS;
 	u8 *p2pie;
 	u32 p2pielen = 0;
-
-#ifdef CONFIG_CONCURRENT_MODE
-	if(((pmlmeinfo->state&0x03) == WIFI_FW_AP_STATE) &&
-		check_buddy_fwstate(padapter, _FW_UNDER_LINKING|_FW_UNDER_SURVEY))
-	{
-		//don't process assoc request;
-		return _SUCCESS;
-	}
-#endif //CONFIG_CONCURRENT_MODE
 
 	if((pmlmeinfo->state&0x03) != WIFI_FW_AP_STATE)
 		return _FAIL;
@@ -3431,7 +3379,7 @@ void issue_p2p_GO_request(_adapter *padapter, u8* raddr)
 	u32			p2poui = cpu_to_be32(P2POUI);
 	u8			oui_subtype = P2P_GO_NEGO_REQ;
 	u8			wpsie[ 255 ] = { 0x00 }, p2pie[ 255 ] = { 0x00 };
-	u8			wpsielen = 0, p2pielen = 0, i;
+	u8			wpsielen = 0, p2pielen = 0, i,j;
 	u8			channel_cnt_24g = 0, channel_cnt_5gl = 0, channel_cnt_5gh = 0;
 	u16			len_channellist_attr = 0;
 	u32					wfdielen = 0;
@@ -3669,21 +3617,8 @@ void issue_p2p_GO_request(_adapter *padapter, u8* raddr)
 	   + (1 + 1) * (u16)(pmlmeext->channel_list.reg_classes)
 	   + get_reg_classes_full_count(pmlmeext->channel_list);
 
-#ifdef CONFIG_CONCURRENT_MODE
-	if (check_buddy_fwstate(padapter , _FW_LINKED)
-		&& padapter->registrypriv.full_ch_in_p2p_handshake == 0)
-	{
-		*(u16*) ( p2pie + p2pielen ) = cpu_to_le16( 5 + 1 );
-	}
-	else
-	{
-		*(u16*) ( p2pie + p2pielen ) = cpu_to_le16( len_channellist_attr );
-	}
-#else
-
 	*(u16*) ( p2pie + p2pielen ) = cpu_to_le16( len_channellist_attr );
 
-#endif
 	p2pielen += 2;
 
 	//	Value:
@@ -3697,70 +3632,18 @@ void issue_p2p_GO_request(_adapter *padapter, u8* raddr)
 
 	//	Channel Entry List
 
-#ifdef CONFIG_CONCURRENT_MODE
-	if (check_buddy_fwstate(padapter , _FW_LINKED)
-		&& padapter->registrypriv.full_ch_in_p2p_handshake == 0)
-	{
-		_adapter *pbuddy_adapter = padapter->pbuddy_adapter;	
-		struct mlme_ext_priv	*pbuddy_mlmeext = &pbuddy_adapter->mlmeextpriv;
-
+	for (j = 0; j < pmlmeext->channel_list.reg_classes; j++) {
 		//	Operating Class
-		if ( pbuddy_mlmeext->cur_channel > 14 )
-		{
-			if ( pbuddy_mlmeext->cur_channel >= 149 )
-			{
-				p2pie[ p2pielen++ ] = 0x7c;
-			}
-			else
-			{
-				p2pie[ p2pielen++ ] = 0x73;
-			}
-		}
-		else
-		{
-			p2pie[ p2pielen++ ] = 0x51;
-		}
+		p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].reg_class;
 
 		//	Number of Channels
-		//	Just support 1 channel and this channel is AP's channel
-		p2pie[ p2pielen++ ] = 1;
+		p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channels;
 
 		//	Channel List
-		p2pie[ p2pielen++ ] = pbuddy_mlmeext->cur_channel;
-	}
-	else
-	{
-		int i,j;
-		for (j = 0; j < pmlmeext->channel_list.reg_classes; j++) {
-			//	Operating Class
-			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].reg_class;
-
-			//	Number of Channels
-			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channels;
-
-			//	Channel List
-			for (i = 0; i < pmlmeext->channel_list.reg_class[j].channels; i++) {
-				p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channel[i];
-			}
+		for (i = 0; i < pmlmeext->channel_list.reg_class[j].channels; i++) {
+			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channel[i];
 		}
 	}
-#else // CONFIG_CONCURRENT_MODE
-	{
-		int i,j;
-		for (j = 0; j < pmlmeext->channel_list.reg_classes; j++) {
-			//	Operating Class
-			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].reg_class;
-
-			//	Number of Channels
-			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channels;
-
-			//	Channel List
-			for (i = 0; i < pmlmeext->channel_list.reg_class[j].channels; i++) {
-				p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channel[i];
-			}
-		}
-	}
-#endif // CONFIG_CONCURRENT_MODE
 
 	//	Device Info
 	//	Type:
@@ -3874,7 +3757,7 @@ void issue_p2p_GO_response(_adapter *padapter, u8* raddr, u8* frame_body,uint le
 	u32			p2poui = cpu_to_be32(P2POUI);
 	u8			oui_subtype = P2P_GO_NEGO_RESP;
 	u8			wpsie[ 255 ] = { 0x00 }, p2pie[ 255 ] = { 0x00 };
-	u8			p2pielen = 0, i;
+	u8			p2pielen = 0, i, j;
 	uint			wpsielen = 0;
 	u16			wps_devicepassword_id = 0x0000;
 	uint			wps_devicepassword_id_len = 0;
@@ -3974,9 +3857,7 @@ void issue_p2p_GO_response(_adapter *padapter, u8* raddr, u8* frame_body,uint le
 	else if ( wps_devicepassword_id == WPS_DPID_REGISTRAR_SPEC )
 	{
 		*(u16*) ( wpsie + wpsielen ) = cpu_to_be16( WPS_DPID_USER_SPEC );
-	}
-	else
-	{
+	} else {
 		*(u16*) ( wpsie + wpsielen ) = cpu_to_be16( WPS_DPID_PBC );
 	}
 	wpsielen += 2;
@@ -3986,16 +3867,13 @@ void issue_p2p_GO_response(_adapter *padapter, u8* raddr, u8* frame_body,uint le
 	//	We have to get peer_req_cm from here.
 	if(_rtw_memcmp( pwdinfo->rx_prov_disc_info.strconfig_method_desc_of_prov_disc_req, "000", 3) )
 	{
-		if ( wps_devicepassword_id == WPS_DPID_USER_SPEC )
-		{
+		if (wps_devicepassword_id == WPS_DPID_USER_SPEC) {
 			_rtw_memcpy( pwdinfo->rx_prov_disc_info.strconfig_method_desc_of_prov_disc_req, "dis", 3 );
 		}
 		else if ( wps_devicepassword_id == WPS_DPID_REGISTRAR_SPEC )
 		{
 			_rtw_memcpy( pwdinfo->rx_prov_disc_info.strconfig_method_desc_of_prov_disc_req, "pad", 3 );	
-		}
-		else
-		{
+		} else {
 			_rtw_memcpy( pwdinfo->rx_prov_disc_info.strconfig_method_desc_of_prov_disc_req, "pbc", 3 );	
 		}
 	}
@@ -4049,28 +3927,21 @@ void issue_p2p_GO_response(_adapter *padapter, u8* raddr, u8* frame_body,uint le
 	//	Value:
 	//	Device Capability Bitmap, 1 byte
 
-	if ( rtw_p2p_chk_role(pwdinfo, P2P_ROLE_CLIENT) )
-	{
+	if (rtw_p2p_chk_role(pwdinfo, P2P_ROLE_CLIENT)) {
 		//	Commented by Albert 2011/03/08
 		//	According to the P2P specification
 		//	if the sending device will be client, the P2P Capability should be reserved of group negotation response frame
 		p2pie[ p2pielen++ ] = 0;
-	}
-	else
-	{
+	} else {
 		//	Be group owner or meet the error case
 		p2pie[ p2pielen++ ] = DMP_P2P_DEVCAP_SUPPORT;
 	}
 	
 	//	Group Capability Bitmap, 1 byte
 	if ( pwdinfo->persistent_supported )
-	{
 		p2pie[ p2pielen++ ] = P2P_GRPCAP_CROSS_CONN | P2P_GRPCAP_PERSISTENT_GROUP;
-	}
 	else
-	{
 		p2pie[ p2pielen++ ] = P2P_GRPCAP_CROSS_CONN;
-	}
 
 	//	Group Owner Intent
 	//	Type:
@@ -4085,9 +3956,7 @@ void issue_p2p_GO_response(_adapter *padapter, u8* raddr, u8* frame_body,uint le
 	{
 		//	Peer's tie breaker bit is 1, our tie breaker bit should be 0
 		p2pie[ p2pielen++ ] = ( pwdinfo->intent << 1 );
-	}
-	else
-	{
+	} else {
 		//	Peer's tie breaker bit is 0, our tie breaker bit should be 1
 		p2pie[ p2pielen++ ] = ( ( pwdinfo->intent << 1 ) | BIT(0) );
 	}
@@ -4132,9 +4001,7 @@ void issue_p2p_GO_response(_adapter *padapter, u8* raddr, u8* frame_body,uint le
 	{
 		//	Operating Class
 		p2pie[ p2pielen++ ] = 0x73;
-	}
-	else
-	{
+	} else {
 		//	Operating Class
 		p2pie[ p2pielen++ ] = 0x7c;
 	}
@@ -4165,21 +4032,8 @@ void issue_p2p_GO_response(_adapter *padapter, u8* raddr, u8* frame_body,uint le
 	   + (1 + 1) * (u16)pmlmeext->channel_list.reg_classes
 	   + get_reg_classes_full_count(pmlmeext->channel_list);
 
-#ifdef CONFIG_CONCURRENT_MODE
-	if (check_buddy_fwstate(padapter , _FW_LINKED)
-		&& padapter->registrypriv.full_ch_in_p2p_handshake == 0)
-	{
-		*(u16*) ( p2pie + p2pielen ) = cpu_to_le16( 5 + 1 );
-	}
-	else
-	{
-		*(u16*) ( p2pie + p2pielen ) = cpu_to_le16( len_channellist_attr );
-	}
-#else
-
 	*(u16*) ( p2pie + p2pielen ) = cpu_to_le16( len_channellist_attr );
 
- #endif
 	p2pielen += 2;
 
 	//	Value:
@@ -4192,73 +4046,19 @@ void issue_p2p_GO_response(_adapter *padapter, u8* raddr, u8* frame_body,uint le
 	p2pie[ p2pielen++ ] = 0x04;
 
 	//	Channel Entry List
-
-#ifdef CONFIG_CONCURRENT_MODE
-	if (check_buddy_fwstate(padapter , _FW_LINKED)
-		&& padapter->registrypriv.full_ch_in_p2p_handshake == 0)
-	{
-		_adapter *pbuddy_adapter = padapter->pbuddy_adapter;	
-		struct mlme_ext_priv	*pbuddy_mlmeext = &pbuddy_adapter->mlmeextpriv;
-
+	for (j = 0; j < pmlmeext->channel_list.reg_classes; j++) {
 		//	Operating Class
-		if ( pbuddy_mlmeext->cur_channel > 14 )
-		{
-			if ( pbuddy_mlmeext->cur_channel >= 149 )
-			{
-				p2pie[ p2pielen++ ] = 0x7c;
-			}
-			else
-			{
-				p2pie[ p2pielen++ ] = 0x73;
-			}
-		}
-		else
-		{
-			p2pie[ p2pielen++ ] = 0x51;
-		}
+		p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].reg_class;
 
 		//	Number of Channels
-		//	Just support 1 channel and this channel is AP's channel
-		p2pie[ p2pielen++ ] = 1;
+		p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channels;
 
 		//	Channel List
-		p2pie[ p2pielen++ ] = pbuddy_mlmeext->cur_channel;
-	}
-	else
-	{
-		int i, j;
-		for (j = 0; j < pmlmeext->channel_list.reg_classes; j++) {
-			//	Operating Class
-			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].reg_class;
-
-			//	Number of Channels
-			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channels;
-
-			//	Channel List
-			for (i = 0; i < pmlmeext->channel_list.reg_class[j].channels; i++) {
-				p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channel[i];
-			}
+		for (i = 0; i < pmlmeext->channel_list.reg_class[j].channels; i++) {
+			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channel[i];
 		}
 	}
-#else // CONFIG_CONCURRENT_MODE
-	{
-		int i, j;
-		for (j = 0; j < pmlmeext->channel_list.reg_classes; j++) {
-			//	Operating Class
-			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].reg_class;
 
-			//	Number of Channels
-			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channels;
-
-			//	Channel List
-			for (i = 0; i < pmlmeext->channel_list.reg_class[j].channels; i++) {
-				p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channel[i];
-			}
-		}
-	}
-#endif // CONFIG_CONCURRENT_MODE
-
-	
 	//	Device Info
 	//	Type:
 	p2pie[ p2pielen++ ] = P2P_ATTR_DEVICE_INFO;
@@ -4616,17 +4416,11 @@ void issue_p2p_invitation_request(_adapter *padapter, u8* raddr )
 	u32			p2poui = cpu_to_be32(P2POUI);
 	u8			oui_subtype = P2P_INVIT_REQ;
 	u8			p2pie[ 255 ] = { 0x00 };
-	u8			p2pielen = 0, i;
+	u8			p2pielen = 0, i, j;
 	u8			dialogToken = 3;
 	u8			channel_cnt_24g = 0, channel_cnt_5gl = 0, channel_cnt_5gh = 0;
 	u16			len_channellist_attr = 0;	
 	u32					wfdielen = 0;
-#ifdef CONFIG_CONCURRENT_MODE
-	_adapter				*pbuddy_adapter = padapter->pbuddy_adapter;
-	struct wifidirect_info	*pbuddy_wdinfo = &pbuddy_adapter->wdinfo;
-	struct mlme_priv		*pbuddy_mlmepriv = &pbuddy_adapter->mlmepriv;
-	struct mlme_ext_priv	*pbuddy_mlmeext = &pbuddy_adapter->mlmeextpriv;
-#endif
 
 	struct xmit_frame			*pmgntframe;
 	struct pkt_attrib			*pattrib;
@@ -4773,21 +4567,8 @@ void issue_p2p_invitation_request(_adapter *padapter, u8* raddr )
 	   + (1 + 1) * (u16)pmlmeext->channel_list.reg_classes
 	   + get_reg_classes_full_count(pmlmeext->channel_list);
 
-#ifdef CONFIG_CONCURRENT_MODE
-	if (check_buddy_fwstate(padapter , _FW_LINKED)
-		&& padapter->registrypriv.full_ch_in_p2p_handshake == 0)
-	{
-		*(u16*) ( p2pie + p2pielen ) = cpu_to_le16( 5 + 1 );
-	}
-	else
-	{
-		*(u16*) ( p2pie + p2pielen ) = cpu_to_le16( len_channellist_attr );
-	}
-#else
-
 	*(u16*) ( p2pie + p2pielen ) = cpu_to_le16( len_channellist_attr );
 
- #endif
 	p2pielen += 2;
 
 	//	Value:
@@ -4800,71 +4581,18 @@ void issue_p2p_invitation_request(_adapter *padapter, u8* raddr )
 	p2pie[ p2pielen++ ] = 0x04;
 
 	//	Channel Entry List
-#ifdef CONFIG_CONCURRENT_MODE
-	if (check_buddy_fwstate(padapter, _FW_LINKED)
-		&& padapter->registrypriv.full_ch_in_p2p_handshake == 0)
-	{
-		_adapter *pbuddy_adapter = padapter->pbuddy_adapter;	
-		struct mlme_ext_priv	*pbuddy_mlmeext = &pbuddy_adapter->mlmeextpriv;
-
+	for (j = 0; j < pmlmeext->channel_list.reg_classes; j++) {
 		//	Operating Class
-		if ( pbuddy_mlmeext->cur_channel > 14 )
-		{
-			if ( pbuddy_mlmeext->cur_channel >= 149 )
-			{
-				p2pie[ p2pielen++ ] = 0x7c;
-			}
-			else
-			{
-				p2pie[ p2pielen++ ] = 0x73;
-			}
-		}
-		else
-		{
-			p2pie[ p2pielen++ ] = 0x51;
-		}
+		p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].reg_class;
 
 		//	Number of Channels
-		//	Just support 1 channel and this channel is AP's channel
-		p2pie[ p2pielen++ ] = 1;
+		p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channels;
 
 		//	Channel List
-		p2pie[ p2pielen++ ] = pbuddy_mlmeext->cur_channel;
-	}
-	else
-	{
-		int i, j;
-		for (j = 0; j < pmlmeext->channel_list.reg_classes; j++) {
-			//	Operating Class
-			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].reg_class;
-
-			//	Number of Channels
-			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channels;
-
-			//	Channel List
-			for (i = 0; i < pmlmeext->channel_list.reg_class[j].channels; i++) {
-				p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channel[i];
-			}
+		for (i = 0; i < pmlmeext->channel_list.reg_class[j].channels; i++) {
+			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channel[i];
 		}
 	}
-#else // CONFIG_CONCURRENT_MODE
-	{
-		int i, j;
-		for (j = 0; j < pmlmeext->channel_list.reg_classes; j++) {
-			//	Operating Class
-			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].reg_class;
-
-			//	Number of Channels
-			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channels;
-
-			//	Channel List
-			for (i = 0; i < pmlmeext->channel_list.reg_class[j].channels; i++) {
-				p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channel[i];
-			}
-		}
-	}
-#endif // CONFIG_CONCURRENT_MODE
-
 
 	//	P2P Group ID
 	//	Type:
@@ -4955,15 +4683,10 @@ void issue_p2p_invitation_response(_adapter *padapter, u8* raddr, u8 dialogToken
 	u32			p2poui = cpu_to_be32(P2POUI);
 	u8			oui_subtype = P2P_INVIT_RESP;
 	u8			p2pie[ 255 ] = { 0x00 };
-	u8			p2pielen = 0, i;
+	u8			p2pielen = 0, i, j;
 	u8			channel_cnt_24g = 0, channel_cnt_5gl = 0, channel_cnt_5gh = 0;
 	u16			len_channellist_attr = 0;
-#ifdef CONFIG_CONCURRENT_MODE
-	_adapter				*pbuddy_adapter = padapter->pbuddy_adapter;
-	struct wifidirect_info	*pbuddy_wdinfo = &pbuddy_adapter->wdinfo;
-	struct mlme_priv		*pbuddy_mlmepriv = &pbuddy_adapter->mlmepriv;
-	struct mlme_ext_priv	*pbuddy_mlmeext = &pbuddy_adapter->mlmeextpriv;
-#endif	
+	
 	u32					wfdielen = 0;
 	
 	struct xmit_frame			*pmgntframe;
@@ -5117,21 +4840,8 @@ void issue_p2p_invitation_response(_adapter *padapter, u8* raddr, u8 dialogToken
 			+ (1 + 1) * (u16)pmlmeext->channel_list.reg_classes
 			+ get_reg_classes_full_count(pmlmeext->channel_list);
 
-#ifdef CONFIG_CONCURRENT_MODE
-		if (check_buddy_fwstate(padapter, _FW_LINKED)
-			&& padapter->registrypriv.full_ch_in_p2p_handshake == 0)
-		{
-			*(u16*) ( p2pie + p2pielen ) = cpu_to_le16( 5 + 1 );
-		}
-		else
-		{
-			*(u16*) ( p2pie + p2pielen ) = cpu_to_le16( len_channellist_attr );
-		}
-#else
-
 		*(u16*) ( p2pie + p2pielen ) = cpu_to_le16( len_channellist_attr );
 
-#endif
 		p2pielen += 2;
 
 		//	Value:
@@ -5144,70 +4854,18 @@ void issue_p2p_invitation_response(_adapter *padapter, u8* raddr, u8 dialogToken
 		p2pie[ p2pielen++ ] = 0x04;
 
 		//	Channel Entry List
-#ifdef CONFIG_CONCURRENT_MODE
-		if (check_buddy_fwstate(padapter , _FW_LINKED)
-			&& padapter->registrypriv.full_ch_in_p2p_handshake == 0)
-		{
-			_adapter *pbuddy_adapter = padapter->pbuddy_adapter;	
-			struct mlme_ext_priv	*pbuddy_mlmeext = &pbuddy_adapter->mlmeextpriv;
-
+		for (j = 0; j < pmlmeext->channel_list.reg_classes; j++) {
 			//	Operating Class
-			if ( pbuddy_mlmeext->cur_channel > 14 )
-			{
-				if ( pbuddy_mlmeext->cur_channel >= 149 )
-				{
-					p2pie[ p2pielen++ ] = 0x7c;
-				}
-				else
-				{
-					p2pie[ p2pielen++ ] = 0x73;
-				}
-			}
-			else
-			{
-				p2pie[ p2pielen++ ] = 0x51;
-			}
+			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].reg_class;
 
 			//	Number of Channels
-			//	Just support 1 channel and this channel is AP's channel
-			p2pie[ p2pielen++ ] = 1;
+			p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channels;
 
 			//	Channel List
-			p2pie[ p2pielen++ ] = pbuddy_mlmeext->cur_channel;
-		}
-		else
-		{
-			int i, j;
-			for (j = 0; j < pmlmeext->channel_list.reg_classes; j++) {
-				//	Operating Class
-				p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].reg_class;
-
-				//	Number of Channels
-				p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channels;
-
-				//	Channel List
-				for (i = 0; i < pmlmeext->channel_list.reg_class[j].channels; i++) {
-					p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channel[i];
-				}
+			for (i = 0; i < pmlmeext->channel_list.reg_class[j].channels; i++) {
+				p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channel[i];
 			}
 		}
-#else // CONFIG_CONCURRENT_MODE
-		{
-			int i, j;
-			for (j = 0; j < pmlmeext->channel_list.reg_classes; j++) {
-				//	Operating Class
-				p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].reg_class;
-
-				//	Number of Channels
-				p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channels;
-
-				//	Channel List
-				for (i = 0; i < pmlmeext->channel_list.reg_class[j].channels; i++) {
-					p2pie[p2pielen++] = pmlmeext->channel_list.reg_class[j].channel[i];
-				}
-			}
-		}
-#endif // CONFIG_CONCURRENT_MODE
 	}
 		
 	pframe = rtw_set_ie(pframe, _VENDOR_SPECIFIC_IE_, p2pielen, (unsigned char *) p2pie, &pattrib->pktlen );	
@@ -6099,13 +5757,7 @@ unsigned int on_action_public_p2p(union recv_frame *precv_frame)
 					//	Restore the previous p2p state
 					rtw_p2p_set_state(pwdinfo, rtw_p2p_pre_state(pwdinfo));
 					DBG_871X( "[%s] Restore the previous p2p state to %d\n", __FUNCTION__, rtw_p2p_state(pwdinfo) );						
-				}					
-#ifdef CONFIG_CONCURRENT_MODE
-				if ( check_buddy_fwstate(padapter, _FW_LINKED ) )
-				{
-					_cancel_timer_ex( &pwdinfo->ap_p2p_switch_timer );
 				}
-#endif // CONFIG_CONCURRENT_MODE
 
 				//	Commented by Kurt 20110902
 				//Add if statement to avoid receiving duplicate prov disc req. such that pre_p2p_state would be covered.
@@ -6122,12 +5774,7 @@ unsigned int on_action_public_p2p(union recv_frame *precv_frame)
 
 				//	Commented by Albert 20110718
 				//	No matter negotiating or negotiation failure, the driver should set up the restore P2P state timer.
-#ifdef CONFIG_CONCURRENT_MODE
-				//	Commented by Albert 20120107
-				_set_timer( &pwdinfo->restore_p2p_state_timer, 3000 );
-#else // CONFIG_CONCURRENT_MODE
 				_set_timer( &pwdinfo->restore_p2p_state_timer, 5000 );
-#endif // CONFIG_CONCURRENT_MODE
 				break;					
 			}
 			case P2P_GO_NEGO_RESP:
@@ -6941,10 +6588,6 @@ s32 dump_mgntframe_and_wait_ack(_adapter *padapter, struct xmit_frame *pmgntfram
 	s32 ret = _FAIL;
 	u32 timeout_ms = 500;//  500ms
 	struct xmit_priv	*pxmitpriv = &padapter->xmitpriv;
-	#ifdef CONFIG_CONCURRENT_MODE
-	if (padapter->pbuddy_adapter && !padapter->isprimary)
-		pxmitpriv = &(padapter->pbuddy_adapter->xmitpriv);
-	#endif
 
 	if (RTW_CANNOT_RUN(padapter)) {
 		rtw_free_xmitbuf(&padapter->xmitpriv, pmgntframe->pxmitbuf);
@@ -7052,11 +6695,7 @@ void issue_beacon(_adapter *padapter, int timeout_ms)
 	pattrib = &pmgntframe->attrib;
 	update_mgntframe_attrib(padapter, pattrib);
 	pattrib->qsel = QSLT_BEACON;
-	#ifdef CONFIG_CONCURRENT_MODE
-	if(padapter->iface_type == IFACE_PORT1)	
-		pattrib->mbssid = 1;
-	#endif	
-	
+
 	_rtw_memset(pmgntframe->buf_addr, 0, WLANHDR_OFFSET + TXDESC_OFFSET);
 		
 	pframe = (u8 *)(pmgntframe->buf_addr) + TXDESC_OFFSET;
@@ -10844,87 +10483,6 @@ void report_add_sta_event(_adapter *padapter, unsigned char *MacAddr)
 	return;
 }
 
-
-bool rtw_port_switch_chk(_adapter *adapter)
-{
-	bool switch_needed = _FALSE;
-#ifdef CONFIG_CONCURRENT_MODE
-#ifdef CONFIG_RUNTIME_PORT_SWITCH
-	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
-	struct pwrctrl_priv *pwrctl = dvobj_to_pwrctl(dvobj);
-	_adapter *if_port0 = NULL;
-	_adapter *if_port1 = NULL;
-	struct mlme_ext_info *if_port0_mlmeinfo = NULL;
-	struct mlme_ext_info *if_port1_mlmeinfo = NULL;
-	int i;
-
-	for (i = 0; i < dvobj->iface_nums; i++) {
-		if (get_iface_type(dvobj->padapters[i]) == IFACE_PORT0) {
-			if_port0 = dvobj->padapters[i];
-			if_port0_mlmeinfo = &(if_port0->mlmeextpriv.mlmext_info);
-		}
-		else if (get_iface_type(dvobj->padapters[i]) == IFACE_PORT1) {
-			if_port1 = dvobj->padapters[i];
-			if_port1_mlmeinfo = &(if_port1->mlmeextpriv.mlmext_info);
-		}
-	}
-
-	if (if_port0 == NULL) {
-		rtw_warn_on(1);
-		goto exit;
-	}
-
-	if (if_port1 == NULL) {
-		rtw_warn_on(1);
-		goto exit;
-	}
-
-#ifdef DBG_RUNTIME_PORT_SWITCH
-	DBG_871X(FUNC_ADPT_FMT" wowlan_mode:%u\n"
-		ADPT_FMT", port0, mlmeinfo->state:0x%08x, p2p_state:%d, %d\n"
-		ADPT_FMT", port1, mlmeinfo->state:0x%08x, p2p_state:%d, %d\n",
-		FUNC_ADPT_ARG(adapter), pwrctl->wowlan_mode,
-		ADPT_ARG(if_port0), if_port0_mlmeinfo->state, rtw_p2p_state(&if_port0->wdinfo), rtw_p2p_chk_state(&if_port0->wdinfo, P2P_STATE_NONE),
-		ADPT_ARG(if_port1), if_port1_mlmeinfo->state, rtw_p2p_state(&if_port1->wdinfo), rtw_p2p_chk_state(&if_port1->wdinfo, P2P_STATE_NONE));
-#endif /* DBG_RUNTIME_PORT_SWITCH */
-
-	/* AP should use port0 for ctl frame's ack */
-	if ((if_port1_mlmeinfo->state & 0x03) == WIFI_FW_AP_STATE) {
-		DBG_871X("%s "ADPT_FMT" is AP/GO\n", __func__, ADPT_ARG(if_port1));
-		switch_needed = _TRUE;
-		goto exit;
-	}
-
-	/* GC should use port0 for p2p ps */	
-	if (((if_port1_mlmeinfo->state & 0x03) == WIFI_FW_STATION_STATE)
-		&& (if_port1_mlmeinfo->state & WIFI_FW_ASSOC_SUCCESS)
-		&& !rtw_p2p_chk_state(&if_port1->wdinfo, P2P_STATE_NONE)
-		&& !check_fwstate(&if_port1->mlmepriv, WIFI_UNDER_WPS)
-	) {
-		DBG_871X("%s "ADPT_FMT" is GC\n", __func__, ADPT_ARG(if_port1));
-		switch_needed = _TRUE;
-		goto exit;
-	}
-
-	/* port1 linked, but port0 not linked */
-	if ((if_port1_mlmeinfo->state & WIFI_FW_ASSOC_SUCCESS)
-		&& !(if_port0_mlmeinfo->state & WIFI_FW_ASSOC_SUCCESS)
-		&& ((if_port0_mlmeinfo->state & 0x03) != WIFI_FW_AP_STATE)
-	) {
-		DBG_871X("%s "ADPT_FMT" is SINGLE_LINK\n", __func__, ADPT_ARG(if_port1));
-		switch_needed = _TRUE;
-		goto exit;
-	}
-
-exit:
-#ifdef DBG_RUNTIME_PORT_SWITCH
-	DBG_871X(FUNC_ADPT_FMT" ret:%d\n", FUNC_ADPT_ARG(adapter), switch_needed);
-#endif /* DBG_RUNTIME_PORT_SWITCH */
-#endif /* CONFIG_RUNTIME_PORT_SWITCH */
-#endif /* CONFIG_CONCURRENT_MODE */
-	return switch_needed;
-}
-
 /****************************************************************************
 
 Following are the event callback functions
@@ -11029,20 +10587,6 @@ static void rtw_mlmeext_disconnect(_adapter *padapter)
 		rtw_hal_set_hwreg(padapter, HW_VAR_ASIX_IOT, (u8 *)(&iot_flag));
 	}
 	pmlmeinfo->state = WIFI_FW_NULL_STATE;
-
-	if(state_backup == WIFI_FW_STATION_STATE)
-	{
-		if (rtw_port_switch_chk(padapter) == _TRUE) {
-			rtw_hal_set_hwreg(padapter, HW_VAR_PORT_SWITCH, NULL);
-			#ifdef CONFIG_LPS
-			{
-				_adapter *port0_iface = dvobj_get_port0_adapter(adapter_to_dvobj(padapter));
-				if (port0_iface)
-					rtw_lps_ctrl_wk_cmd(port0_iface, LPS_CTRL_CONNECT, 0);
-			}
-			#endif
-		}
-	}
 
 	/* switch to the 20M Hz mode after disconnect */
 	pmlmeext->cur_bwmode = CHANNEL_WIDTH_20;
@@ -11149,9 +10693,6 @@ void mlmeext_joinbss_event_callback(_adapter *padapter, int join_res)
 	if (is_wep_enc(psecuritypriv->dot11PrivacyAlgrthm))
 		rtw_sec_restore_wep_key(padapter);
 #endif /* CONFIG_IOCTL_CFG80211 */
-
-	if (rtw_port_switch_chk(padapter) == _TRUE)
-		rtw_hal_set_hwreg(padapter, HW_VAR_PORT_SWITCH, NULL);
 
 	join_type = 2;
 	rtw_hal_set_hwreg(padapter, HW_VAR_MLME_JOIN, (u8 *)(&join_type));
@@ -11860,21 +11401,6 @@ u8 setopmode_hdl(_adapter *padapter, u8 *pbuf)
 		rtw_auto_ap_start_beacon(padapter);
 #endif
 
-	if (rtw_port_switch_chk(padapter) == _TRUE)
-	{
-		rtw_hal_set_hwreg(padapter, HW_VAR_PORT_SWITCH, NULL);
-
-		if(psetop->mode == Ndis802_11APMode)
-			adapter_to_pwrctl(padapter)->fw_psmode_iface_id = 0xff; //ap mode won't dowload rsvd pages
-		else if (psetop->mode == Ndis802_11Infrastructure) {
-			#ifdef CONFIG_LPS
-			_adapter *port0_iface = dvobj_get_port0_adapter(adapter_to_dvobj(padapter));
-			if (port0_iface)
-				rtw_lps_ctrl_wk_cmd(port0_iface, LPS_CTRL_CONNECT, 0);
-			#endif	
-		}
-	}	
-
 	return H2C_SUCCESS;
 	
 }
@@ -12216,18 +11742,10 @@ u8 rtw_scan_sparse(_adapter *adapter, struct rtw_ieee80211_channel *ch, u8 ch_nu
 
 	interval = rtw_get_passing_time_ms(mlmeext->last_scan_time);
 
-	if (adapter->mlmepriv.LinkDetectInfo.bBusyTraffic == _TRUE
-		#ifdef CONFIG_CONCURRENT_MODE
-		|| (adapter->pbuddy_adapter && adapter->pbuddy_adapter->mlmepriv.LinkDetectInfo.bBusyTraffic == _TRUE)
-		#endif
-	)
+	if (adapter->mlmepriv.LinkDetectInfo.bBusyTraffic)
 			busy_traffic = _TRUE;
 
-	if (is_miracast_enabled(adapter)
-		#ifdef CONFIG_CONCURRENT_MODE
-		|| (adapter->pbuddy_adapter && is_miracast_enabled(adapter->pbuddy_adapter))
-		#endif
-	)
+	if (is_miracast_enabled(adapter))
 		miracast_enabled = _TRUE;
 
 	if (interval > RTW_SCAN_SPARSE_BG_INTERVAL_MS)
@@ -12346,9 +11864,6 @@ static void sitesurvey_res_reset(_adapter *adapter, struct sitesurvey_parm *parm
 	ss->channel_idx = 0;
 	ss->igi_scan = 0;
 	ss->igi_before_scan = 0;
-#ifdef CONFIG_SCAN_BACKOP
-	ss->scan_cnt = 0;
-#endif
 	
 	for (i = 0; i < RTW_SSID_SCAN_AMOUNT; i++) {
 		if (parm->ssid[i].SsidLength) {
@@ -12413,50 +11928,12 @@ static u8 sitesurvey_pick_ch_behavior(_adapter *padapter, u8 *ch, RT_SCAN_TYPE *
 
 	if (scan_ch != 0) {
 		next_state = SCAN_PROCESS;
-		#ifdef CONFIG_SCAN_BACKOP
-		{
-			u8 sta_num;
-			u8 ld_sta_num;
-			u8 ap_num;
-			u8 ld_ap_num;
-			u8 backop_flags = 0;
-
-			rtw_dev_iface_status(padapter, &sta_num, &ld_sta_num, NULL, &ap_num, &ld_ap_num);
-
-			if ((ld_sta_num > 0 && mlmeext_chk_scan_backop_flags_sta(pmlmeext, SS_BACKOP_EN))
-					|| (sta_num > 0 && mlmeext_chk_scan_backop_flags_sta(pmlmeext, SS_BACKOP_EN_NL))
-			) {
-				backop_flags |= mlmeext_scan_backop_flags_sta(pmlmeext);
-			}
-
-			if ((ld_ap_num > 0 && mlmeext_chk_scan_backop_flags_ap(pmlmeext, SS_BACKOP_EN))
-					|| (ap_num > 0 && mlmeext_chk_scan_backop_flags_ap(pmlmeext, SS_BACKOP_EN_NL))
-			) {
-				backop_flags |= mlmeext_scan_backop_flags_ap(pmlmeext);
-			}
-
-			if (backop_flags) {
-				if (ss->scan_cnt < ss->scan_cnt_max) {
-					ss->scan_cnt++;
-				} else {
-					mlmeext_assign_scan_backop_flags(pmlmeext, backop_flags);
-					next_state = SCAN_BACKING_OP;
-				}
-			}
-		}
-		#endif /* CONFIG_SCAN_BACKOP */
 	} else if (rtw_p2p_findphase_ex_is_needed(pwdinfo)) {
 		/* go p2p listen */
 		next_state = SCAN_TO_P2P_LISTEN;
 	} else {
 		next_state = SCAN_COMPLETE;
 	}
-
-	#ifdef CONFIG_SCAN_BACKOP
-	if (next_state != SCAN_PROCESS)
-		ss->scan_cnt = 0;
-	#endif
-
 
 #ifdef DBG_FIXED_CHAN
 	if (pmlmeext->fixed_chan != 0xff && next_state == SCAN_PROCESS)
@@ -12642,16 +12119,6 @@ void sitesurvey_set_igi(_adapter *adapter)
 		igi = 0xff;
 		rtw_hal_set_odm_var(adapter, HAL_ODM_INITIAL_GAIN, &igi, _FALSE);
 		break;
-#ifdef CONFIG_SCAN_BACKOP
-	case SCAN_BACKING_OP:
-		/* write IGI for op channel when DIG is not enabled */
-		ODM_Write_DIG(GET_ODM(adapter), ss->igi_before_scan);
-		break;
-	case SCAN_LEAVE_OP:
-		/* write IGI for scan when DIG is not enabled */
-		ODM_Write_DIG(GET_ODM(adapter), ss->igi_scan);
-		break;
-#endif /* CONFIG_SCAN_BACKOP */
 	default:
 		rtw_warn_on(1);
 		break;
@@ -12794,92 +12261,6 @@ operation_by_state:
 		break;
 	}
 
-	#ifdef CONFIG_SCAN_BACKOP
-	case SCAN_BACKING_OP:
-	{
-		u8 back_ch, back_bw, back_ch_offset;
-
-		if (rtw_get_ch_setting_union(padapter, &back_ch, &back_bw, &back_ch_offset) == 0)
-			rtw_warn_on(1);
-
-		set_channel_bwmode(padapter, back_ch, back_ch_offset, back_bw);
-
-		Set_MSR(padapter, (pmlmeinfo->state & 0x3));		
-		val8 = 0; /* survey done */
-		rtw_hal_set_hwreg(padapter, HW_VAR_MLME_SITESURVEY, (u8 *)(&val8));
-
-		if (mlmeext_chk_scan_backop_flags(pmlmeext, SS_BACKOP_PS_ANNC)) {
-			sitesurvey_set_igi(padapter);
-			sitesurvey_ps_annc(adapter_to_dvobj(padapter), 0);
-		}
-
-		mlmeext_set_scan_state(pmlmeext, SCAN_BACK_OP);
-		ss->backop_time = rtw_get_current_time();
-
-		if (mlmeext_chk_scan_backop_flags(pmlmeext, SS_BACKOP_TX_RESUME)) {
-			int	i;
-
-			/* resume TX */
-			for (i = 0; i < dvobj->iface_nums; i++) {
-				if (!dvobj->padapters[i])
-					continue;
-
-				rtw_os_xmit_schedule(dvobj->padapters[i]);
-			}
-		}
-
-		goto operation_by_state;
-	}
-	
-	case SCAN_BACK_OP:
-		if (rtw_get_passing_time_ms(ss->backop_time) >= ss->backop_ms
-			|| pmlmeext->scan_abort
-		) {
-			mlmeext_set_scan_state(pmlmeext, SCAN_LEAVING_OP);
-			goto operation_by_state;
-		}
-		set_survey_timer(pmlmeext, 50);
-		break;
-
-	case SCAN_LEAVING_OP:
-		/*
-		* prepare to leave operating channel
-		*/
-
-		/* clear HW TX queue before scan */
-		rtw_hal_set_hwreg(padapter, HW_VAR_CHECK_TXBUF, 0);
-
-		if (mlmeext_chk_scan_backop_flags(pmlmeext, SS_BACKOP_PS_ANNC)
-			&& sitesurvey_ps_annc(adapter_to_dvobj(padapter), 1)
-		) {
-			mlmeext_set_scan_state(pmlmeext, SCAN_PS_ANNC_WAIT);
-			mlmeext_set_scan_next_state(pmlmeext, SCAN_LEAVE_OP);
-			set_survey_timer(pmlmeext, 50); /* delay 50ms to protect nulldata(1) */
-		} else {
-			mlmeext_set_scan_state(pmlmeext, SCAN_LEAVE_OP);
-			goto operation_by_state;
-		}
-
-		break;
-
-	case SCAN_LEAVE_OP:
-		/*
-		* HW register and DM setting for enter scan
-		*/
-
-		if (mlmeext_chk_scan_backop_flags(pmlmeext, SS_BACKOP_PS_ANNC))
-			sitesurvey_set_igi(padapter);
-
-		/* set MSR to no link state */
-		Set_MSR(padapter, _HW_STATE_NOLINK_);
-		val8 = 1; //under site survey
-		rtw_hal_set_hwreg(padapter, HW_VAR_MLME_SITESURVEY, (u8 *)(&val8));
-
-		mlmeext_set_scan_state(pmlmeext, SCAN_PROCESS);
-		goto operation_by_state;
-
-	#endif /* CONFIG_SCAN_BACKOP */
-
 	case SCAN_TO_P2P_LISTEN:
 		/*
 		* Set the P2P State to the listen state of find phase
@@ -12906,15 +12287,7 @@ operation_by_state:
 		if (rtw_p2p_chk_state(pwdinfo, P2P_STATE_SCAN)
 			|| rtw_p2p_chk_state(pwdinfo, P2P_STATE_FIND_PHASE_SEARCH)
 		) {
-			#ifdef CONFIG_CONCURRENT_MODE
-			if (pwdinfo->driver_interface == DRIVER_WEXT) {
-				if (check_buddy_fwstate(padapter, _FW_LINKED))
-					_set_timer(&pwdinfo->ap_p2p_switch_timer, 500);
-			}
 			rtw_p2p_set_state(pwdinfo, rtw_p2p_pre_state(pwdinfo));
-			#else
-			rtw_p2p_set_state(pwdinfo, rtw_p2p_pre_state(pwdinfo));
-			#endif
 		}
 		rtw_p2p_findphase_ex_set(pwdinfo, P2P_FINDPHASE_EX_NONE);
 
@@ -13408,33 +12781,6 @@ void change_band_update_ie(_adapter *padapter, WLAN_BSSID_EX *pnetwork, u8 ch)
 	pnetwork->Length = get_WLAN_BSSID_EX_sz(pnetwork);
 }
 
-#ifdef CONFIG_CONCURRENT_MODE
-sint check_buddy_mlmeinfo_state(_adapter *padapter, u32 state)
-{
-	PADAPTER pbuddy_adapter;
-	struct mlme_ext_priv *pbuddy_mlmeext;
-	struct mlme_ext_info *pbuddy_mlmeinfo;
-
-	if(padapter == NULL)
-		return _FALSE;	
-	
-	pbuddy_adapter = padapter->pbuddy_adapter;
-
-	if(pbuddy_adapter == NULL)
-		return _FALSE;	
-
-
-	pbuddy_mlmeext = &pbuddy_adapter->mlmeextpriv;
-	pbuddy_mlmeinfo = &(pbuddy_mlmeext->mlmext_info);
-		
-	if((pbuddy_mlmeinfo->state&0x03) == state)
-		return _TRUE;		
-
-	return _FALSE;
-	
-}
-#endif /* CONFIG_CONCURRENT_MODE */
-
 void rtw_join_done_chk_ch(_adapter *adapter, int join_res)
 {
 #define DUMP_ADAPTERS_STATUS 0
@@ -13557,115 +12903,6 @@ int rtw_chk_start_clnt_join(_adapter *adapter, u8 *ch, u8 *bw, u8 *offset)
 		goto exit;
 	}
 	DBG_871X(FUNC_ADPT_FMT" req: %u,%u,%u\n", FUNC_ADPT_ARG(adapter), u_ch, u_bw, u_offset);
-
-#ifdef CONFIG_CONCURRENT_MODE
-{
-	struct dvobj_priv *dvobj;
-	_adapter *iface;
-	struct mlme_priv *mlme;
-	struct mlme_ext_priv *mlmeext;
-	u8 sta_num;
-	u8 ld_sta_num;
-	u8 lg_sta_num;
-	u8 ap_num;
-	u8 ld_ap_num;
-	int i;
-
-	dvobj = adapter_to_dvobj(adapter);
-
-	rtw_dev_iface_status_no_self(adapter, &sta_num, &ld_sta_num, &lg_sta_num, &ap_num, &ld_ap_num);
-	DBG_871X(FUNC_ADPT_FMT" ld_sta_num:%u, ap_num:%u\n"
-		, FUNC_ADPT_ARG(adapter), ld_sta_num, ap_num);
-
-	if (!ld_sta_num && !ap_num) {
-		/* consider linking STA? */
-		goto connect_allow_hdl;
-	}
-
-	if (rtw_get_ch_setting_union_no_self(adapter, &u_ch, &u_bw, &u_offset) <= 0) {
-		dump_adapters_status(RTW_DBGDUMP , dvobj);
-		rtw_warn_on(1);
-	}
-	DBG_871X(FUNC_ADPT_FMT" union no self: %u,%u,%u\n"
-		, FUNC_ADPT_ARG(adapter), u_ch, u_bw, u_offset);
-
-	/* chbw_allow? */
-	chbw_allow = rtw_is_chbw_grouped(pmlmeext->cur_channel, pmlmeext->cur_bwmode, pmlmeext->cur_ch_offset
-		, u_ch, u_bw, u_offset);
-
-	DBG_871X(FUNC_ADPT_FMT" chbw_allow:%d\n"
-		, FUNC_ADPT_ARG(adapter), chbw_allow);
-
-	if (chbw_allow == _TRUE) {
-		rtw_sync_chbw(&cur_ch, &cur_bw, &cur_ch_offset, &u_ch, &u_bw, &u_offset);
-		rtw_warn_on(cur_ch != pmlmeext->cur_channel);
-		rtw_warn_on(cur_bw != pmlmeext->cur_bwmode);
-		rtw_warn_on(cur_ch_offset != pmlmeext->cur_ch_offset);
-		goto connect_allow_hdl;
-	}
-
-	/* chbw_allow is _FALSE, connect allow? */
-	for (i = 0; i < dvobj->iface_nums; i++) {
-		iface = dvobj->padapters[i];
-		mlme = &iface->mlmepriv;
-		mlmeext = &iface->mlmeextpriv;
-
-		if (check_fwstate(mlme, WIFI_STATION_STATE)
-			&& check_fwstate(mlme, WIFI_ASOC_STATE)
-			&& rtw_p2p_chk_state(&(iface->wdinfo), P2P_STATE_NONE)
-		) {
-			connect_allow = _FALSE;
-			break;
-		}
-	}
-	DBG_871X(FUNC_ADPT_FMT" connect_allow:%d\n"
-		, FUNC_ADPT_ARG(adapter), connect_allow);
-
-	if (connect_allow == _FALSE)
-		goto exit;
-
-connect_allow_hdl:
-	/* connect_allow == _TRUE */
-
-	#ifdef CONFIG_DFS_MASTER
-	rtw_dfs_master_status_apply(adapter, MLME_STA_CONNECTING);
-	#endif
-
-	if (chbw_allow == _FALSE) {
-		u_ch = cur_ch;
-		u_bw = cur_bw;
-		u_offset = cur_ch_offset;
-
-		for (i = 0; i < dvobj->iface_nums; i++) {
-			iface = dvobj->padapters[i];
-			mlme = &iface->mlmepriv;
-			mlmeext = &iface->mlmeextpriv;
-
-			if (!iface || iface == adapter)
-				continue;
-
-			if (check_fwstate(mlme, WIFI_AP_STATE)
-				&& check_fwstate(mlme, WIFI_ASOC_STATE)
-			) {
-				#ifdef CONFIG_SPCT_CH_SWITCH
-					rtw_ap_inform_ch_switch(iface, pmlmeext->cur_channel , pmlmeext->cur_ch_offset);
-				#else
-					rtw_sta_flush(iface, _FALSE);
-				#endif
-
-				rtw_hal_set_hwreg(iface, HW_VAR_CHECK_TXBUF, 0);
-				set_fwstate(mlme, WIFI_OP_CH_SWITCHING);
-			} else if (check_fwstate(mlme, WIFI_STATION_STATE)
-				&& check_fwstate(mlme, WIFI_ASOC_STATE)
-			) {
-				rtw_disassoc_cmd(iface, 500, _FALSE);
-				rtw_indicate_disconnect(iface, 0, _FALSE);
-				rtw_free_assoc_resources(iface, 1);
-			}
-		}
-	}
-}
-#endif /* CONFIG_CONCURRENT_MODE */
 
 exit:
 
@@ -13828,21 +13065,8 @@ inline void rtw_dev_iface_status_no_self(_adapter *adapter, u8 *sta_num, u8 *ld_
 u8 rtw_mp_mode_check(_adapter *padapter)
 {
 #ifdef CONFIG_MP_INCLUDED
-#ifdef CONFIG_CONCURRENT_MODE
-	int i;
-	struct dvobj_priv *dvobj = adapter_to_dvobj(padapter);
-	_adapter *iface = NULL;
-
-	for (i = 0; i < dvobj->iface_nums; i++) {
-		iface = dvobj->padapters[i];
-
-		if ((iface) && (iface->registrypriv.mp_mode == 1))
-			return _TRUE;
-	}
-#else
 	if (padapter->registrypriv.mp_mode == 1)
 		return _TRUE;
-#endif
 #endif /* CONFIG_MP_INCLUDED */
 	return _FALSE;
 }

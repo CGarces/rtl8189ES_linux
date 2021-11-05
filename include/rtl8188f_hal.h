@@ -108,11 +108,8 @@ typedef struct _RT_8188F_FIRMWARE_HDR
 //For General Reserved Page Number(Beacon Queue is reserved page)
 //Beacon:2, PS-Poll:1, Null Data:1,Qos Null Data:1,BT Qos Null Data:1
 #define BCNQ_PAGE_NUM_8188F		0x08
-#ifdef CONFIG_CONCURRENT_MODE
-#define BCNQ1_PAGE_NUM_8188F		0x08 // 0x04
-#else
+
 #define BCNQ1_PAGE_NUM_8188F		0x00
-#endif
 
 //For WoWLan , more reserved page
 //ARP Rsp:1, RWC:1, GTK Info:1,GTK RSP:2,GTK EXT MEM:2, PNO: 6

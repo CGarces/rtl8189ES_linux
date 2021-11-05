@@ -342,17 +342,6 @@ _adapter *rtw_sdio_if1_init(struct dvobj_priv *dvobj)
 	dvobj->padapters[dvobj->iface_nums++] = padapter;
 	padapter->iface_id = IFACE_ID0;
 
-#if defined(CONFIG_CONCURRENT_MODE)
-	//set adapter_type/iface type for primary padapter
-	padapter->isprimary = _TRUE;
-	padapter->adapter_type = PRIMARY_ADAPTER;	
-	#ifndef CONFIG_HWPORT_SWAP
-	padapter->iface_type = IFACE_PORT0;
-	#else
-	padapter->iface_type = IFACE_PORT1;
-	#endif
-#endif
-
 	//3 3. init driver special setting, interface, OS and hardware relative
 
 	//4 3.1 set hardware operation functions
@@ -469,15 +458,9 @@ static int rtw_drv_init(
 		goto free_dvobj;
 	}
 
-#ifdef CONFIG_CONCURRENT_MODE
-	if ((if2 = rtw_drv_if2_init(if1, sdio_set_intf_ops)) == NULL) {
-		goto free_if1;
-	}
-#endif
-
 	//dev_alloc_name && register_netdev
 	if (rtw_os_ndevs_init(dvobj) != _SUCCESS)
-		goto free_if2;
+		goto free_if;
 
 	if (sdio_alloc_irq(dvobj) != _SUCCESS)
 		goto os_ndevs_deinit;
@@ -496,14 +479,7 @@ static int rtw_drv_init(
 os_ndevs_deinit:
 	if (status != _SUCCESS)
 		rtw_os_ndevs_deinit(dvobj);
-free_if2:
-	if(status != _SUCCESS && if2) {
-		#ifdef CONFIG_CONCURRENT_MODE
-		rtw_drv_if2_stop(if2);
-		rtw_drv_if2_free(if2);
-		#endif
-	}
-free_if1:
+free_if:
 	if (status != _SUCCESS && if1) {
 		rtw_sdio_if1_deinit(if1);
 	}
@@ -553,15 +529,8 @@ _func_enter_;
 		LeaveAllPowerSaveMode(padapter);
 	}
 	rtw_set_drv_stopped(padapter);	/*for stop thread*/
-#ifdef CONFIG_CONCURRENT_MODE
-	rtw_drv_if2_stop(dvobj->padapters[IFACE_ID1]);
-#endif
 
 	rtw_sdio_if1_deinit(padapter);
-
-#ifdef CONFIG_CONCURRENT_MODE
-	rtw_drv_if2_free(dvobj->padapters[IFACE_ID1]);
-#endif
 
 	sdio_dvobj_deinit(func);
 

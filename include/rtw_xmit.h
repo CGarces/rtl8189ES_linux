@@ -403,8 +403,6 @@ enum cmdbuf_type {
 	CMDBUF_MAX
 };
 
-u8 rtw_get_hwseq_no(_adapter *padapter);
-
 struct	xmit_priv	{
 
 	_lock	lock;

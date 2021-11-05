@@ -260,16 +260,6 @@ int rtw_free_recvframe(union recv_frame *precvframe, _queue *pfree_recv_queue)
 
 _func_enter_;
 
-#ifdef CONFIG_CONCURRENT_MODE
-	if(padapter->adapter_type > PRIMARY_ADAPTER)
-	{
-		padapter = padapter->pbuddy_adapter;//get primary_padapter
-		precvpriv = &padapter->recvpriv;
-		pfree_recv_queue = &precvpriv->free_recv_queue;
-		precvframe->u.hdr.adapter = padapter;		
-	}	
-#endif
-
 	rtw_os_free_recvframe(precvframe);
 
 
@@ -640,12 +630,8 @@ _func_enter_;
 	}
 
 	if((prxattrib->encrypt>0) && ((prxattrib->bdecrypted==0) ||(psecuritypriv->sw_decrypt==_TRUE)))
-	{
-
-#ifdef CONFIG_CONCURRENT_MODE
-		if(!IS_MCAST(prxattrib->ra))//bc/mc packets use sw decryption for concurrent mode
-#endif			
-			psecuritypriv->hw_decrypted=_FALSE;
+	{		
+		psecuritypriv->hw_decrypted=_FALSE;
 
 		#ifdef DBG_RX_DECRYPTOR
 		DBG_871X("[%s] %d:prxstat->bdecrypted:%d,  prxattrib->encrypt:%d,  Setting psecuritypriv->hw_decrypted = %d\n",
@@ -3845,14 +3831,8 @@ void rtw_signal_stat_timer_hdl(RTW_TIMER_HDL_ARGS){
 
 		if(check_fwstate(&adapter->mlmepriv, _FW_UNDER_SURVEY) == _TRUE
 			|| check_fwstate(&adapter->mlmepriv, _FW_LINKED) == _FALSE
-		) { 
+		)
 			goto set_timer;
-		}
-
-		#ifdef CONFIG_CONCURRENT_MODE
-		if (check_buddy_fwstate(adapter, _FW_UNDER_SURVEY) == _TRUE)
-			goto set_timer;
-		#endif
 
 		if (RTW_SIGNAL_STATE_CALC_PROFILE < SIGNAL_STAT_CALC_PROFILE_MAX)
 			ratio_profile = RTW_SIGNAL_STATE_CALC_PROFILE;

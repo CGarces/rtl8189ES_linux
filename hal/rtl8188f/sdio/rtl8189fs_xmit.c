@@ -185,11 +185,6 @@ s32 rtl8188fs_xmit_buf_handler(PADAPTER padapter)
 
 	queue_pending = check_pending_xmitbuf(pxmitpriv);
 
-#ifdef CONFIG_CONCURRENT_MODE
-	if(rtw_buddy_adapter_up(padapter))
-		queue_pending |= check_pending_xmitbuf(&padapter->pbuddy_adapter->xmitpriv);
-#endif
-
 	if(queue_pending == _FALSE)
 		return _SUCCESS;
 
@@ -202,11 +197,6 @@ s32 rtl8188fs_xmit_buf_handler(PADAPTER padapter)
 
 	do {
 		queue_empty = rtl8188fs_dequeue_writeport(padapter);
-//	dump secondary adapter xmitbuf
-#ifdef CONFIG_CONCURRENT_MODE
-		if(rtw_buddy_adapter_up(padapter))
-			queue_empty &= rtl8188fs_dequeue_writeport(padapter->pbuddy_adapter);
-#endif
 	} while ( !queue_empty);
 
 #ifdef CONFIG_LPS_LCLK
@@ -348,12 +338,7 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 #endif
 						err = -2;
 #ifdef CONFIG_SDIO_TX_ENABLE_AVAL_INT
-	#ifdef CONFIG_CONCURRENT_MODE
-						if (padapter->adapter_type > PRIMARY_ADAPTER)
-							_rtw_up_sema(&(padapter->pbuddy_adapter->xmitpriv.xmit_sema));
-						else
-	#endif
-							_rtw_up_sema(&(pxmitpriv->xmit_sema));
+						_rtw_up_sema(&(pxmitpriv->xmit_sema));
 #endif
 						break;
 					}

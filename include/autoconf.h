@@ -52,18 +52,6 @@
 	/*#define SUPPLICANT_RTK_VERSION_LOWER_THAN_JB42*/ /* wpa_supplicant realtek version <= jb42 will be defined this */
 #endif
 
-
-//#define CONFIG_CONCURRENT_MODE	// Set from Makefile
-#ifdef CONFIG_CONCURRENT_MODE
-	//#define CONFIG_HWPORT_SWAP				// Port0->Sec , Port1 -> Pri
-	#define CONFIG_RUNTIME_PORT_SWITCH
-	#ifndef CONFIG_RUNTIME_PORT_SWITCH
-		#define CONFIG_TSF_RESET_OFFLOAD			// For 2 PORT TSF SYNC.
-	#endif
-	//#define DBG_RUNTIME_PORT_SWITCH
-	#define CONFIG_SCAN_BACKOP
-#endif // CONFIG_CONCURRENT_MODE
-
 #define CONFIG_LAYER2_ROAMING
 #define CONFIG_LAYER2_ROAMING_RESUME
 

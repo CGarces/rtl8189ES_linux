@@ -264,9 +264,6 @@ static void _InitQueueReservedPage(PADAPTER padapter)
 static void _InitTxBufferBoundary(PADAPTER padapter)
 {
 	struct registry_priv *pregistrypriv = &padapter->registrypriv;
-#ifdef CONFIG_CONCURRENT_MODE
-	u8 val8;
-#endif // CONFIG_CONCURRENT_MODE
 
 	//u16	txdmactrl;
 	u8	txpktbuf_bndy;
@@ -284,15 +281,6 @@ static void _InitTxBufferBoundary(PADAPTER padapter)
 	rtw_write8(padapter, REG_TRXFF_BNDY, txpktbuf_bndy);
 	rtw_write8(padapter, REG_TDECTRL+1, txpktbuf_bndy);
 
-#ifdef CONFIG_CONCURRENT_MODE
-	val8 = txpktbuf_bndy + BCNQ_PAGE_NUM_8188F + WOWLAN_PAGE_NUM_8188F;
-	rtw_write8(padapter, REG_BCNQ1_BDNY, val8);
-	rtw_write8(padapter, REG_DWBCN1_CTRL_8188F+1, val8); // BCN1_HEAD
-
-	val8 = rtw_read8(padapter, REG_DWBCN1_CTRL_8188F+2);
-	val8 |= BIT(1); // BIT1- BIT_SW_BCN_SEL_EN
-	rtw_write8(padapter, REG_DWBCN1_CTRL_8188F+2, val8);
-#endif // CONFIG_CONCURRENT_MODE
 }
 
 static VOID

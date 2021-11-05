@@ -2302,15 +2302,6 @@ LedControlSDIO(
 	if( ledpriv->bRegUseLed == _FALSE)
 		return;
 
-	//if(priv->bInHctTest)
-	//	return;
-
-#ifdef CONFIG_CONCURRENT_MODE
-	// Only do led action for PRIMARY_ADAPTER
-	if (padapter->adapter_type != PRIMARY_ADAPTER)
-		return;
-#endif
-
 	if( (adapter_to_pwrctl(padapter)->rf_pwrstate != rf_on &&
 		adapter_to_pwrctl(padapter)->rfoff_reason > RF_CHANGE_BY_PS) &&
 		(LedAction == LED_CTL_TX || LedAction == LED_CTL_RX ||

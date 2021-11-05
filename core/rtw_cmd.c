@@ -434,12 +434,6 @@ _func_enter_;
 
 	cmd_obj->padapter = padapter;
 
-#ifdef CONFIG_CONCURRENT_MODE
-	//change pcmdpriv to primary's pcmdpriv
-	if (padapter->adapter_type != PRIMARY_ADAPTER && padapter->pbuddy_adapter)
-		pcmdpriv = &(padapter->pbuddy_adapter->cmdpriv);
-#endif	
-
 	res = rtw_cmd_filter(pcmdpriv, cmd_obj);
 	if ((_FAIL == res) || (cmd_obj->cmdsz > MAX_CMDSZ)) {
 		if (cmd_obj->cmdsz > MAX_CMDSZ) {
@@ -933,19 +927,7 @@ _func_enter_;
 	if(res == _SUCCESS) {
 
 		pmlmepriv->scan_start_time = rtw_get_current_time();
-
-#ifdef CONFIG_SCAN_BACKOP
-		if((padapter->pbuddy_adapter->mlmeextpriv.mlmext_info.state&0x03) == WIFI_FW_AP_STATE)
-		{
-			if(IsSupported5G(padapter->registrypriv.wireless_mode) 
-				&& IsSupported24G(padapter->registrypriv.wireless_mode)) //dual band
-				mlme_set_scan_to_timer(pmlmepriv, CONC_SCANNING_TIMEOUT_DUAL_BAND);
-			else //single band
-				mlme_set_scan_to_timer(pmlmepriv, CONC_SCANNING_TIMEOUT_SINGLE_BAND);
-		}		
-		else
-#endif /* CONFIG_SCAN_BACKOP */
-			mlme_set_scan_to_timer(pmlmepriv, SCANNING_TIMEOUT);
+		mlme_set_scan_to_timer(pmlmepriv, SCANNING_TIMEOUT);
 
 		rtw_led_control(padapter, LED_CTL_SITE_SURVEY);
 	} else {
@@ -2040,14 +2022,6 @@ u8 rtw_dynamic_chk_wk_cmd(_adapter*padapter)
 	
 _func_enter_;	
 
-	//only  primary padapter does this cmd
-/*
-#ifdef CONFIG_CONCURRENT_MODE
-	if (padapter->adapter_type != PRIMARY_ADAPTER && padapter->pbuddy_adapter)
-		pcmdpriv = &(padapter->pbuddy_adapter->cmdpriv);
-#endif
-*/
-
 	ph2c = (struct cmd_obj*)rtw_zmalloc(sizeof(struct cmd_obj));	
 	if(ph2c==NULL){
 		res= _FAIL;
@@ -2351,11 +2325,6 @@ static void collect_traffic_statistics(_adapter *padapter)
 {
 	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(padapter);
 
-#ifdef CONFIG_CONCURRENT_MODE
-	if (padapter->adapter_type != PRIMARY_ADAPTER)
-		return;
-#endif
-
 	// Tx
 	pdvobjpriv->traffic_stat.tx_bytes = padapter->xmitpriv.tx_bytes;
 	pdvobjpriv->traffic_stat.tx_pkts = padapter->xmitpriv.tx_pkts;
@@ -2365,22 +2334,6 @@ static void collect_traffic_statistics(_adapter *padapter)
 	pdvobjpriv->traffic_stat.rx_bytes = padapter->recvpriv.rx_bytes;
 	pdvobjpriv->traffic_stat.rx_pkts = padapter->recvpriv.rx_pkts;
 	pdvobjpriv->traffic_stat.rx_drop = padapter->recvpriv.rx_drop;
-
-#ifdef CONFIG_CONCURRENT_MODE
-	// Add secondary adapter statistics
-	if(rtw_buddy_adapter_up(padapter))
-	{
-		// Tx
-		pdvobjpriv->traffic_stat.tx_bytes += padapter->pbuddy_adapter->xmitpriv.tx_bytes;
-		pdvobjpriv->traffic_stat.tx_pkts += padapter->pbuddy_adapter->xmitpriv.tx_pkts;
-		pdvobjpriv->traffic_stat.tx_drop += padapter->pbuddy_adapter->xmitpriv.tx_drop;
-
-		// Rx
-		pdvobjpriv->traffic_stat.rx_bytes += padapter->pbuddy_adapter->recvpriv.rx_bytes;
-		pdvobjpriv->traffic_stat.rx_pkts += padapter->pbuddy_adapter->recvpriv.rx_pkts;
-		pdvobjpriv->traffic_stat.rx_drop += padapter->pbuddy_adapter->recvpriv.rx_drop;
-	}
-#endif
 
 	// Calculate throughput in last interval
 	pdvobjpriv->traffic_stat.cur_tx_bytes = pdvobjpriv->traffic_stat.tx_bytes - pdvobjpriv->traffic_stat.last_tx_bytes;
@@ -2549,9 +2502,7 @@ u8 traffic_status_watchdog(_adapter *padapter, u8 from_timer)
 			if (adapter_to_pwrctl(padapter)->bFwCurrentInPSMode ==_TRUE )
 				pmlmepriv->LinkDetectInfo.LowPowerTransitionCount++;
 #endif //CONFIG_DYNAMIC_DTIM
-		}
-		else
-		{
+		} else {
 #ifdef CONFIG_DYNAMIC_DTIM
 			if(pmlmepriv->LinkDetectInfo.LowPowerTransitionCount != 8)
 				pmlmepriv->LinkDetectInfo.LowPowerTransitionCount = 0;
@@ -2559,16 +2510,9 @@ u8 traffic_status_watchdog(_adapter *padapter, u8 from_timer)
 				pmlmepriv->LinkDetectInfo.LowPowerTransitionCount++;
 #endif //CONFIG_DYNAMIC_DTIM			
 			if(!from_timer)
-			{
 				LPS_Leave(padapter, "TRAFFIC_BUSY");
-			}
 			else
-			{
-#ifdef CONFIG_CONCURRENT_MODE
-			 	if(padapter->iface_type == IFACE_PORT0) 
-#endif
-					rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_TRAFFIC_BUSY, 1);
-			}
+				rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_TRAFFIC_BUSY, 1);
 		}
 	
 #endif // CONFIG_LPS
@@ -2853,35 +2797,27 @@ u8 rtw_lps_change_dtim_cmd(_adapter*padapter, u8 dtim)
 	struct drvextra_cmd_parm	*pdrvextra_cmd_parm;
 	struct cmd_priv	*pcmdpriv = &padapter->cmdpriv;
 	u8	res = _SUCCESS;
-/*
-#ifdef CONFIG_CONCURRENT_MODE
-	if (padapter->iface_type != IFACE_PORT0)
-		return res;
-#endif
-*/
-	{
-		ph2c = (struct cmd_obj*)rtw_zmalloc(sizeof(struct cmd_obj));	
-		if(ph2c==NULL){
-			res= _FAIL;
-			goto exit;
-		}
-		
-		pdrvextra_cmd_parm = (struct drvextra_cmd_parm*)rtw_zmalloc(sizeof(struct drvextra_cmd_parm)); 
-		if(pdrvextra_cmd_parm==NULL){
-			rtw_mfree((unsigned char *)ph2c, sizeof(struct cmd_obj));
-			res= _FAIL;
-			goto exit;
-		}
-
-		pdrvextra_cmd_parm->ec_id = LPS_CHANGE_DTIM_CID;
-		pdrvextra_cmd_parm->type = dtim;
-		pdrvextra_cmd_parm->size = 0;
-		pdrvextra_cmd_parm->pbuf = NULL;
-
-		init_h2fwcmd_w_parm_no_rsp(ph2c, pdrvextra_cmd_parm, GEN_CMD_CODE(_Set_Drv_Extra));
-
-		res = rtw_enqueue_cmd(pcmdpriv, ph2c);
+	ph2c = (struct cmd_obj*)rtw_zmalloc(sizeof(struct cmd_obj));	
+	if(ph2c==NULL){
+		res= _FAIL;
+		goto exit;
 	}
+	
+	pdrvextra_cmd_parm = (struct drvextra_cmd_parm*)rtw_zmalloc(sizeof(struct drvextra_cmd_parm)); 
+	if(pdrvextra_cmd_parm==NULL){
+		rtw_mfree((unsigned char *)ph2c, sizeof(struct cmd_obj));
+		res= _FAIL;
+		goto exit;
+	}
+
+	pdrvextra_cmd_parm->ec_id = LPS_CHANGE_DTIM_CID;
+	pdrvextra_cmd_parm->type = dtim;
+	pdrvextra_cmd_parm->size = 0;
+	pdrvextra_cmd_parm->pbuf = NULL;
+
+	init_h2fwcmd_w_parm_no_rsp(ph2c, pdrvextra_cmd_parm, GEN_CMD_CODE(_Set_Drv_Extra));
+
+	res = rtw_enqueue_cmd(pcmdpriv, ph2c);
 	
 exit:
 	
@@ -3046,11 +2982,6 @@ u8 rtw_ps_cmd(_adapter*padapter)
 	u8	res = _SUCCESS;
 _func_enter_;
 
-#ifdef CONFIG_CONCURRENT_MODE
-	if (padapter->adapter_type != PRIMARY_ADAPTER)
-		goto exit;
-#endif
-	
 	ppscmd = (struct cmd_obj*)rtw_zmalloc(sizeof(struct cmd_obj));	
 	if(ppscmd==NULL){
 		res= _FAIL;
@@ -3989,10 +3920,6 @@ u8 rtw_drvextra_cmd_hdl(_adapter *padapter, unsigned char *pbuf)
 		break;
 
 	case DYNAMIC_CHK_WK_CID:/*only  primary padapter go to this cmd, but execute dynamic_chk_wk_hdl() for two interfaces */
-#ifdef CONFIG_CONCURRENT_MODE
-			if (padapter->pbuddy_adapter)
-				dynamic_chk_wk_hdl(padapter->pbuddy_adapter);
-#endif
 			dynamic_chk_wk_hdl(padapter);
 			break;
 		case POWER_SAVING_CTRL_WK_CID:

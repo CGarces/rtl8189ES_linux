@@ -173,13 +173,8 @@ rtl8188f_HalDmWatchDog(
 	BOOLEAN		bFwPSAwake = _TRUE;
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
 
-#ifdef CONFIG_CONCURRENT_MODE
-	PADAPTER pbuddy_adapter = Adapter->pbuddy_adapter;
-#endif /*CONFIG_CONCURRENT_MODE */
-
 	if (Adapter->registrypriv.mp_mode == 1 && Adapter->mppriv.mp_dm == 0) /* for MP power tracking */
 		return;
-
 
 	if (!rtw_is_hw_init_completed(Adapter))
 		goto skip_dm;
@@ -219,14 +214,6 @@ rtl8188f_HalDmWatchDog(
 			if (check_fwstate(&Adapter->mlmepriv, WIFI_STATION_STATE))
 				bsta_state = _TRUE;
 		}
-
-#ifdef CONFIG_CONCURRENT_MODE
-		if (pbuddy_adapter && rtw_linked_check(pbuddy_adapter)) {
-			bLinked = _TRUE;
-			if (pbuddy_adapter && check_fwstate(&pbuddy_adapter->mlmepriv, WIFI_STATION_STATE))
-				bsta_state = _TRUE;
-		}
-#endif /*CONFIG_CONCURRENT_MODE */
 
 		ODM_CmnInfoUpdate(&pHalData->odmpriv , ODM_CMNINFO_LINK, bLinked);
 		ODM_CmnInfoUpdate(&pHalData->odmpriv , ODM_CMNINFO_STATION_STATE, bsta_state);
@@ -276,9 +263,6 @@ void rtl8188f_HalDmWatchDog_in_LPS(IN	PADAPTER	Adapter)
 	pDIG_T	pDM_DigTable = &pDM_Odm->DM_DigTable;
 	struct sta_priv *pstapriv = &Adapter->stapriv;
 	struct sta_info *psta = NULL;
-#ifdef CONFIG_CONCURRENT_MODE
-	PADAPTER pbuddy_adapter = Adapter->pbuddy_adapter;
-#endif /*CONFIG_CONCURRENT_MODE */
 
 	if (!rtw_is_hw_init_completed(Adapter))
 		goto skip_lps_dm;
@@ -286,11 +270,6 @@ void rtl8188f_HalDmWatchDog_in_LPS(IN	PADAPTER	Adapter)
 
 	if (rtw_linked_check(Adapter))
 		bLinked = _TRUE;
-
-#ifdef CONFIG_CONCURRENT_MODE
-	if (pbuddy_adapter && rtw_linked_check(pbuddy_adapter))
-		bLinked = _TRUE;
-#endif /*CONFIG_CONCURRENT_MODE */
 
 	ODM_CmnInfoUpdate(&pHalData->odmpriv , ODM_CMNINFO_LINK, bLinked);
 

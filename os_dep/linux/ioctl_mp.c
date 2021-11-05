@@ -724,13 +724,7 @@ int rtw_mp_ctx(struct net_device *dev,
 		return -EFAULT;
 
 	DBG_871X("%s: in=%s\n", __func__, extra);
-#ifdef CONFIG_CONCURRENT_MODE
-	if (padapter->adapter_type == SECONDARY_ADAPTER) {
-		sprintf(extra, "Error: MP mode can't support Virtual Adapter, Please to use main Adapter.\n");
-		wrqu->length = strlen(extra);
-		return 0;
-	}
-#endif
+
 	countPkTx = strncmp(extra, "count=", 5); /* strncmp TRUE is 0*/
 	cotuTx = strncmp(extra, "background", 20);
 	CarrSprTx = strncmp(extra, "background,cs", 20);
@@ -851,13 +845,7 @@ int rtw_mp_arx(struct net_device *dev,
 		return -EFAULT;
 
 	DBG_871X("%s: %s\n", __func__, input);
-#ifdef CONFIG_CONCURRENT_MODE
-	if (padapter->adapter_type == SECONDARY_ADAPTER) {
-		sprintf(extra, "Error: MP mode can't support Virtual Adapter, Please to use main Adapter.\n");
-		wrqu->length = strlen(extra);
-		return 0;
-	}
-#endif
+
 	bStartRx = (strncmp(input, "start", 5) == 0) ? 1 : 0; /* strncmp TRUE is 0*/
 	bStopRx = (strncmp(input, "stop", 5) == 0) ? 1 : 0; /* strncmp TRUE is 0*/
 	bQueryPhy = (strncmp(input, "phy", 3) == 0) ? 1 : 0; /* strncmp TRUE is 0*/
@@ -1435,13 +1423,6 @@ int rtw_mp_tx(struct net_device *dev,
 		if (copy_from_user(extra, wrqu->data.pointer, wrqu->data.length))
 			return -EFAULT;
 		DBG_871X("extra = %s\n", extra);
-#ifdef CONFIG_CONCURRENT_MODE
-			if (padapter->adapter_type == SECONDARY_ADAPTER) {
-				sprintf(extra, "Error: MP mode can't support Virtual Adapter, Please to use main Adapter.\n");
-				wrqu->data.length = strlen(extra);
-				return 0;
-			}
-#endif
 
 		if (strncmp(extra, "stop", 3) == 0) {
 			bStartTest = 0; /* To set Stop*/
@@ -1752,14 +1733,6 @@ int rtw_mp_rx(struct net_device *dev,
 
 	if (copy_from_user(extra, wrqu->data.pointer, wrqu->data.length))
 			return -EFAULT;
-
-#ifdef CONFIG_CONCURRENT_MODE
-		if (padapter->adapter_type == SECONDARY_ADAPTER) {
-			sprintf(extra, "Error: MP mode can't support Virtual Adapter, Please to use main Adapter.\n");
-			wrqu->data.length = strlen(extra);
-			return 0;
-		}
-#endif
 
 	if (strncmp(extra, "stop", 4) == 0) {
 		_rtw_memset(extra, 0, wrqu->data.length);

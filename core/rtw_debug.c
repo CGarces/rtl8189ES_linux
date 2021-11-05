@@ -91,10 +91,6 @@ void dump_drv_cfg(void *sel)
 	DBG_871X_SEL_NL(sel, "CONFIG_DEBUG\n");
 #endif
 
-#ifdef CONFIG_CONCURRENT_MODE
-	DBG_871X_SEL_NL(sel, "CONFIG_CONCURRENT_MODE\n");
-#endif
-
 	DBG_871X_SEL_NL(sel, "CONFIG_POWER_SAVING\n");
 
 	DBG_871X_SEL_NL(sel, "LOAD_PHY_PARA_FROM_FILE - REALTEK_CONFIG_PATH=%s\n", REALTEK_CONFIG_PATH);
@@ -799,17 +795,10 @@ int proc_get_scan_param(struct seq_file *m, void *v)
 	#define SCAN_PARAM_TITLE_ARG_HT
 	#define SCAN_PARAM_VALUE_ARG_HT
 #endif
-#ifdef CONFIG_SCAN_BACKOP
-	#define SCAN_PARAM_TITLE_FMT_BACKOP " %9s %12s"
-	#define SCAN_PARAM_VALUE_FMT_BACKOP " %-9u %-12u"
-	#define SCAN_PARAM_TITLE_ARG_BACKOP , "backop_ms", "scan_cnt_max"
-	#define SCAN_PARAM_VALUE_ARG_BACKOP , ss->backop_ms, ss->scan_cnt_max
-#else
 	#define SCAN_PARAM_TITLE_FMT_BACKOP ""
 	#define SCAN_PARAM_VALUE_FMT_BACKOP ""
 	#define SCAN_PARAM_TITLE_ARG_BACKOP
 	#define SCAN_PARAM_VALUE_ARG_BACKOP
-#endif
 
 	DBG_871X_SEL_NL(m,
 		SCAN_PARAM_TITLE_FMT
@@ -855,15 +844,8 @@ u16 scan_ch_ms;
 	#define SCAN_PARAM_INPUT_FMT_HT ""
 	#define SCAN_PARAM_INPUT_ARG_HT
 #endif
-#ifdef CONFIG_SCAN_BACKOP
-	u16 backop_ms;
-	u8 scan_cnt_max;
-	#define SCAN_PARAM_INPUT_FMT_BACKOP " %hu %hhu"
-	#define SCAN_PARAM_INPUT_ARG_BACKOP , &backop_ms, &scan_cnt_max
-#else
 	#define SCAN_PARAM_INPUT_FMT_BACKOP ""
 	#define SCAN_PARAM_INPUT_ARG_BACKOP
-#endif
 
 	if (count < 1)
 		return -EFAULT;
@@ -892,12 +874,6 @@ u16 scan_ch_ms;
 		if (num-- > 0)
 			ss->rx_ampdu_size = rx_ampdu_size;
 		#endif
-		#ifdef CONFIG_SCAN_BACKOP
-		if (num-- > 0)
-			ss->backop_ms = backop_ms;
-		if (num-- > 0)
-			ss->scan_cnt_max = scan_cnt_max;
-		#endif
 	}
 	
 	return count;	
@@ -915,87 +891,6 @@ int proc_get_scan_abort(struct seq_file *m, void *v)
 
 	return 0;
 }
-
-#ifdef CONFIG_SCAN_BACKOP
-int proc_get_backop_flags_sta(struct seq_file *m, void *v)
-{
-	struct net_device *dev = m->private;
-	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
-	struct mlme_ext_priv *mlmeext = &adapter->mlmeextpriv;
-
-	DBG_871X_SEL_NL(m, "0x%02x\n", mlmeext_scan_backop_flags_sta(mlmeext));
-
-	return 0;
-}
-
-ssize_t proc_set_backop_flags_sta(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
-{
-	struct net_device *dev = data;
-	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
-	struct mlme_ext_priv *mlmeext = &adapter->mlmeextpriv;
-
-	char tmp[32];
-	u8 flags;
-
-	if (count < 1)
-		return -EFAULT;
-
-	if (count > sizeof(tmp)) {
-		rtw_warn_on(1);
-		return -EFAULT;
-	}
-
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
-
-		int num = sscanf(tmp, "%hhx", &flags);
-
-		if (num == 1)
-			mlmeext_assign_scan_backop_flags_sta(mlmeext, flags);
-	}
-	
-	return count;
-}
-
-int proc_get_backop_flags_ap(struct seq_file *m, void *v)
-{
-	struct net_device *dev = m->private;
-	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
-	struct mlme_ext_priv *mlmeext = &adapter->mlmeextpriv;
-
-	DBG_871X_SEL_NL(m, "0x%02x\n", mlmeext_scan_backop_flags_ap(mlmeext));
-
-	return 0;
-}
-
-ssize_t proc_set_backop_flags_ap(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
-{
-	struct net_device *dev = data;
-	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
-	struct mlme_ext_priv *mlmeext = &adapter->mlmeextpriv;
-
-	char tmp[32];
-	u8 flags;
-
-	if (count < 1)
-		return -EFAULT;
-
-	if (count > sizeof(tmp)) {
-		rtw_warn_on(1);
-		return -EFAULT;
-	}
-
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
-
-		int num = sscanf(tmp, "%hhx", &flags);
-
-		if (num == 1)
-			mlmeext_assign_scan_backop_flags_ap(mlmeext, flags);
-	}
-	
-	return count;
-}
-
-#endif /* CONFIG_SCAN_BACKOP */
 
 int proc_get_survey_info(struct seq_file *m, void *v)
 {
@@ -1085,11 +980,7 @@ ssize_t proc_set_survey_info(struct file *file, const char __user *buffer, size_
 		return -EFAULT;
 
 #ifdef CONFIG_MP_INCLUDED
-		if ((padapter->registrypriv.mp_mode == 1)
-#ifdef CONFIG_CONCURRENT_MODE
-		|| ((padapter->pbuddy_adapter) && (padapter->pbuddy_adapter->registrypriv.mp_mode == 1))
-#endif			
-		){
+		if ((padapter->registrypriv.mp_mode == 1)) {
 			DBG_871X(FUNC_ADPT_FMT ": MP mode block Scan request\n", FUNC_ADPT_ARG(padapter));	
 			goto exit;
 		}
@@ -1118,11 +1009,7 @@ ssize_t proc_set_survey_info(struct file *file, const char __user *buffer, size_
 		goto exit;
 	}
 	
-	if ((pmlmepriv->LinkDetectInfo.bBusyTraffic == _TRUE)
-#ifdef CONFIG_CONCURRENT_MODE
-	|| (rtw_get_buddy_bBusyTraffic(padapter) == _TRUE)
-#endif
-	) {
+	if ((pmlmepriv->LinkDetectInfo.bBusyTraffic == _TRUE)) {
 		DBG_871X("scan abort!! BusyTraffic == _TRUE\n");
 		goto exit;
 	}
@@ -1132,14 +1019,6 @@ ssize_t proc_set_survey_info(struct file *file, const char __user *buffer, size_
 		goto exit;
 	}
 
-#ifdef CONFIG_CONCURRENT_MODE
-	if (check_buddy_fwstate(padapter,
-		_FW_UNDER_SURVEY|_FW_UNDER_LINKING|WIFI_UNDER_WPS) == _TRUE) {
-		DBG_871X("scan abort!! buddy_fwstate=0x%x\n",
-				get_fwstate(&(padapter->pbuddy_adapter->mlmepriv)));
-		goto exit;
-	}
-#endif
 	_status = rtw_set_802_11_bssid_list_scan(padapter, NULL, 0);
 
 exit:

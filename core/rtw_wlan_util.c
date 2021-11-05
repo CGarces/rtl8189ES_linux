@@ -555,16 +555,7 @@ static void Set_NETYPE0_MSR(_adapter *padapter, u8 type)
 
 void Set_MSR(_adapter *padapter, u8 type)
 {
-#ifdef CONFIG_CONCURRENT_MODE
-	if(padapter->iface_type == IFACE_PORT1)
-	{
-		Set_NETYPE1_MSR(padapter, type);
-	}
-	else
-#endif
-	{
-		Set_NETYPE0_MSR(padapter, type);
-	}
+	Set_NETYPE0_MSR(padapter, type);
 }
 
 inline u8 rtw_get_oper_ch(_adapter *adapter)
@@ -1419,60 +1410,16 @@ void rtw_camid_free(_adapter *adapter, u8 cam_id)
 	_exit_critical_bh(&cam_ctl->lock, &irqL);
 }
 
-void flush_all_cam_entry(_adapter *padapter)
-{
+void flush_all_cam_entry(_adapter *padapter) {
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 
-#ifdef CONFIG_CONCURRENT_MODE
-	if(check_buddy_fwstate(padapter, _FW_LINKED) == _TRUE)
-	{
-		if(check_fwstate(pmlmepriv, WIFI_STATION_STATE))
-		{
-			struct sta_priv	*pstapriv = &padapter->stapriv;
-			struct sta_info	*psta;
-
-			psta = rtw_get_stainfo(pstapriv, pmlmeinfo->network.MacAddress);
-			if(psta) {
-				if(psta->state & WIFI_AP_STATE)
-				{}   //clear cam when ap free per sta_info        
-				else {
-					rtw_clearstakey_cmd(padapter, psta, _FALSE);
-				}
-			}
-		}
-		else if(check_fwstate(pmlmepriv, WIFI_AP_STATE) == _TRUE)
-		{
-			/* clear default key */
-			int i, cam_id;
-			u8 null_addr[ETH_ALEN]= {0,0,0,0,0,0};
-
-			for (i=0;i<4;i++) {
-				cam_id = rtw_camid_search(padapter, null_addr, i, -1);
-				if (cam_id >= 0) {
-					clear_cam_entry(padapter, cam_id);
-					rtw_camid_free(padapter, cam_id);
-				}
-			}
-
-			/* clear default key related key search setting */
-			#ifdef DYNAMIC_CAMID_ALLOC
-			rtw_hal_set_hwreg(padapter, HW_VAR_SEC_DK_CFG, (u8*)_FALSE);
-			#endif
-
-			/* leave pairwise key when ap free per sta_info */
-		}
-	}
-	else
-#endif //CONFIG_CONCURRENT_MODE
-	{
-		invalidate_cam_all(padapter);
-		/* clear default key related key search setting */
-		#ifdef DYNAMIC_CAMID_ALLOC
-		rtw_hal_set_hwreg(padapter, HW_VAR_SEC_DK_CFG, (u8*)_FALSE);
-		#endif
-	}
+	invalidate_cam_all(padapter);
+	/* clear default key related key search setting */
+	#ifdef DYNAMIC_CAMID_ALLOC
+	rtw_hal_set_hwreg(padapter, HW_VAR_SEC_DK_CFG, (u8*)_FALSE);
+	#endif
 }
 
 void rtw_process_wfd_ie(_adapter *adapter, u8 *wfd_ie, u8 wfd_ielen, const char *tag)
