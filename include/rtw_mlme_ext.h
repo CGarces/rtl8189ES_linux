@@ -587,9 +587,7 @@ struct mlme_ext_priv
 	u8 DrvBcnEarly;
 	u8 DrvBcnTimeOut;
 
-#ifdef CONFIG_AP_MODE	
 	unsigned char bstart_bss;
-#endif
 
 #ifdef CONFIG_80211D
 	u8 update_channel_plan_by_ap_done;

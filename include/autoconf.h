@@ -52,16 +52,6 @@
 	/*#define SUPPLICANT_RTK_VERSION_LOWER_THAN_JB42*/ /* wpa_supplicant realtek version <= jb42 will be defined this */
 #endif
 
-#define CONFIG_AP_MODE
-#ifdef CONFIG_AP_MODE
-	#define CONFIG_NATIVEAP_MLME
-	#ifndef CONFIG_NATIVEAP_MLME
-		#define CONFIG_HOSTAPD_MLME
-	#endif
-	//#define CONFIG_FIND_BEST_CHANNEL
-	#define CONFIG_TX_MCAST2UNI	// Support IP multicast->unicast
-#endif
-
 #define CONFIG_P2P
 #ifdef CONFIG_P2P
 	//Added by Albert 20110812

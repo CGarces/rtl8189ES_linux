@@ -427,12 +427,7 @@ static void rtw_sdio_if1_deinit(_adapter *if1)
 	if(check_fwstate(pmlmepriv, _FW_LINKED))
 		rtw_disassoc_cmd(if1, 0, _FALSE);
 
-#ifdef CONFIG_AP_MODE
 	free_mlme_ap_info(if1);
-	#ifdef CONFIG_HOSTAPD_MLME
-	hostapd_mode_unload(if1);
-	#endif
-#endif
 
 	rtw_cancel_all_timer(if1);
 
@@ -485,10 +480,6 @@ static int rtw_drv_init(
 	//dev_alloc_name && register_netdev
 	if (rtw_os_ndevs_init(dvobj) != _SUCCESS)
 		goto free_if2;
-
-#ifdef CONFIG_HOSTAPD_MLME
-	hostapd_mode_init(if1);
-#endif
 
 	if (sdio_alloc_irq(dvobj) != _SUCCESS)
 		goto os_ndevs_deinit;

@@ -822,9 +822,7 @@ struct _ADAPTER{
        struct	mp_priv	mppriv;
 #endif
 
-#ifdef CONFIG_AP_MODE
 	struct	hostapd_priv	*phostapdpriv;
-#endif
 
 #ifdef CONFIG_IOCTL_CFG80211
 #ifdef CONFIG_P2P

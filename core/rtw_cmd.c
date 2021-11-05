@@ -2616,12 +2616,8 @@ void dynamic_chk_wk_hdl(_adapter *padapter)
 	pmlmepriv = &(padapter->mlmepriv);
 
 #ifdef CONFIG_ACTIVE_KEEP_ALIVE_CHECK
-#ifdef CONFIG_AP_MODE
-	if(check_fwstate(pmlmepriv, WIFI_AP_STATE) == _TRUE)
-	{			
+	if(check_fwstate(pmlmepriv, WIFI_AP_STATE))
 		expire_timeout_chk(padapter);
-	}
-#endif
 #endif //CONFIG_ACTIVE_KEEP_ALIVE_CHECK
 
 #ifdef DBG_CONFIG_ERROR_DETECT	
@@ -3090,7 +3086,6 @@ _func_exit_;
 
 }
 
-#ifdef CONFIG_AP_MODE
 
 static void rtw_chk_hi_queue_hdl(_adapter *padapter)
 {
@@ -3433,7 +3428,6 @@ apply:
 }
 #endif /* CONFIG_DFS_MASTER */
 
-#endif /* CONFIG_AP_MODE */
 
 //#ifdef CONFIG_C2H_PACKET_EN
 u8 rtw_c2h_packet_wk_cmd(PADAPTER padapter, u8 *pbuf, u16 length)
@@ -4045,11 +4039,9 @@ u8 rtw_drvextra_cmd_hdl(_adapter *padapter, unsigned char *pbuf)
 			p2p_protocol_wk_hdl(padapter, pdrvextra_cmd->type);
 			break;
 #endif
-#ifdef CONFIG_AP_MODE
 		case CHECK_HIQ_WK_CID:
 			rtw_chk_hi_queue_hdl(padapter);
 			break;
-#endif
 	/* add for CONFIG_IEEE80211W, none 11w can use it */
 		case RESET_SECURITYPRIV:
 			reset_securitypriv_hdl(padapter);

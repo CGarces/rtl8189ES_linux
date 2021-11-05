@@ -2343,59 +2343,7 @@ ssize_t proc_set_rx_stbc(struct file *file, const char __user *buffer, size_t co
 }
 #endif //CONFIG_80211N_HT
 
-/*int proc_get_rssi_disp(struct seq_file *m, void *v)
-{
-	struct net_device *dev = m->private;
-	return 0;
-}
-*/
 
-/*ssize_t proc_set_rssi_disp(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
-{
-	struct net_device *dev = data;
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	char tmp[32];
-	u32 enable=0;
-
-	if (count < 1)
-	{
-		DBG_8192C("argument size is less than 1\n");
-		return -EFAULT;
-	}	
-
-	if (count > sizeof(tmp)) {
-		rtw_warn_on(1);
-		return -EFAULT;
-	}
-
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
-
-		int num = sscanf(tmp, "%x", &enable);
-
-		if (num !=  1) {
-			DBG_8192C("invalid set_rssi_disp parameter!\n");
-			return count;
-		}
-		
-		if(enable)
-		{			
-			DBG_8192C("Linked info Function Enable\n");
-			padapter->bLinkInfoDump = enable ;			
-		}
-		else
-		{
-			DBG_8192C("Linked info Function Disable\n");
-			padapter->bLinkInfoDump = 0 ;
-		}
-	
-	}
-	
-	return count;
-	
-}	
-
-*/		
-#ifdef CONFIG_AP_MODE
 
 int proc_get_all_sta_info(struct seq_file *m, void *v)
 {
@@ -2468,7 +2416,6 @@ int proc_get_all_sta_info(struct seq_file *m, void *v)
 	return 0;
 }
 
-#endif		
 
 #ifdef DBG_MEMORY_LEAK
 #include <asm/atomic.h>

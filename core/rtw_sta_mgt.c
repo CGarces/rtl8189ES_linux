@@ -176,7 +176,6 @@ _func_enter_;
 	_rtw_init_sta_xmit_priv(&psta->sta_xmitpriv);
 	_rtw_init_sta_recv_priv(&psta->sta_recvpriv);
 	
-#ifdef CONFIG_AP_MODE
 
 	_rtw_init_listhead(&psta->asoc_list);
 
@@ -191,7 +190,6 @@ _func_enter_;
 	psta->bpairwise_key_installed = _FALSE;
 
 
-#ifdef CONFIG_NATIVEAP_MLME
 	psta->nonerp_set = 0;
 	psta->no_short_slot_time_set = 0;
 	psta->no_short_preamble_set = 0;
@@ -199,15 +197,11 @@ _func_enter_;
 	psta->no_ht_set = 0;
 	psta->ht_20mhz_set = 0;
 	psta->ht_40mhz_intolerant = 0;
-#endif	
 
-#ifdef CONFIG_TX_MCAST2UNI
 	psta->under_exist_checking = 0;
-#endif	// CONFIG_TX_MCAST2UNI
 	
 	psta->keep_alive_trycnt = 0;
 
-#endif	// CONFIG_AP_MODE	
 
 	rtw_st_ctl_init(&psta->st_ctl);
 
@@ -255,7 +249,6 @@ _func_enter_;
 
 	pstapriv->adhoc_expire_to = 4; /* 4 * 2 = 8 sec */
 
-#ifdef CONFIG_AP_MODE
 
 	pstapriv->sta_dz_bitmap = 0;
 	pstapriv->tim_bitmap = 0;
@@ -281,7 +274,6 @@ _func_enter_;
 #endif	
 	pstapriv->max_num_sta = NUM_STA;
 		
-#endif
 	
 _func_exit_;		
 
@@ -380,9 +372,7 @@ _func_exit_;
 void rtw_mfree_sta_priv_lock(struct	sta_priv *pstapriv);
 void rtw_mfree_sta_priv_lock(struct	sta_priv *pstapriv)
 {
-#ifdef CONFIG_AP_MODE
 	struct wlan_acl_pool *pacl_list = &pstapriv->acl_list;
-#endif
 
 	 rtw_mfree_all_stainfo(pstapriv); //be done before free sta_hash_lock
 
@@ -392,11 +382,9 @@ void rtw_mfree_sta_priv_lock(struct	sta_priv *pstapriv)
 	_rtw_spinlock_free(&pstapriv->wakeup_q.lock);
 	_rtw_spinlock_free(&pstapriv->sleep_q.lock);
 
-#ifdef CONFIG_AP_MODE
 	_rtw_spinlock_free(&pstapriv->asoc_list_lock);
 	_rtw_spinlock_free(&pstapriv->auth_list_lock);
 	_rtw_spinlock_free(&pacl_list->acl_node_q.lock);
-#endif
 
 }
 
@@ -709,7 +697,6 @@ _func_enter_;
 	//release mac id for non-bc/mc station,
 	rtw_release_macid(pstapriv->padapter, psta);
 
-#ifdef CONFIG_AP_MODE
 
 /*
 	_enter_critical_bh(&pstapriv->asoc_list_lock, &irqL0);
@@ -738,7 +725,6 @@ _func_enter_;
 
 	psta->has_legacy_ac = 0;
 
-#ifdef CONFIG_NATIVEAP_MLME
 	
 	pstapriv->sta_dz_bitmap &=~BIT(psta->aid);
 	pstapriv->tim_bitmap &=~BIT(psta->aid);	
@@ -751,13 +737,9 @@ _func_enter_;
 		psta->aid = 0;
 	}	
 	
-#endif	// CONFIG_NATIVEAP_MLME	
 
-#ifdef CONFIG_TX_MCAST2UNI
 	psta->under_exist_checking = 0;
-#endif	// CONFIG_TX_MCAST2UNI
 
-#endif	// CONFIG_AP_MODE	
 
 	rtw_st_ctl_deinit(&psta->st_ctl);
 
@@ -947,7 +929,6 @@ _func_exit_;
 u8 rtw_access_ctrl(_adapter *padapter, u8 *mac_addr)
 {
 	u8 res = _TRUE;
-#ifdef  CONFIG_AP_MODE
 	_irqL irqL;
 	_list	*plist, *phead;
 	struct rtw_wlan_acl_node *paclnode;
@@ -989,7 +970,6 @@ u8 rtw_access_ctrl(_adapter *padapter, u8 *mac_addr)
 		 res = _TRUE;
 	}		
 	
-#endif
 
 	return res;
 

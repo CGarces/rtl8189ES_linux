@@ -32,10 +32,6 @@
 	#define CONFIG_USB_VENDOR_REQ_MUTEX
 #endif
 
-#if !defined(CONFIG_AP_MODE) && defined(CONFIG_DFS_MASTER)
-	#warning "undef CONFIG_DFS_MASTER because CONFIG_AP_MODE is not defined"
-	#undef CONFIG_DFS_MASTER
-#endif
 
 #define DYNAMIC_CAMID_ALLOC
 

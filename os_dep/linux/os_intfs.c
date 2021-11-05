@@ -175,9 +175,7 @@ int rtw_hwpwrp_detect = 0; //HW power  ping detect 0:disable , 1:enable
 
 int rtw_hw_wps_pbc = 0;
 
-#ifdef CONFIG_TX_MCAST2UNI
 int rtw_mc2u_disable = 0;
-#endif	// CONFIG_TX_MCAST2UNI
 
 #ifdef CONFIG_80211D
 int rtw_80211d = 0;
@@ -303,9 +301,7 @@ MODULE_PARM_DESC(rtw_fw_mp_bt_file_path, "The path of fw for MP-BT image");
 #endif // CONFIG_MP_INCLUDED
 #endif // CONFIG_FILE_FWIMG
 
-#ifdef CONFIG_TX_MCAST2UNI
 module_param(rtw_mc2u_disable, int, 0644);
-#endif	// CONFIG_TX_MCAST2UNI
 
 #ifdef CONFIG_80211D
 module_param(rtw_80211d, int, 0644);
@@ -2906,12 +2902,10 @@ int rtw_suspend_free_assoc_resource(_adapter *padapter)
 		//s2-2.  indicate disconnect to os
 		rtw_indicate_disconnect(padapter, 0, _FALSE);
 	}
-	#ifdef CONFIG_AP_MODE
 	else if(check_fwstate(pmlmepriv, WIFI_AP_STATE))	
 	{
 		rtw_sta_flush(padapter, _TRUE);
 	}
-	#endif
 		
 	//s2-3.
 	rtw_free_assoc_resources(padapter, 1);

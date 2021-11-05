@@ -361,7 +361,6 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 				}
 
 				// ok to send, remove frame from queue
-#ifdef CONFIG_AP_MODE
 				if (check_fwstate(&padapter->mlmepriv, WIFI_AP_STATE) == _TRUE) {
 					if ((pxmitframe->attrib.psta->state & WIFI_SLEEP_STATE) &&
 						(pxmitframe->attrib.triggered == 0)) {
@@ -370,7 +369,6 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 						break;
 					}
 				}
-#endif
 				rtw_list_delete(&pxmitframe->list);
 				ptxservq->qcnt--;
 				phwxmit->accnt--;

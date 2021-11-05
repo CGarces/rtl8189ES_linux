@@ -246,7 +246,6 @@ struct sta_info {
 
 	unsigned int expire_to;
 
-#ifdef CONFIG_AP_MODE
 
 	_list asoc_list;
 	_list auth_list;
@@ -267,7 +266,6 @@ struct sta_info {
 
 	u8 bpairwise_key_installed;
 
-#ifdef CONFIG_NATIVEAP_MLME
 	u8 wpa_ie[32];
 
 	u8 nonerp_set;
@@ -277,7 +275,6 @@ struct sta_info {
 	u8 no_ht_set;
 	u8 ht_20mhz_set;
 	u8 ht_40mhz_intolerant;
-#endif	// CONFIG_NATIVEAP_MLME
 
 #ifdef CONFIG_ATMEL_RC_PATCH
 	u8 flag_atmel_rc;
@@ -315,9 +312,7 @@ struct sta_info {
 	u8 op_wfd_mode;
 #endif
 
-#ifdef CONFIG_TX_MCAST2UNI
 	u8 under_exist_checking;
-#endif	// CONFIG_TX_MCAST2UNI
 	
 	u8 keep_alive_trycnt;
 
@@ -326,7 +321,6 @@ struct sta_info {
 	u16 pid; // pairing id
 #endif
 
-#endif	// CONFIG_AP_MODE	
 
 #ifdef CONFIG_IOCTL_CFG80211
 	u8 *passoc_req;
@@ -479,7 +473,6 @@ struct	sta_priv {
 
 	u32 adhoc_expire_to;
 
-#ifdef CONFIG_AP_MODE
 	_list asoc_list;
 	_list auth_list;
 	_lock asoc_list_lock;
@@ -503,7 +496,6 @@ struct	sta_priv {
 	u16 max_num_sta;
 
 	struct wlan_acl_pool acl_list;
-#endif
 
 #ifdef CONFIG_ATMEL_RC_PATCH
 	u8 atmel_rc_pattern [6];

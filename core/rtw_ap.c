@@ -22,7 +22,6 @@
 #include <drv_types.h>
 
 
-#ifdef CONFIG_AP_MODE
 
 extern unsigned char	RTW_WPA_OUI[];
 extern unsigned char 	WMM_OUI[];
@@ -436,16 +435,13 @@ void	expire_timeout_chk(_adapter *padapter)
 		if (chk_sta_is_alive(psta) || !psta->expire_to) {
 			psta->expire_to = pstapriv->expire_to;
 			psta->keep_alive_trycnt = 0;
-			#ifdef CONFIG_TX_MCAST2UNI
 			psta->under_exist_checking = 0;
-			#endif	// CONFIG_TX_MCAST2UNI
 		} else {
 			psta->expire_to--;
 		}
 
 #ifndef CONFIG_ACTIVE_KEEP_ALIVE_CHECK
 #ifdef CONFIG_80211N_HT
-#ifdef CONFIG_TX_MCAST2UNI
 		if ( (psta->flags & WLAN_STA_HT) && (psta->htpriv.agg_enable_bitmap || psta->under_exist_checking) ) {
 			// check sta by delba(addba) for 11n STA 
 			// ToDo: use CCX report to check for all STAs
@@ -464,7 +460,6 @@ void	expire_timeout_chk(_adapter *padapter)
 				psta->htpriv.candidate_tid_bitmap = 0x0;//reset
 			}
 		}
-#endif //CONFIG_TX_MCAST2UNI
 #endif //CONFIG_80211N_HT
 #endif //CONFIG_ACTIVE_KEEP_ALIVE_CHECK
 
@@ -2294,7 +2289,6 @@ u8 rtw_ap_bmc_frames_hdl(_adapter *padapter)
 	return H2C_SUCCESS;
 }
 
-#ifdef CONFIG_NATIVEAP_MLME
 
 static void associated_stainfo_update(_adapter *padapter, struct sta_info *psta, u32 sta_info_type)
 {
@@ -3609,7 +3603,6 @@ void stop_ap_mode(_adapter *padapter)
 	rtw_free_mlme_priv_ie_data(pmlmepriv);
 }
 
-#endif //CONFIG_NATIVEAP_MLME
 
 void rtw_ap_update_bss_chbw(_adapter *adapter, WLAN_BSSID_EX *bss, u8 ch, u8 bw, u8 offset)
 {
@@ -3878,5 +3871,4 @@ bool rtw_ap_chbw_decision(_adapter *adapter, u8 req_ch, u8 req_bw, u8 req_offset
 	return changed;
 }
 
-#endif //CONFIG_AP_MODE
 

@@ -419,9 +419,7 @@ ssize_t proc_set_dfs_master_test_case(struct file *file, const char __user *buff
 #endif /* CONFIG_DFS_MASTER */
 ssize_t proc_set_wait_hiq_empty(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
 
-#ifdef CONFIG_AP_MODE
 int proc_get_all_sta_info(struct seq_file *m, void *v);
-#endif /* CONFIG_AP_MODE */
 
 #ifdef DBG_MEMORY_LEAK
 int proc_get_malloc_cnt(struct seq_file *m, void *v);

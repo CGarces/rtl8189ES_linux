@@ -541,7 +541,6 @@ struct mlme_priv {
 	u8 ext_capab_ie_data[8];/*currently for ap mode only*/
 	u8 ext_capab_ie_len; 
 	
-#if defined (CONFIG_AP_MODE) && defined (CONFIG_NATIVEAP_MLME)
 	/* Number of associated Non-ERP stations (i.e., stations using 802.11b
 	 * in 802.11g BSS) */
 	int num_sta_non_erp;
@@ -611,7 +610,6 @@ struct mlme_priv {
 	u8 ori_ch;
 	u8 ori_bw;
 	u8 ori_offset;
-#endif //#if defined (CONFIG_AP_MODE) && defined (CONFIG_NATIVEAP_MLME)
 
 #if defined(CONFIG_WFD) && defined(CONFIG_IOCTL_CFG80211)
 	
@@ -652,22 +650,14 @@ struct mlme_priv {
 
 void rtw_mlme_reset_auto_scan_int(_adapter *adapter);
 
-#ifdef CONFIG_AP_MODE
 
 struct hostapd_priv
 {
 	_adapter *padapter;
-
-#ifdef CONFIG_HOSTAPD_MLME
-	struct net_device *pmgnt_netdev;
-	struct usb_anchor anchored;
-#endif	
-	
 };
 
 extern int hostapd_mode_init(_adapter *padapter);
 extern void hostapd_mode_unload(_adapter *padapter);
-#endif
 
 
 extern void rtw_joinbss_event_prehandle(_adapter *adapter, u8 *pbuf);

@@ -1062,7 +1062,6 @@ u8 rtw_dm_ra_mask_wk_cmd(_adapter*padapter, u8 *psta);
 
 extern u8 rtw_ps_cmd(_adapter*padapter);
 
-#ifdef CONFIG_AP_MODE
 u8 rtw_chk_hi_queue_cmd(_adapter*padapter);
 #ifdef CONFIG_DFS_MASTER
 u8 rtw_dfs_master_cmd(_adapter *adapter, bool enqueue);
@@ -1078,7 +1077,6 @@ enum {
 };
 void rtw_dfs_master_status_apply(_adapter *adapter, u8 self_action);
 #endif /* CONFIG_DFS_MASTER */
-#endif /* CONFIG_AP_MODE */
 
 u8 rtw_enable_hw_update_tsf_cmd(_adapter *padapter);
 

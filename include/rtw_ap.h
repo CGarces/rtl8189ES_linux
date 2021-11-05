@@ -21,7 +21,6 @@
 #define __RTW_AP_H_
 
 
-#ifdef CONFIG_AP_MODE
 
 //external function
 extern void rtw_indicate_sta_assoc_event(_adapter *padapter, struct sta_info *psta);
@@ -50,7 +49,6 @@ u8 rtw_ap_set_pairwise_key(_adapter *padapter, struct sta_info *psta);
 int rtw_ap_set_group_key(_adapter *padapter, u8 *key, u8 alg, int keyid);
 int rtw_ap_set_wep_key(_adapter *padapter, u8 *key, u8 keylen, int keyid, u8 set_tx);
 
-#ifdef CONFIG_NATIVEAP_MLME
 void associated_clients_update(_adapter *padapter, u8 updated, u32 sta_info_type);
 void bss_cap_update_on_sta_join(_adapter *padapter, struct sta_info *psta);
 u8 bss_cap_update_on_sta_leave(_adapter *padapter, struct sta_info *psta);
@@ -61,7 +59,6 @@ int rtw_sta_flush(_adapter *padapter, bool enqueue);
 int rtw_ap_inform_ch_switch(_adapter *padapter, u8 new_ch, u8 ch_offset);
 void start_ap_mode(_adapter *padapter);
 void stop_ap_mode(_adapter *padapter);
-#endif
 
 void rtw_ap_update_bss_chbw(_adapter *adapter, WLAN_BSSID_EX *bss, u8 ch, u8 bw, u8 offset);
 bool rtw_ap_chbw_decision(_adapter *adapter, u8 req_ch, u8 req_bw, u8 req_offset, u8 *ch, u8 *bw, u8 *offset);
@@ -70,7 +67,6 @@ bool rtw_ap_chbw_decision(_adapter *adapter, u8 req_ch, u8 req_bw, u8 req_offset
 extern void rtw_start_auto_ap(_adapter *adapter);
 #endif //CONFIG_AUTO_AP_MODE
 
-#endif //end of CONFIG_AP_MODE
 
 #endif
 void update_bmc_sta(_adapter *padapter);

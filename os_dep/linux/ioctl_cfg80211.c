@@ -841,7 +841,6 @@ void rtw_cfg80211_indicate_disconnect(_adapter *padapter, u16 reason, u8 locally
 }
  	
 
-#ifdef CONFIG_AP_MODE
 static int rtw_cfg80211_ap_set_encryption(struct net_device *dev, struct ieee_param *param, u32 param_len)
 {
 	int ret = 0;
@@ -1127,7 +1126,6 @@ exit:
 	return ret;
 	
 }
-#endif
 
 static int rtw_cfg80211_set_encryption(struct net_device *dev, struct ieee_param *param, u32 param_len)
 {
@@ -1401,12 +1399,10 @@ static int cfg80211_rtw_add_key(struct wiphy *wiphy, struct net_device *ndev,
 		ret =  rtw_cfg80211_set_encryption(ndev, param, param_len);	
 	} else
 		if(check_fwstate(pmlmepriv, WIFI_AP_STATE)) {
-#ifdef CONFIG_AP_MODE
 		if(mac_addr)
 			_rtw_memcpy(param->sta_addr, (void*)mac_addr, ETH_ALEN);
 	
 		ret = rtw_cfg80211_ap_set_encryption(ndev, param, param_len);
-#endif
 	}
         else if(check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) == _TRUE
                 || check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE) == _TRUE)
@@ -3249,7 +3245,6 @@ static int cfg80211_rtw_flush_pmksa(struct wiphy *wiphy,
 	return 0;
 }
 
-#ifdef CONFIG_AP_MODE
 void rtw_cfg80211_indicate_sta_assoc(_adapter *padapter, u8 *pmgmt_frame, uint frame_len)
 {
 	s32 freq;
@@ -4291,7 +4286,6 @@ static int	cfg80211_rtw_assoc(struct wiphy *wiphy, struct net_device *ndev,
 	
 	return 0;
 }
-#endif //CONFIG_AP_MODE
 
 void rtw_cfg80211_rx_probe_request(_adapter *adapter, u8 *frame, uint frame_len)
 {
@@ -5808,14 +5802,12 @@ struct ieee80211_iface_limit rtw_limits[] = {
 			| BIT(NL80211_IFTYPE_P2P_CLIENT)
 			#endif
 	},
-	#ifdef CONFIG_AP_MODE
 	{	.max = 1,
 		.types = BIT(NL80211_IFTYPE_AP)
 			#if defined(CONFIG_P2P) && ((LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)) || defined(COMPAT_KERNEL_RELEASE))
 			| BIT(NL80211_IFTYPE_P2P_GO)
 			#endif
 	},
-	#endif
 };
 
 struct ieee80211_iface_combination rtw_combinations[] = {
@@ -5844,9 +5836,7 @@ static void rtw_cfg80211_preinit_wiphy(_adapter *adapter, struct wiphy *wiphy)
 	
 	wiphy->interface_modes =	BIT(NL80211_IFTYPE_STATION)
 								| BIT(NL80211_IFTYPE_ADHOC)
-#ifdef CONFIG_AP_MODE
 								| BIT(NL80211_IFTYPE_AP)
-#endif
 #if defined(CONFIG_P2P) && ((LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,37)) || defined(COMPAT_KERNEL_RELEASE))
 								| BIT(NL80211_IFTYPE_P2P_CLIENT)
 								| BIT(NL80211_IFTYPE_P2P_GO)
@@ -5854,9 +5844,7 @@ static void rtw_cfg80211_preinit_wiphy(_adapter *adapter, struct wiphy *wiphy)
 								;
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,37)) || defined(COMPAT_KERNEL_RELEASE)	
-#ifdef CONFIG_AP_MODE
 	wiphy->mgmt_stypes = rtw_cfg80211_default_mgmt_stypes;
-#endif //CONFIG_AP_MODE	
 #endif		
 
 	#if defined(RTW_SINGLE_WIPHY) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 0, 0))
@@ -6028,7 +6016,6 @@ static struct cfg80211_ops rtw_cfg80211_ops = {
 	.del_pmksa = cfg80211_rtw_del_pmksa,
 	.flush_pmksa = cfg80211_rtw_flush_pmksa,
 	
-#ifdef CONFIG_AP_MODE
 	.add_virtual_intf = cfg80211_rtw_add_virtual_intf,
 	.del_virtual_intf = cfg80211_rtw_del_virtual_intf,
 
@@ -6052,7 +6039,6 @@ static struct cfg80211_ops rtw_cfg80211_ops = {
 	#endif
 	//.auth = cfg80211_rtw_auth,
 	//.assoc = cfg80211_rtw_assoc,	
-#endif //CONFIG_AP_MODE
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 6, 0))
 	.set_monitor_channel = cfg80211_rtw_set_monitor_channel,
