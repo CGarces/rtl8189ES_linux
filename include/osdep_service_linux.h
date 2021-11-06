@@ -76,10 +76,8 @@
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24))
 	#include <linux/ieee80211.h>
 #endif
-#ifdef CONFIG_IOCTL_CFG80211
 /*	#include <linux/ieee80211.h> */
 	#include <net/cfg80211.h>
-#endif //CONFIG_IOCTL_CFG80211
 
 #ifdef CONFIG_TCP_CSUM_OFFLOAD_TX
 	#include <linux/in.h>

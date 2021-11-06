@@ -731,7 +731,7 @@ struct dvobj_priv
 
 	struct rtw_traffic_statistics	traffic_stat;
 
-#if defined(CONFIG_IOCTL_CFG80211) && defined(RTW_SINGLE_WIPHY)
+#if defined(RTW_SINGLE_WIPHY)
 	struct wiphy *wiphy;
 #endif
 
@@ -746,7 +746,7 @@ struct dvobj_priv
 #define pwrctl_to_dvobj(pwrctl) container_of(pwrctl, struct dvobj_priv, pwrctl_priv)
 #define dvobj_to_macidctl(dvobj) (&(dvobj->macid_ctl))
 #define dvobj_to_regsty(dvobj) (&(dvobj->padapters[IFACE_ID0]->registrypriv))
-#if defined(CONFIG_IOCTL_CFG80211) && defined(RTW_SINGLE_WIPHY)
+#if defined(RTW_SINGLE_WIPHY)
 #define dvobj_to_wiphy(dvobj) ((dvobj)->wiphy)
 #endif
 #define dvobj_to_rfctl(dvobj) (&(dvobj->rf_ctl))
@@ -819,9 +819,7 @@ struct _ADAPTER{
 
 	struct	hostapd_priv	*phostapdpriv;
 
-#ifdef CONFIG_IOCTL_CFG80211
 	struct cfg80211_wifidirect_info	cfg80211_wdinfo;
-#endif //CONFIG_IOCTL_CFG80211
 	u32	setband;
 	struct wifidirect_info	wdinfo;
 
@@ -886,7 +884,6 @@ struct _ADAPTER{
 	struct proc_dir_entry *dir_dev;// for proc directory
 	struct proc_dir_entry *dir_odm;
 
-#ifdef CONFIG_IOCTL_CFG80211
 	struct wireless_dev *rtw_wdev;
 	struct rtw_wdev_priv wdev_data;
 
@@ -894,7 +891,6 @@ struct _ADAPTER{
 	struct wiphy *wiphy;
 	#endif
 
-#endif /* CONFIG_IOCTL_CFG80211 */
 
 #endif /* PLATFORM_LINUX */
 

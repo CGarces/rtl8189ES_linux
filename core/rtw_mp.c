@@ -526,9 +526,7 @@ u32 mp_join(PADAPTER padapter,u8 mode)
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	WLAN_BSSID_EX		*pnetwork = (WLAN_BSSID_EX*)(&(pmlmeinfo->network));
 	
-#ifdef CONFIG_IOCTL_CFG80211		
 	struct wireless_dev *pwdev = padapter->rtw_wdev;
-#endif //#ifdef CONFIG_IOCTL_CFG80211
 	// 1. initialize a new WLAN_BSSID_EX
 	_rtw_memset(&bssid, 0, sizeof(WLAN_BSSID_EX));
 	DBG_8192C("%s ,pmppriv->network_macaddr=%x %x %x %x %x %x \n",__func__,

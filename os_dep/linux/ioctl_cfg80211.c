@@ -21,7 +21,6 @@
 
 #include <drv_types.h>
 
-#ifdef CONFIG_IOCTL_CFG80211
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 0, 0))
 #define STATION_INFO_SIGNAL		BIT(NL80211_STA_INFO_SIGNAL)
@@ -5978,5 +5977,4 @@ void rtw_cfg80211_dev_res_unregister(struct dvobj_priv *dvobj)
 #endif
 }
 
-#endif /* CONFIG_IOCTL_CFG80211 */
 

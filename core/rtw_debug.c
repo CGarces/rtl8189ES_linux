@@ -77,14 +77,10 @@ void dump_drv_cfg(void *sel)
 
 	DBG_871X_SEL_NL(sel, "Driver Version: %s\n", DRIVERVERSION);
 	DBG_871X_SEL_NL(sel, "------------------------------------------------\n");
-#ifdef CONFIG_IOCTL_CFG80211
 	DBG_871X_SEL_NL(sel, "CFG80211\n");
 	#ifdef RTW_USE_CFG80211_STA_EVENT
 	DBG_871X_SEL_NL(sel, "RTW_USE_CFG80211_STA_EVENT\n");
 	#endif
-#else
-	DBG_871X_SEL_NL(sel, "WEXT\n");
-#endif
 
 	DBG_871X_SEL_NL(sel, "DBG:%d\n", DBG);
 #ifdef CONFIG_DEBUG

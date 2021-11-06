@@ -7,7 +7,6 @@
 
 #include <drv_types.h>
 
-#ifdef CONFIG_IOCTL_CFG80211
 
 #include <rtw_wifi_regd.h>
 
@@ -348,5 +347,4 @@ void rtw_regd_init(struct wiphy *wiphy)
 {
 	_rtw_regd_init_wiphy(NULL, wiphy);
 }
-#endif //CONFIG_IOCTL_CFG80211
 

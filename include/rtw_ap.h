@@ -20,13 +20,6 @@
 #ifndef __RTW_AP_H_
 #define __RTW_AP_H_
 
-
-
-//external function
-extern void rtw_indicate_sta_assoc_event(_adapter *padapter, struct sta_info *psta);
-extern void rtw_indicate_sta_disassoc_event(_adapter *padapter, struct sta_info *psta);
-
-
 void init_mlme_ap_info(_adapter *padapter);
 void free_mlme_ap_info(_adapter *padapter);
 //void update_BCNTIM(_adapter *padapter);

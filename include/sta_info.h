@@ -318,10 +318,8 @@ struct sta_info {
 #endif
 
 
-#ifdef CONFIG_IOCTL_CFG80211
 	u8 *passoc_req;
 	u32 assoc_req_len;
-#endif
 
 	//for DM
 	RSSI_STA	 rssi_stat;

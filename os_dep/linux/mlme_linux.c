@@ -55,13 +55,11 @@ void _dynamic_check_timer_handlder (void *FunctionContext)
 	_set_timer(&adapter->mlmepriv.dynamic_chk_timer, 2000);
 }
 
-#ifdef CONFIG_SET_SCAN_DENY_TIMER
 void _rtw_set_scan_deny_timer_hdl(void *FunctionContext)
 {
 	_adapter *adapter = (_adapter *)FunctionContext;	 
 	rtw_set_scan_deny_timer_hdl(adapter);
 }
-#endif
 
 
 void rtw_init_mlme_timer(_adapter *padapter)
@@ -78,9 +76,7 @@ void rtw_init_mlme_timer(_adapter *padapter)
 
 	_init_timer(&(pmlmepriv->dynamic_chk_timer), padapter->pnetdev, _dynamic_check_timer_handlder, padapter);
 
-	#ifdef CONFIG_SET_SCAN_DENY_TIMER
 	_init_timer(&(pmlmepriv->set_scan_deny_timer), padapter->pnetdev, _rtw_set_scan_deny_timer_hdl, padapter);
-	#endif
 }
 
 extern void rtw_indicate_wx_assoc_event(_adapter *padapter);
@@ -91,7 +87,6 @@ void rtw_os_indicate_connect(_adapter *adapter)
 	struct mlme_priv *pmlmepriv = &(adapter->mlmepriv);
 _func_enter_;	
 
-#ifdef CONFIG_IOCTL_CFG80211
 	if ( (check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE)==_TRUE ) || 
 		(check_fwstate(pmlmepriv, WIFI_ADHOC_STATE)==_TRUE ) )
 	{
@@ -99,7 +94,6 @@ _func_enter_;
 	}
 	else
 		rtw_cfg80211_indicate_connect(adapter);
-#endif //CONFIG_IOCTL_CFG80211
 
 	rtw_indicate_wx_assoc_event(adapter);
 	netif_carrier_on(adapter->pnetdev);
@@ -114,9 +108,7 @@ _func_exit_;
 extern void indicate_wx_scan_complete_event(_adapter *padapter);
 void rtw_os_indicate_scan_done( _adapter *padapter, bool aborted)
 {
-#ifdef CONFIG_IOCTL_CFG80211
 	rtw_cfg80211_indicate_scan_done(padapter, aborted);
-#endif
 	indicate_wx_scan_complete_event(padapter);
 }
 
@@ -192,9 +184,7 @@ _func_enter_;
 
 	netif_carrier_off(adapter->pnetdev); // Do it first for tx broadcast pkt after disconnection issue!
 
-#ifdef CONFIG_IOCTL_CFG80211
 	rtw_cfg80211_indicate_disconnect(adapter,  reason, locally_generated);
-#endif //CONFIG_IOCTL_CFG80211
 
 	rtw_indicate_wx_disassoc_event(adapter);
 
@@ -245,9 +235,6 @@ _func_enter_;
 
 		wrqu.data.length = (wrqu.data.length<IW_CUSTOM_MAX) ? wrqu.data.length:IW_CUSTOM_MAX;
 
-#ifndef CONFIG_IOCTL_CFG80211
-		wireless_send_event(adapter->pnetdev,IWEVCUSTOM,&wrqu,buff);
-#endif
 
 		rtw_mfree(buff, IW_CUSTOM_MAX);
 	}
@@ -308,59 +295,4 @@ void init_mlme_ext_timer(_adapter *padapter)
 
 	//_init_timer(&pmlmeext->reauth_timer, padapter->pnetdev, _reauth_timer_hdl, padapter);
 	//_init_timer(&pmlmeext->reassoc_timer, padapter->pnetdev, _reassoc_timer_hdl, padapter);
-}
-
-
-void rtw_indicate_sta_assoc_event(_adapter *padapter, struct sta_info *psta)
-{
-	union iwreq_data wrqu;
-	struct sta_priv *pstapriv = &padapter->stapriv;
-
-	if(psta==NULL)
-		return;
-
-	if(psta->aid > NUM_STA)
-		return;
-
-	if(pstapriv->sta_aid[psta->aid - 1] != psta)
-		return;
-	
-	
-	wrqu.addr.sa_family = ARPHRD_ETHER;	
-	
-	_rtw_memcpy(wrqu.addr.sa_data, psta->hwaddr, ETH_ALEN);
-
-	DBG_871X("+rtw_indicate_sta_assoc_event\n");
-	
-#ifndef CONFIG_IOCTL_CFG80211
-	wireless_send_event(padapter->pnetdev, IWEVREGISTERED, &wrqu, NULL);
-#endif
-
-}
-
-void rtw_indicate_sta_disassoc_event(_adapter *padapter, struct sta_info *psta)
-{
-	union iwreq_data wrqu;
-	struct sta_priv *pstapriv = &padapter->stapriv;
-
-	if(psta==NULL)
-		return;
-
-	if(psta->aid > NUM_STA)
-		return;
-
-	if(pstapriv->sta_aid[psta->aid - 1] != psta)
-		return;
-	
-	
-	wrqu.addr.sa_family = ARPHRD_ETHER;	
-	
-	_rtw_memcpy(wrqu.addr.sa_data, psta->hwaddr, ETH_ALEN);
-
-	DBG_871X("+rtw_indicate_sta_disassoc_event\n");
-	
-#ifndef CONFIG_IOCTL_CFG80211
-	wireless_send_event(padapter->pnetdev, IWEVEXPIRED, &wrqu, NULL);
-#endif
-	
 }

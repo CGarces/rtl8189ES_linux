@@ -3184,7 +3184,6 @@ _func_enter_;
 _func_exit_;
 }
 
-#ifdef CONFIG_IOCTL_CFG80211
 static void ro_ch_handler(_adapter *padapter)
 {
 	struct cfg80211_wifidirect_info *pcfg80211_wdinfo = &padapter->cfg80211_wdinfo;
@@ -3448,9 +3447,7 @@ void rtw_xframe_chk_wfd_ie(struct xmit_frame *xframe)
 	if (!hal_chk_wl_func(adapter, WL_FUNC_MIRACAST))
 		del = 1;
 
-#ifdef CONFIG_IOCTL_CFG80211
 	if (_TRUE == wdinfo->wfd_info->wfd_enable)
-#endif
 		del = build = 1;
 
 	if (del)
@@ -3821,7 +3818,6 @@ void rtw_init_cfg80211_wifidirect_info( _adapter*	padapter)
     
 	_init_timer( &pcfg80211_wdinfo->remain_on_ch_timer, padapter->pnetdev, ro_ch_timer_process, padapter );
 }
-#endif //CONFIG_IOCTL_CFG80211	
 
 void p2p_protocol_wk_hdl(_adapter *padapter, int intCmdType)
 {
@@ -3858,13 +3854,11 @@ _func_enter_;
 			pre_tx_negoreq_handler( padapter );
 			break;
 		}
-#ifdef CONFIG_IOCTL_CFG80211
 		case P2P_RO_CH_WK:
 		{
 			ro_ch_handler( padapter );
 			break;
 		}		
-#endif //CONFIG_IOCTL_CFG80211		
 
 	}
 	
@@ -4246,11 +4240,7 @@ int rtw_init_wifi_display_info(_adapter* padapter)
 
 	// Used in P2P and TDLS
 	pwfd_info->init_rtsp_ctrlport = 554;
-#ifdef CONFIG_IOCTL_CFG80211
 	pwfd_info->rtsp_ctrlport = 0;
-#else
-	pwfd_info->rtsp_ctrlport = pwfd_info->init_rtsp_ctrlport; /* set non-zero value for legacy wfd */
-#endif
 	pwfd_info->peer_rtsp_ctrlport = 0;	//	Reset to 0
 	pwfd_info->wfd_enable = _FALSE;
 	pwfd_info->wfd_device_type = WFD_DEVINFO_PSINK;
@@ -4300,19 +4290,15 @@ u32 rtw_append_beacon_wfd_ie(_adapter *adapter, u8 *pbuf)
 	if (!hal_chk_wl_func(adapter, WL_FUNC_MIRACAST))
 		goto exit;
 
-#ifdef CONFIG_IOCTL_CFG80211
 	if (_TRUE == wdinfo->wfd_info->wfd_enable)
-#endif
 		build_ie_by_self = 1;
 
 	if (build_ie_by_self)
 		len = build_beacon_wfd_ie(wdinfo, pbuf);
-#ifdef CONFIG_IOCTL_CFG80211
 	else if (mlme->wfd_beacon_ie && mlme->wfd_beacon_ie_len > 0) {
 		len = mlme->wfd_beacon_ie_len;
 		_rtw_memcpy(pbuf, mlme->wfd_beacon_ie, len);
 	}
-#endif
 
 exit:
 	return len;
@@ -4328,19 +4314,15 @@ u32 rtw_append_probe_req_wfd_ie(_adapter *adapter, u8 *pbuf)
 	if (!hal_chk_wl_func(adapter, WL_FUNC_MIRACAST))
 		goto exit;
 
-#ifdef CONFIG_IOCTL_CFG80211
 	if (_TRUE == wdinfo->wfd_info->wfd_enable)
-#endif
 		build_ie_by_self = 1;
 
 	if (build_ie_by_self)
 		len = build_probe_req_wfd_ie(wdinfo, pbuf);
-#ifdef CONFIG_IOCTL_CFG80211
 	else if (mlme->wfd_probe_req_ie && mlme->wfd_probe_req_ie_len > 0) {
 		len = mlme->wfd_probe_req_ie_len;
 		_rtw_memcpy(pbuf, mlme->wfd_probe_req_ie, len);
 	}
-#endif
 
 exit:
 	return len;
@@ -4356,19 +4338,15 @@ u32 rtw_append_probe_resp_wfd_ie(_adapter *adapter, u8 *pbuf)
 	if (!hal_chk_wl_func(adapter, WL_FUNC_MIRACAST))
 		goto exit;
 
-#ifdef CONFIG_IOCTL_CFG80211
 	if (_TRUE == wdinfo->wfd_info->wfd_enable)
-#endif
 		build_ie_by_self = 1;
 
 	if (build_ie_by_self)
 		len = build_probe_resp_wfd_ie(wdinfo, pbuf, 0);
-#ifdef CONFIG_IOCTL_CFG80211
 	else if (mlme->wfd_probe_resp_ie && mlme->wfd_probe_resp_ie_len > 0) {
 		len = mlme->wfd_probe_resp_ie_len;
 		_rtw_memcpy(pbuf, mlme->wfd_probe_resp_ie, len);
 	}
-#endif
 
 exit:
 	return len;
@@ -4384,19 +4362,15 @@ u32 rtw_append_assoc_req_wfd_ie(_adapter *adapter, u8 *pbuf)
 	if (!hal_chk_wl_func(adapter, WL_FUNC_MIRACAST))
 		goto exit;
 
-#ifdef CONFIG_IOCTL_CFG80211
 	if (_TRUE == wdinfo->wfd_info->wfd_enable)
-#endif
 		build_ie_by_self = 1;
 
 	if (build_ie_by_self)
 		len = build_assoc_req_wfd_ie(wdinfo, pbuf);
-#ifdef CONFIG_IOCTL_CFG80211
 	else if (mlme->wfd_assoc_req_ie && mlme->wfd_assoc_req_ie_len > 0) {
 		len = mlme->wfd_assoc_req_ie_len;
 		_rtw_memcpy(pbuf, mlme->wfd_assoc_req_ie, len);
 	}
-#endif
 
 exit:
 	return len;
@@ -4412,19 +4386,15 @@ u32 rtw_append_assoc_resp_wfd_ie(_adapter *adapter, u8 *pbuf)
 	if (!hal_chk_wl_func(adapter, WL_FUNC_MIRACAST))
 		goto exit;
 
-#ifdef CONFIG_IOCTL_CFG80211
 	if (_TRUE == wdinfo->wfd_info->wfd_enable)
-#endif
 		build_ie_by_self = 1;
 
 	if (build_ie_by_self)
 		len = build_assoc_resp_wfd_ie(wdinfo, pbuf);
-#ifdef CONFIG_IOCTL_CFG80211
 	else if (mlme->wfd_assoc_resp_ie && mlme->wfd_assoc_resp_ie_len > 0) {
 		len = mlme->wfd_assoc_resp_ie_len;
 		_rtw_memcpy(pbuf, mlme->wfd_assoc_resp_ie, len);
 	}
-#endif
 
 exit:
 	return len;
@@ -4547,11 +4517,7 @@ void init_wifidirect_info( _adapter* padapter, enum P2P_ROLE role)
 
 // Commented by Kurt 20130319
 // For WiDi purpose: Use CFG80211 interface but controled WFD/RDS frame by driver itself.
-#ifdef CONFIG_IOCTL_CFG80211
 	pwdinfo->driver_interface = DRIVER_CFG80211;
-#else
-	pwdinfo->driver_interface = DRIVER_WEXT;
-#endif //CONFIG_IOCTL_CFG80211
 
 	_rtw_memset( pwdinfo->p2p_peer_interface_addr, 0x00, ETH_ALEN );
 	_rtw_memset( pwdinfo->p2p_peer_device_addr, 0x00, ETH_ALEN );
@@ -4730,10 +4696,8 @@ int rtw_p2p_enable(_adapter *padapter, enum P2P_ROLE role)
 	else if (role == P2P_ROLE_DISABLE)
 	{
 
-#ifdef CONFIG_IOCTL_CFG80211
 		if( padapter->wdinfo.driver_interface == DRIVER_CFG80211 )
 			adapter_wdev_data(padapter)->p2p_enabled = _FALSE;
-#endif //CONFIG_IOCTL_CFG80211
 
 
 		//Disable P2P function
@@ -4770,11 +4734,7 @@ int rtw_p2p_enable(_adapter *padapter, enum P2P_ROLE role)
 		update_tx_basic_rate(padapter, padapter->registrypriv.wireless_mode);
 
 		//For WiDi purpose.
-#ifdef CONFIG_IOCTL_CFG80211
 		pwdinfo->driver_interface = DRIVER_CFG80211;
-#else
-		pwdinfo->driver_interface = DRIVER_WEXT;
-#endif //CONFIG_IOCTL_CFG80211
 
 	}
 	

@@ -1638,7 +1638,6 @@ static void rtw_hal_construct_P2PBeacon(_adapter *padapter, u8 *pframe, u32 *pLe
 
 			remainder_ielen = cur_network->IELength - wps_offset - wpsielen;
 
-#ifdef CONFIG_IOCTL_CFG80211
 			if(pwdinfo->driver_interface == DRIVER_CFG80211 )
 			{
 				if(pmlmepriv->wps_beacon_ie && pmlmepriv->wps_beacon_ie_len>0)
@@ -1664,7 +1663,6 @@ static void rtw_hal_construct_P2PBeacon(_adapter *padapter, u8 *pframe, u32 *pLe
 				}
 			}
 			else
-#endif //CONFIG_IOCTL_CFG80211
 			{
 				pframe_wscie = pframe + wps_offset;
 				_rtw_memcpy(pframe, cur_network->IEs, wps_offset+wpsielen);			
@@ -1737,7 +1735,6 @@ static void rtw_hal_construct_P2PBeacon(_adapter *padapter, u8 *pframe, u32 *pLe
 		if(rtw_p2p_chk_role(pwdinfo, P2P_ROLE_GO))
 		{
 			u32 len;
-#ifdef CONFIG_IOCTL_CFG80211
 			if(pwdinfo->driver_interface == DRIVER_CFG80211 )
 			{
 				len = pmlmepriv->p2p_beacon_ie_len;
@@ -1745,7 +1742,6 @@ static void rtw_hal_construct_P2PBeacon(_adapter *padapter, u8 *pframe, u32 *pLe
 					_rtw_memcpy(pframe, pmlmepriv->p2p_beacon_ie, len);
 			}
 			else
-#endif //CONFIG_IOCTL_CFG80211
 			{
 				len = build_beacon_p2p_ie(pwdinfo, pframe);
 			}
@@ -1914,7 +1910,6 @@ static void rtw_hal_construct_P2PProbeRsp(_adapter *padapter, u8 *pframe, u32 *p
 	// DS parameter set
 	pframe = rtw_set_ie(pframe, _DSSET_IE_, 1, (unsigned char *)&pwdinfo->listen_channel, &pktlen);
 
-#ifdef CONFIG_IOCTL_CFG80211
 	if(pwdinfo->driver_interface == DRIVER_CFG80211 )
 	{
 		if( pmlmepriv->wps_probe_resp_ie != NULL && pmlmepriv->p2p_probe_resp_ie != NULL )
@@ -1931,7 +1926,6 @@ static void rtw_hal_construct_P2PProbeRsp(_adapter *padapter, u8 *pframe, u32 *p
 		}
 	}
 	else
-#endif //CONFIG_IOCTL_CFG80211		
 	{
 
 		//	Todo: WPS IE

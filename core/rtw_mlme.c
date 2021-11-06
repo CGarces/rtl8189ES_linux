@@ -140,18 +140,15 @@ void rtw_free_mlme_priv_ie_data(struct mlme_priv *pmlmepriv)
 	rtw_free_mlme_ie_data(&pmlmepriv->p2p_assoc_req_ie, &pmlmepriv->p2p_assoc_req_ie_len);
 	rtw_free_mlme_ie_data(&pmlmepriv->p2p_assoc_resp_ie, &pmlmepriv->p2p_assoc_resp_ie_len);
 
-#if defined(CONFIG_IOCTL_CFG80211)	
 	rtw_free_mlme_ie_data(&pmlmepriv->wfd_beacon_ie, &pmlmepriv->wfd_beacon_ie_len);
 	rtw_free_mlme_ie_data(&pmlmepriv->wfd_probe_req_ie, &pmlmepriv->wfd_probe_req_ie_len);
 	rtw_free_mlme_ie_data(&pmlmepriv->wfd_probe_resp_ie, &pmlmepriv->wfd_probe_resp_ie_len);
 	rtw_free_mlme_ie_data(&pmlmepriv->wfd_go_probe_resp_ie, &pmlmepriv->wfd_go_probe_resp_ie_len);
 	rtw_free_mlme_ie_data(&pmlmepriv->wfd_assoc_req_ie, &pmlmepriv->wfd_assoc_req_ie_len);
 	rtw_free_mlme_ie_data(&pmlmepriv->wfd_assoc_resp_ie, &pmlmepriv->wfd_assoc_resp_ie_len);
-#endif
 
 }
 
-#if  defined(CONFIG_IOCTL_CFG80211)
 int rtw_mlme_update_wfd_ie_data(struct mlme_priv *mlme, u8 type, u8 *ie, u32 ie_len)
 {
 	_adapter *adapter = mlme_to_adapter(mlme);
@@ -246,7 +243,6 @@ success:
 exit:
 	return ret;
 }
-#endif /*  defined(CONFIG_IOCTL_CFG80211) */
 
 void _rtw_free_mlme_priv (struct mlme_priv *pmlmepriv)
 {
@@ -637,9 +633,7 @@ void rtw_free_network_nolock(_adapter * padapter, struct wlan_network *pnetwork 
 _func_enter_;		
 	//RT_TRACE(_module_rtl871x_mlme_c_,_drv_err_,("rtw_free_network==> ssid = %s \n\n" , pnetwork->network.Ssid.Ssid));
 	_rtw_free_network_nolock(&(padapter->mlmepriv), pnetwork);
-#ifdef CONFIG_IOCTL_CFG80211
 	rtw_cfg80211_unlink_bss(padapter, pnetwork);
-#endif //CONFIG_IOCTL_CFG80211
 _func_exit_;		
 }
 
@@ -1376,9 +1370,7 @@ _func_enter_;
 	}
 #endif
 
-#ifdef CONFIG_IOCTL_CFG80211
 	rtw_cfg80211_surveydone_event_callback(adapter);
-#endif //CONFIG_IOCTL_CFG80211
 
 	rtw_indicate_scan_done(adapter, _FALSE);
 
@@ -2250,7 +2242,6 @@ _func_enter_;
 
 			//report to upper layer 
 			DBG_871X("indicate_sta_assoc_event to upper layer - hostapd\n");
-#ifdef CONFIG_IOCTL_CFG80211
 			_enter_critical_bh(&psta->lock, &irqL);
 			if(psta->passoc_req && psta->assoc_req_len>0)
 			{				
@@ -2273,9 +2264,6 @@ _func_enter_;
 
 				rtw_mfree(passoc_req, assoc_req_len);
 			}			
-#else //!CONFIG_IOCTL_CFG80211	
-			rtw_indicate_sta_assoc_event(adapter, psta);
-#endif //!CONFIG_IOCTL_CFG80211
 #endif //!CONFIG_AUTO_AP_MODE
 
 		}		
@@ -2383,13 +2371,11 @@ _func_enter_;
 	//if(check_fwstate(pmlmepriv, WIFI_AP_STATE))
 	if((pmlmeinfo->state&0x03) == WIFI_FW_AP_STATE)
 	{
-#ifdef CONFIG_IOCTL_CFG80211
 		#ifdef COMPAT_KERNEL_RELEASE
 
 		#elif (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,37))
 		rtw_cfg80211_indicate_sta_disassoc(adapter, pstadel->macaddr, *(u16*)pstadel->rsvd);
 		#endif //(LINUX_VERSION_CODE < KERNEL_VERSION(2,6,37))
-#endif //CONFIG_IOCTL_CFG80211
 
 		return;
 	}
@@ -2571,10 +2557,8 @@ _func_enter_;
 		rtw_indicate_disconnect(adapter, 0, _FALSE);
 		free_scanqueue(pmlmepriv);//???
 
-#ifdef CONFIG_IOCTL_CFG80211
 		//indicate disconnect for the case that join_timeout and check_fwstate != FW_LINKED
 		rtw_cfg80211_indicate_disconnect(adapter, 0, _FALSE);
-#endif //CONFIG_IOCTL_CFG80211
 
  	}
 
@@ -2600,9 +2584,7 @@ void rtw_scan_timeout_handler (_adapter *adapter)
 	
 	_exit_critical_bh(&pmlmepriv->lock, &irqL);
 	
-#ifdef CONFIG_IOCTL_CFG80211
 	rtw_cfg80211_surveydone_event_callback(adapter);
-#endif //CONFIG_IOCTL_CFG80211
 	
 	rtw_indicate_scan_done(adapter, _TRUE);
 
@@ -2760,7 +2742,6 @@ void rtw_dynamic_check_timer_handlder(_adapter *adapter)
 }
 
 
-#ifdef CONFIG_SET_SCAN_DENY_TIMER
 inline bool rtw_is_scan_deny(_adapter *adapter)
 {
 	struct mlme_priv *mlmepriv = &adapter->mlmepriv;
@@ -2786,7 +2767,6 @@ void rtw_set_scan_deny(_adapter *adapter, u32 ms)
 	_set_timer(&mlmepriv->set_scan_deny_timer, ms);
 
 }
-#endif
 
 #ifdef CONFIG_LAYER2_ROAMING
 /*

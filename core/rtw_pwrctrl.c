@@ -174,9 +174,7 @@ bool rtw_pwr_unassociated_idle(_adapter *adapter)
 	struct mlme_priv *pmlmepriv = &(adapter->mlmepriv);
 	struct xmit_priv *pxmit_priv = &adapter->xmitpriv;
 	struct wifidirect_info	*pwdinfo = &(adapter->wdinfo);
-#ifdef CONFIG_IOCTL_CFG80211
 	struct cfg80211_wifidirect_info *pcfg80211_wdinfo = &adapter->cfg80211_wdinfo;
-#endif
 
 	bool ret = _FALSE;
 
@@ -194,14 +192,8 @@ bool rtw_pwr_unassociated_idle(_adapter *adapter)
 		|| check_fwstate(pmlmepriv, WIFI_UNDER_LINKING|WIFI_UNDER_WPS)
 		|| check_fwstate(pmlmepriv, WIFI_AP_STATE)
 		|| check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE|WIFI_ADHOC_STATE)
-		#if defined(CONFIG_IOCTL_CFG80211)
 		|| pcfg80211_wdinfo->is_ro_ch
-		#else
-		|| !rtw_p2p_chk_state(pwdinfo, P2P_STATE_NONE)
-		#endif
-		#if defined(CONFIG_IOCTL_CFG80211)
 		|| rtw_get_passing_time_ms(pcfg80211_wdinfo->last_ro_ch_time) < 3000
-		#endif
 	) {
 		goto exit;
 	}
@@ -210,22 +202,14 @@ bool rtw_pwr_unassociated_idle(_adapter *adapter)
 	if (buddy) {
 		struct mlme_priv *b_pmlmepriv = &(buddy->mlmepriv);
 		struct wifidirect_info *b_pwdinfo = &(buddy->wdinfo);
-		#ifdef CONFIG_IOCTL_CFG80211
 		struct cfg80211_wifidirect_info *b_pcfg80211_wdinfo = &buddy->cfg80211_wdinfo;
-		#endif
 
 		if (check_fwstate(b_pmlmepriv, WIFI_ASOC_STATE|WIFI_SITE_MONITOR)
 			|| check_fwstate(b_pmlmepriv, WIFI_UNDER_LINKING|WIFI_UNDER_WPS)
 			|| check_fwstate(b_pmlmepriv, WIFI_AP_STATE)
 			|| check_fwstate(b_pmlmepriv, WIFI_ADHOC_MASTER_STATE|WIFI_ADHOC_STATE)
-			#if defined(CONFIG_IOCTL_CFG80211)
 			|| b_pcfg80211_wdinfo->is_ro_ch
-			#else
-			|| !rtw_p2p_chk_state(b_pwdinfo, P2P_STATE_NONE)
-			#endif
-			#if defined(CONFIG_IOCTL_CFG80211)
 			|| rtw_get_passing_time_ms(b_pcfg80211_wdinfo->last_ro_ch_time) < 3000
-			#endif
 		) {
 			goto exit;
 		}
@@ -565,9 +549,7 @@ u8 PS_RDY_CHECK(_adapter * padapter)
 	struct pwrctrl_priv	*pwrpriv = adapter_to_pwrctl(padapter);
 	struct mlme_priv	*pmlmepriv = &(padapter->mlmepriv);
 	struct wifidirect_info *pwdinfo = &(padapter->wdinfo);
-#ifdef CONFIG_IOCTL_CFG80211
 	struct cfg80211_wifidirect_info *pcfg80211_wdinfo = &padapter->cfg80211_wdinfo;
-#endif /* CONFIG_IOCTL_CFG80211 */
 
 	if(_TRUE == pwrpriv->bInSuspend )
 		return _FALSE;
@@ -585,11 +567,7 @@ u8 PS_RDY_CHECK(_adapter * padapter)
 		|| check_fwstate(pmlmepriv, WIFI_UNDER_LINKING|WIFI_UNDER_WPS)
 		|| check_fwstate(pmlmepriv, WIFI_AP_STATE)
 		|| check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE|WIFI_ADHOC_STATE)
-		#if defined(CONFIG_IOCTL_CFG80211)
 		|| pcfg80211_wdinfo->is_ro_ch
-		#else
-		|| !rtw_p2p_chk_state(pwdinfo, P2P_STATE_NONE)
-		#endif
 		|| rtw_is_scan_deny(padapter)
 	)
 		return _FALSE;
@@ -600,10 +578,8 @@ u8 PS_RDY_CHECK(_adapter * padapter)
 		return _FALSE;
 	}
 
-#ifdef CONFIG_IOCTL_CFG80211
 	if (!rtw_cfg80211_pwr_mgmt(padapter))
 		return _FALSE;
-#endif	
 
 	return _TRUE;
 }

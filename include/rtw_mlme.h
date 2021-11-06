@@ -274,7 +274,6 @@ struct scan_limit_info{
 	u8					operation_ch[5];				//	Store additional channel 1,6,11  for Android 4.2 IOT & Nexus 4
 };
 
-#ifdef CONFIG_IOCTL_CFG80211
 struct cfg80211_wifidirect_info{
 	_timer					remain_on_ch_timer;
 	u8						restore_channel;
@@ -285,7 +284,6 @@ struct cfg80211_wifidirect_info{
 	bool is_ro_ch;
 	u32 last_ro_ch_time; /* this will be updated at the beginning and end of ro_ch */
 };
-#endif //CONFIG_IOCTL_CFG80211
 
 #ifdef CONFIG_P2P_WOWLAN
 
@@ -467,10 +465,8 @@ struct mlme_priv {
 	_timer scan_to_timer; // driver itself handles scan_timeout status.
 	u32 scan_start_time; // used to evaluate the time spent in scanning
 
-	#ifdef CONFIG_SET_SCAN_DENY_TIMER
 	_timer set_scan_deny_timer;
 	ATOMIC_T set_scan_deny; //0: allowed, 1: deny
-	#endif
 
 	struct qos_priv qospriv;
 
@@ -557,12 +553,12 @@ struct mlme_priv {
 	u8 *wps_beacon_ie;	
 	//u8 *wps_probe_req_ie;
 	u8 *wps_probe_resp_ie;
-	u8 *wps_assoc_resp_ie; // for CONFIG_IOCTL_CFG80211, this IE could include p2p ie / wfd ie
+	u8 *wps_assoc_resp_ie; // this IE could include p2p ie / wfd ie
 
 	u32 wps_beacon_ie_len;
 	//u32 wps_probe_req_ie_len;
 	u32 wps_probe_resp_ie_len;
-	u32 wps_assoc_resp_ie_len; // for CONFIG_IOCTL_CFG80211, this IE len could include p2p ie / wfd ie
+	u32 wps_assoc_resp_ie_len; // this IE len could include p2p ie / wfd ie
 	
 	u8 *p2p_beacon_ie;
 	u8 *p2p_probe_req_ie;
@@ -585,7 +581,6 @@ struct mlme_priv {
 	u8 ori_bw;
 	u8 ori_offset;
 
-#if defined(CONFIG_IOCTL_CFG80211)
 	
 	u8 *wfd_beacon_ie;
 	u8 *wfd_probe_req_ie;
@@ -601,7 +596,6 @@ struct mlme_priv {
 	u32 wfd_assoc_req_ie_len;
 	u32 wfd_assoc_resp_ie_len;
 
-#endif
 
 //	u8 	NumOfBcnInfoChkFail;
 //	u32	timeBcnInfoChkStart;
@@ -771,17 +765,10 @@ extern void _rtw_join_timeout_handler(_adapter *adapter);
 extern void rtw_scan_timeout_handler(_adapter *adapter);
 
 extern void rtw_dynamic_check_timer_handlder(_adapter *adapter);
-#ifdef CONFIG_SET_SCAN_DENY_TIMER
 bool rtw_is_scan_deny(_adapter *adapter);
 void rtw_clear_scan_deny(_adapter *adapter);
 void rtw_set_scan_deny_timer_hdl(_adapter *adapter);
 void rtw_set_scan_deny(_adapter *adapter, u32 ms);
-#else
-#define rtw_is_scan_deny(adapter) _FALSE
-#define rtw_clear_scan_deny(adapter) do {} while (0)
-#define rtw_set_scan_deny_timer_hdl(adapter) do {} while (0)
-#define rtw_set_scan_deny(adapter, ms) do {} while (0)
-#endif
 
 void rtw_free_mlme_priv_ie_data(struct mlme_priv *pmlmepriv);
 
@@ -792,9 +779,7 @@ void rtw_free_mlme_priv_ie_data(struct mlme_priv *pmlmepriv);
 #define MLME_ASSOC_REQ_IE		4
 #define MLME_ASSOC_RESP_IE		5
 
-#if defined(CONFIG_IOCTL_CFG80211)
 int rtw_mlme_update_wfd_ie_data(struct mlme_priv *mlme, u8 type, u8 *ie, u32 ie_len);
-#endif
 
 extern int _rtw_init_mlme_priv(_adapter *padapter);
 extern void _rtw_free_mlme_priv(struct mlme_priv *pmlmepriv);

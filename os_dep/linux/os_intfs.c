@@ -1046,12 +1046,10 @@ int rtw_os_ndev_alloc(_adapter *adapter)
 	SET_NETDEV_DEV(ndev, dvobj_to_dev(adapter_to_dvobj(adapter)));
 	#endif
 
-#if defined(CONFIG_IOCTL_CFG80211)
 	if (rtw_cfg80211_ndev_res_alloc(adapter) != _SUCCESS) {
 		rtw_warn_on(1);
 		goto free_ndev;
 	}
-#endif
 
 	ret = _SUCCESS;
 
@@ -1064,9 +1062,7 @@ exit:
 
 void rtw_os_ndev_free(_adapter *adapter)
 {
-#if defined(CONFIG_IOCTL_CFG80211)
 	rtw_cfg80211_ndev_res_free(adapter);
-#endif
 
 	if (adapter->pnetdev) {
 		rtw_free_netdev(adapter->pnetdev);
@@ -1079,13 +1075,11 @@ int rtw_os_ndev_register(_adapter *adapter, char *name)
 	int ret = _SUCCESS;
 	struct net_device *ndev = adapter->pnetdev;
 
-#if defined(CONFIG_IOCTL_CFG80211)
 	if (rtw_cfg80211_ndev_res_register(adapter) != _SUCCESS) {
 		rtw_warn_on(1);
 		ret = _FAIL;
 		goto exit;
 	}
-#endif
 
 	/* alloc netdev name */
 	rtw_init_netdev_name(ndev, name);
@@ -1098,14 +1092,12 @@ int rtw_os_ndev_register(_adapter *adapter, char *name)
 		ret = _FAIL;
 	}
 
-#if defined(CONFIG_IOCTL_CFG80211)
 	if (ret != _SUCCESS) {
 		rtw_cfg80211_ndev_res_unregister(adapter);
 		#if !defined(RTW_SINGLE_WIPHY)
 		rtw_wiphy_unregister(adapter_to_wiphy(adapter));
 		#endif
 	}
-#endif
 
 exit:
 	return ret;
@@ -1122,14 +1114,12 @@ void rtw_os_ndev_unregister(_adapter *adapter)
 
 	netdev = adapter->pnetdev;
 
-#if defined(CONFIG_IOCTL_CFG80211)
 	rtw_cfg80211_ndev_res_unregister(adapter);
-#endif
 
 	if ((adapter->DriverState != DRIVER_DISAPPEAR) && netdev)
 		unregister_netdev(netdev); /* will call netdev_close() */
 
-#if defined(CONFIG_IOCTL_CFG80211) && !defined(RTW_SINGLE_WIPHY)
+#if !defined(RTW_SINGLE_WIPHY)
 	rtw_wiphy_unregister(adapter_to_wiphy(adapter));
 #endif
 
@@ -1178,13 +1168,11 @@ int rtw_os_ndevs_alloc(struct dvobj_priv *dvobj)
 	int i, status = _SUCCESS;
 	_adapter *adapter;
 
-#if defined(CONFIG_IOCTL_CFG80211)
 	if (rtw_cfg80211_dev_res_alloc(dvobj) != _SUCCESS) {
 		rtw_warn_on(1);
 		status = _FAIL;
 		goto exit;
 	}
-#endif
 
 	for (i = 0; i < dvobj->iface_nums; i++) {
 
@@ -1212,10 +1200,8 @@ int rtw_os_ndevs_alloc(struct dvobj_priv *dvobj)
 		}
 	}
 
-#if defined(CONFIG_IOCTL_CFG80211)
 	if (status != _SUCCESS)
 		rtw_cfg80211_dev_res_free(dvobj);
-#endif
 exit:
 	return status;
 }
@@ -1241,9 +1227,7 @@ void rtw_os_ndevs_free(struct dvobj_priv *dvobj)
 		rtw_os_ndev_free(adapter);
 	}
 
-#if defined(CONFIG_IOCTL_CFG80211)
 	rtw_cfg80211_dev_res_free(dvobj);
-#endif
 }
 
 u32 rtw_start_drv_threads(_adapter *padapter)
@@ -1452,9 +1436,7 @@ void devobj_deinit(struct dvobj_priv *pdvobj)
 		return;
 
 	/* TODO: use rtw_os_ndevs_deinit instead at the first stage of driver's dev deinit function */
-#if defined(CONFIG_IOCTL_CFG80211)
 	rtw_cfg80211_dev_res_free(pdvobj);
-#endif
 
 	_rtw_mutex_free(&pdvobj->hw_init_mutex);
 	_rtw_mutex_free(&pdvobj->h2c_fwcmd_mutex);
@@ -1557,9 +1539,7 @@ _func_enter_;
 	rtw_init_wifidirect_timers(padapter);
 	init_wifidirect_info(padapter, P2P_ROLE_DISABLE);
 	reset_global_wifidirect_info(padapter);
-	#ifdef CONFIG_IOCTL_CFG80211
 	rtw_init_cfg80211_wifidirect_info(padapter);
-	#endif
 	if(rtw_init_wifi_display_info(padapter) == _FAIL)
 		RT_TRACE(_module_os_intfs_c_,_drv_err_,("\n Can't init init_wifi_display_info\n"));
 
@@ -1664,15 +1644,11 @@ void rtw_cancel_all_timer(_adapter *padapter)
 
 	_cancel_timer_ex(&(adapter_to_pwrctl(padapter)->pwr_state_check_timer));
 
-#ifdef CONFIG_IOCTL_CFG80211
 	_cancel_timer_ex(&padapter->cfg80211_wdinfo.remain_on_ch_timer);
-#endif //CONFIG_IOCTL_CFG80211
 
-#ifdef CONFIG_SET_SCAN_DENY_TIMER
 	_cancel_timer_ex(&padapter->mlmepriv.set_scan_deny_timer);
 	rtw_clear_scan_deny(padapter);
 	RT_TRACE(_module_os_intfs_c_,_drv_info_,("rtw_cancel_all_timer:cancel set_scan_deny_timer! \n"));
-#endif
 
 #ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
 	_cancel_timer_ex(&padapter->recvpriv.signal_stat_timer);
@@ -1750,13 +1726,11 @@ int rtw_os_ndevs_register(struct dvobj_priv *dvobj)
 	struct registry_priv *regsty = dvobj_to_regsty(dvobj);
 	_adapter *adapter;
 
-#if defined(CONFIG_IOCTL_CFG80211)
 	if (rtw_cfg80211_dev_res_register(dvobj) != _SUCCESS) {
 		rtw_warn_on(1);
 		status = _FAIL;
 		goto exit;
 	}
-#endif
 
 	for (i = 0; i < dvobj->iface_nums; i++) {
 
@@ -1794,10 +1768,8 @@ int rtw_os_ndevs_register(struct dvobj_priv *dvobj)
 		}
 	}
 
-#if defined(CONFIG_IOCTL_CFG80211)
 	if (status != _SUCCESS)
 		rtw_cfg80211_dev_res_unregister(dvobj);
-#endif
 exit:
 	return status;
 }
@@ -1816,9 +1788,7 @@ void rtw_os_ndevs_unregister(struct dvobj_priv *dvobj)
 		rtw_os_ndev_unregister(adapter);
 	}
 
-#if defined(CONFIG_IOCTL_CFG80211)
 	rtw_cfg80211_dev_res_unregister(dvobj);
-#endif
 }
 
 /**
@@ -1946,9 +1916,7 @@ int _netdev_open(struct net_device *pnetdev)
 			padapter->intf_start(padapter);
 		}
 
-#ifdef CONFIG_IOCTL_CFG80211
 		rtw_cfg80211_init_wiphy(padapter);
-#endif
 
 		rtw_led_control(padapter, LED_CTL_NO_LINK);
 
@@ -2180,12 +2148,10 @@ static int netdev_close(struct net_device *pnetdev)
 	if (!rtw_p2p_chk_role(&padapter->wdinfo, P2P_ROLE_DISABLE))
 		rtw_p2p_enable(padapter, P2P_ROLE_DISABLE);
 
-#ifdef CONFIG_IOCTL_CFG80211
 	rtw_scan_abort(padapter);
 	rtw_cfg80211_wait_scan_req_empty(padapter, 200);
 	adapter_wdev_data(padapter)->bandroid_scan = _FALSE;
 	//padapter->rtw_wdev->iftype = NL80211_IFTYPE_MONITOR; //set this at the end
-#endif //CONFIG_IOCTL_CFG80211
 
 	RT_TRACE(_module_os_intfs_c_,_drv_info_,("-871x_drv - drv_close\n"));
 	DBG_871X("-871x_drv - drv_close, bup=%d\n", padapter->bup);
@@ -2207,10 +2173,8 @@ void rtw_ndev_destructor(struct net_device *ndev)
 {
 	DBG_871X(FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
 
-#ifdef CONFIG_IOCTL_CFG80211
 	if (ndev->ieee80211_ptr)
 		rtw_mfree((u8 *)ndev->ieee80211_ptr, sizeof(struct wireless_dev));
-#endif
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 9))
 	free_netdev(ndev);
 #endif

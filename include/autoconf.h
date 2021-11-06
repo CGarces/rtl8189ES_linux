@@ -33,20 +33,6 @@
 #define CONFIG_80211N_HT
 #define CONFIG_RECV_REORDERING_CTRL
 
-//#define CONFIG_IOCTL_CFG80211		// Set from Makefile
-#ifdef CONFIG_IOCTL_CFG80211
-	/*
-	 * Indecate new sta asoc through cfg80211_new_sta
-	 * If kernel version >= 3.2 or
-	 * version < 3.2 but already apply cfg80211 patch,
-	 * RTW_USE_CFG80211_STA_EVENT must be defiend!
-	 */
-	//#define RTW_USE_CFG80211_STA_EVENT /* Indecate new sta asoc through cfg80211_new_sta */
-	//#define CONFIG_DEBUG_CFG80211
-	#define CONFIG_SET_SCAN_DENY_TIMER
-	/*#define SUPPLICANT_RTK_VERSION_LOWER_THAN_JB42*/ /* wpa_supplicant realtek version <= jb42 will be defined this */
-#endif
-
 #define CONFIG_LAYER2_ROAMING
 #define CONFIG_LAYER2_ROAMING_RESUME
 

@@ -20,9 +20,7 @@
 #define _RTW_MLME_EXT_C_
 
 #include <drv_types.h>
-#ifdef CONFIG_IOCTL_CFG80211
 #include <rtw_wifi_regd.h>
-#endif //CONFIG_IOCTL_CFG80211
 #include <hal_data.h>
 
 
@@ -1124,7 +1122,6 @@ u32 p2p_listen_state_process(_adapter *padapter, unsigned char *da)
 {
 	bool response = _TRUE;
 
-#ifdef CONFIG_IOCTL_CFG80211
 	if( padapter->wdinfo.driver_interface == DRIVER_CFG80211 )
 	{
 		if(padapter->cfg80211_wdinfo.is_ro_ch == _FALSE
@@ -1148,7 +1145,6 @@ u32 p2p_listen_state_process(_adapter *padapter, unsigned char *da)
 		}
 	}
 	else
-#endif //CONFIG_IOCTL_CFG80211
 	if( padapter->wdinfo.driver_interface == DRIVER_WEXT )
 	{
 		//	do nothing if the device name is empty
@@ -1196,7 +1192,6 @@ unsigned int OnProbeReq(_adapter *padapter, union recv_frame *precv_frame)
 	struct rx_pkt_attrib	*pattrib = &precv_frame->u.hdr.attrib;
 	u8 wifi_test_chk_rate = 1;
 
-#ifdef CONFIG_IOCTL_CFG80211
 	if ((pwdinfo->driver_interface == DRIVER_CFG80211)
 		&& !rtw_p2p_chk_state(pwdinfo, P2P_STATE_NONE)
 		&& (GET_CFG80211_REPORT_MGMT(adapter_wdev_data(padapter), IEEE80211_STYPE_PROBE_REQ) == _TRUE)
@@ -1204,7 +1199,6 @@ unsigned int OnProbeReq(_adapter *padapter, union recv_frame *precv_frame)
 		rtw_cfg80211_rx_probe_request(padapter, pframe, len);
 		return _SUCCESS;
 	}
-#endif /* CONFIG_IOCTL_CFG80211 */
 
 	if (	!rtw_p2p_chk_state(pwdinfo, P2P_STATE_NONE) && 
 		!rtw_p2p_chk_state(pwdinfo, P2P_STATE_IDLE) && 
@@ -2505,7 +2499,6 @@ unsigned int OnAssocReq(_adapter *padapter, union recv_frame *precv_frame)
 		else
 			issue_asocrsp(padapter, status, pstat, WIFI_REASSOCRSP);
 
-#ifdef CONFIG_IOCTL_CFG80211
 		_enter_critical_bh(&pstat->lock, &irqL);
 		if(pstat->passoc_req)
 		{
@@ -2521,7 +2514,6 @@ unsigned int OnAssocReq(_adapter *padapter, union recv_frame *precv_frame)
 			pstat->assoc_req_len = pkt_len;
 		}
 		_exit_critical_bh(&pstat->lock, &irqL);
-#endif //CONFIG_IOCTL_CFG80211
 		/* .3-(1) report sta add event */
 		report_add_sta_event(padapter, pstat->hwaddr);
 	}
@@ -5096,7 +5088,6 @@ void issue_probersp_p2p(_adapter *padapter, unsigned char *da)
 	// DS parameter set
 	pframe = rtw_set_ie(pframe, _DSSET_IE_, 1, (unsigned char *)&pwdinfo->listen_channel, &pattrib->pktlen);
 
-#ifdef CONFIG_IOCTL_CFG80211
 	if(adapter_wdev_data(padapter)->p2p_enabled && pwdinfo->driver_interface == DRIVER_CFG80211 )
 	{
 		if( pmlmepriv->wps_probe_resp_ie != NULL && pmlmepriv->p2p_probe_resp_ie != NULL )
@@ -5113,7 +5104,6 @@ void issue_probersp_p2p(_adapter *padapter, unsigned char *da)
 		}
 	}
 	else
-#endif //CONFIG_IOCTL_CFG80211		
 	{
 
 		//	Todo: WPS IE
@@ -5380,7 +5370,6 @@ int _issue_probereq_p2p(_adapter *padapter, u8 *da, int wait_ack)
 	//	Use the OFDM rate in the P2P probe request frame. ( 6(B), 9(B), 12(B), 24(B), 36, 48, 54 )
 	pframe = rtw_set_ie(pframe, _SUPPORTEDRATES_IE_, 8, pwdinfo->support_rate, &pattrib->pktlen);
 
-#ifdef CONFIG_IOCTL_CFG80211
 	if(adapter_wdev_data(padapter)->p2p_enabled && pwdinfo->driver_interface == DRIVER_CFG80211 )
 	{
 		if( pmlmepriv->wps_probe_req_ie != NULL && pmlmepriv->p2p_probe_req_ie != NULL )
@@ -5397,7 +5386,6 @@ int _issue_probereq_p2p(_adapter *padapter, u8 *da, int wait_ack)
 		}
 	}
 	else
-#endif //CONFIG_IOCTL_CFG80211
 	{
 
 		//	WPS IE
@@ -5723,13 +5711,11 @@ unsigned int on_action_public_p2p(union recv_frame *precv_frame)
 	frame_body = (unsigned char *)(pframe + sizeof(struct rtw_ieee80211_hdr_3addr));
 
 	_cancel_timer_ex( &pwdinfo->reset_ch_sitesurvey );
-#ifdef CONFIG_IOCTL_CFG80211
 	if(adapter_wdev_data(padapter)->p2p_enabled && pwdinfo->driver_interface == DRIVER_CFG80211)
 	{
 		rtw_cfg80211_rx_p2p_action_public(padapter, pframe, len);
 	}
 	else
-#endif //CONFIG_IOCTL_CFG80211
 	{
 		//	Do nothing if the driver doesn't enable the P2P function.
 		if(rtw_p2p_chk_state(pwdinfo, P2P_STATE_NONE) || rtw_p2p_chk_state(pwdinfo, P2P_STATE_IDLE))
@@ -6128,10 +6114,8 @@ unsigned int on_action_public_default(union recv_frame *precv_frame, u8 action)
 	if (rtw_action_public_decache(precv_frame, 2) == _FAIL)
 		goto exit;
 
-	#ifdef CONFIG_IOCTL_CFG80211
 	cnt += sprintf((msg+cnt), "%s(token:%u)", action_public_str(action), token);
 	rtw_cfg80211_rx_action(adapter, pframe, frame_len, msg);
-	#endif
 
 	ret = _SUCCESS;
 	
@@ -6276,7 +6260,6 @@ unsigned int OnAction_p2p(_adapter *padapter, union recv_frame *precv_frame)
 	if ( cpu_to_be32( *( ( u32* ) ( frame_body + 1 ) ) ) != P2POUI )
 		return _SUCCESS;
 
-#ifdef CONFIG_IOCTL_CFG80211
 	if (adapter_wdev_data(padapter)->p2p_enabled
 		&& pwdinfo->driver_interface == DRIVER_CFG80211
 		) {
@@ -6284,7 +6267,6 @@ unsigned int OnAction_p2p(_adapter *padapter, union recv_frame *precv_frame)
 		return _SUCCESS;
 	}
 	else
-#endif //CONFIG_IOCTL_CFG80211
 	{
 		len -= sizeof(struct rtw_ieee80211_hdr_3addr);
 		OUI_Subtype = frame_body[5];
@@ -6735,7 +6717,6 @@ void issue_beacon(_adapter *padapter, int timeout_ms)
 
 			remainder_ielen = cur_network->IELength - wps_offset - wpsielen;
 
-#ifdef CONFIG_IOCTL_CFG80211
 			if(adapter_wdev_data(padapter)->p2p_enabled && pwdinfo->driver_interface == DRIVER_CFG80211 )
 			{
 				if(pmlmepriv->wps_beacon_ie && pmlmepriv->wps_beacon_ie_len>0)
@@ -6761,7 +6742,6 @@ void issue_beacon(_adapter *padapter, int timeout_ms)
 				}
 			}
 			else
-#endif //CONFIG_IOCTL_CFG80211
 			{
 				pframe_wscie = pframe + wps_offset;
 				_rtw_memcpy(pframe, cur_network->IEs, wps_offset+wpsielen);			
@@ -6850,7 +6830,6 @@ void issue_beacon(_adapter *padapter, int timeout_ms)
 		if(rtw_p2p_chk_role(pwdinfo, P2P_ROLE_GO))
 		{
 			u32 len;
-#ifdef CONFIG_IOCTL_CFG80211
 			if(adapter_wdev_data(padapter)->p2p_enabled && pwdinfo->driver_interface == DRIVER_CFG80211 )
 			{
 				len = pmlmepriv->p2p_beacon_ie_len;
@@ -6858,7 +6837,6 @@ void issue_beacon(_adapter *padapter, int timeout_ms)
 					_rtw_memcpy(pframe, pmlmepriv->p2p_beacon_ie, len);
 			}
 			else
-#endif //CONFIG_IOCTL_CFG80211
 			{
 				len = build_beacon_p2p_ie(pwdinfo, pframe);
 			}
@@ -7152,7 +7130,6 @@ void issue_probersp(_adapter *padapter, unsigned char *da, u8 is_valid_p2p_probe
 		&& (is_valid_p2p_probereq || !padapter->registrypriv.wifi_spec))
 	{
 		u32 len;
-#ifdef CONFIG_IOCTL_CFG80211
 		if(adapter_wdev_data(padapter)->p2p_enabled && pwdinfo->driver_interface == DRIVER_CFG80211 )
 		{
 			//if pwdinfo->role == P2P_ROLE_DEVICE will call issue_probersp_p2p()
@@ -7161,7 +7138,6 @@ void issue_probersp(_adapter *padapter, unsigned char *da, u8 is_valid_p2p_probe
 				_rtw_memcpy(pframe, pmlmepriv->p2p_go_probe_resp_ie, len);
 		}
 		else
-#endif //CONFIG_IOCTL_CFG80211
 		{
 			len = build_probe_resp_p2p_ie(pwdinfo, pframe);
 		}
@@ -7990,7 +7966,6 @@ void issue_assocreq(_adapter *padapter)
 		pframe = rtw_set_ie(pframe, _VENDOR_SPECIFIC_IE_, 6 , REALTEK_96B_IE, &(pattrib->pktlen));
 
 
-#ifdef CONFIG_IOCTL_CFG80211
 	if(adapter_wdev_data(padapter)->p2p_enabled && pwdinfo->driver_interface == DRIVER_CFG80211 )
 	{
 		if(pmlmepriv->p2p_assoc_req_ie && pmlmepriv->p2p_assoc_req_ie_len>0)
@@ -8001,7 +7976,6 @@ void issue_assocreq(_adapter *padapter)
 		}
 	}
 	else
-#endif //CONFIG_IOCTL_CFG80211
 	{
 		if(!rtw_p2p_chk_state(pwdinfo, P2P_STATE_NONE) && !rtw_p2p_chk_state(pwdinfo, P2P_STATE_IDLE))
 		{
@@ -10689,10 +10663,6 @@ void mlmeext_joinbss_event_callback(_adapter *padapter, int join_res)
 		rtw_hal_macid_wakeup(padapter, psta->mac_id);
 	}
 
-#ifndef CONFIG_IOCTL_CFG80211
-	if (is_wep_enc(psecuritypriv->dot11PrivacyAlgrthm))
-		rtw_sec_restore_wep_key(padapter);
-#endif /* CONFIG_IOCTL_CFG80211 */
 
 	join_type = 2;
 	rtw_hal_set_hwreg(padapter, HW_VAR_MLME_JOIN, (u8 *)(&join_type));
@@ -12028,10 +11998,8 @@ void survey_done_set_ch_bw(_adapter *padapter)
 			if (!iface)
 				continue;
 
-			#ifdef CONFIG_IOCTL_CFG80211
 			if (iface->wdinfo.driver_interface == DRIVER_CFG80211 && !adapter_wdev_data(iface)->p2p_enabled)
 				continue;
-			#endif
 
 			if (rtw_p2p_chk_state(&iface->wdinfo, P2P_STATE_LISTEN)) {
 				cur_channel = iface->wdinfo.listen_channel;
@@ -12096,11 +12064,9 @@ void sitesurvey_set_igi(_adapter *adapter)
 
 	switch (mlmeext_scan_state(mlmeext)) {
 	case SCAN_ENTER:
-		#ifdef CONFIG_IOCTL_CFG80211
 		if (adapter_wdev_data(adapter)->p2p_enabled == _TRUE && pwdinfo->driver_interface == DRIVER_CFG80211)
 			igi = 0x30;
 		else
-		#endif /* CONFIG_IOCTL_CFG80211 */
 		if (!rtw_p2p_chk_state(pwdinfo, P2P_STATE_NONE))
 			igi = 0x28;
 		else
@@ -13118,11 +13084,9 @@ u8 set_chplan_hdl(_adapter *padapter, unsigned char *pbuf)
 
 	rtw_hal_set_odm_var(padapter,HAL_ODM_REGULATION,NULL,_TRUE);
 	
-#ifdef CONFIG_IOCTL_CFG80211
         if (padapter->rtw_wdev != NULL) {
             rtw_reg_notify_by_driver(padapter->rtw_wdev->wiphy);
           }
-#endif //CONFIG_IOCTL_CFG80211
 
 	return 	H2C_SUCCESS;
 }
