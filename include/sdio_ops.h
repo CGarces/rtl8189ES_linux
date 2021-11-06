@@ -42,14 +42,12 @@ s32 _sdio_write32(PADAPTER padapter, u32 addr, u32 val);
 extern void sd_int_hdl(PADAPTER padapter);
 extern u8 CheckIPSStatus(PADAPTER padapter);
 
-#ifdef CONFIG_RTL8188F
 extern void InitInterrupt8188FSdio(PADAPTER padapter);
 extern void InitSysInterrupt8188FSdio(PADAPTER padapter);
 extern void EnableInterrupt8188FSdio(PADAPTER padapter);
 extern void DisableInterrupt8188FSdio(PADAPTER padapter);
 extern u8 HalQueryTxBufferStatus8188FSdio(PADAPTER padapter);
 extern u8 HalQueryTxOQTBufferStatus8188FSdio(PADAPTER padapter);
-#endif
 
 #endif // !__SDIO_OPS_H__
 

@@ -1049,9 +1049,7 @@ int rtw_mp_thermal(struct net_device *dev,
 	u8 val;
 	int bwrite = 1;
 
-#ifdef CONFIG_RTL8188F
 	u16 addr = EEPROM_THERMAL_METER_8188F;
-#endif
 	u16 cnt = 1;
 	u16 max_available_size = 0;
 	PADAPTER padapter = rtw_netdev_priv(dev);

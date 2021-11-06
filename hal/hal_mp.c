@@ -19,11 +19,7 @@
  ******************************************************************************/
 #define _HAL_MP_C_
 #ifdef CONFIG_MP_INCLUDED
-
-#ifdef CONFIG_RTL8188F
 #include <rtl8188f_hal.h>
-#endif
-
 
 u8 MgntQuery_NssTxRate(u16 Rate)
 {

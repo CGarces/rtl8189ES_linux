@@ -29,9 +29,7 @@
 static const struct sdio_device_id sdio_ids[] =
 {
 
-#ifdef CONFIG_RTL8188F
 	{SDIO_DEVICE(0x024c, 0xF179), .driver_data = RTL8188F},
-#endif
 
 	{ /* end: all zeroes */				},
 };
@@ -217,12 +215,10 @@ static void rtw_decide_chip_type_by_device_id(struct dvobj_priv *dvobj, const st
 {
 	dvobj->chip_type = pdid->driver_data;
 
-#if defined(CONFIG_RTL8188F)
 	if (dvobj->chip_type == RTL8188F) {
 		dvobj->HardwareType = HARDWARE_TYPE_RTL8188FS;
 		DBG_871X("CHIP TYPE: RTL8188F\n");
 	}
-#endif
 }
 
 static struct dvobj_priv *sdio_dvobj_init(struct sdio_func *func, const struct sdio_device_id  *pdid)
@@ -286,10 +282,8 @@ u8 rtw_set_hal_ops(PADAPTER padapter)
 	if(rtw_hal_data_init(padapter) == _FAIL)
 		return _FAIL;
 
-#if defined(CONFIG_RTL8188F)
 	if (rtw_get_chip_type(padapter) == RTL8188F)
 		rtl8188fs_set_hal_ops(padapter);
-#endif
 
 	if( rtw_hal_ops_check(padapter) == _FAIL)
 		return _FAIL;

@@ -33,10 +33,7 @@ void dump_chip_info(HAL_VERSION	ChipVersion)
 	int cnt = 0;
 	u8 buf[128]={0};
 	
-	if (IS_8188F(ChipVersion))
-		cnt += sprintf((buf+cnt), "Chip Version Info: CHIP_8188F_");
-	else
-		cnt += sprintf((buf+cnt), "Chip Version Info: CHIP_UNKNOWN_");
+	cnt += sprintf((buf+cnt), "Chip Version Info: CHIP_8188F_");
 
 	cnt += sprintf((buf+cnt), "%s_", IS_NORMAL_CHIP(ChipVersion)?"Normal_Chip":"Test_Chip");
 	if(IS_CHIP_VENDOR_TSMC(ChipVersion))
@@ -843,17 +840,13 @@ int c2h_mac_hidden_rpt_2_hdl(_adapter *adapter, u8 *data, u8 len)
 			DBG_871X("%s: 0x%02X\n", __func__, *(data + i));
 	}
 
-	#ifdef CONFIG_RTL8188F
-	if (IS_8188F(hal_data->VersionID)) {
-		#define GET_C2H_MAC_HIDDEN_RPT_IRV(_data)	LE_BITS_TO_1BYTE(((u8 *)(_data)) + 0, 0, 4)
-		u8 irv = GET_C2H_MAC_HIDDEN_RPT_IRV(data);
+	#define GET_C2H_MAC_HIDDEN_RPT_IRV(_data)	LE_BITS_TO_1BYTE(((u8 *)(_data)) + 0, 0, 4)
+	u8 irv = GET_C2H_MAC_HIDDEN_RPT_IRV(data);
 
-		if (DBG_C2H_MAC_HIDDEN_RPT_HANDLE)
-			DBG_871X("irv:0x%x\n", irv);
+	if (DBG_C2H_MAC_HIDDEN_RPT_HANDLE)
+		DBG_871X("irv:0x%x\n", irv);
 
-		hal_data->VersionID.irv = irv;
-	}
-	#endif
+	hal_data->VersionID.irv = irv;
 
 	ret = _SUCCESS;
 
@@ -3940,14 +3933,9 @@ void rtw_hal_check_rxfifo_full(_adapter *adapter)
 	int save_cnt=_FALSE;
 	
 	//switch counter to RX fifo
-	if (IS_8188F(pHalData->VersionID)) {
-		rtw_write8(adapter, REG_RXERR_RPT+3, rtw_read8(adapter, REG_RXERR_RPT+3)|0xa0);
-		save_cnt = _TRUE;
-	} else {
-		//todo: other chips 
-	}
-	
-		
+	rtw_write8(adapter, REG_RXERR_RPT+3, rtw_read8(adapter, REG_RXERR_RPT+3)|0xa0);
+	save_cnt = _TRUE;
+
 	if (save_cnt) {
 		pdbgpriv->dbg_rx_fifo_last_overflow = pdbgpriv->dbg_rx_fifo_curr_overflow;
 		pdbgpriv->dbg_rx_fifo_curr_overflow = rtw_read16(adapter, REG_RXERR_RPT);
@@ -4125,14 +4113,12 @@ int hal_efuse_macaddr_offset(_adapter *adapter)
 	interface_type = rtw_get_intf_type(adapter);
 
 	switch (rtw_get_chip_type(adapter)) {
-#ifdef CONFIG_RTL8188F
 	case RTL8188F:
 		if (interface_type == RTW_USB)
 			addr_offset = EEPROM_MAC_ADDR_8188FU;
 		else if (interface_type == RTW_SDIO)
 			addr_offset = EEPROM_MAC_ADDR_8188FS;
 		break;
-#endif
 
 	}
 
@@ -4898,13 +4884,11 @@ void hal_set_crystal_cap(_adapter *adapter, u8 crystal_cap)
 	crystal_cap = crystal_cap & 0x3F;
 
 	switch (rtw_get_chip_type(adapter)) {
-#ifdef CONFIG_RTL8188F
 	case RTL8188E:
 	case RTL8188F:
 		/* write 0x24[16:11] = 0x24[22:17] = CrystalCap */
 		PHY_SetBBReg(adapter, REG_AFE_XTAL_CTRL, 0x007FF800, (crystal_cap | (crystal_cap << 6)));
 		break;
-#endif
 
 #if defined(CONFIG_RTL8821B) || defined(CONFIG_RTL8822B)
 	case RTL8821B:
@@ -4928,11 +4912,9 @@ int hal_spec_init(_adapter *adapter)
 	interface_type = rtw_get_intf_type(adapter);
 
 	switch (rtw_get_chip_type(adapter)) {
-#ifdef CONFIG_RTL8188F
 	case RTL8188F:
 		init_hal_spec_8188f(adapter);
 		break;
-#endif
 
 	default:
 		DBG_871X_LEVEL(_drv_err_, "%s: unknown chip_type:%u\n"

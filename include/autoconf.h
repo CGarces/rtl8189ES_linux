@@ -20,14 +20,9 @@
 /*
  * Public General Config
  */
-#define AUTOCONF_INCLUDED
 
 #define RTL871X_MODULE_NAME "8189FS"
 #define DRV_NAME "rtl8189fs"
-
-#ifndef CONFIG_RTL8188F
-#define CONFIG_RTL8188F
-#endif
 
 #define PLATFORM_LINUX
 

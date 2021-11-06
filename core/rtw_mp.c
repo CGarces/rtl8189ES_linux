@@ -318,23 +318,14 @@ void mpt_InitHWConfig(PADAPTER Adapter)
 
 	if (IS_HARDWARE_TYPE_8188ES(Adapter))
 		PHY_SetMacReg(Adapter, 0x4C , BIT23, 0);		/*select DPDT_P and DPDT_N as output pin*/
-		
-	/*
-	else if(IS_HARDWARE_TYPE_8822B(Adapter))
-	{
-		PlatformEFIOWrite2Byte(Adapter, REG_RXFLTMAP1_8822B, 0x2000);
-	}*/
-#ifdef CONFIG_RTL8188F
 	else if (IS_HARDWARE_TYPE_8188F(Adapter)) {
 		if (IS_A_CUT(hal->VersionID) || (IS_B_CUT(hal->VersionID) && hal->VersionID.irv == 0xF)) {
 			RTW_INFO("%s() Active large power detection\n", __func__);
 			phy_active_large_power_detection_8188f(&hal->odmpriv);
 		}
 	}
-#endif
 }
 
-#ifdef CONFIG_RTL8188F
 static void PHY_IQCalibrate(PADAPTER padapter, u8 bReCovery)
 {
 	PHY_IQCalibrate_8188F(padapter, bReCovery, _FALSE);
@@ -343,7 +334,6 @@ static void PHY_IQCalibrate(PADAPTER padapter, u8 bReCovery)
 
 #define PHY_LCCalibrate(a)	PHY_LCCalibrate_8188F(&(GET_HAL_DATA(a)->odmpriv))
 #define PHY_SetRFPathSwitch(a, b)	PHY_SetRFPathSwitch_8188F(a, b)
-#endif
 
 s32
 MPT_InitializeAdapter(
@@ -640,9 +630,7 @@ s32 mp_start_test(PADAPTER padapter)
 
 	//3 disable dynamic mechanism
 	disable_dm(padapter);
-	#ifdef CONFIG_RTL8188F
 	rtl8188f_InitHalDm(padapter);
-	#endif
 
 	//3 0. update mp_priv
 
@@ -714,9 +702,7 @@ end_of_mp_stop_test:
 
 	_exit_critical_bh(&pmlmepriv->lock, &irqL);
 
-	#ifdef CONFIG_RTL8188F
 	rtl8188f_InitHalDm(padapter);
-	#endif
 	}
 }
 
@@ -871,12 +857,10 @@ void PhySetTxPowerLevel(PADAPTER pAdapter)
 {
 	struct mp_priv *pmp_priv = &pAdapter->mppriv;
 		
-	if (pmp_priv->bSetTxPower==0) // for NO manually set power index
-	{
-#if defined(CONFIG_RTL8188F)
+	if (pmp_priv->bSetTxPower==0) {
+		// for NO manually set power index
 		PHY_SetTxPowerLevel8188F(pAdapter, pmp_priv->channel);
-#endif
-	mpt_ProQueryCalTxPower(pAdapter,pmp_priv->antenna_tx);
+		mpt_ProQueryCalTxPower(pAdapter,pmp_priv->antenna_tx);
 
 	}
 }
@@ -979,7 +963,6 @@ void fill_txdesc_for_mp(PADAPTER padapter, u8 *ptxdesc)
 }
 
 
-#if defined(CONFIG_RTL8188F)
 void fill_tx_desc_8188f(PADAPTER padapter)
 {
 	struct mp_priv *pmp_priv = &padapter->mppriv;
@@ -1008,7 +991,6 @@ void fill_tx_desc_8188f(PADAPTER padapter)
 	SET_TX_DESC_DATA_RATE_FB_LIMIT_8188F(ptxdesc, 0x1F);
 	SET_TX_DESC_RTS_RATE_FB_LIMIT_8188F(ptxdesc, 0xF);
 }
-#endif
 
 static void Rtw_MPSetMacTxEDCA(PADAPTER padapter)
 {
@@ -1078,10 +1060,8 @@ void SetPacketTx(PADAPTER padapter)
 	pkt_start = ptr;
 	pkt_end = pkt_start + pkt_size;
 
-#if defined(CONFIG_RTL8188F)
 	if (IS_HARDWARE_TYPE_8188F(padapter))
 		fill_tx_desc_8188f(padapter);
-#endif
 
 	//3 4. make wlan header, make_wlanhdr()
 	hdr = (struct rtw_ieee80211_hdr *)pkt_start;

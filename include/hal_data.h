@@ -467,12 +467,10 @@ typedef struct hal_com_data {
 	struct sreset_priv srestpriv;
 #endif //#ifdef DBG_CONFIG_ERROR_DETECT
 
-#if defined(CONFIG_RTL8188F)
 	// mutual exclusive with PCI -- so they're SDIO and GSPI 
 	// Interrupt relatd register information.
 	u32			SysIntrStatus;
 	u32			SysIntrMask;
-#endif /*endif CONFIG_RTL8188F	*/
 
 	char	para_file_buf[MAX_PARA_FILE_BUF_LEN];
 	char *mac_reg;

@@ -254,15 +254,9 @@ typedef struct _MPT_CONTEXT
 //#endif
 
 /* E-Fuse */
-#ifdef CONFIG_RTL8188F
 #define EFUSE_MAP_SIZE		512
-#endif
 
-#if defined(CONFIG_RTL8188F)
 #define EFUSE_MAX_SIZE		256
-#else
-#define EFUSE_MAX_SIZE		512
-#endif
 /* end of E-Fuse */
 
 //#define RTPRIV_IOCTL_MP 					( SIOCIWFIRSTPRIV + 0x17)

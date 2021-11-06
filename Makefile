@@ -28,8 +28,6 @@ EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
 
 EXTRA_LDFLAGS += --strip-debug
 
-########################## WIFI IC ############################
-CONFIG_RTL8188F = y
 ########################## Features ###########################
 CONFIG_MP_INCLUDED = y
 CONFIG_TRAFFIC_PROTECT = y
@@ -91,9 +89,6 @@ _OUTSRC_FILES := hal/phydm/phydm_debug.o	\
 
 EXTRA_CFLAGS += -I$(src)/platform
 
-########### HAL_RTL8188F #################################
-ifeq ($(CONFIG_RTL8188F), y)
-
 RTL871X = rtl8188f
 MODULE_NAME = 8189fs
 
@@ -122,8 +117,6 @@ _OUTSRC_FILES += hal/phydm/$(RTL871X)/halhwimg8188f_bb.o\
 								hal/phydm/$(RTL871X)/phydm_regconfig8188f.o\
 								hal/phydm/$(RTL871X)/halphyrf_8188f.o \
 								hal/phydm/$(RTL871X)/phydm_rtl8188f.o
-
-endif
 
 ########### END OF PATH  #################################
 

@@ -8266,12 +8266,8 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 			}
 		}
 //		DBG_871X("}\n");
-	}
-	else if (strcmp(tmp[0], "vidpid") == 0)
-	{
-		#ifdef CONFIG_RTL8188F
+	} else if (strcmp(tmp[0], "vidpid") == 0) {
 		addr = EEPROM_VID_8188FU;
-		#endif /* CONFIG_RTL8188F */
 
 		cnts = 4;
 
@@ -8841,9 +8837,7 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 			goto exit;
 		}
 
-		#ifdef CONFIG_RTL8188F
 		addr = EEPROM_VID_8188FU;
-		#endif
 
 		cnts = strlen(tmp[1]);
 		if (cnts%2)

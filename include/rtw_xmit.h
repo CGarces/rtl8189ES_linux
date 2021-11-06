@@ -95,11 +95,7 @@ do{\
 
 #define HWXMIT_ENTRY	4
 
-#if defined(CONFIG_RTL8188F)
 #define TXDESC_SIZE 40
-#else
-#define TXDESC_SIZE 32 /* old IC (ex: 8188E) */
-#endif
 
 #ifdef CONFIG_TX_EARLY_MODE
 #define EARLY_MODE_INFO_SIZE	8
@@ -114,9 +110,7 @@ enum TXDESC_SC{
 	SC_DUPLICATE=0x03
 };
 
-#if defined(CONFIG_RTL8188F)
 #define TXDESC_40_BYTES
-#endif
 
 struct tx_desc
 {
