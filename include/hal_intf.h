@@ -269,9 +269,7 @@ struct hal_ops {
 	u8(*get_tx_power_index_handler)(_adapter *padapter, u8 rfpath, u8 rate, u8 bandwidth, u8 channel, struct txpwr_idx_comp *tic);
 
 	void	(*hal_dm_watchdog)(_adapter *padapter);
-#ifdef CONFIG_LPS_LCLK_WD_TIMER
 	void	(*hal_dm_watchdog_in_lps)(_adapter *padapter);
-#endif
 
 	void	(*SetHwRegHandler)(_adapter *padapter, u8	variable,u8* val);
 	void	(*GetHwRegHandler)(_adapter *padapter, u8	variable,u8* val);

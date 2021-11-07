@@ -32,8 +32,6 @@ inline struct proc_dir_entry *get_rtw_drv_proc(void)
 	return rtw_proc;
 }
 
-#define RTW_PROC_NAME DRV_NAME
-
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,9,0))
 #define file_inode(file) ((file)->f_dentry->d_inode)
 #endif
@@ -267,7 +265,7 @@ int rtw_drv_proc_init(void)
 		goto exit;
 	}
 
-	rtw_proc = rtw_proc_create_dir(RTW_PROC_NAME, get_proc_net, NULL);
+	rtw_proc = rtw_proc_create_dir(DRV_NAME, get_proc_net, NULL);
 
 	if (rtw_proc == NULL) {
 		rtw_warn_on(1);
@@ -304,7 +302,7 @@ void rtw_drv_proc_deinit(void)
 	for (i = 0; i < drv_proc_hdls_num; i++)
 		remove_proc_entry(drv_proc_hdls[i].name, rtw_proc);
 
-	remove_proc_entry(RTW_PROC_NAME, get_proc_net);
+	remove_proc_entry(DRV_NAME, get_proc_net);
 	rtw_proc = NULL;
 }
 

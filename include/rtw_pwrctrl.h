@@ -41,6 +41,8 @@
 #define CMD_ALIVE	BIT(2)
 #define EVT_ALIVE	BIT(3)
 
+#define LPS_RPWM_WAIT_MS 300
+
 enum Power_Mgnt
 {
 	PS_MODE_ACTIVE	= 0	,
@@ -209,11 +211,9 @@ struct pwrctrl_priv
 
 	u32	alives;
 	_workitem cpwm_event;
-#ifdef CONFIG_LPS_RPWM_TIMER
 	u8 brpwmtimeout;
 	_workitem rpwmtimeoutwi;
 	_timer pwr_rpwm_timer;
-#endif // CONFIG_LPS_RPWM_TIMER
 	u8	bpower_saving; //for LPS/IPS
 
 	u8	b_hw_radio_off;
@@ -311,7 +311,6 @@ struct pwrctrl_priv
 extern void rtw_init_pwrctrl_priv(_adapter *adapter);
 extern void rtw_free_pwrctrl_priv(_adapter * adapter);
 
-#ifdef CONFIG_LPS_LCLK
 s32 rtw_register_task_alive(PADAPTER, u32 task);
 void rtw_unregister_task_alive(PADAPTER, u32 task);
 extern s32 rtw_register_tx_alive(PADAPTER padapter);
@@ -324,16 +323,13 @@ extern s32 rtw_register_evt_alive(PADAPTER padapter);
 extern void rtw_unregister_evt_alive(PADAPTER padapter);
 extern void cpwm_int_hdl(PADAPTER padapter, struct reportpwrstate_parm *preportpwrstate);
 extern void LPS_Leave_check(PADAPTER padapter);
-#endif
 
 extern void LeaveAllPowerSaveMode(PADAPTER Adapter);
 extern void LeaveAllPowerSaveModeDirect(PADAPTER Adapter);
-#ifdef CONFIG_IPS
 void _ips_enter(_adapter * padapter);
 void ips_enter(_adapter * padapter);
 int _ips_leave(_adapter * padapter);
 int ips_leave(_adapter * padapter);
-#endif
 
 void rtw_ps_processor(_adapter*padapter);
 
@@ -344,7 +340,6 @@ rt_rf_power_state RfOnOffDetect(IN	PADAPTER pAdapter );
 
 int rtw_fw_ps_state(PADAPTER padapter);
 
-#ifdef CONFIG_LPS
 s32 LPS_RF_ON_check(PADAPTER padapter, u32 delay_ms);
 void LPS_Enter(PADAPTER padapter, const char *msg);
 void LPS_Leave(PADAPTER padapter, const char *msg);
@@ -352,7 +347,6 @@ void traffic_check_for_leave_lps(PADAPTER padapter, u8 tx, u32 tx_packets);
 void rtw_set_ps_mode(PADAPTER padapter, u8 ps_mode, u8 smart_ps, u8 bcn_ant_mode, const char *msg);
 void rtw_set_fw_in_ips_mode(PADAPTER padapter, u8 enable);
 void rtw_set_rpwm(_adapter * padapter, u8 val8);
-#endif
 
 #if defined(CONFIG_HAS_EARLYSUSPEND )
 bool rtw_is_earlysuspend_registered(struct pwrctrl_priv *pwrpriv);

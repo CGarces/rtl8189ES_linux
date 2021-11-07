@@ -266,9 +266,7 @@ void sreset_reset(_adapter *padapter)
 	psrtpriv->Wifi_Error_Status = WIFI_STATUS_SUCCESS;
 
 
-#ifdef CONFIG_LPS
 	rtw_set_ps_mode(padapter, PS_MODE_ACTIVE, 0, 0, "SRESET");
-#endif//#ifdef CONFIG_LPS
 	
 	_enter_pwrlock(&pwrpriv->lock);
 
@@ -277,10 +275,8 @@ void sreset_reset(_adapter *padapter)
 
 	sreset_stop_adapter(padapter);
 
-	#ifdef CONFIG_IPS
 	_ips_enter(padapter);
 	_ips_leave(padapter);
-	#endif
 
 	sreset_start_adapter(padapter);
 

@@ -395,9 +395,7 @@ _func_enter_;
 
 	if (((deviceId == WLAN_IOREG_DEVICE_ID) && (offset < 0x100))
 		|| (bMacPwrCtrlOn == _FALSE)
-		#ifdef CONFIG_LPS_LCLK
 		|| (adapter_to_pwrctl(padapter)->bFwCurrentInPSMode == _TRUE)
-		#endif
 		|| CONFIG_RTW_SDIO_REG_FORCE_CMD52
 	) {
 		u8 sus_leave = _FALSE;
@@ -473,9 +471,7 @@ _func_enter_;
 	rtw_hal_get_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);
 	if (((deviceId == WLAN_IOREG_DEVICE_ID) && (offset < 0x100))
 		|| (bMacPwrCtrlOn == _FALSE)
-		#ifdef CONFIG_LPS_LCLK
 		|| (adapter_to_pwrctl(padapter)->bFwCurrentInPSMode == _TRUE)
-		#endif
 		|| CONFIG_RTW_SDIO_REG_FORCE_CMD52
 	) {
 		u8 sus_leave = _FALSE;
@@ -580,9 +576,7 @@ _func_enter_;
 
 	if (((deviceId == WLAN_IOREG_DEVICE_ID) && (offset < 0x100))
 		|| (bMacPwrCtrlOn == _FALSE)
-		#ifdef CONFIG_LPS_LCLK
 		|| (adapter_to_pwrctl(padapter)->bFwCurrentInPSMode == _TRUE)
-		#endif
 		|| CONFIG_RTW_SDIO_REG_FORCE_CMD52
 	) {
 		u8 sus_leave = _FALSE;
@@ -638,9 +632,7 @@ _func_enter_;
 	rtw_hal_get_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);
 	if (((deviceId == WLAN_IOREG_DEVICE_ID) && (offset < 0x100))
 		|| (bMacPwrCtrlOn == _FALSE)
-		#ifdef CONFIG_LPS_LCLK
 		|| (adapter_to_pwrctl(padapter)->bFwCurrentInPSMode == _TRUE)
-		#endif
 		|| CONFIG_RTW_SDIO_REG_FORCE_CMD52
 	) {
 		u8 sus_leave = _FALSE;
@@ -903,9 +895,7 @@ s32 sdio_local_read(
 	bMacPwrCtrlOn = _FALSE;
 	rtw_hal_get_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);
 	if ((_FALSE == bMacPwrCtrlOn)
-		#ifdef CONFIG_LPS_LCLK
 		|| (adapter_to_pwrctl(padapter)->bFwCurrentInPSMode == _TRUE)
-		#endif
 		|| CONFIG_RTW_SDIO_REG_FORCE_CMD52
 	) {
 		err = sd_cmd52_read(pintfhdl, addr, cnt, pbuf);
@@ -954,9 +944,7 @@ s32 _sdio_local_write(
 	bMacPwrCtrlOn = _FALSE;
 	rtw_hal_get_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);
 	if ((_FALSE == bMacPwrCtrlOn)
-		#ifdef CONFIG_LPS_LCLK
 		|| (adapter_to_pwrctl(padapter)->bFwCurrentInPSMode == _TRUE)
-		#endif
 		|| CONFIG_RTW_SDIO_REG_FORCE_CMD52
 	) {
 		err = _sd_cmd52_write(pintfhdl, addr, cnt, pbuf);
@@ -1004,9 +992,7 @@ s32 sdio_local_write(
 	bMacPwrCtrlOn = _FALSE;
 	rtw_hal_get_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);
 	if ((_FALSE == bMacPwrCtrlOn)
-		#ifdef CONFIG_LPS_LCLK
 		|| (adapter_to_pwrctl(padapter)->bFwCurrentInPSMode == _TRUE)
-		#endif
 		|| CONFIG_RTW_SDIO_REG_FORCE_CMD52
 	) {
 		err = sd_cmd52_write(pintfhdl, addr, cnt, pbuf);
@@ -1075,9 +1061,7 @@ u32 SdioLocalCmd53Read4Byte(PADAPTER padapter, u32 addr)
 	bMacPwrCtrlOn = _FALSE;
 	rtw_hal_get_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);
 	if ((_FALSE == bMacPwrCtrlOn)
-		#ifdef CONFIG_LPS_LCLK
 		|| (adapter_to_pwrctl(padapter)->bFwCurrentInPSMode == _TRUE)
-		#endif
 		|| CONFIG_RTW_SDIO_REG_FORCE_CMD52
 	) {
 		sd_cmd52_read(pintfhdl, addr, 4, (u8*)&val);
@@ -1476,9 +1460,6 @@ void InitInterrupt8188FSdio(PADAPTER padapter)
 #ifdef CONFIG_SDIO_TX_ENABLE_AVAL_INT
 		| SDIO_HIMR_AVAL_MSK
 #endif
-#if defined(CONFIG_LPS_LCLK) && !defined(CONFIG_DETECT_CPWM_BY_POLLING)
-		| SDIO_HIMR_CPWM1_MSK
-#endif
 		;
 }
 
@@ -1864,21 +1845,16 @@ void sd_int_dpc(PADAPTER padapter)
 		_rtw_up_sema(&(padapter->xmitpriv.xmit_sema));
 	}
 #endif
-	if (phal->sdio_hisr & SDIO_HISR_CPWM1)
-	{
+	if (phal->sdio_hisr & SDIO_HISR_CPWM1) {
 		struct reportpwrstate_parm report;
 
-#ifdef CONFIG_LPS_RPWM_TIMER
 		u8 bcancelled;
 		_cancel_timer(&(pwrctl->pwr_rpwm_timer), &bcancelled);
-#endif // CONFIG_LPS_RPWM_TIMER
 
 		report.state = SdioLocalCmd52Read1Byte(padapter, SDIO_REG_HCPWM1_8188F);
 
-#ifdef CONFIG_LPS_LCLK
 		//cpwm_int_hdl(padapter, &report);
 		_set_workitem(&(pwrctl->cpwm_event));
-#endif
 	}
 
 	if (phal->sdio_hisr & SDIO_HISR_TXERR)

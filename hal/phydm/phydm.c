@@ -772,41 +772,6 @@ ODM_CmnInfoUpdate(
 		case	ODM_CMNINFO_RA_THRESHOLD_LOW:
 			pDM_Odm->RateAdaptive.LowRSSIThresh = (u1Byte)Value;
 			break;
-#if defined(BT_30_SUPPORT) && (BT_30_SUPPORT == 1)
-		// The following is for BT HS mode and BT coexist mechanism.
-		case ODM_CMNINFO_BT_ENABLED:
-			pDM_Odm->bBtEnabled = (BOOLEAN)Value;
-			break;
-			
-		case ODM_CMNINFO_BT_HS_CONNECT_PROCESS:
-			pDM_Odm->bBtConnectProcess = (BOOLEAN)Value;
-			break;
-		
-		case ODM_CMNINFO_BT_HS_RSSI:
-			pDM_Odm->btHsRssi = (u1Byte)Value;
-			break;
-			
-		case	ODM_CMNINFO_BT_OPERATION:
-			pDM_Odm->bBtHsOperation = (BOOLEAN)Value;
-			break;
-
-		case	ODM_CMNINFO_BT_LIMITED_DIG:
-			pDM_Odm->bBtLimitedDig = (BOOLEAN)Value;
-			break;	
-
-		case ODM_CMNINFO_BT_DIG:
-			pDM_Odm->btHsDigVal = (u1Byte)Value;
-			break;
-			
-		case	ODM_CMNINFO_BT_BUSY:
-			pDM_Odm->bBtBusy = (BOOLEAN)Value;
-			break;	
-
-		case	ODM_CMNINFO_BT_DISABLE_EDCA:
-			pDM_Odm->bBtDisableEdcaTurbo = (BOOLEAN)Value;
-			break;
-#endif
-
 		case	ODM_CMNINFO_AP_TOTAL_NUM:
 			pDM_Odm->APTotalNum = (u1Byte)Value;
 			break;

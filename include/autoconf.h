@@ -21,7 +21,6 @@
  * Public General Config
  */
 
-#define RTL871X_MODULE_NAME "8189FS"
 #define DRV_NAME "rtl8189fs"
 
 #define PLATFORM_LINUX
@@ -33,28 +32,6 @@
 #define MP_DRIVER	1
 #define CONFIG_MP_IWPRIV_SUPPORT
 
-	#define CONFIG_IPS
-	#define CONFIG_LPS
-
-	#define CONFIG_LPS_LCLK
-
-	#ifdef CONFIG_LPS
-		#define CONFIG_CHECK_LEAVE_LPS
-		//#define CONFIG_LPS_SLOW_TRANSITION
-	#endif
-
-	#ifdef CONFIG_LPS_LCLK
-		#define CONFIG_DETECT_CPWM_BY_POLLING
-		#define CONFIG_LPS_RPWM_TIMER
-		#if defined(CONFIG_LPS_RPWM_TIMER) || defined(CONFIG_DETECT_CPWM_BY_POLLING)
-			#define LPS_RPWM_WAIT_MS 300
-		#endif
-		#define CONFIG_LPS_LCLK_WD_TIMER /* Watch Dog timer in LPS LCLK */
-	#endif
-
-	#ifdef CONFIG_IPS
-		#define CONFIG_IPS_CHECK_IN_WD /* Do IPS Check in WatchDog */
-	#endif
 
 #define BT_30_SUPPORT 0
 

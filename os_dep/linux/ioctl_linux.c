@@ -8000,15 +8000,11 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 		err = -EFAULT;
 		goto exit;
 	}
-	#ifdef CONFIG_LPS
 	lps_mode = pwrctrlpriv->power_mgnt;//keep org value
 	rtw_pm_set_lps(padapter,PS_MODE_ACTIVE);
-	#endif	
 	
-	#ifdef CONFIG_IPS	
 	ips_mode = pwrctrlpriv->ips_mode;//keep org value
 	rtw_pm_set_ips(padapter,IPS_NONE);
-	#endif	
 	
 	pch = extra;
 	DBG_871X("%s: in=%s\n", __FUNCTION__, extra);
@@ -8520,15 +8516,10 @@ exit:
 	if (!err)
 		wrqu->length = strlen(extra);
 	
-	if (padapter->registrypriv.mp_mode == 0)
-	{
-	#ifdef CONFIG_IPS		
+	if (padapter->registrypriv.mp_mode == 0) {
 	rtw_pm_set_ips(padapter, ips_mode);
-#endif // CONFIG_IPS
 
-	#ifdef CONFIG_LPS	
 	rtw_pm_set_lps(padapter, lps_mode);
-#endif // CONFIG_LPS
 	}
 
 	#ifdef CONFIG_IOL
@@ -8593,15 +8584,11 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		goto exit;
 	}
 
-	#ifdef CONFIG_LPS
 	lps_mode = pwrctrlpriv->power_mgnt;//keep org value
 	rtw_pm_set_lps(padapter,PS_MODE_ACTIVE);
-	#endif	
 	
-	#ifdef CONFIG_IPS	
 	ips_mode = pwrctrlpriv->ips_mode;//keep org value
 	rtw_pm_set_ips(padapter,IPS_NONE);
-	#endif	
 			
 	pch = extra;
 	DBG_871X("%s: in=%s\n", __FUNCTION__, extra);
@@ -9139,15 +9126,10 @@ exit:
 	
 	wrqu->length = strlen(extra);
 
-	if (padapter->registrypriv.mp_mode == 0)
-	{
-	#ifdef CONFIG_IPS		
+	if (padapter->registrypriv.mp_mode == 0) {
 	rtw_pm_set_ips(padapter, ips_mode);
-        #endif // CONFIG_IPS
 
-	#ifdef CONFIG_LPS	
 	rtw_pm_set_lps(padapter, lps_mode);
-        #endif // CONFIG_LPS
 	}
 
 	return err;

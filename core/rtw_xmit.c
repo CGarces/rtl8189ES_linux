@@ -1240,23 +1240,17 @@ static s32 update_attrib(_adapter *padapter, _pkt *pkt, struct pkt_attrib *pattr
 	if ((pattrib->ether_type == 0x888e) || (pattrib->dhcp_pkt == 1))
 		rtw_set_scan_deny(padapter, 3000);
 
-#ifdef CONFIG_LPS
 	// If EAPOL , ARP , OR DHCP packet, driver must be in active mode.
 	//if ((pattrib->ether_type == 0x888e) || (pattrib->dhcp_pkt == 1) )
 	if (pattrib->icmp_pkt==1)
-	{
 		rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_LEAVE, 1);
-	}
-	else if(pattrib->dhcp_pkt==1)
-	{
+	else if(pattrib->dhcp_pkt==1) {
 		DBG_COUNTER(padapter->tx_logs.core_tx_upd_attrib_active);
 		rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_SPECIAL_PACKET, 1);
 	}
-#endif //CONFIG_LPS
 
 	//TODO:_lock
-	if(update_attrib_sec_info(padapter, pattrib, psta) == _FAIL)
-	{
+	if (update_attrib_sec_info(padapter, pattrib, psta) == _FAIL) {
 		DBG_COUNTER(padapter->tx_logs.core_tx_upd_attrib_err_sec);
 		res = _FAIL;
 		goto exit;
@@ -1342,18 +1336,13 @@ static s32 xmitframe_addmic(_adapter *padapter, struct xmit_frame *pxmitframe){
 
 _func_enter_;
 
-#ifdef CONFIG_USB_TX_AGGREGATION
-	hw_hdr_offset = TXDESC_SIZE + (pxmitframe->pkt_offset * PACKET_OFFSET_SZ);;	
-#else
 	#ifdef CONFIG_TX_EARLY_MODE
 	hw_hdr_offset = TXDESC_OFFSET+ EARLY_MODE_INFO_SIZE;
 	#else
 	hw_hdr_offset = TXDESC_OFFSET;
 	#endif
-#endif	
-	
-	if(pattrib->encrypt ==_TKIP_)//if(psecuritypriv->dot11PrivacyAlgrthm==_TKIP_PRIVACY_) 
-	{
+
+	if (pattrib->encrypt ==_TKIP_) {
 		//encode mic code
 		//if(stainfo!= NULL)
 		{
@@ -1821,22 +1810,18 @@ _func_enter_;
 		return _FAIL;
 	}
 */
-	if (pxmitframe->buf_addr == NULL){
+	if (pxmitframe->buf_addr == NULL) {
 		DBG_8192C("==> %s buf_addr==NULL \n",__FUNCTION__);
 		return _FAIL;
 	}
 
 	pbuf_start = pxmitframe->buf_addr;
-	
-#ifdef CONFIG_USB_TX_AGGREGATION
-	hw_hdr_offset =  TXDESC_SIZE + (pxmitframe->pkt_offset * PACKET_OFFSET_SZ);
-#else
+
 	#ifdef CONFIG_TX_EARLY_MODE //for SDIO && Tx Agg
 	hw_hdr_offset = TXDESC_OFFSET + EARLY_MODE_INFO_SIZE;
 	#else
 	hw_hdr_offset = TXDESC_OFFSET;
 	#endif
-#endif
 
 	mem_start = pbuf_start +	hw_hdr_offset;
 
@@ -2041,11 +2026,7 @@ void rtw_count_tx_stats(PADAPTER padapter, struct xmit_frame *pxmitframe, int sz
 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
 	u8	pkt_num = 1;
 
-	if ((pxmitframe->frame_tag&0x0f) == DATA_FRAMETAG)
-	{
-#if defined(CONFIG_USB_TX_AGGREGATION)
-		pkt_num = pxmitframe->agg_num;
-#endif
+	if ((pxmitframe->frame_tag&0x0f) == DATA_FRAMETAG) {
 		pmlmepriv->LinkDetectInfo.NumTxOkInPeriod += pkt_num;
 
 		pxmitpriv->tx_pkts += pkt_num;
@@ -2053,19 +2034,13 @@ void rtw_count_tx_stats(PADAPTER padapter, struct xmit_frame *pxmitframe, int sz
 		pxmitpriv->tx_bytes += sz;
 
 		psta = pxmitframe->attrib.psta;
-		if (psta)
-		{
+		if (psta) {
 			pstats = &psta->sta_stats;
 
 			pstats->tx_pkts += pkt_num;
 
 			pstats->tx_bytes += sz;
 		}
-		
-#ifdef CONFIG_CHECK_LEAVE_LPS
-		//traffic_check_for_leave_lps(padapter, _TRUE);
-#endif //CONFIG_LPS
-		
 	}
 }
 

@@ -10633,10 +10633,8 @@ void mlmeext_joinbss_event_callback(_adapter *padapter, int join_res)
 		//set_link_timer(pmlmeext, DISCONNECT_TO);
 	}
 
-#ifdef CONFIG_LPS
 	if(get_iface_type(padapter) == IFACE_PORT0)
 		rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_CONNECT, 0);
-#endif
 
 exit_mlmeext_joinbss_event_callback:
 
@@ -10908,8 +10906,6 @@ void linked_status_chk(_adapter *padapter, u8 from_timer)
 
 		#if defined(DBG_ROAMING_TEST)
 		rx_chk_limit = 1;
-		#elif !defined(CONFIG_LPS_LCLK_WD_TIMER)
-		rx_chk_limit = 4;
 		#else
 		rx_chk_limit = 8;
 		#endif
@@ -10943,60 +10939,22 @@ void linked_status_chk(_adapter *padapter, u8 from_timer)
 			if (pxmitpriv->last_tx_pkts == pxmitpriv->tx_pkts)
 				tx_chk = _FAIL;
 
-			#if !defined(CONFIG_LPS_LCLK_WD_TIMER)
-			if (pmlmeext->active_keep_alive_check && (rx_chk == _FAIL || tx_chk == _FAIL)) {
-				u8 backup_ch = 0, backup_bw, backup_offset;
-				u8 union_ch = 0, union_bw, union_offset;
-
-				if (!rtw_get_ch_setting_union(padapter, &union_ch, &union_bw, &union_offset)
-					|| pmlmeext->cur_channel != union_ch)
-						goto bypass_active_keep_alive;
-
-				/* switch to correct channel of current network  before issue keep-alive frames */
-				if (rtw_get_oper_ch(padapter) != pmlmeext->cur_channel) {
-					backup_ch = rtw_get_oper_ch(padapter);
-					backup_bw = rtw_get_oper_bw(padapter);
-					backup_offset = rtw_get_oper_choffset(padapter);
-					set_channel_bwmode(padapter, union_ch, union_offset, union_bw);
-				}
-
-				if (rx_chk != _SUCCESS)
-					issue_probereq_ex(padapter, &pmlmeinfo->network.Ssid, psta->hwaddr, 0, 0, 3, 1);
-
-				if ((tx_chk != _SUCCESS && pmlmeinfo->link_count++ == link_count_limit) || rx_chk != _SUCCESS) {
-					tx_chk = issue_nulldata(padapter, psta->hwaddr, 0, 3, 1);
-					/* if tx acked and p2p disabled, set rx_chk _SUCCESS to reset retry count */
-					if (tx_chk == _SUCCESS && !is_p2p_enable)
-						rx_chk = _SUCCESS;
-				}
-
-				/* back to the original operation channel */
-				if (backup_ch > 0)
-					set_channel_bwmode(padapter, backup_ch, backup_offset, backup_bw);
-
-bypass_active_keep_alive:
-				;
-			}
-			else
-			#endif /* CONFIG_ACTIVE_KEEP_ALIVE_CHECK */
-			{
-				if (rx_chk != _SUCCESS) {
-					if (pmlmeext->retry == 0) {
-						#ifdef DBG_EXPIRATION_CHK
-						DBG_871X("issue_probereq to trigger probersp, retry=%d\n", pmlmeext->retry);
-						#endif
-						issue_probereq_ex(padapter, &pmlmeinfo->network.Ssid, pmlmeinfo->network.MacAddress, 0, 0, 0, 0);
-						issue_probereq_ex(padapter, &pmlmeinfo->network.Ssid, pmlmeinfo->network.MacAddress, 0, 0, 0, 0);
-						issue_probereq_ex(padapter, &pmlmeinfo->network.Ssid, pmlmeinfo->network.MacAddress, 0, 0, 0, 0);
-					}
-				}
-
-				if (tx_chk != _SUCCESS && pmlmeinfo->link_count++ == link_count_limit) {
+			if (rx_chk != _SUCCESS) {
+				if (pmlmeext->retry == 0) {
 					#ifdef DBG_EXPIRATION_CHK
-					DBG_871X("%s issue_nulldata(%d)\n", __FUNCTION__, from_timer?1:0);
+					DBG_871X("issue_probereq to trigger probersp, retry=%d\n", pmlmeext->retry);
 					#endif
-					tx_chk = issue_nulldata_in_interrupt(padapter, NULL, from_timer?1:0);
+					issue_probereq_ex(padapter, &pmlmeinfo->network.Ssid, pmlmeinfo->network.MacAddress, 0, 0, 0, 0);
+					issue_probereq_ex(padapter, &pmlmeinfo->network.Ssid, pmlmeinfo->network.MacAddress, 0, 0, 0, 0);
+					issue_probereq_ex(padapter, &pmlmeinfo->network.Ssid, pmlmeinfo->network.MacAddress, 0, 0, 0, 0);
 				}
+			}
+
+			if (tx_chk != _SUCCESS && pmlmeinfo->link_count++ == link_count_limit) {
+				#ifdef DBG_EXPIRATION_CHK
+				DBG_871X("%s issue_nulldata(%d)\n", __FUNCTION__, from_timer?1:0);
+				#endif
+				tx_chk = issue_nulldata_in_interrupt(padapter, NULL, from_timer?1:0);
 			}
 
 			if (rx_chk == _FAIL) {

@@ -1909,9 +1909,6 @@ int _netdev_open(struct net_device *pnetdev)
 
 	_set_timer(&padapter->mlmepriv.dynamic_chk_timer, 2000);
 
-#ifndef CONFIG_IPS_CHECK_IN_WD
-	rtw_set_pwr_state_check_timer(pwrctrlpriv);
-#endif 
 
 	//netif_carrier_on(pnetdev);//call this func when rtw_joinbss_event_callback return success
 	rtw_netif_wake_queue(pnetdev);
@@ -1958,9 +1955,7 @@ int netdev_open(struct net_device *pnetdev)
 	return ret;
 }
 
-#ifdef CONFIG_IPS
-int  ips_netdrv_open(_adapter *padapter)
-{
+int  ips_netdrv_open(_adapter *padapter) {
 	int status = _SUCCESS;
 	//struct pwrctrl_priv	*pwrpriv = adapter_to_pwrctl(padapter);
 	
@@ -1984,9 +1979,6 @@ int  ips_netdrv_open(_adapter *padapter)
 		padapter->intf_start(padapter);
 	}
 
-#ifndef CONFIG_IPS_CHECK_IN_WD
-	rtw_set_pwr_state_check_timer(adapter_to_pwrctl(padapter));
-#endif		
   	_set_timer(&padapter->mlmepriv.dynamic_chk_timer,2000);
 
 	 return _SUCCESS;
@@ -2030,7 +2022,6 @@ void rtw_ips_pwr_down(_adapter *padapter)
 	rtw_ips_dev_unload(padapter);
 	DBG_871X("<=== rtw_ips_pwr_down..................... in %dms\n", rtw_get_passing_time_ms(start_time));
 }
-#endif
 void rtw_ips_dev_unload(_adapter *padapter)
 {
 	struct net_device *pnetdev= (struct net_device*)padapter->pnetdev;
@@ -2058,16 +2049,12 @@ int pm_netdev_open(struct net_device *pnetdev,u8 bnormal)
 
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(pnetdev);
 
-	if (_TRUE == bnormal)
-	{
+	if (bnormal) {
 		_enter_critical_mutex(&(adapter_to_dvobj(padapter)->hw_init_mutex), NULL);
 		status = _netdev_open(pnetdev);
 		_exit_critical_mutex(&(adapter_to_dvobj(padapter)->hw_init_mutex), NULL);
-	}	
-#ifdef CONFIG_IPS
-	else
+	} else
 		status =  (_SUCCESS == ips_netdrv_open(padapter))?(0):(-1);
-#endif
 
 	return status;
 }

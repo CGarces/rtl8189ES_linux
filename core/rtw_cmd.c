@@ -577,9 +577,7 @@ _next:
 
 		pcmd = rtw_dequeue_cmd(pcmdpriv);
 		if (!pcmd) {
-			#ifdef CONFIG_LPS_LCLK
 			rtw_unregister_cmd_alive(padapter);
-			#endif
 			continue;
 		}
 
@@ -615,7 +613,6 @@ _next:
 			goto post_process;
 		}
 
-		#ifdef CONFIG_LPS_LCLK
 		if (pcmd->no_io) {
 			rtw_unregister_cmd_alive(padapter);
 		} else {
@@ -636,7 +633,6 @@ _next:
 				rtw_warn_on(1);
 			}
 		}
-		#endif /* CONFIG_LPS_LCLK */
 
 		if (DBG_CMD_EXECUTE)
 			DBG_871X(ADPT_FMT" "CMD_FMT" %sexecute\n", ADPT_ARG(pcmd->padapter), CMD_ARG(pcmd)
@@ -691,9 +687,7 @@ post_process:
 
 	}
 
-#ifdef CONFIG_LPS_LCLK
 	rtw_unregister_cmd_alive(padapter);
-#endif
 
 	/* free all cmd_obj resources */
 	do {
@@ -860,15 +854,11 @@ u8 rtw_sitesurvey_cmd(_adapter  *padapter, NDIS_802_11_SSID *ssid, int ssid_num,
 
 _func_enter_;
 
-#ifdef CONFIG_LPS
-	if(check_fwstate(pmlmepriv, _FW_LINKED) == _TRUE){
+	if (check_fwstate(pmlmepriv, _FW_LINKED))
 		rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_SCAN, 1);
-	}
-#endif
 
-	if (check_fwstate(pmlmepriv, _FW_LINKED) == _TRUE) {
+	if (check_fwstate(pmlmepriv, _FW_LINKED))
 		p2p_ps_wk_cmd(padapter, P2P_PS_SCAN, 1);
-	}
 
 	ph2c = (struct cmd_obj*)rtw_zmalloc(sizeof(struct cmd_obj));
 	if (ph2c == NULL)
@@ -2401,7 +2391,6 @@ u8 traffic_status_watchdog(_adapter *padapter, u8 from_timer)
 		rtw_lock_traffic_suspend_timeout(TRAFFIC_PROTECT_PERIOD_MS);
 	}
 
-#ifdef CONFIG_LPS
 		// check traffic for  powersaving.
 		if( ((pmlmepriv->LinkDetectInfo.NumRxUnicastOkInPeriod + pmlmepriv->LinkDetectInfo.NumTxOkInPeriod) > 8 ) ||
 #ifdef CONFIG_LPS_SLOW_TRANSITION			
@@ -2500,11 +2489,7 @@ u8 traffic_status_watchdog(_adapter *padapter, u8 from_timer)
 				rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_TRAFFIC_BUSY, 1);
 		}
 	
-#endif // CONFIG_LPS
-	}
-	else
-	{
-#ifdef CONFIG_LPS
+	} else {
 		struct dvobj_priv *dvobj = adapter_to_dvobj(padapter);
 		int n_assoc_iface = 0;
 		int i;
@@ -2516,7 +2501,6 @@ u8 traffic_status_watchdog(_adapter *padapter, u8 from_timer)
 
 		if(!from_timer && n_assoc_iface == 0)
 			LPS_Leave(padapter, "NON_LINKED");
-#endif
 	}
 
 	session_tracker_chk_cmd(padapter, NULL);
@@ -2566,14 +2550,11 @@ void dynamic_chk_wk_hdl(_adapter *padapter)
 
 	//check_hw_pbc(padapter, pdrvextra_cmd->pbuf, pdrvextra_cmd->type);
 	
-#ifdef CONFIG_IPS_CHECK_IN_WD
 	//always call rtw_ps_processor() at last one.
 	if (is_primary_adapter(padapter))
 		rtw_ps_processor(padapter);
-#endif
 }
 
-#ifdef CONFIG_LPS
 
 void lps_ctrl_wk_hdl(_adapter *padapter, u8 lps_ctrl_type);
 void lps_ctrl_wk_hdl(_adapter *padapter, u8 lps_ctrl_type)
@@ -2745,9 +2726,7 @@ void rtw_lps_change_dtim_hdl(_adapter *padapter, u8 dtim)
 	if(dtim <=0 || dtim > 16)
 		return;
 
-#ifdef CONFIG_LPS_LCLK
 	_enter_pwrlock(&pwrpriv->lock);
-#endif
 
 	if(pwrpriv->dtim!=dtim)
 	{
@@ -2766,13 +2745,10 @@ void rtw_lps_change_dtim_hdl(_adapter *padapter, u8 dtim)
 		rtw_hal_set_hwreg(padapter, HW_VAR_H2C_FW_PWRMODE, (u8 *)(&ps_mode));
 	}
 	
-#ifdef CONFIG_LPS_LCLK
 	_exit_pwrlock(&pwrpriv->lock);
-#endif
 
 }
 
-#endif
 
 u8 rtw_lps_change_dtim_cmd(_adapter*padapter, u8 dtim)
 {
@@ -3902,7 +3878,6 @@ u8 rtw_drvextra_cmd_hdl(_adapter *padapter, unsigned char *pbuf)
 		case POWER_SAVING_CTRL_WK_CID:
 			power_saving_wk_hdl(padapter);
 			break;
-#ifdef CONFIG_LPS
 		case LPS_CTRL_WK_CID:
 			lps_ctrl_wk_hdl(padapter, (u8)pdrvextra_cmd->type);
 			break;
@@ -3912,7 +3887,6 @@ u8 rtw_drvextra_cmd_hdl(_adapter *padapter, unsigned char *pbuf)
 		case LPS_CHANGE_DTIM_CID:
 			rtw_lps_change_dtim_hdl(padapter, (u8)pdrvextra_cmd->type);
 			break;
-#endif
 #if (RATE_ADAPTIVE_SUPPORT==1)
 		case RTP_TIMER_CFG_WK_CID:
 			rpt_timer_setting_wk_hdl(padapter, pdrvextra_cmd->type);

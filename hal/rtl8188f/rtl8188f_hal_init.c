@@ -3613,11 +3613,6 @@ static void rtl8188f_fill_default_txdesc(
 			DBG_8192C(FUNC_ADPT_FMT ": SP Packet(0x%04X) rate=0x%x\n",
 					  FUNC_ADPT_ARG(padapter), pattrib->ether_type, MRateToHwRate(pmlmeext->tx_rate));
 		}
-
-#if defined(CONFIG_USB_TX_AGGREGATION)
-		SET_TX_DESC_USB_TXAGG_NUM_8188F(pbuf, pxmitframe->agg_num);
-#endif
-
 	} else if (pxmitframe->frame_tag == MGNT_FRAMETAG) {
 		/* RT_TRACE(_module_hal_xmit_c_, _drv_notice_, ("%s: MGNT_FRAMETAG\n", __func__)); */
 
@@ -5209,9 +5204,7 @@ void rtl8188f_set_hal_ops(struct hal_ops *pHalFunc)
 	pHalFunc->get_tx_power_index_handler = &PHY_GetTxPowerIndex_8188F;
 
 	pHalFunc->hal_dm_watchdog = &rtl8188f_HalDmWatchDog;
-#ifdef CONFIG_LPS_LCLK_WD_TIMER
 	pHalFunc->hal_dm_watchdog_in_lps = &rtl8188f_HalDmWatchDog_in_LPS;
-#endif /* CONFIG_LPS_LCLK_WD_TIMER */
 
 	pHalFunc->SetHwRegHandlerWithBuf = &SetHwRegWithBuf8188F;
 

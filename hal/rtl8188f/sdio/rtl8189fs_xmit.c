@@ -132,9 +132,7 @@ query_free_page:
 		goto free_xmitbuf;
 	}
 
-#ifdef CONFIG_CHECK_LEAVE_LPS
 	traffic_check_for_leave_lps(padapter, _TRUE, pxmitbuf->agg_num);
-#endif 
 
 	rtw_write_port(padapter, deviceId, pxmitbuf->len, (u8 *)pxmitbuf);
 
@@ -188,20 +186,15 @@ s32 rtl8188fs_xmit_buf_handler(PADAPTER padapter)
 	if(queue_pending == _FALSE)
 		return _SUCCESS;
 
-#ifdef CONFIG_LPS_LCLK
 	ret = rtw_register_tx_alive(padapter);
-	if (ret != _SUCCESS) {
+	if (ret != _SUCCESS)
 		return _SUCCESS;
-	}
-#endif
 
 	do {
 		queue_empty = rtl8188fs_dequeue_writeport(padapter);
 	} while ( !queue_empty);
 
-#ifdef CONFIG_LPS_LCLK
 	rtw_unregister_tx_alive(padapter);
-#endif
 
 	return _SUCCESS;
 }

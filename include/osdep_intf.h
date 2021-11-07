@@ -98,10 +98,8 @@ void rtw_ndev_notifier_unregister(void);
 
 void rtw_ips_dev_unload(_adapter *padapter);
 
-#ifdef CONFIG_IPS
 int rtw_ips_pwr_up(_adapter *padapter);
 void rtw_ips_pwr_down(_adapter *padapter);
-#endif
 
 void rtw_ndev_destructor(_nic_hdl ndev);
 
