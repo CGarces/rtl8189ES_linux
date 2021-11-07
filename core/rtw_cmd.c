@@ -2385,7 +2385,6 @@ u8 traffic_status_watchdog(_adapter *padapter, u8 from_timer)
 				bHigherBusyTxTraffic = _TRUE;
 		}
 
-#ifdef CONFIG_TRAFFIC_PROTECT
 #define TX_ACTIVE_TH 10
 #define RX_ACTIVE_TH 20
 #define TRAFFIC_PROTECT_PERIOD_MS 4500
@@ -2401,7 +2400,6 @@ u8 traffic_status_watchdog(_adapter *padapter, u8 from_timer)
 
 		rtw_lock_traffic_suspend_timeout(TRAFFIC_PROTECT_PERIOD_MS);
 	}
-#endif
 
 #ifdef CONFIG_LPS
 		// check traffic for  powersaving.

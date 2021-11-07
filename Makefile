@@ -23,22 +23,20 @@ endif
 
 EXTRA_CFLAGS += -I$(src)/include
 EXTRA_CFLAGS += -I$(src)/hal/phydm
-EXTRA_CFLAGS += -DRTW_USE_CFG80211_STA_EVENT
-
 EXTRA_LDFLAGS += --strip-debug
 
 ########################## Features ###########################
 CONFIG_MP_INCLUDED = y
-CONFIG_TRAFFIC_PROTECT = y
 CONFIG_TXPWR_BY_RATE_EN = y
 CONFIG_TXPWR_LIMIT_EN = n
-CONFIG_BR_EXT = y
 
 export TopDIR ?= $(shell pwd)
 
 ########### COMMON  #################################
 
 HCI_NAME = sdio
+RTL871X = rtl8188f
+MODULE_NAME = 8189fs
 
 _OS_INTFS_FILES :=	os_dep/osdep_service.o \
 			os_dep/linux/os_intfs.o \
@@ -51,13 +49,13 @@ _OS_INTFS_FILES :=	os_dep/osdep_service.o \
 			os_dep/linux/ioctl_cfg80211.o \
 			os_dep/linux/rtw_cfgvendor.o \
 			os_dep/linux/wifi_regd.o \
-			os_dep/linux/rtw_proc.o
+			os_dep/linux/rtw_proc.o \
+			os_dep/linux/$(HCI_NAME)_ops_linux.o
 
 ifeq ($(CONFIG_MP_INCLUDED), y)
 _OS_INTFS_FILES += os_dep/linux/ioctl_mp.o
 endif
 
-_OS_INTFS_FILES += os_dep/linux/$(HCI_NAME)_ops_linux.o
 
 
 
@@ -68,8 +66,22 @@ _HAL_INTFS_FILES :=	hal/hal_intf.o \
 			hal/hal_dm.o \
 			hal/hal_mp.o \
 			hal/hal_hci/hal_$(HCI_NAME).o \
-			hal/led/hal_$(HCI_NAME)_led.o
-
+			hal/led/hal_$(HCI_NAME)_led.o \
+			hal/HalPwrSeqCmd.o \
+			hal/$(RTL871X)/Hal8188FPwrSeq.o\
+			hal/$(RTL871X)/$(RTL871X)_sreset.o \
+			hal/$(RTL871X)/$(RTL871X)_hal_init.o \
+			hal/$(RTL871X)/$(RTL871X)_phycfg.o \
+			hal/$(RTL871X)/$(RTL871X)_rf6052.o \
+			hal/$(RTL871X)/$(RTL871X)_dm.o \
+			hal/$(RTL871X)/$(RTL871X)_rxdesc.o \
+			hal/$(RTL871X)/$(RTL871X)_cmd.o \
+			hal/$(RTL871X)/$(HCI_NAME)/$(HCI_NAME)_halinit.o \
+			hal/$(RTL871X)/$(HCI_NAME)/rtl$(MODULE_NAME)_led.o \
+			hal/$(RTL871X)/$(HCI_NAME)/rtl$(MODULE_NAME)_xmit.o \
+			hal/$(RTL871X)/$(HCI_NAME)/rtl$(MODULE_NAME)_recv.o \
+			hal/$(RTL871X)/$(HCI_NAME)/$(HCI_NAME)_ops.o \
+			hal/efuse/$(RTL871X)/HalEfuseMask8188F_SDIO.o
 			
 _OUTSRC_FILES := hal/phydm/phydm_debug.o	\
 		hal/phydm/phydm_interface.o\
@@ -85,37 +97,16 @@ _OUTSRC_FILES := hal/phydm/phydm_debug.o	\
 		hal/phydm/phydm_cfotracking.o\
 		hal/phydm/phydm_noisemonitor.o\
 		hal/phydm/phydm_acs.o\
+		hal/phydm/$(RTL871X)/halhwimg8188f_bb.o\
+		hal/phydm/$(RTL871X)/halhwimg8188f_mac.o\
+		hal/phydm/$(RTL871X)/halhwimg8188f_rf.o\
+		hal/phydm/$(RTL871X)/halhwimg8188f_fw.o\
+		hal/phydm/$(RTL871X)/phydm_regconfig8188f.o\
+		hal/phydm/$(RTL871X)/halphyrf_8188f.o \
+		hal/phydm/$(RTL871X)/phydm_rtl8188f.o
+
 
 EXTRA_CFLAGS += -I$(src)/platform
-
-RTL871X = rtl8188f
-MODULE_NAME = 8189fs
-
-EXTRA_CFLAGS += -DCONFIG_RTL8188F
-
-_HAL_INTFS_FILES += hal/HalPwrSeqCmd.o \
-			hal/$(RTL871X)/Hal8188FPwrSeq.o\
-			hal/$(RTL871X)/$(RTL871X)_sreset.o \
-			hal/$(RTL871X)/$(RTL871X)_hal_init.o \
-			hal/$(RTL871X)/$(RTL871X)_phycfg.o \
-			hal/$(RTL871X)/$(RTL871X)_rf6052.o \
-			hal/$(RTL871X)/$(RTL871X)_dm.o \
-			hal/$(RTL871X)/$(RTL871X)_rxdesc.o \
-			hal/$(RTL871X)/$(RTL871X)_cmd.o \
-			hal/$(RTL871X)/$(HCI_NAME)/$(HCI_NAME)_halinit.o \
-			hal/$(RTL871X)/$(HCI_NAME)/rtl$(MODULE_NAME)_led.o \
-			hal/$(RTL871X)/$(HCI_NAME)/rtl$(MODULE_NAME)_xmit.o \
-			hal/$(RTL871X)/$(HCI_NAME)/rtl$(MODULE_NAME)_recv.o \
-			hal/$(RTL871X)/$(HCI_NAME)/$(HCI_NAME)_ops.o \
-			hal/efuse/$(RTL871X)/HalEfuseMask8188F_SDIO.o
-
-_OUTSRC_FILES += hal/phydm/$(RTL871X)/halhwimg8188f_bb.o\
-								hal/phydm/$(RTL871X)/halhwimg8188f_mac.o\
-								hal/phydm/$(RTL871X)/halhwimg8188f_rf.o\
-								hal/phydm/$(RTL871X)/halhwimg8188f_fw.o\
-								hal/phydm/$(RTL871X)/phydm_regconfig8188f.o\
-								hal/phydm/$(RTL871X)/halphyrf_8188f.o \
-								hal/phydm/$(RTL871X)/phydm_rtl8188f.o
 
 ########### END OF PATH  #################################
 
@@ -141,10 +132,6 @@ else
 EXTRA_CFLAGS += -DWIFIMAC_PATH=\"/data/wifimac.txt\"
 endif
 
-ifeq ($(CONFIG_TRAFFIC_PROTECT), y)
-EXTRA_CFLAGS += -DCONFIG_TRAFFIC_PROTECT
-endif
-
 EXTRA_CFLAGS += -DREALTEK_CONFIG_PATH=\"\"
 
 ifeq ($(CONFIG_TXPWR_BY_RATE_EN), n)
@@ -163,11 +150,7 @@ else ifeq ($(CONFIG_TXPWR_LIMIT_EN), auto)
 EXTRA_CFLAGS += -DCONFIG_TXPWR_LIMIT_EN=2
 endif
 
-BR_NAME = br0
-EXTRA_CFLAGS += '-DCONFIG_BR_EXT_BRNAME="'$(BR_NAME)'"'
-
 EXTRA_CFLAGS += -DDM_ODM_SUPPORT_TYPE=0x04
-EXTRA_CFLAGS += -DRTW_USE_CFG80211_STA_EVENT
 SUBARCH := $(shell uname -m | sed -e s/i.86/i386/)
 ARCH ?= $(SUBARCH)
 CROSS_COMPILE ?=

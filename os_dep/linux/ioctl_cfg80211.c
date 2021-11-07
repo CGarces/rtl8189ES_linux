@@ -3076,120 +3076,31 @@ static int cfg80211_rtw_flush_pmksa(struct wiphy *wiphy,
 
 void rtw_cfg80211_indicate_sta_assoc(_adapter *padapter, u8 *pmgmt_frame, uint frame_len)
 {
-	s32 freq;
-	int channel;
-	struct wireless_dev *pwdev = padapter->rtw_wdev;
-	struct mlme_ext_priv *pmlmeext = &(padapter->mlmeextpriv);	
+	u8 ie_offset;
 	struct net_device *ndev = padapter->pnetdev;
 
 	DBG_871X(FUNC_ADPT_FMT"\n", FUNC_ADPT_ARG(padapter));
 
-#if defined(RTW_USE_CFG80211_STA_EVENT) || defined(COMPAT_KERNEL_RELEASE)
-	{
-		struct station_info sinfo = {
-			.filled = STATION_INFO_ASSOC_REQ_IES,
-		};
-		u8 ie_offset;
-		if (GetFrameSubType(pmgmt_frame) == WIFI_ASSOCREQ)
-			ie_offset = _ASOCREQ_IE_OFFSET_;
-		else // WIFI_REASSOCREQ
-			ie_offset = _REASOCREQ_IE_OFFSET_;
-	
-		sinfo.assoc_req_ies = pmgmt_frame + WLAN_HDR_A3_LEN + ie_offset;
-		sinfo.assoc_req_ies_len = frame_len - WLAN_HDR_A3_LEN - ie_offset;
-		cfg80211_new_sta(ndev, GetAddr2Ptr(pmgmt_frame), &sinfo, GFP_ATOMIC);
-	}
-#else /* defined(RTW_USE_CFG80211_STA_EVENT) */
-	channel = pmlmeext->cur_channel;
-	freq = rtw_ch2freq(channel);
+	struct station_info sinfo = {
+		.filled = STATION_INFO_ASSOC_REQ_IES,
+	};
+	if (GetFrameSubType(pmgmt_frame) == WIFI_ASSOCREQ)
+		ie_offset = _ASOCREQ_IE_OFFSET_;
+	else // WIFI_REASSOCREQ
+		ie_offset = _REASOCREQ_IE_OFFSET_;
 
-	#ifdef COMPAT_KERNEL_RELEASE
-	rtw_cfg80211_rx_mgmt(padapter, freq, 0, pmgmt_frame, frame_len, GFP_ATOMIC);
-	#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,37))
-	rtw_cfg80211_rx_mgmt(padapter, freq, 0, pmgmt_frame, frame_len, GFP_ATOMIC);
-	#else //COMPAT_KERNEL_RELEASE
-	{
-		//to avoid WARN_ON(wdev->iftype != NL80211_IFTYPE_STATION)  when calling cfg80211_send_rx_assoc()
-		pwdev->iftype = NL80211_IFTYPE_STATION;
-		DBG_8192C("iftype=%d before call cfg80211_send_rx_assoc()\n", pwdev->iftype);
-		rtw_cfg80211_send_rx_assoc(padapter, NULL, pmgmt_frame, frame_len);
-		DBG_8192C("iftype=%d after call cfg80211_send_rx_assoc()\n", pwdev->iftype);
-		pwdev->iftype = NL80211_IFTYPE_AP;
-		//cfg80211_rx_action(padapter->pnetdev, freq, pmgmt_frame, frame_len, GFP_ATOMIC);
-	}
-	#endif //COMPAT_KERNEL_RELEASE
-#endif /* defined(RTW_USE_CFG80211_STA_EVENT) */
-
+	sinfo.assoc_req_ies = pmgmt_frame + WLAN_HDR_A3_LEN + ie_offset;
+	sinfo.assoc_req_ies_len = frame_len - WLAN_HDR_A3_LEN - ie_offset;
+	cfg80211_new_sta(ndev, GetAddr2Ptr(pmgmt_frame), &sinfo, GFP_ATOMIC);
 }
 
-void rtw_cfg80211_indicate_sta_disassoc(_adapter *padapter, unsigned char *da, unsigned short reason)
-{
-	s32 freq;
-	int channel;
-	u8 *pmgmt_frame;
-	uint frame_len;
-	struct rtw_ieee80211_hdr *pwlanhdr;
-	unsigned short *fctrl;	
-	u8 mgmt_buf[128] = {0};
-	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
-	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
+void rtw_cfg80211_indicate_sta_disassoc(_adapter *padapter, unsigned char *da, unsigned short reason) {
+
 	struct net_device *ndev = padapter->pnetdev;
 	
 	DBG_871X(FUNC_ADPT_FMT"\n", FUNC_ADPT_ARG(padapter));
 
-#if defined(RTW_USE_CFG80211_STA_EVENT) || defined(COMPAT_KERNEL_RELEASE)
 	cfg80211_del_sta(ndev, da, GFP_ATOMIC);
-#else /* defined(RTW_USE_CFG80211_STA_EVENT) */
-	channel = pmlmeext->cur_channel;
-	freq = rtw_ch2freq(channel);
-
-	pmgmt_frame = mgmt_buf;	
-	pwlanhdr = (struct rtw_ieee80211_hdr *)pmgmt_frame;
-
-	fctrl = &(pwlanhdr->frame_ctl);
-	*(fctrl) = 0;
-
-	_rtw_memcpy(pwlanhdr->addr1, adapter_mac_addr(padapter), ETH_ALEN);
-	_rtw_memcpy(pwlanhdr->addr2, da, ETH_ALEN);	
-	_rtw_memcpy(pwlanhdr->addr3, get_my_bssid(&(pmlmeinfo->network)), ETH_ALEN);
-
-	SetSeqNum(pwlanhdr, pmlmeext->mgnt_seq);
-	pmlmeext->mgnt_seq++;
-	SetFrameSubType(pmgmt_frame, WIFI_DEAUTH);
-
-	pmgmt_frame += sizeof(struct rtw_ieee80211_hdr_3addr);
-	frame_len = sizeof(struct rtw_ieee80211_hdr_3addr);
-
-	reason = cpu_to_le16(reason);
-	pmgmt_frame = rtw_set_fixed_ie(pmgmt_frame, _RSON_CODE_ , (unsigned char *)&reason, &frame_len);
-
-	#ifdef COMPAT_KERNEL_RELEASE
-	rtw_cfg80211_rx_mgmt(padapter, freq, 0, mgmt_buf, frame_len, GFP_ATOMIC);
-	#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,37))
-	rtw_cfg80211_rx_mgmt(padapter, freq, 0, mgmt_buf, frame_len, GFP_ATOMIC);
-	#else //COMPAT_KERNEL_RELEASE
-	cfg80211_send_disassoc(padapter->pnetdev, mgmt_buf, frame_len);	
-	//cfg80211_rx_action(padapter->pnetdev, freq, mgmt_buf, frame_len, GFP_ATOMIC);
-	#endif //COMPAT_KERNEL_RELEASE
-#endif /* defined(RTW_USE_CFG80211_STA_EVENT) */
-}
-
-static int rtw_cfg80211_monitor_if_open(struct net_device *ndev)
-{
-	int ret = 0;
-
-	DBG_8192C("%s\n", __func__);
-	
-	return ret;
-}
-
-static int rtw_cfg80211_monitor_if_close(struct net_device *ndev)
-{
-	int ret = 0;
-
-	DBG_8192C("%s\n", __func__);
-	
-	return ret;
 }
 
 static int rtw_cfg80211_monitor_if_xmit_entry(struct sk_buff *skb, struct net_device *ndev)
@@ -3349,24 +3260,15 @@ static void rtw_cfg80211_monitor_if_set_multicast_list(struct net_device *ndev)
 	DBG_8192C("%s\n", __func__);
 }
 
-static int rtw_cfg80211_monitor_if_set_mac_address(struct net_device *ndev, void *addr)
-{
-	int ret = 0;
-	
-	DBG_8192C("%s\n", __func__);
-	
-	return ret;
-}
-
 #if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,29))
 static const struct net_device_ops rtw_cfg80211_monitor_if_ops = {
-	.ndo_open = rtw_cfg80211_monitor_if_open,
-       .ndo_stop = rtw_cfg80211_monitor_if_close,
+	.ndo_open = 0,
+       .ndo_stop = 0,
        .ndo_start_xmit = rtw_cfg80211_monitor_if_xmit_entry,
        #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,2,0))
        .ndo_set_multicast_list = rtw_cfg80211_monitor_if_set_multicast_list,
        #endif
-       .ndo_set_mac_address = rtw_cfg80211_monitor_if_set_mac_address,       
+       .ndo_set_mac_address = 0,       
 };
 #endif
 
@@ -3411,10 +3313,10 @@ static int rtw_cfg80211_add_monitor_if(_adapter *padapter, char *name, struct ne
 #if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,29))
 	mon_ndev->netdev_ops = &rtw_cfg80211_monitor_if_ops;
 #else
-	mon_ndev->open = rtw_cfg80211_monitor_if_open;
-	mon_ndev->stop = rtw_cfg80211_monitor_if_close;
+	mon_ndev->open = 0;
+	mon_ndev->stop = 0;
 	mon_ndev->hard_start_xmit = rtw_cfg80211_monitor_if_xmit_entry;
-	mon_ndev->set_mac_address = rtw_cfg80211_monitor_if_set_mac_address;
+	mon_ndev->set_mac_address = 0;
 #endif
 
 	pnpi = netdev_priv(mon_ndev);
