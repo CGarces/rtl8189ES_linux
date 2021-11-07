@@ -419,48 +419,26 @@ static int search_p2p_wfd_ie(_adapter *padapter,
 	if(p && ht_ielen>0)		
 		ht_cap = _TRUE;			
 
-	#ifdef CONFIG_80211AC_VHT
-	//parsing VHT_CAP_IE
-	p = rtw_get_ie(&pnetwork->network.IEs[ie_offset], EID_VHTCapability, &vht_ielen, pnetwork->network.IELength-ie_offset);
-	if(p && vht_ielen>0)
-		vht_cap = _TRUE;	
-	#endif
 	 /* Add the protocol name */
 	iwe->cmd = SIOCGIWNAME;
-	if ((rtw_is_cckratesonly_included((u8*)&pnetwork->network.SupportedRates)) == _TRUE)		
-	{
-		if(ht_cap == _TRUE)
+	if (rtw_is_cckratesonly_included((u8*)&pnetwork->network.SupportedRates)) {
+		if (ht_cap)
 			snprintf(iwe->u.name, IFNAMSIZ, "IEEE 802.11bn");
 		else
 			snprintf(iwe->u.name, IFNAMSIZ, "IEEE 802.11b");
-	}	
-	else if ((rtw_is_cckrates_included((u8*)&pnetwork->network.SupportedRates)) == _TRUE)	
-	{
-		if(ht_cap == _TRUE)
+	} else if (rtw_is_cckrates_included((u8*)&pnetwork->network.SupportedRates))	{
+		if (ht_cap)
 			snprintf(iwe->u.name, IFNAMSIZ, "IEEE 802.11bgn");
 		else
 			snprintf(iwe->u.name, IFNAMSIZ, "IEEE 802.11bg");
-	}	
-	else
-	{
-		if(pnetwork->network.Configuration.DSConfig > 14)
-		{
-			#ifdef CONFIG_80211AC_VHT
-			if(vht_cap == _TRUE){
-				snprintf(iwe->u.name, IFNAMSIZ, "IEEE 802.11AC");
-			}
-			else 
-			#endif	
-			{
-				if(ht_cap == _TRUE)
-					snprintf(iwe->u.name, IFNAMSIZ, "IEEE 802.11an");
-				else
-					snprintf(iwe->u.name, IFNAMSIZ, "IEEE 802.11a");
-			}
-		}
-		else
-		{
-			if(ht_cap == _TRUE)
+	} else {
+		if(pnetwork->network.Configuration.DSConfig > 14) {
+			if (ht_cap)
+				snprintf(iwe->u.name, IFNAMSIZ, "IEEE 802.11an");
+			else
+				snprintf(iwe->u.name, IFNAMSIZ, "IEEE 802.11a");
+		} else {
+			if(ht_cap)
 				snprintf(iwe->u.name, IFNAMSIZ, "IEEE 802.11gn");
 			else
 				snprintf(iwe->u.name, IFNAMSIZ, "IEEE 802.11g");
@@ -485,8 +463,7 @@ static int search_p2p_wfd_ie(_adapter *padapter,
  	
 	//parsing HT_CAP_IE	
 	p = rtw_get_ie(&pnetwork->network.IEs[ie_offset], _HT_CAPABILITY_IE_, &ht_ielen, pnetwork->network.IELength-ie_offset);	
-	if(p && ht_ielen>0)
-	{
+	if (p && ht_ielen>0) {
 		struct rtw_ieee80211_ht_cap *pht_capie;
 		ht_cap = _TRUE;			
 		pht_capie = (struct rtw_ieee80211_ht_cap *)(p+2);		
@@ -495,32 +472,10 @@ static int search_p2p_wfd_ie(_adapter *padapter,
 		short_GI = (pht_capie->cap_info&(IEEE80211_HT_CAP_SGI_20|IEEE80211_HT_CAP_SGI_40)) ? 1:0;
 	}
 
-#ifdef CONFIG_80211AC_VHT
-	//parsing VHT_CAP_IE
-	p = rtw_get_ie(&pnetwork->network.IEs[ie_offset], EID_VHTCapability, &vht_ielen, pnetwork->network.IELength-ie_offset);
-	if(p && vht_ielen>0)
-	{
-		u8	mcs_map[2];
-
-		vht_cap = _TRUE;		
-		bw_160MHz = GET_VHT_CAPABILITY_ELE_CHL_WIDTH(p+2);
-		if(bw_160MHz)
-			short_GI = GET_VHT_CAPABILITY_ELE_SHORT_GI160M(p+2);
-		else
-			short_GI = GET_VHT_CAPABILITY_ELE_SHORT_GI80M(p+2);
-
-		_rtw_memcpy(mcs_map, GET_VHT_CAPABILITY_ELE_TX_MCS(p+2), 2);
-
-		vht_highest_rate = rtw_get_vht_highest_rate(mcs_map);
-		vht_data_rate = rtw_vht_mcs_to_data_rate(CHANNEL_WIDTH_80, short_GI, vht_highest_rate);
-	}
-#endif	
-	
 	/*Add basic and extended rates */	
 	p = custom;
 	p += snprintf(p, MAX_CUSTOM_LEN - (p - custom), " Rates (Mb/s): ");
-	while(pnetwork->network.SupportedRates[i]!=0)
-	{
+	while (pnetwork->network.SupportedRates[i]!=0) {
 		rate = pnetwork->network.SupportedRates[i]&0x7F; 
 		if (rate > max_rate)
 			max_rate = rate;
@@ -528,26 +483,15 @@ static int search_p2p_wfd_ie(_adapter *padapter,
 			      "%d%s ", rate >> 1, (rate & 1) ? ".5" : "");
 		i++;
 	}
-#ifdef CONFIG_80211AC_VHT
-	if(vht_cap == _TRUE) {
-		max_rate = vht_data_rate;
-	}
-	else
-#endif		
-	if(ht_cap == _TRUE)
-	{
-		if(mcs_rate&0x8000)//MCS15
-		{
+		
+	if (ht_cap) {
+		if(mcs_rate&0x8000) //MCS15
 			max_rate = (bw_40MHz) ? ((short_GI)?300:270):((short_GI)?144:130);
-			
-		}
-		else if(mcs_rate&0x0080)//MCS7
-		{
+		else if(mcs_rate&0x0080) {
+			//MCS7
 			max_rate = (bw_40MHz) ? ((short_GI)?150:135):((short_GI)?72:65);
-		}
-		else//default MCS7
-		{
-			//DBG_871X("wx_get_scan, mcs_rate_bitmap=0x%x\n", mcs_rate);
+		} else {
+			//default MCS7
 			max_rate = (bw_40MHz) ? ((short_GI)?150:135):((short_GI)?72:65);
 		}
 
@@ -1166,59 +1110,34 @@ static int rtw_wx_get_name(struct net_device *dev,
 		//parsing HT_CAP_IE
 		p = rtw_get_ie(&pcur_bss->IEs[12], _HT_CAPABILITY_IE_, &ht_ielen, pcur_bss->IELength-12);
 		if(p && ht_ielen>0)
-		{
 			ht_cap = _TRUE;
-		}
-
-#ifdef CONFIG_80211AC_VHT
-		if(pmlmepriv->vhtpriv.vht_option == _TRUE)
-			vht_cap = _TRUE;
-#endif
 
 		prates = &pcur_bss->SupportedRates;
 
-		if (rtw_is_cckratesonly_included((u8*)prates) == _TRUE)
-		{
-			if(ht_cap == _TRUE)
+		if (rtw_is_cckratesonly_included((u8*)prates)) {
+			if (ht_cap)
 				snprintf(wrqu->name, IFNAMSIZ, "IEEE 802.11bn");
 			else
 				snprintf(wrqu->name, IFNAMSIZ, "IEEE 802.11b");
-		}
-		else if ((rtw_is_cckrates_included((u8*)prates)) == _TRUE)
-		{
-			if(ht_cap == _TRUE)
+		} else if (rtw_is_cckrates_included((u8*)prates)) {
+			if (ht_cap)
 				snprintf(wrqu->name, IFNAMSIZ, "IEEE 802.11bgn");
 			else
 				snprintf(wrqu->name, IFNAMSIZ, "IEEE 802.11bg");
-		}
-		else
-		{
-			if(pcur_bss->Configuration.DSConfig > 14)
-			{
-			#ifdef CONFIG_80211AC_VHT
-				if(vht_cap == _TRUE){
-					snprintf(wrqu->name, IFNAMSIZ, "IEEE 802.11AC");
-				}
+		} else {
+			if(pcur_bss->Configuration.DSConfig > 14) {
+				if (ht_cap)
+					snprintf(wrqu->name, IFNAMSIZ, "IEEE 802.11an");
 				else
-			#endif
-				{
-					if(ht_cap == _TRUE)
-						snprintf(wrqu->name, IFNAMSIZ, "IEEE 802.11an");
-					else
-						snprintf(wrqu->name, IFNAMSIZ, "IEEE 802.11a");
-				}
-			}
-			else
-			{
-				if(ht_cap == _TRUE)
+					snprintf(wrqu->name, IFNAMSIZ, "IEEE 802.11a");
+			} else {
+				if (ht_cap)
 					snprintf(wrqu->name, IFNAMSIZ, "IEEE 802.11gn");
 				else
 					snprintf(wrqu->name, IFNAMSIZ, "IEEE 802.11g");
 			}
 		}
-	}
-	else
-	{
+	} else {
 		//prates = &padapter->registrypriv.dev_network.SupportedRates;
 		//snprintf(wrqu->name, IFNAMSIZ, "IEEE 802.11g");
 		snprintf(wrqu->name, IFNAMSIZ, "unassociated");

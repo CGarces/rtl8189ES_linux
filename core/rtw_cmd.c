@@ -1342,9 +1342,7 @@ u8 rtw_joinbss_cmd(_adapter  *padapter, struct wlan_network* pnetwork)
 	struct security_priv	*psecuritypriv=&padapter->securitypriv;
 	struct registry_priv	*pregistrypriv = &padapter->registrypriv;
 	struct ht_priv			*phtpriv = &pmlmepriv->htpriv;
-#ifdef CONFIG_80211AC_VHT
-	struct vht_priv		*pvhtpriv = &pmlmepriv->vhtpriv;
-#endif //CONFIG_80211AC_VHT
+
 	NDIS_802_11_NETWORK_INFRASTRUCTURE ndis_network_mode = pnetwork->network.InfrastructureMode;
 	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
@@ -1485,20 +1483,7 @@ _func_enter_;
 		}
 	}
 
-#ifdef CONFIG_80211AC_VHT
-	pvhtpriv->vht_option = _FALSE;
-	if (phtpriv->ht_option
-		&& REGSTY_IS_11AC_ENABLE(pregistrypriv)
-		&& hal_chk_proto_cap(padapter, PROTO_CAP_11AC)
-		&& (!pmlmepriv->country_ent || COUNTRY_CHPLAN_EN_11AC(pmlmepriv->country_ent))
-	) {
-		rtw_restructure_vht_ie(padapter, &pnetwork->network.IEs[0], &psecnetwork->IEs[0], 
-								pnetwork->network.IELength, &psecnetwork->IELength);
-	}
-#endif
-
 	rtw_append_exented_cap(padapter, &psecnetwork->IEs[0], &psecnetwork->IELength);
-
 
 	pcmd->cmdsz = sizeof(WLAN_BSSID_EX);
 

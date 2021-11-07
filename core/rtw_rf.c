@@ -546,11 +546,7 @@ const u8 _band_to_band_cap[] = {
 	0,
 };
 
-#ifdef CONFIG_80211AC_VHT
-#define COUNTRY_CHPLAN_ASSIGN_EN_11AC(_val) , .en_11ac = (_val)
-#else
 #define COUNTRY_CHPLAN_ASSIGN_EN_11AC(_val)
-#endif
 
 #define COUNTRY_CHPLAN_ASSIGN_DEF_MODULE_FLAGS(_val)
 

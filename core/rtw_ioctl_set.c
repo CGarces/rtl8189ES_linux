@@ -1240,16 +1240,8 @@ u16 rtw_get_cur_max_rate(_adapter *adapter)
 			short_GI,
 			psta->htpriv.ht_cap.supp_mcs_set
 		);
-	}
-#ifdef CONFIG_80211AC_VHT
-	else if (IsSupportedVHT(psta->wireless_mode)) {
-		max_rate = ((rtw_vht_mcs_to_data_rate(psta->bw_mode, short_GI, pmlmepriv->vhtpriv.vht_highest_rate) + 1) >> 1) * 10;
-	}
-#endif //CONFIG_80211AC_VHT
-	else 
-	{
-		while( (pcur_bss->SupportedRates[i]!=0) && (pcur_bss->SupportedRates[i]!=0xFF))
-		{
+	} else {
+		while ((pcur_bss->SupportedRates[i]!=0) && (pcur_bss->SupportedRates[i]!=0xFF)) {
 			rate = pcur_bss->SupportedRates[i]&0x7F;
 			if(rate>max_rate)
 				max_rate = rate;

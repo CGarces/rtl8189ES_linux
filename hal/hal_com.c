@@ -1165,17 +1165,14 @@ u8  rtw_hal_networktype_to_raid(_adapter *adapter, struct sta_info *psta)
 }
 u8 rtw_get_mgntframe_raid(_adapter *adapter,unsigned char network_type)
 {	
-
 	u8 raid;
 	if(IS_NEW_GENERATION_IC(adapter)){
 		
 		raid = (network_type & WIRELESS_11B)	?RATEID_IDX_B
 											:RATEID_IDX_G;		
-	}
-	else{
+	} else
 		raid = (network_type & WIRELESS_11B)	?RATR_INX_WIRELESS_B
 											:RATR_INX_WIRELESS_G;		
-	}	
 	return raid;
 }
 
@@ -1185,54 +1182,40 @@ void rtw_hal_update_sta_rate_mask(PADAPTER padapter, struct sta_info *psta)
 	u64	tx_ra_bitmap;
 
 	if(psta == NULL)
-	{
 		return;
-	}
 
 	tx_ra_bitmap = 0;
 
 	//b/g mode ra_bitmap  
-	for (i=0; i<sizeof(psta->bssrateset); i++)
-	{
+	for (i=0; i<sizeof(psta->bssrateset); i++) {
 		if (psta->bssrateset[i])
 			tx_ra_bitmap |= rtw_get_bit_value_from_ieee_value(psta->bssrateset[i]&0x7f);
 	}
 
-#ifdef CONFIG_80211AC_VHT
-	//AC mode ra_bitmap
-	if(psta->vhtpriv.vht_option) 
-	{
-		tx_ra_bitmap |= (rtw_vht_rate_to_bitmap(psta->vhtpriv.vht_mcs_map) << 12);
-	}
-	else
-#endif //CONFIG_80211AC_VHT
-	{
-		//n mode ra_bitmap
-		if(psta->htpriv.ht_option)
-		{
-			rf_type = RF_1T1R;
-			rtw_hal_get_hwreg(padapter, HW_VAR_RF_TYPE, (u8 *)(&rf_type));
-			if(rf_type == RF_2T2R)
-				limit=16;// 2R
-			else if(rf_type == RF_3T3R)
-				limit=24;// 3R
-			else
-				limit=8;//  1R
+	//n mode ra_bitmap
+	if (psta->htpriv.ht_option) {
+		rf_type = RF_1T1R;
+		rtw_hal_get_hwreg(padapter, HW_VAR_RF_TYPE, (u8 *)(&rf_type));
+		if(rf_type == RF_2T2R)
+			limit=16;// 2R
+		else if(rf_type == RF_3T3R)
+			limit=24;// 3R
+		else
+			limit=8;//  1R
 
 
-			/* Handling SMPS mode for AP MODE only*/
-			if (check_fwstate(&padapter->mlmepriv, WIFI_AP_STATE) == _TRUE) {
-				/*0:static SMPS, 1:dynamic SMPS, 3:SMPS disabled, 2:reserved*/
-				if (psta->htpriv.smps_cap == 0 || psta->htpriv.smps_cap == 1) {
-					/*operate with only one active receive chain // 11n-MCS rate <= MSC7*/
-					limit = 8;/*  1R*/
-				}
+		/* Handling SMPS mode for AP MODE only*/
+		if (check_fwstate(&padapter->mlmepriv, WIFI_AP_STATE) == _TRUE) {
+			/*0:static SMPS, 1:dynamic SMPS, 3:SMPS disabled, 2:reserved*/
+			if (psta->htpriv.smps_cap == 0 || psta->htpriv.smps_cap == 1) {
+				/*operate with only one active receive chain // 11n-MCS rate <= MSC7*/
+				limit = 8;/*  1R*/
 			}
+		}
 
-			for (i=0; i<limit; i++) {
-				if (psta->htpriv.ht_cap.supp_mcs_set[i/8] & BIT(i%8))
-					tx_ra_bitmap |= BIT(i+12);
-			}
+		for (i=0; i<limit; i++) {
+			if (psta->htpriv.ht_cap.supp_mcs_set[i/8] & BIT(i%8))
+				tx_ra_bitmap |= BIT(i+12);
 		}
 	}
 	DBG_871X("supp_mcs_set = %02x, %02x, %02x, rf_type=%d, tx_ra_bitmap=%016llx\n"

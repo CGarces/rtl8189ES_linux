@@ -188,12 +188,6 @@ struct registry_priv
 	u8	beamformer_rf_num;
 	u8	beamformee_rf_num;
 
-#ifdef CONFIG_80211AC_VHT
-	u8	vht_enable; //0:disable, 1:enable, 2:auto
-	u8	ampdu_factor;
-	u8	vht_rate_sel;
-#endif //CONFIG_80211AC_VHT
-
 	u8	lowrate_two_xmit;
 
 	u8	rf_config ;
