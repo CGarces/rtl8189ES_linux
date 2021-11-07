@@ -50,9 +50,7 @@ typedef struct _ADAPTER _adapter, ADAPTER,*PADAPTER;
 #include <rtw_debug.h>
 #include <rtw_rf.h>
 
-#ifdef CONFIG_80211N_HT
 #include <rtw_ht.h>
-#endif
 
 #include <rtw_cmd.h>
 #include <cmd_osdep.h>
@@ -167,7 +165,6 @@ struct registry_priv
 
 	u8 tx_bw_mode;
 
-#ifdef CONFIG_80211N_HT
 	u8	ht_enable;
 	// 0: 20 MHz, 1: 40 MHz, 2: 80 MHz, 3: 160MHz
 	// 2.4G use bit 0 ~ 3, 5G use bit 4 ~ 7
@@ -190,7 +187,6 @@ struct registry_priv
 	u8	beamform_cap;
 	u8	beamformer_rf_num;
 	u8	beamformee_rf_num;
-#endif //CONFIG_80211N_HT
 
 #ifdef CONFIG_80211AC_VHT
 	u8	vht_enable; //0:disable, 1:enable, 2:auto
@@ -226,9 +222,7 @@ struct registry_priv
 	char	adaptor_info_caching_file_path[PATH_LENGTH_MAX];
 #endif
 
-#ifdef CONFIG_LAYER2_ROAMING
 	u8	max_roaming_times; // the max number driver will try to roaming
-#endif
 
 #ifdef CONFIG_IOL
 	u8 fw_iol; //enable iol without other concern

@@ -180,29 +180,14 @@ _pkt *rtw_os_alloc_msdu_pkt(union recv_frame *prframe, u16 nSubframe_Length, u8 
 
 	pattrib = &prframe->u.hdr.attrib;
 
-#ifdef CONFIG_SKB_COPY
-	sub_skb = rtw_skb_alloc(nSubframe_Length + 12);
-	if(sub_skb)
-	{
-		skb_reserve(sub_skb, 12);
-		data_ptr = (u8 *)skb_put(sub_skb, nSubframe_Length);
-		_rtw_memcpy(data_ptr, (pdata + ETH_HLEN), nSubframe_Length);
-	}
-	else
-#endif // CONFIG_SKB_COPY
-	{
-		sub_skb = rtw_skb_clone(prframe->u.hdr.pkt);
-		if(sub_skb)
-		{
-			sub_skb->data = pdata + ETH_HLEN;
-			sub_skb->len = nSubframe_Length;
-			skb_set_tail_pointer(sub_skb, nSubframe_Length);
-		}
-		else
-		{
-			DBG_871X("%s(): rtw_skb_clone() Fail!!!\n",__FUNCTION__);
-			return NULL;
-		}
+	sub_skb = rtw_skb_clone(prframe->u.hdr.pkt);
+	if(sub_skb) {
+		sub_skb->data = pdata + ETH_HLEN;
+		sub_skb->len = nSubframe_Length;
+		skb_set_tail_pointer(sub_skb, nSubframe_Length);
+	} else {
+		DBG_871X("%s(): rtw_skb_clone() Fail!!!\n",__FUNCTION__);
+		return NULL;
 	}
 
 	eth_type = RTW_GET_BE16(&sub_skb->data[6]);

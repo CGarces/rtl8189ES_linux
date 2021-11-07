@@ -44,11 +44,7 @@
 
 typedef struct _RT_FIRMWARE {
 	FIRMWARE_SOURCE	eFWSource;
-#ifdef CONFIG_EMBEDDED_FWIMG
 	u8*			szFwBuffer;
-#else
-	u8			szFwBuffer[FW_8188F_SIZE];
-#endif
 	u32			ulFwLength;
 } RT_FIRMWARE_8188F, *PRT_FIRMWARE_8188F;
 
@@ -201,9 +197,7 @@ void Hal_EfuseParseXtal_8188F(PADAPTER pAdapter, u8 *hwinfo, u8 AutoLoadFail);
 void Hal_EfuseParseThermalMeter_8188F(PADAPTER padapter, u8 *hwinfo, u8 AutoLoadFail);
 void Hal_EfuseParseKFreeData_8188F(PADAPTER pAdapter, u8 *hwinfo, BOOLEAN AutoLoadFail);
 
-#ifdef CONFIG_C2H_PACKET_EN
 void rtl8188f_c2h_packet_handler(PADAPTER padapter, u8 *pbuf, u16 length);
-#endif
 
 void rtl8188f_set_pll_ref_clk_sel(_adapter *adapter, u8 sel);
 
@@ -211,9 +205,7 @@ void rtl8188f_set_hal_ops(struct hal_ops *pHalFunc);
 void init_hal_spec_8188f(_adapter *adapter);
 void SetHwReg8188F(PADAPTER padapter, u8 variable, u8 *val);
 void GetHwReg8188F(PADAPTER padapter, u8 variable, u8 *val);
-#ifdef CONFIG_C2H_PACKET_EN
 void SetHwRegWithBuf8188F(PADAPTER padapter, u8 variable, u8 *pbuf, int len);
-#endif // CONFIG_C2H_PACKET_EN
 u8 SetHalDefVar8188F(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval);
 u8 GetHalDefVar8188F(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval);
 

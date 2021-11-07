@@ -1256,7 +1256,6 @@ static struct seq_operations seq_ops_tx_power_idx = {
 	.show  = proc_get_tx_power_idx,
 };
 
-#ifdef CONFIG_RF_GAIN_OFFSET
 static int proc_get_kfree_flag(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
@@ -1443,7 +1442,6 @@ static ssize_t proc_set_tx_gain_offset(struct file *file, const char __user *buf
 
 	return count;
 }
-#endif /* CONFIG_RF_GAIN_OFFSET */
 
 #ifdef CONFIG_AUTO_CHNL_SEL_NHM
 static int proc_get_best_chan(struct seq_file *m, void *v)
@@ -1534,11 +1532,9 @@ const struct rtw_proc_hdl adapter_proc_hdls[] = {
 	RTW_PROC_HDL_SSEQ("sec_cam_cache", proc_get_sec_cam_cache, NULL),
 	RTW_PROC_HDL_SSEQ("suspend_info", proc_get_suspend_resume_info, NULL),
 	RTW_PROC_HDL_SSEQ("wifi_spec", proc_get_wifi_spec, NULL),
-#ifdef CONFIG_LAYER2_ROAMING
 	RTW_PROC_HDL_SSEQ("roam_flags", proc_get_roam_flags, proc_set_roam_flags),
 	RTW_PROC_HDL_SSEQ("roam_param", proc_get_roam_param, proc_set_roam_param),
 	RTW_PROC_HDL_SSEQ("roam_tgt_addr", NULL, proc_set_roam_tgt_addr),
-#endif /* CONFIG_LAYER2_ROAMING */
 
 	RTW_PROC_HDL_SSEQ("sd_f0_reg_dump", proc_get_sd_f0_reg_dump, NULL),
 	RTW_PROC_HDL_SSEQ("sdio_local_reg_dump", proc_get_sdio_local_reg_dump, NULL),
@@ -1564,7 +1560,6 @@ const struct rtw_proc_hdl adapter_proc_hdls[] = {
 	RTW_PROC_HDL_SSEQ("rx_signal", proc_get_rx_signal, proc_set_rx_signal),
 	RTW_PROC_HDL_SSEQ("hw_info", proc_get_hw_status, NULL),
 
-#ifdef CONFIG_80211N_HT
 	RTW_PROC_HDL_SSEQ("ht_enable", proc_get_ht_enable, proc_set_ht_enable),
 	RTW_PROC_HDL_SSEQ("bw_mode", proc_get_bw_mode, proc_set_bw_mode),
 	RTW_PROC_HDL_SSEQ("ampdu_enable", proc_get_ampdu_enable, proc_set_ampdu_enable),
@@ -1573,7 +1568,6 @@ const struct rtw_proc_hdl adapter_proc_hdls[] = {
 	RTW_PROC_HDL_SSEQ("rx_ampdu_factor", proc_get_rx_ampdu_factor, proc_set_rx_ampdu_factor),
 	RTW_PROC_HDL_SSEQ("rx_ampdu_density", proc_get_rx_ampdu_density, proc_set_rx_ampdu_density),
 	RTW_PROC_HDL_SSEQ("tx_ampdu_density", proc_get_tx_ampdu_density, proc_set_tx_ampdu_density),
-#endif /* CONFIG_80211N_HT */
 
 	RTW_PROC_HDL_SSEQ("en_fwps", proc_get_en_fwps, proc_set_en_fwps),
 	RTW_PROC_HDL_SSEQ("mac_rptbuf", proc_get_mac_rptbuf, NULL),
@@ -1621,12 +1615,10 @@ const struct rtw_proc_hdl adapter_proc_hdls[] = {
 	RTW_PROC_HDL_SSEQ("tx_power_limit", proc_get_tx_power_limit, NULL),
 	RTW_PROC_HDL_SSEQ("tx_power_ext_info", proc_get_tx_power_ext_info, proc_set_tx_power_ext_info),
 	RTW_PROC_HDL_SEQ("tx_power_idx", &seq_ops_tx_power_idx, NULL),
-#ifdef CONFIG_RF_GAIN_OFFSET
 	RTW_PROC_HDL_SSEQ("tx_gain_offset", NULL, proc_set_tx_gain_offset),
 	RTW_PROC_HDL_SSEQ("kfree_flag", proc_get_kfree_flag, proc_set_kfree_flag),
 	RTW_PROC_HDL_SSEQ("kfree_bb_gain", proc_get_kfree_bb_gain, proc_set_kfree_bb_gain),
 	RTW_PROC_HDL_SSEQ("kfree_thermal", proc_get_kfree_thermal, proc_set_kfree_thermal),
-#endif
 	RTW_PROC_HDL_SSEQ("ps_info", proc_get_ps_info, NULL),
 
 	RTW_PROC_HDL_SSEQ("monitor", proc_get_monitor, proc_set_monitor),

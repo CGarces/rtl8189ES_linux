@@ -393,11 +393,7 @@ struct bb_reg_param {
 
 typedef struct _MP_FIRMWARE {
 	FIRMWARE_SOURCE eFWSource;
-#ifdef CONFIG_EMBEDDED_FWIMG
 	u8* 		szFwBuffer;
-#else
-	u8			szFwBuffer[0x8000];
-#endif
 	u32 		ulFwLength;
 } RT_MP_FIRMWARE, *PRT_MP_FIRMWARE;
 
@@ -618,12 +614,10 @@ typedef enum	_MPT_TXPWR_DEF{
 	MPT_VHT
 }MPT_TXPWR_DEF;
 
-#ifdef CONFIG_RF_GAIN_OFFSET
 
 #define 	REG_RF_BB_GAIN_OFFSET	0x55
 #define 	RF_GAIN_OFFSET_MASK 	0xfffff
 
-#endif //CONFIG_RF_GAIN_OFFSET
 
 #define IS_MPT_HT_RATE(_rate)			(_rate >= MPT_RATE_MCS0 && _rate <= MPT_RATE_MCS31)
 #define IS_MPT_VHT_RATE(_rate)			(_rate >= MPT_RATE_VHT1SS_MCS0 && _rate <= MPT_RATE_VHT4SS_MCS9)

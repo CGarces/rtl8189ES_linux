@@ -208,9 +208,7 @@ uint	 rtw_hal_init(_adapter *padapter)
 
                 rtw_hal_init_opmode(padapter);
 		
-#ifdef CONFIG_RF_GAIN_OFFSET
 		rtw_bb_rf_gain_offset(padapter);
-#endif //CONFIG_RF_GAIN_OFFSET
 
 	} else {
 		pHalData->hw_init_completed = _FALSE;
@@ -257,13 +255,11 @@ void rtw_hal_get_hwreg(_adapter *padapter, u8 variable, u8 *val)
 	padapter->HalFunc.GetHwRegHandler(padapter, variable, val);
 }
 
-#ifdef CONFIG_C2H_PACKET_EN
 void rtw_hal_set_hwreg_with_buf(_adapter *padapter, u8 variable, u8 *pbuf, int len)
 {
 	if (padapter->HalFunc.SetHwRegHandlerWithBuf)
 		padapter->HalFunc.SetHwRegHandlerWithBuf(padapter, variable, pbuf, len);
 }
-#endif
 
 u8 rtw_hal_set_def_var(_adapter *padapter, HAL_DEF_VARIABLE eVariable, PVOID pValue)
 {	
@@ -570,12 +566,10 @@ int rtw_hal_iol_cmd(ADAPTER *adapter, struct xmit_frame *xmit_frame, u32 max_wat
 }
 #endif
 
-#ifdef CONFIG_XMIT_THREAD_MODE
 s32 rtw_hal_xmit_thread_handler(_adapter *padapter)
 {	
 	return padapter->HalFunc.xmit_thread_handler(padapter);
 }
-#endif
 
 #ifdef CONFIG_RECV_THREAD_MODE
 s32 rtw_hal_recv_hdl(_adapter *adapter)
@@ -779,12 +773,10 @@ u8 rtw_hal_ops_check(_adapter *padapter)
 		rtw_hal_error_msg("mgnt_xmit");
 		ret = _FAIL;
 	}
-	#ifdef CONFIG_XMIT_THREAD_MODE
 	if (NULL == padapter->HalFunc.xmit_thread_handler) {
 		rtw_hal_error_msg("xmit_thread_handler");
 		ret = _FAIL;
 	}
-	#endif
 	if (NULL == padapter->HalFunc.hal_xmitframe_enqueue) {
 		rtw_hal_error_msg("hal_xmitframe_enqueue");
 		ret = _FAIL;

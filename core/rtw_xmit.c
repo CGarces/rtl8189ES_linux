@@ -292,16 +292,13 @@ _func_enter_;
 	rtw_alloc_hwxmits(padapter);
 	rtw_init_hwxmits(pxmitpriv->hwxmits, pxmitpriv->hwxmit_entry);
 
-        for (i = 0; i < 4; i ++)
-	{
+    for (i = 0; i < 4; i ++) {
 		pxmitpriv->wmm_para_seq[i] = i;
 	}
 
-#ifdef CONFIG_XMIT_ACK
 	pxmitpriv->ack_tx = _FALSE;
 	_rtw_mutex_init(&pxmitpriv->ack_tx_mutex);
 	rtw_sctx_init(&pxmitpriv->ack_tx_ops, 0);	
-#endif
 
 	rtw_hal_init_xmit_priv(padapter);
 
@@ -407,9 +404,7 @@ void _rtw_free_xmit_priv (struct xmit_priv *pxmitpriv)
 
 	rtw_free_hwxmits(padapter);
 
-#ifdef CONFIG_XMIT_ACK	
 	_rtw_mutex_free(&pxmitpriv->ack_tx_mutex);	
-#endif	
 
 out:	
 
@@ -694,14 +689,12 @@ u8 query_ra_short_GI(struct sta_info *psta, u8 bw)
 {
 	u8	sgi = _FALSE, sgi_20m = _FALSE, sgi_40m = _FALSE, sgi_80m = _FALSE;
 
-#ifdef CONFIG_80211N_HT
 #ifdef CONFIG_80211AC_VHT
 	if (psta->vhtpriv.vht_option)
 		sgi_80m = psta->vhtpriv.sgi_80m;
 #endif
 	sgi_20m = psta->htpriv.sgi_20m;
 	sgi_40m = psta->htpriv.sgi_40m;
-#endif
 
 	switch (bw) {
 	case CHANNEL_WIDTH_80:
@@ -871,7 +864,6 @@ static void update_attrib_phy_info(_adapter *padapter, struct pkt_attrib *pattri
 	pattrib->ldpc = psta->ldpc;
 	pattrib->stbc = psta->stbc;
 
-#ifdef CONFIG_80211N_HT
 	pattrib->ht_en = psta->htpriv.ht_option;
 	pattrib->ch_offset = psta->htpriv.ch_offset;
 	pattrib->ampdu_en = _FALSE;
@@ -880,7 +872,6 @@ static void update_attrib_phy_info(_adapter *padapter, struct pkt_attrib *pattri
 		pattrib->ampdu_spacing = padapter->driver_ampdu_spacing;
 	else
 		pattrib->ampdu_spacing = psta->htpriv.rx_ampdu_min_spacing;
-#endif //CONFIG_80211N_HT
 	//if(pattrib->ht_en && psta->htpriv.ampdu_enable)
 	//{
 	//	if(psta->htpriv.agg_enable_bitmap & BIT(pattrib->priority))
@@ -1632,7 +1623,6 @@ _func_enter_;
 
 				SetSeqNum(hdr, pattrib->seqnum);
 
-#ifdef CONFIG_80211N_HT
 				//check if enable ampdu
 				if(pattrib->ht_en && psta->htpriv.ampdu_enable)
 				{
@@ -1667,7 +1657,6 @@ _func_enter_;
 					}
 
 				}
-#endif //CONFIG_80211N_HT
 			}
 		}
 		
@@ -2342,9 +2331,7 @@ void rtw_init_xmitframe(struct xmit_frame *pxframe)
 		pxframe->pg_num = 1;
 		pxframe->agg_num = 1;
 
-#ifdef CONFIG_XMIT_ACK
 		pxframe->ack_report = 0;
-#endif
 
 	}
 }
@@ -3904,7 +3891,6 @@ exit:
 }
 
 
-#ifdef CONFIG_XMIT_THREAD_MODE
 void enqueue_pending_xmitbuf(
 	struct xmit_priv *pxmitpriv,
 	struct xmit_buf *pxmitbuf)
@@ -4051,7 +4037,6 @@ thread_return rtw_xmit_thread(thread_context context)
 
 	thread_exit();
 }
-#endif
 
 bool rtw_xmit_ac_blocked(_adapter *adapter)
 {
@@ -4153,7 +4138,6 @@ void rtw_sctx_done(struct submit_ctx **sctx)
 	rtw_sctx_done_err(sctx, RTW_SCTX_DONE_SUCCESS);
 }
 
-#ifdef CONFIG_XMIT_ACK
 
 #ifdef CONFIG_XMIT_ACK_POLLING
 s32 c2h_evt_hdl(_adapter *adapter, u8 *c2h_evt, c2h_id_filter filter);
@@ -4231,5 +4215,4 @@ void rtw_ack_tx_done(struct xmit_priv *pxmitpriv, int status)
 		DBG_871X("%s ack_tx not set\n", __func__);
 	}
 }
-#endif //CONFIG_XMIT_ACK
 

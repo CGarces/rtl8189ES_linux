@@ -21,13 +21,11 @@
 #define _RTW_XMIT_H_
 
 
-#ifdef CONFIG_TX_AGGREGATION
 #define MAX_XMITBUF_SZ	(20480)	// 20k
 //#define SDIO_TX_AGG_MAX	5
 
 #define NR_XMITBUFF	(16)
 
-#endif
 
 #define XMITBUF_ALIGN_SZ 512
 
@@ -334,9 +332,7 @@ struct xmit_frame
 	u8	pg_num;
 	u8	agg_num;
 
-#ifdef CONFIG_XMIT_ACK
 	u8 ack_report;
-#endif
 
 	u8 *alloc_addr; /* the actual address this xmitframe allocated */
 	u8 ext_tag; /* 0:data, 1:mgmt */
@@ -483,12 +479,10 @@ struct	xmit_priv	{
 	struct agg_pkt_info agg_pkt[MAX_AGG_PKT_NUM];
 	#endif
 
-#ifdef CONFIG_XMIT_ACK
 	int	ack_tx;
 	_mutex ack_tx_mutex;
 	struct submit_ctx ack_tx_ops;
 	u8 seq_no;
-#endif
 	_lock lock_sctx;
 };
 
@@ -564,22 +558,18 @@ u8 query_ra_short_GI(struct sta_info *psta, u8 bw);
 
 u8	qos_acm(u8 acm_mask, u8 priority);
 
-#ifdef CONFIG_XMIT_THREAD_MODE
 void	enqueue_pending_xmitbuf(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf);
 void enqueue_pending_xmitbuf_to_head(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf);
 struct xmit_buf*	dequeue_pending_xmitbuf(struct xmit_priv *pxmitpriv);
 struct xmit_buf*	dequeue_pending_xmitbuf_under_survey(struct xmit_priv *pxmitpriv);
 sint	check_pending_xmitbuf(struct xmit_priv *pxmitpriv);
 thread_return	rtw_xmit_thread(thread_context context);
-#endif
 
 static void do_queue_select(_adapter * padapter, struct pkt_attrib * pattrib);
 u32	rtw_get_ff_hwaddr(struct xmit_frame	*pxmitframe);
 
-#ifdef CONFIG_XMIT_ACK
 int rtw_ack_tx_wait(struct xmit_priv *pxmitpriv, u32 timeout_ms);
 void rtw_ack_tx_done(struct xmit_priv *pxmitpriv, int status);
-#endif //CONFIG_XMIT_ACK
 
 
 //include after declaring struct xmit_buf, in order to avoid warning

@@ -1220,9 +1220,7 @@ u16 rtw_get_cur_max_rate(_adapter *adapter)
 	WLAN_BSSID_EX	*pcur_bss = &pmlmepriv->cur_network.network;
 	struct sta_info *psta = NULL;
 	u8	short_GI=0;
-#ifdef CONFIG_80211N_HT
 	u8	rf_type = 0;
-#endif
 
 #ifdef CONFIG_MP_INCLUDED
 	if (adapter->registrypriv.mp_mode == 1)
@@ -1242,7 +1240,6 @@ u16 rtw_get_cur_max_rate(_adapter *adapter)
 
 	short_GI = query_ra_short_GI(psta, psta->bw_mode);
 
-#ifdef CONFIG_80211N_HT
 	if (IsSupportedHT(psta->wireless_mode)) {
 		rtw_hal_get_hwreg(adapter, HW_VAR_RF_TYPE, (u8 *)(&rf_type));
 
@@ -1259,7 +1256,6 @@ u16 rtw_get_cur_max_rate(_adapter *adapter)
 	}
 #endif //CONFIG_80211AC_VHT
 	else 
-#endif //CONFIG_80211N_HT
 	{
 		while( (pcur_bss->SupportedRates[i]!=0) && (pcur_bss->SupportedRates[i]!=0xFF))
 		{

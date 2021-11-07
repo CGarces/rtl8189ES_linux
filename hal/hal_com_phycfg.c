@@ -2870,13 +2870,11 @@ int phy_load_tx_power_by_rate(_adapter *adapter, u8 chk_file)
 		goto post_hdl;
 	}
 
-#ifdef CONFIG_EMBEDDED_FWIMG
 	if (HAL_STATUS_SUCCESS == ODM_ConfigBBWithHeaderFile(&hal_data->odmpriv, CONFIG_BB_PHY_REG_PG)) {
 		RTW_INFO("default power by rate loaded\n");
 		hal_data->txpwr_by_rate_from_file = 0;
 		goto post_hdl;
 	}
-#endif
 
 	RTW_ERR("%s():Read Tx power by rate fail\n", __func__);
 	goto exit;
@@ -2917,13 +2915,11 @@ int phy_load_tx_power_limit(_adapter *adapter, u8 chk_file)
 		goto post_hdl;
 	}
 
-#ifdef CONFIG_EMBEDDED_FWIMG
 	if (HAL_STATUS_SUCCESS == ODM_ConfigRFWithHeaderFile(&hal_data->odmpriv, CONFIG_RF_TXPWR_LMT, (ODM_RF_RADIO_PATH_E)0)) {
 		RTW_INFO("default power limit loaded\n");
 		hal_data->txpwr_limit_from_file = 0;
 		goto post_hdl;
 	}
-#endif
 
 	RTW_ERR("%s():Read Tx power limit fail\n", __func__);
 	goto exit;
@@ -3437,50 +3433,30 @@ phy_ConfigBBWithParaFile(
 	if (rtStatus == _SUCCESS)
 	{
 		ptmp = pHalData->para_file_buf;
-		for (szLine = GetLineFromBuffer(ptmp); szLine != NULL; szLine = GetLineFromBuffer(ptmp))
-		{
-			if(!IsCommentString(szLine))
-			{
+		for (szLine = GetLineFromBuffer(ptmp); szLine != NULL; szLine = GetLineFromBuffer(ptmp)) {
+			if(!IsCommentString(szLine)) {
 				// Get 1st hex value as register offset.
-				if(GetHexValueFromString(szLine, &u4bRegOffset, &u4bMove))
-				{
-					if(u4bRegOffset == 0xffff)
-					{ // Ending.
+				if(GetHexValueFromString(szLine, &u4bRegOffset, &u4bMove)) {
+					if(u4bRegOffset == 0xffff) { 
+						// Ending.
 						break;
-					}
-					else if (u4bRegOffset == 0xfe || u4bRegOffset == 0xffe)
-					{
-						#ifdef CONFIG_LONG_DELAY_ISSUE
+					} else if (u4bRegOffset == 0xfe || u4bRegOffset == 0xffe) {
 						rtw_msleep_os(50);
-						#else
-						rtw_mdelay_os(50);
-						#endif
-					}
-					else if (u4bRegOffset == 0xfd)
-					{
+					} else if (u4bRegOffset == 0xfd) {
 						rtw_mdelay_os(5);
-					}
-					else if (u4bRegOffset == 0xfc)
-					{
+					} else if (u4bRegOffset == 0xfc) {
 						rtw_mdelay_os(1);
-					}
-					else if (u4bRegOffset == 0xfb)
-					{
+					} else if (u4bRegOffset == 0xfb) {
 						rtw_udelay_os(50);
-					}
-					else if (u4bRegOffset == 0xfa)
-					{
+					} else if (u4bRegOffset == 0xfa) {
 						rtw_udelay_os(5);
-					}
-					else if (u4bRegOffset == 0xf9)
-					{
+					} else if (u4bRegOffset == 0xf9) {
 						rtw_udelay_os(1);
 					}
 					
 					// Get 2nd hex value as register value.
 					szLine += u4bMove;
-					if(GetHexValueFromString(szLine, &u4bRegValue, &u4bMove))
-					{
+					if (GetHexValueFromString(szLine, &u4bRegValue, &u4bMove)) {
 						//DBG_871X("[BB-ADDR]%03lX=%08lX\n", u4bRegOffset, u4bRegValue);
 						PHY_SetBBReg(Adapter, u4bRegOffset, bMaskDWord, u4bRegValue);
 
@@ -3493,11 +3469,8 @@ phy_ConfigBBWithParaFile(
 				}
 			}
 		}
-	}
-	else
-	{
+	} else
 		DBG_871X("%s(): No File %s, Load from HWImg Array!\n", __FUNCTION__, pFileName);
-	}
 
 	return rtStatus;
 }
@@ -3937,48 +3910,29 @@ phy_ConfigBBWithMpParaFile(
 		ptmp = pHalData->para_file_buf;
 		for (szLine = GetLineFromBuffer(ptmp); szLine != NULL; szLine = GetLineFromBuffer(ptmp))
 		{
-			if(!IsCommentString(szLine))
-			{
+			if (!IsCommentString(szLine)) {
 				// Get 1st hex value as register offset.
-				if(GetHexValueFromString(szLine, &u4bRegOffset, &u4bMove))
-				{
-					if(u4bRegOffset == 0xffff)
-					{ // Ending.
+				if (GetHexValueFromString(szLine, &u4bRegOffset, &u4bMove)) {
+					if (u4bRegOffset == 0xffff) {
+						// Ending.
 						break;
-					}
-					else if (u4bRegOffset == 0xfe || u4bRegOffset == 0xffe)
-					{
-						#ifdef CONFIG_LONG_DELAY_ISSUE
+					} else if (u4bRegOffset == 0xfe || u4bRegOffset == 0xffe) {
 						rtw_msleep_os(50);
-						#else
-						rtw_mdelay_os(50);
-						#endif
-					}
-					else if (u4bRegOffset == 0xfd)
-					{
+					} else if (u4bRegOffset == 0xfd) {
 						rtw_mdelay_os(5);
-					}
-					else if (u4bRegOffset == 0xfc)
-					{
+					} else if (u4bRegOffset == 0xfc) {
 						rtw_mdelay_os(1);
-					}
-					else if (u4bRegOffset == 0xfb)
-					{
+					} else if (u4bRegOffset == 0xfb) {
 						rtw_udelay_os(50);
-					}
-					else if (u4bRegOffset == 0xfa)
-					{
+					} else if (u4bRegOffset == 0xfa) {
 						rtw_udelay_os(5);
-					}
-					else if (u4bRegOffset == 0xf9)
-					{
+					} else if (u4bRegOffset == 0xf9) {
 						rtw_udelay_os(1);
 					}
 
 					// Get 2nd hex value as register value.
 					szLine += u4bMove;
-					if(GetHexValueFromString(szLine, &u4bRegValue, &u4bMove))
-					{
+					if(GetHexValueFromString(szLine, &u4bRegValue, &u4bMove)) {
 						//DBG_871X("[ADDR]%03lX=%08lX\n", u4bRegOffset, u4bRegValue);
 						PHY_SetBBReg(Adapter, u4bRegOffset, bMaskDWord, u4bRegValue);
 
@@ -3988,11 +3942,8 @@ phy_ConfigBBWithMpParaFile(
 				}
 			}
 		}
-	}
-	else
-	{
+	} else
 		DBG_871X("%s(): No File %s, Load from HWImg Array!\n", __FUNCTION__, pFileName);
-	}
 
 	return rtStatus;
 }
@@ -4081,52 +4032,33 @@ PHY_ConfigRFWithParaFile(
 		ptmp = pHalData->para_file_buf;
 		for (szLine = GetLineFromBuffer(ptmp); szLine != NULL; szLine = GetLineFromBuffer(ptmp))
 		{
-			if(!IsCommentString(szLine))
-			{
+			if (!IsCommentString(szLine)) {
 				// Get 1st hex value as register offset.
-				if(GetHexValueFromString(szLine, &u4bRegOffset, &u4bMove))
-				{
-			 		if(u4bRegOffset == 0xfe || u4bRegOffset == 0xffe)
-					{ // Deay specific ms. Only RF configuration require delay.												
-						#ifdef CONFIG_LONG_DELAY_ISSUE
+				if(GetHexValueFromString(szLine, &u4bRegOffset, &u4bMove)) {
+			 		if(u4bRegOffset == 0xfe || u4bRegOffset == 0xffe) {
+						// Deay specific ms. Only RF configuration require delay.												
 						rtw_msleep_os(50);
-						#else
-						rtw_mdelay_os(50);
-						#endif
-					}
-					else if (u4bRegOffset == 0xfd)
-					{
+					} else if (u4bRegOffset == 0xfd) {
 						//delay_ms(5);
 						for(i=0;i<100;i++)
 							rtw_udelay_os(MAX_STALL_TIME);
-					}
-					else if (u4bRegOffset == 0xfc)
-					{
+					} else if (u4bRegOffset == 0xfc) {
 						//delay_ms(1);
 						for(i=0;i<20;i++)
 							rtw_udelay_os(MAX_STALL_TIME);
-					}
-					else if (u4bRegOffset == 0xfb)
-					{
+					} else if (u4bRegOffset == 0xfb) {
 						rtw_udelay_os(50);
-					}
-					else if (u4bRegOffset == 0xfa)
-					{
+					} else if (u4bRegOffset == 0xfa) {
 						rtw_udelay_os(5);
-					}
-					else if (u4bRegOffset == 0xf9)
-					{
+					} else if (u4bRegOffset == 0xf9) {
 						rtw_udelay_os(1);
-					}
-					else if(u4bRegOffset == 0xffff)
-					{
+					} else if(u4bRegOffset == 0xffff) {
 						break;					
 					}
 					
 					// Get 2nd hex value as register value.
 					szLine += u4bMove;
-					if(GetHexValueFromString(szLine, &u4bRegValue, &u4bMove))
-					{
+					if(GetHexValueFromString(szLine, &u4bRegValue, &u4bMove)) {
 						PHY_SetRFReg(Adapter, eRFPath, u4bRegOffset, bRFRegOffsetMask, u4bRegValue);
 						
 						// Temp add, for frequency lock, if no delay, that may cause
@@ -4142,11 +4074,8 @@ PHY_ConfigRFWithParaFile(
 				}
 			}
 		}
-	}
-	else
-	{
+	} else
 		DBG_871X("%s(): No File %s, Load from HWImg Array!\n", __FUNCTION__, pFileName);
-	}
 
 	return rtStatus;
 }

@@ -31,23 +31,15 @@ odm_ConfigRFReg_8188F(
 	IN	u4Byte				    RegAddr
 	)
 {
-    if(Addr == 0xfe || Addr == 0xffe)
-	{ 					  
-		#ifdef CONFIG_LONG_DELAY_ISSUE
+    if (Addr == 0xfe || Addr == 0xffe)
 		ODM_sleep_ms(50);
-		#else		
-		ODM_delay_ms(50);
-		#endif
-	}
-	else
-	{
+	else {
 		ODM_SetRFReg(pDM_Odm, RF_PATH, RegAddr, bRFRegOffsetMask, Data);
 		// Add 1us delay between BB/RF register setting.
 		ODM_delay_us(1);
 
 		//For disable/enable test in high temperature, the B6 value will fail to fill. Suggestion by BB Stanley, 2013.06.25.
-		if(Addr == 0xb6)
-		{
+		if (Addr == 0xb6) {
 			u4Byte getvalue=0;
 			u1Byte	count =0;
 			getvalue = ODM_GetRFReg(pDM_Odm, RF_PATH, Addr, bMaskDWord);	
@@ -66,8 +58,7 @@ odm_ConfigRFReg_8188F(
 			}
 		}
 
-		if(Addr == 0xb2)
-		{
+		if (Addr == 0xb2) {
 			u4Byte getvalue=0;
 			u1Byte	count =0;
 			getvalue = ODM_GetRFReg(pDM_Odm, RF_PATH, Addr, bMaskDWord);	
@@ -162,17 +153,10 @@ odm_ConfigBB_PHY_REG_PG_8188F(
 
 {    
 	if (Addr == 0xfe || Addr == 0xffe)
-		#ifdef CONFIG_LONG_DELAY_ISSUE
 		ODM_sleep_ms(50);
-		#else		
-		ODM_delay_ms(50);
-		#endif
-    else 
-    {
-#if	!(DM_ODM_SUPPORT_TYPE&ODM_AP)
+    else
 	    PHY_StoreTxPowerByRate(pDM_Odm->Adapter, Band, RfPath, TxNum, Addr, Bitmask, Data);
-#endif
-    }
+
 	ODM_RT_TRACE(pDM_Odm,ODM_COMP_INIT, ODM_DBG_LOUD, ("===> ODM_ConfigBBWithHeaderFile: [PHY_REG] %08X %08X %08X\n", Addr, Bitmask, Data));
 }
 
@@ -185,11 +169,7 @@ odm_ConfigBB_PHY_8188F(
     )
 {    
 	if (Addr == 0xfe)
-		#ifdef CONFIG_LONG_DELAY_ISSUE
 		ODM_sleep_ms(50);
-		#else		
-		ODM_delay_ms(50);
-		#endif
 	else if (Addr == 0xfd)
 		ODM_delay_ms(5);
 	else if (Addr == 0xfc)
@@ -200,11 +180,9 @@ odm_ConfigBB_PHY_8188F(
 		ODM_delay_us(5);
 	else if (Addr == 0xf9)
 		ODM_delay_us(1);
-	else 
-	{
+	else
 		ODM_SetBBReg(pDM_Odm, Addr, Bitmask, Data);		
-	}
-	
+
 	// Add 1us delay between BB/RF register setting.
 	ODM_delay_us(1);
     ODM_RT_TRACE(pDM_Odm,ODM_COMP_INIT, ODM_DBG_TRACE, ("===> ODM_ConfigBBWithHeaderFile: [PHY_REG] %08X %08X\n", Addr, Data));

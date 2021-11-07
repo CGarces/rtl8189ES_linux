@@ -1972,10 +1972,6 @@ PHY_IQCalibrate_8188F(
 	if (bSingleTone || bCarrierSuppression)
 		return;
 
-#if DISABLE_BB_RF
-	return;
-#endif
-
 	if (bRestore) {
 		u4Byte offset, data;
 		u1Byte path, bResult = SUCCESS;
@@ -2235,11 +2231,6 @@ PHY_LCCalibrate_8188F(
 	bCarrierSuppression = pMptCtx->bCarrierSuppression;
 #endif
 
-
-#if DISABLE_BB_RF
-	return;
-#endif
-
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	if (!(pDM_Odm->SupportAbility & ODM_RF_CALIBRATION))
 		return;
@@ -2282,20 +2273,8 @@ VOID phy_SetRFPathSwitch_8188F(
 		ODM_SetBBReg(pDM_Odm, 0x92C, bMaskDWord, 0x2);
 }
 
-VOID PHY_SetRFPathSwitch_8188F(
-	IN PADAPTER pAdapter,
-	IN BOOLEAN bMain
-)
-{
-
-#if DISABLE_BB_RF
-	return;
-#endif
-
-#if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
+VOID PHY_SetRFPathSwitch_8188F(IN PADAPTER pAdapter, IN BOOLEAN bMain) {
 	phy_SetRFPathSwitch_8188F(pAdapter, bMain, TRUE);
-#endif
-
 }
 
 u32 phy_psd_log2base(u32 val)

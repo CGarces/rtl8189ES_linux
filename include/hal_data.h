@@ -258,11 +258,9 @@ typedef struct hal_com_data {
 	u8	EEPROMBluetoothRadioShared;
 	u8	EEPROMMACAddr[ETH_ALEN];
 	
-#ifdef CONFIG_RF_GAIN_OFFSET
 	u8	EEPROMRFGainOffset;
 	u8	EEPROMRFGainVal;
 	struct kfree_data_t kfree_data;
-#endif /*CONFIG_RF_GAIN_OFFSET*/
 
 	u8	EfuseUsedPercentage;
 	u16	EfuseUsedBytes;

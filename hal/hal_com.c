@@ -1198,7 +1198,6 @@ void rtw_hal_update_sta_rate_mask(PADAPTER padapter, struct sta_info *psta)
 			tx_ra_bitmap |= rtw_get_bit_value_from_ieee_value(psta->bssrateset[i]&0x7f);
 	}
 
-#ifdef CONFIG_80211N_HT
 #ifdef CONFIG_80211AC_VHT
 	//AC mode ra_bitmap
 	if(psta->vhtpriv.vht_option) 
@@ -1236,7 +1235,6 @@ void rtw_hal_update_sta_rate_mask(PADAPTER padapter, struct sta_info *psta)
 			}
 		}
 	}
-#endif //CONFIG_80211N_HT
 	DBG_871X("supp_mcs_set = %02x, %02x, %02x, rf_type=%d, tx_ra_bitmap=%016llx\n"
 	, psta->htpriv.ht_cap.supp_mcs_set[0], psta->htpriv.ht_cap.supp_mcs_set[1], psta->htpriv.ht_cap.supp_mcs_set[2], rf_type, tx_ra_bitmap);
 	psta->ra_mask = tx_ra_bitmap;
@@ -4256,7 +4254,6 @@ exit:
 	return ret;
 }
 
-#ifdef CONFIG_RF_GAIN_OFFSET
 u32 Array_kfreemap[] = { 
 0x08,0xe,
 0x06,0xc,
@@ -4291,18 +4288,15 @@ void rtw_bb_rf_gain_offset(_adapter *padapter)
 	if (kfree_data->flag & KFREE_FLAG_ON)
 		rtw_rf_apply_tx_gain_offset(padapter, 6); /* input ch6 to select BB_GAIN_2G */
 }
-#endif //CONFIG_RF_GAIN_OFFSET
 
 bool kfree_data_is_bb_gain_empty(struct kfree_data_t *data)
 {
-#ifdef CONFIG_RF_GAIN_OFFSET
 	int i, j;
 
 	for (i = 0; i < BB_GAIN_NUM; i++)
 		for (j = 0; j < RF_PATH_MAX; j++)
 			if (data->bb_gain[i][j] != 0)
 				return 0;
-#endif
 	return 1;
 }
 

@@ -98,10 +98,6 @@ PHY_QueryBBReg_8188F(
 	u32	ReturnValue = 0, OriginalValue, BitShift;
 	u16	BBWaitCounter = 0;
 
-#if (DISABLE_BB_RF == 1)
-	return 0;
-#endif
-
 	/*RT_TRACE(COMP_RF, DBG_TRACE, ("--->PHY_QueryBBReg(): RegAddr(%#lx), BitMask(%#lx)\n", RegAddr, BitMask)); */
 
 	OriginalValue = rtw_read32(Adapter, RegAddr);
@@ -142,10 +138,6 @@ PHY_SetBBReg_8188F(
 	HAL_DATA_TYPE	*pHalData		= GET_HAL_DATA(Adapter);
 	/*u16			BBWaitCounter	= 0; */
 	u32			OriginalValue, BitShift;
-
-#if (DISABLE_BB_RF == 1)
-	return;
-#endif
 
 	/*RT_TRACE(COMP_RF, DBG_TRACE, ("--->PHY_SetBBReg(): RegAddr(%#lx), BitMask(%#lx), Data(%#lx)\n", RegAddr, BitMask, Data)); */
 
@@ -392,10 +384,6 @@ PHY_QueryRFReg_8188F(
 {
 	u32 Original_Value, Readback_Value, BitShift;
 
-#if (DISABLE_BB_RF == 1)
-	return 0;
-#endif
-
 	Original_Value = phy_RFSerialRead_8188F(Adapter, eRFPath, RegAddr);
 
 	BitShift =  phy_CalculateBitShift(BitMask);
@@ -432,10 +420,6 @@ PHY_SetRFReg_8188F(
 )
 {
 	u32		Original_Value, BitShift;
-
-#if (DISABLE_BB_RF == 1)
-	return;
-#endif
 
 	/* RF data is 12 bits only */
 	if (BitMask != bRFRegOffsetMask) {
@@ -479,10 +463,8 @@ s32 PHY_MACConfig8188F(PADAPTER Adapter)
 	/* */
 	rtStatus = phy_ConfigMACWithParaFile(Adapter, PHY_FILE_MAC_REG);
 	if (rtStatus == _FAIL) {
-#ifdef CONFIG_EMBEDDED_FWIMG
 		ODM_ConfigMACWithHeaderFile(&pHalData->odmpriv);
 		rtStatus = _SUCCESS;
-#endif/*CONFIG_EMBEDDED_FWIMG */
 	}
 
 	return rtStatus;
@@ -546,10 +528,8 @@ phy_BB8188f_Config_ParaFile(
 	/* */
 	if (phy_ConfigBBWithParaFile(Adapter, PHY_FILE_PHY_REG, CONFIG_BB_PHY_REG) == _FAIL)
 	{
-#ifdef CONFIG_EMBEDDED_FWIMG
 		if (HAL_STATUS_SUCCESS != ODM_ConfigBBWithHeaderFile(&pHalData->odmpriv, CONFIG_BB_PHY_REG))
 			rtStatus = _FAIL;
-#endif
 	}
 
 	if (rtStatus != _SUCCESS) {
@@ -564,10 +544,8 @@ phy_BB8188f_Config_ParaFile(
 		/* */
 		if (phy_ConfigBBWithMpParaFile(Adapter, PHY_FILE_PHY_REG_MP) == _FAIL)
 		{
-#ifdef CONFIG_EMBEDDED_FWIMG
 			if (HAL_STATUS_SUCCESS != ODM_ConfigBBWithHeaderFile(&pHalData->odmpriv, CONFIG_BB_PHY_REG_MP))
 				rtStatus = _FAIL;
-#endif
 		}
 
 		if (rtStatus != _SUCCESS) {
@@ -582,10 +560,8 @@ phy_BB8188f_Config_ParaFile(
 	/* */
 	if (phy_ConfigBBWithParaFile(Adapter, PHY_FILE_AGC_TAB, CONFIG_BB_AGC_TAB) == _FAIL)
 	{
-#ifdef CONFIG_EMBEDDED_FWIMG
 		if (HAL_STATUS_SUCCESS != ODM_ConfigBBWithHeaderFile(&pHalData->odmpriv, CONFIG_BB_AGC_TAB))
 			rtStatus = _FAIL;
-#endif
 	}
 
 	if (rtStatus != _SUCCESS) {
@@ -1362,11 +1338,7 @@ _PHY_DumpRFReg_8188F(IN	PADAPTER	pAdapter)
 }
 
 /* Set CCK and OFDM Block "ON" */
-void BBTurnOnBlock_8188F(_adapter *adapter)
-{
-#if (DISABLE_BB_RF)
-	return;
-#endif
+void BBTurnOnBlock_8188F(_adapter *adapter) {
 
 	PHY_SetBBReg(adapter, rFPGA0_RFMOD, bCCKEn, 0x1);
 	PHY_SetBBReg(adapter, rFPGA0_RFMOD, bOFDMEn, 0x1);

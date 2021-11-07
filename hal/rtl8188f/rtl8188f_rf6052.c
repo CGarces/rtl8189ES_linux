@@ -189,19 +189,15 @@ phy_RF6052_Config_ParaFile(
 		case RF_PATH_A:
 			if (PHY_ConfigRFWithParaFile(Adapter, PHY_FILE_RADIO_A, eRFPath) == _FAIL)
 			{
-#ifdef CONFIG_EMBEDDED_FWIMG
 				if (HAL_STATUS_FAILURE == ODM_ConfigRFWithHeaderFile(&pHalData->odmpriv, CONFIG_RF_RADIO, (ODM_RF_RADIO_PATH_E)eRFPath))
 					rtStatus = _FAIL;
-#endif
 			}
 			break;
 		case RF_PATH_B:
 			if (PHY_ConfigRFWithParaFile(Adapter, PHY_FILE_RADIO_B, eRFPath) == _FAIL)
 			{
-#ifdef CONFIG_EMBEDDED_FWIMG
 				if (HAL_STATUS_FAILURE == ODM_ConfigRFWithHeaderFile(&pHalData->odmpriv, CONFIG_RF_RADIO, (ODM_RF_RADIO_PATH_E)eRFPath))
 					rtStatus = _FAIL;
-#endif
 			}
 			break;
 		case RF_PATH_C:
@@ -234,11 +230,7 @@ phy_RF6052_Config_ParaFile(
 	/*3 ----------------------------------------------------------------- */
 
 	if (PHY_ConfigRFWithTxPwrTrackParaFile(Adapter, PHY_FILE_TXPWR_TRACK) == _FAIL)
-	{
-#ifdef CONFIG_EMBEDDED_FWIMG
 		ODM_ConfigRFWithTxPwrTrackHeaderFile(&pHalData->odmpriv);
-#endif
-	}
 
 	/*RT_TRACE(COMP_INIT, DBG_LOUD, ("<---phy_RF6052_Config_ParaFile()\n")); */
 	return rtStatus;

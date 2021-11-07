@@ -790,11 +790,7 @@ s32 rtl8188f_FirmwareDownload(PADAPTER padapter, BOOLEAN  bUsedWoWLANFw)
 	} else
 #endif /* CONFIG_FILE_FWIMG */
 	{
-#ifdef CONFIG_EMBEDDED_FWIMG
 		pFirmware->eFWSource = FW_SOURCE_HEADER_FILE;
-#else /* !CONFIG_EMBEDDED_FWIMG */
-		pFirmware->eFWSource = FW_SOURCE_IMG_FILE; /* We should decided by Reg. */
-#endif /* !CONFIG_EMBEDDED_FWIMG */
 	}
 
 	switch (pFirmware->eFWSource) {
@@ -3335,7 +3331,6 @@ void Hal_EfuseParseKFreeData_8188F(
 	IN		u8				*PROMContent,
 	IN		BOOLEAN 		AutoloadFail)
 {
-#ifdef CONFIG_RF_GAIN_OFFSET
 #define THERMAL_K_MEAN_OFFSET_8188F 5 /* 8188F FT thermal K mean value has +5 offset, it's special case */
 
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
@@ -3367,7 +3362,6 @@ void Hal_EfuseParseKFreeData_8188F(
 	if (kfree_data->flag & KFREE_FLAG_THERMAL_K_ON)
 		DBG_871X("thermal:%d\n", kfree_data->thermal);
 
-#endif /*CONFIG_RF_GAIN_OFFSET */
 }
 
 u8
@@ -3654,7 +3648,6 @@ static void rtl8188f_fill_default_txdesc(
 			SET_TX_DESC_TX_RATE_8188F(pbuf, MRateToHwRate(pmlmeext->tx_rate));
 		}
 
-#ifdef CONFIG_XMIT_ACK
 		/* CCX-TXRPT ack for xmit mgmt frames. */
 		if (pxmitframe->ack_report) {
 #ifdef DBG_CCX
@@ -3663,7 +3656,6 @@ static void rtl8188f_fill_default_txdesc(
 			SET_TX_DESC_SPE_RPT_8188F(pbuf, 1);
 			SET_TX_DESC_SW_DEFINE_8188F(pbuf, (u8)(GET_PRIMARY_ADAPTER(padapter)->xmitpriv.seq_no));
 		}
-#endif /* CONFIG_XMIT_ACK */
 	} else if (pxmitframe->frame_tag == TXAGG_FRAMETAG)
 		RT_TRACE(_module_hal_xmit_c_, _drv_warning_, ("%s: TXAGG_FRAMETAG\n", __func__));
 #ifdef CONFIG_MP_INCLUDED
@@ -4159,7 +4151,6 @@ void CCX_FwC2HTxRpt_8188f(PADAPTER padapter, u8 *pdata, u8 len)
 
 	seq_no = *(pdata + 6);
 
-#ifdef CONFIG_XMIT_ACK
 	if (GET_8188F_C2H_TX_RPT_RETRY_OVER(pdata) | GET_8188F_C2H_TX_RPT_LIFE_TIME_OVER(pdata))
 		rtw_ack_tx_done(&padapter->xmitpriv, RTW_SCTX_DONE_CCX_PKT_FAIL);
 	/*
@@ -4170,7 +4161,6 @@ void CCX_FwC2HTxRpt_8188f(PADAPTER padapter, u8 *pdata, u8 len)
 	*/
 	else
 		rtw_ack_tx_done(&padapter->xmitpriv, RTW_SCTX_DONE_SUCCESS);
-#endif
 }
 
 #ifdef CONFIG_FW_C2H_DEBUG
@@ -4325,15 +4315,8 @@ static void process_c2h_event(PADAPTER padapter, PC2H_EVT_HDR pC2hEvent, u8 *c2h
 		
 	}
 
-#ifndef CONFIG_C2H_PACKET_EN
-	/* Clear event to notify FW we have read the command. */
-	/* Note: */
-	/*	If this field isn't clear, the FW won't update the next command message. */
-	rtw_write8(padapter, REG_C2HEVT_CLEAR, C2H_EVT_HOST_CLOSE);
-#endif
 }
 
-#ifdef CONFIG_C2H_PACKET_EN
 
 static void C2HPacketHandler_8188F(PADAPTER padapter, u8 *pbuffer, u16 length)
 {
@@ -4384,70 +4367,6 @@ void rtl8188f_c2h_packet_handler(PADAPTER padapter, u8 *pbuf, u16 length)
 	}
 }
 
-#else /* !CONFIG_C2H_PACKET_EN */
-/* */
-/*C2H event format: */
-/* Field    TRIGGER     CONTENT    CMD_SEQ    CMD_LEN  CMD_ID */
-/* BITS    [127:120]   [119:16]    [15:8]     [7:4]    [3:0] */
-/*2009.10.08. by tynli. */
-static void C2HCommandHandler(PADAPTER padapter)
-{
-	C2H_EVT_HDR 	C2hEvent;
-
-	u8				*tmpBuf = NULL;
-	u8				index = 0;
-	u8				bCmdMsgReady = _FALSE;
-	u8				U1bTmp = 0;
-	/*u8				QueueID = 0; */
-
-	_rtw_memset(&C2hEvent, 0, sizeof(C2H_EVT_HDR));
-
-	C2hEvent.CmdID = rtw_read8(padapter, REG_C2HEVT_CMD_ID_8188F);
-	C2hEvent.CmdLen = rtw_read8(padapter, REG_C2HEVT_CMD_LEN_8188F);
-	C2hEvent.CmdSeq = rtw_read8(padapter, REG_C2HEVT_CMD_ID_8188F + 1);
-
-	RT_PRINT_DATA(_module_hal_init_c_, _drv_info_, "C2HCommandHandler(): ",
-				  &C2hEvent , sizeof(C2hEvent));
-
-	U1bTmp = rtw_read8(padapter, REG_C2HEVT_CLEAR);
-	DBG_871X("%s C2hEvent.CmdID:%x C2hEvent.CmdLen:%x C2hEvent.CmdSeq:%x\n",
-			 __func__, C2hEvent.CmdID, C2hEvent.CmdLen, C2hEvent.CmdSeq);
-
-	if (U1bTmp == C2H_EVT_HOST_CLOSE) {
-		/* Not ready. */
-		return;
-	} else if (U1bTmp == C2H_EVT_FW_CLOSE)
-		bCmdMsgReady = _TRUE;
-	else {
-		/* Not a valid value, reset the clear event. */
-		goto exit;
-	}
-
-	if (C2hEvent.CmdLen == 0)
-		goto exit;
-	tmpBuf = rtw_zmalloc(C2hEvent.CmdLen);
-	if (tmpBuf == NULL)
-		goto exit;
-
-	/* Read the content */
-	for (index = 0; index < C2hEvent.CmdLen; index++)
-		tmpBuf[index] = rtw_read8(padapter, REG_C2HEVT_CMD_ID_8188F + 2 + index);
-
-	RT_PRINT_DATA(_module_hal_init_c_, _drv_notice_, "C2HCommandHandler(): Command Content:\n", tmpBuf, C2hEvent.CmdLen);
-
-	/*process_c2h_event(padapter,&C2hEvent, tmpBuf); */
-	c2h_handler_8188f(padapter, &C2hEvent);
-	if (tmpBuf)
-		rtw_mfree(tmpBuf, C2hEvent.CmdLen);
-
-	/*REG_C2HEVT_CLEAR have done in process_c2h_event */
-	return;
-exit:
-	rtw_write8(padapter, REG_C2HEVT_CLEAR, C2H_EVT_HOST_CLOSE);
-	return;
-}
-
-#endif /* !CONFIG_C2H_PACKET_EN */
 
 void rtl8188f_set_pll_ref_clk_sel(_adapter *adapter, u8 sel)
 {
@@ -4827,11 +4746,6 @@ void SetHwReg8188F(PADAPTER padapter, u8 variable, u8 *val)
 	}
 	break;
 
-#ifndef CONFIG_C2H_PACKET_EN
-	case HW_VAR_C2H_HANDLE:
-		C2HCommandHandler(padapter);
-		break;
-#endif
 
 	case HW_VAR_BCN_VALID:
 		/* BCN_VALID, BIT16 of REG_TDECTRL = BIT0 of REG_TDECTRL+2, write 1 to clear, Clear by sw */
@@ -5109,7 +5023,6 @@ u8 SetHalDefVar8188F(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval)
 	return bResult;
 }
 
-#ifdef CONFIG_C2H_PACKET_EN
 void SetHwRegWithBuf8188F(PADAPTER padapter, u8 variable, u8 *pbuf, int len)
 {
 	PHAL_DATA_TYPE pHalData;
@@ -5128,7 +5041,6 @@ void SetHwRegWithBuf8188F(PADAPTER padapter, u8 variable, u8 *pbuf, int len)
 	}
 	_func_exit_;
 }
-#endif /* CONFIG_C2H_PACKET_EN */
 
 /*
  *	Description:
@@ -5301,9 +5213,7 @@ void rtl8188f_set_hal_ops(struct hal_ops *pHalFunc)
 	pHalFunc->hal_dm_watchdog_in_lps = &rtl8188f_HalDmWatchDog_in_LPS;
 #endif /* CONFIG_LPS_LCLK_WD_TIMER */
 
-#ifdef CONFIG_C2H_PACKET_EN
 	pHalFunc->SetHwRegHandlerWithBuf = &SetHwRegWithBuf8188F;
-#endif /* CONFIG_C2H_PACKET_EN */
 
 	pHalFunc->SetBeaconRelatedRegistersHandler = &rtl8188f_SetBeaconRelatedRegisters;
 
@@ -5340,9 +5250,7 @@ void rtl8188f_set_hal_ops(struct hal_ops *pHalFunc)
 	pHalFunc->GetHalODMVarHandler = GetHalODMVar;
 	pHalFunc->SetHalODMVarHandler = SetHalODMVar;
 
-#ifdef CONFIG_XMIT_THREAD_MODE
 	pHalFunc->xmit_thread_handler = &hal_xmit_handler;
-#endif
 	pHalFunc->hal_notch_filter = &hal_notch_filter_8188f;
 
 	pHalFunc->c2h_handler = c2h_handler_8188f;

@@ -240,9 +240,7 @@ struct hal_ops {
 	 */
 	s32 (*mgnt_xmit)(_adapter *padapter, struct xmit_frame *pmgntframe);
 	s32	(*hal_xmitframe_enqueue)(_adapter *padapter, struct xmit_frame *pxmitframe);
-#ifdef CONFIG_XMIT_THREAD_MODE
 	s32 (*xmit_thread_handler)(_adapter *padapter);
-#endif
 	void	(*run_thread)(_adapter *padapter);
 	void	(*cancel_thread)(_adapter *padapter);
 
@@ -278,9 +276,7 @@ struct hal_ops {
 	void	(*SetHwRegHandler)(_adapter *padapter, u8	variable,u8* val);
 	void	(*GetHwRegHandler)(_adapter *padapter, u8	variable,u8* val);
 
-#ifdef CONFIG_C2H_PACKET_EN
 	void	(*SetHwRegHandlerWithBuf)(_adapter *padapter, u8 variable, u8 * pbuf, int len);
-#endif
 
 	u8	(*GetHalDefVarHandler)(_adapter *padapter, HAL_DEF_VARIABLE eVariable, PVOID pValue);
 	u8	(*SetHalDefVarHandler)(_adapter *padapter, HAL_DEF_VARIABLE eVariable, PVOID pValue);
@@ -461,9 +457,7 @@ void rtw_hal_stop(_adapter *padapter);
 void rtw_hal_set_hwreg(PADAPTER padapter, u8 variable, u8 *val);
 void rtw_hal_get_hwreg(PADAPTER padapter, u8 variable, u8 *val);
 
-#ifdef CONFIG_C2H_PACKET_EN
 void rtw_hal_set_hwreg_with_buf(_adapter *padapter, u8 variable, u8 *pbuf, int len);
-#endif
 
 void rtw_hal_chip_configure(_adapter *padapter);
 void rtw_hal_read_chip_info(_adapter *padapter);
@@ -534,9 +528,7 @@ bool rtw_hal_sreset_inprogress(_adapter *padapter);
 int rtw_hal_iol_cmd(ADAPTER *adapter, struct xmit_frame *xmit_frame, u32 max_wating_ms, u32 bndy_cnt);
 #endif
 
-#ifdef CONFIG_XMIT_THREAD_MODE
 s32 rtw_hal_xmit_thread_handler(_adapter *padapter);
-#endif
 
 #ifdef CONFIG_RECV_THREAD_MODE
 s32 rtw_hal_recv_hdl(_adapter *adapter);

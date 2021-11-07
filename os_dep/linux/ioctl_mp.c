@@ -371,10 +371,8 @@ int rtw_mp_start(struct net_device *dev,
 	if (padapter->registrypriv.mp_mode == 0) {
 		rtw_hal_deinit(padapter);
 		padapter->registrypriv.mp_mode = 1;
-		#ifdef CONFIG_RF_GAIN_OFFSET
 		padapter->registrypriv.RegRfKFreeEnable = 1;
 		rtw_hal_read_chip_info(padapter);
-		#endif /*CONFIG_RF_GAIN_OFFSET*/
 		rtw_hal_init(padapter);
 	}
 
@@ -1391,9 +1389,7 @@ int rtw_mp_pretx_proc(PADAPTER padapter, u8 bStartTest, char *extra)
 				pmp_priv->tx.stop = 1;
 				rtw_msleep_os(5);
 			}
-#ifdef CONFIG_80211N_HT
 			pmp_priv->tx.attrib.ht_en = 1;
-#endif
 			pmp_priv->tx.stop = 0;
 			pmp_priv->tx.count = 1;
 			SetPacketTx(padapter);

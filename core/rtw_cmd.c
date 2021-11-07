@@ -391,15 +391,6 @@ int rtw_cmd_filter(struct cmd_priv *pcmdpriv, struct cmd_obj *cmd_obj)
 	}
 	#endif
 
-#ifndef CONFIG_C2H_PACKET_EN
-	/* C2H should be always allowed */
-	if(cmd_obj->cmdcode == GEN_CMD_CODE(_Set_Drv_Extra)) {
-		struct drvextra_cmd_parm *pdrvextra_cmd_parm = (struct drvextra_cmd_parm *)cmd_obj->parmbuf;
-		if(pdrvextra_cmd_parm->ec_id == C2H_WK_CID) {
-			bAllow = _TRUE;
-		}
-	}
-#endif
 
 	if(cmd_obj->cmdcode == GEN_CMD_CODE(_SetChannelPlan))
 		bAllow = _TRUE;
@@ -1360,9 +1351,7 @@ u8 rtw_joinbss_cmd(_adapter  *padapter, struct wlan_network* pnetwork)
 	struct qos_priv		*pqospriv= &pmlmepriv->qospriv;
 	struct security_priv	*psecuritypriv=&padapter->securitypriv;
 	struct registry_priv	*pregistrypriv = &padapter->registrypriv;
-#ifdef CONFIG_80211N_HT
 	struct ht_priv			*phtpriv = &pmlmepriv->htpriv;
-#endif //CONFIG_80211N_HT
 #ifdef CONFIG_80211AC_VHT
 	struct vht_priv		*pvhtpriv = &pmlmepriv->vhtpriv;
 #endif //CONFIG_80211AC_VHT
@@ -1484,7 +1473,6 @@ _func_enter_;
 		}		
 	}	
 
-#ifdef CONFIG_80211N_HT
 	phtpriv->ht_option = _FALSE;
 	ptmp = rtw_get_ie(&pnetwork->network.IEs[12], _HT_CAPABILITY_IE_, &tmp_len, pnetwork->network.IELength-12);
 	if(pregistrypriv->ht_enable && ptmp && tmp_len>0)
@@ -1521,7 +1509,6 @@ _func_enter_;
 
 	rtw_append_exented_cap(padapter, &psecnetwork->IEs[0], &psecnetwork->IELength);
 
-#endif //CONFIG_80211N_HT
 
 	pcmd->cmdsz = sizeof(WLAN_BSSID_EX);
 
@@ -2555,10 +2542,8 @@ void dynamic_chk_wk_hdl(_adapter *padapter)
 	struct mlme_priv *pmlmepriv;
 	pmlmepriv = &(padapter->mlmepriv);
 
-#ifdef CONFIG_ACTIVE_KEEP_ALIVE_CHECK
 	if(check_fwstate(pmlmepriv, WIFI_AP_STATE))
 		expire_timeout_chk(padapter);
-#endif //CONFIG_ACTIVE_KEEP_ALIVE_CHECK
 
 #ifdef DBG_CONFIG_ERROR_DETECT	
 	rtw_hal_sreset_xmit_status_check(padapter);		
@@ -3353,10 +3338,7 @@ apply:
 }
 #endif /* CONFIG_DFS_MASTER */
 
-
-//#ifdef CONFIG_C2H_PACKET_EN
-u8 rtw_c2h_packet_wk_cmd(PADAPTER padapter, u8 *pbuf, u16 length)
-{
+u8 rtw_c2h_packet_wk_cmd(PADAPTER padapter, u8 *pbuf, u16 length) {
 	struct cmd_obj *ph2c;
 	struct drvextra_cmd_parm *pdrvextra_cmd_parm;
 	struct cmd_priv *pcmdpriv = &padapter->cmdpriv;
@@ -3398,7 +3380,6 @@ exit:
 	return res;
 }
 
-//#else //CONFIG_C2H_PACKET_EN
 /* dont call R/W in this function, beucase SDIO interrupt have claim host */
 /* or deadlock will happen and cause special-systemserver-died in android */
 
@@ -3522,10 +3503,8 @@ exit:
 	
 	return res;
 }
-//#endif //CONFIG_C2H_PACKET_EN
 
-u8 rtw_run_in_thread_cmd(PADAPTER padapter, void (*func)(void*), void* context)
-{
+u8 rtw_run_in_thread_cmd(PADAPTER padapter, void (*func)(void*), void* context) {
 	struct cmd_priv *pcmdpriv;
 	struct cmd_obj *ph2c;
 	struct RunInThread_param *parm;
@@ -3963,11 +3942,7 @@ u8 rtw_drvextra_cmd_hdl(_adapter *padapter, unsigned char *pbuf)
 			free_assoc_resources_hdl(padapter);
 			break;
 		case C2H_WK_CID:
-#ifdef CONFIG_C2H_PACKET_EN
 			rtw_hal_set_hwreg_with_buf(padapter, HW_VAR_C2H_HANDLE, pdrvextra_cmd->pbuf, pdrvextra_cmd->size);
-#else		
-			c2h_evt_hdl(padapter, pdrvextra_cmd->pbuf, NULL);
-#endif
 			break;
 
 		case DM_RA_MSK_WK_CID:

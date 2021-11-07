@@ -743,10 +743,6 @@ static void _InitRFType(PADAPTER padapter)
 	struct registry_priv *pregpriv = &padapter->registrypriv;
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(padapter);
 
-#if	DISABLE_BB_RF
-	pHalData->rf_chip	= RF_PSEUDO_11N;
-	return;
-#endif
 	pHalData->rf_chip	= RF_6052;
 
 	MSG_8192C("Set RF Chip ID to RF_6052 and RF type to %d.\n", pHalData->rf_type);
@@ -1047,10 +1043,8 @@ static u32 rtl8188fs_hal_init(PADAPTER padapter)
 
 	rtw_hal_set_hwreg(padapter, HW_VAR_NAV_UPPER, (u8*)&NavUpper);
 
-#ifdef CONFIG_XMIT_ACK
 	//ack for xmit mgmt frames.
 	rtw_write32(padapter, REG_FWHW_TXQ_CTRL, rtw_read32(padapter, REG_FWHW_TXQ_CTRL)|BIT(12));
-#endif //CONFIG_XMIT_ACK	
 
 //	pHalData->PreRpwmVal = SdioLocalCmd52Read1Byte(padapter, SDIO_REG_HRPWM1) & 0x80;
 
@@ -1260,18 +1254,11 @@ _EfuseCellSel(
 	}
 }
 
-static VOID
-_ReadRFType(
-	IN	PADAPTER	Adapter
-	)
-{
+static VOID _ReadRFType(IN PADAPTER Adapter) {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 
-#if DISABLE_BB_RF
-	pHalData->rf_chip = RF_PSEUDO_11N;
-#else
 	pHalData->rf_chip = RF_6052;
-#endif
+
 }
 
 static VOID

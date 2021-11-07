@@ -165,7 +165,6 @@ static u32 _cvrt2ftaddr(const u32 addr, u8 *pdeviceId, u16 *poffset)
 	return ftaddr;
 }
 
-#ifdef CONFIG_SDIO_CHK_HCI_RESUME
 
 #ifndef SDIO_HCI_RESUME_PWR_RDY_TIMEOUT_MS
 	#define SDIO_HCI_RESUME_PWR_RDY_TIMEOUT_MS 200
@@ -330,10 +329,6 @@ no_hdl:
 	return;
 }
 
-#else
-#define sdio_chk_hci_resume(pintfhdl) _FALSE
-#define sdio_chk_hci_suspend(pintfhdl) do {} while (0)
-#endif /* CONFIG_SDIO_CHK_HCI_RESUME */
 
 u8 sdio_read8(struct intf_hdl *pintfhdl, u32 addr)
 {
@@ -1638,7 +1633,6 @@ void UpdateInterruptMask8188FSdio(PADAPTER padapter, u32 AddMSR, u32 RemoveMSR)
 	EnableInterrupt8188FSdio(padapter);
 }
 
-#ifdef CONFIG_SDIO_RX_COPY
 static u32 sd_recv_rxfifo(PADAPTER padapter, u32 size, struct recv_buf **recvbuf_ret)
 {
 #ifndef CONFIG_TEST_RBUF_UNAVAIL
@@ -1729,67 +1723,6 @@ static u32 sd_recv_rxfifo(PADAPTER padapter, u32 size, struct recv_buf **recvbuf
 exit:
 	return ret;
 }
-#else // !CONFIG_SDIO_RX_COPY
-static struct recv_buf* sd_recv_rxfifo(PADAPTER padapter, u32 size)
-{
-	u32 sdioblksize, readsize, allocsize, ret;
-	u8 *preadbuf;
-	_pkt *ppkt;
-	struct recv_priv *precvpriv;
-	struct recv_buf	*precvbuf;
-
-
-	sdioblksize = adapter_to_dvobj(padapter)->intf_data.block_transfer_len;
-	// Patch for some SDIO Host 4 bytes issue
-	// ex. RK3188
-	readsize = RND4(size);
-
-	//3 1. alloc skb
-	// align to block size
-	if (readsize > sdioblksize)
-		allocsize = _RND(readsize, sdioblksize);
-	else
-		allocsize = readsize;
-
-	ppkt = rtw_skb_alloc(allocsize);
-
-	if (ppkt == NULL) {
-		RT_TRACE(_module_hci_ops_os_c_, _drv_err_, ("%s: alloc_skb fail! alloc=%d read=%d\n", __FUNCTION__, allocsize, readsize));
-		return NULL;
-	}
-
-	//3 2. read data from rxfifo
-	preadbuf = skb_put(ppkt, size);
-//	rtw_read_port(padapter, WLAN_RX0FF_DEVICE_ID, readsize, preadbuf);
-	ret = sdio_read_port(&padapter->iopriv.intf, WLAN_RX0FF_DEVICE_ID, readsize, preadbuf);
-	if (ret == _FAIL) {
-		rtw_skb_free(ppkt);
-		RT_TRACE(_module_hci_ops_os_c_, _drv_err_, ("%s: read port FAIL!\n", __FUNCTION__));
-		return NULL;
-	}
-
-	//3 3. alloc recvbuf
-	precvpriv = &padapter->recvpriv;
-	precvbuf = rtw_dequeue_recvbuf(&precvpriv->free_recv_buf_queue);
-	if (precvbuf == NULL) {
-		rtw_skb_free(ppkt);
-		DBG_871X_LEVEL(_drv_err_, "%s: alloc recvbuf FAIL!\n", __FUNCTION__);
-		return NULL;
-	}
-
-	//3 4. init recvbuf
-	precvbuf->pskb = ppkt;
-
-	precvbuf->len = ppkt->len;
-
-	precvbuf->phead = ppkt->head;
-	precvbuf->pdata = ppkt->data;
-	precvbuf->ptail = skb_tail_pointer(precvbuf->pskb);
-	precvbuf->pend = skb_end_pointer(precvbuf->pskb);
-
-	return precvbuf;
-}
-#endif // !CONFIG_SDIO_RX_COPY
 
 static void sd_rxhandler(PADAPTER padapter, struct recv_buf *precvbuf)
 {
@@ -1968,38 +1901,11 @@ void sd_int_dpc(PADAPTER padapter)
 	}
 
 	if (phal->sdio_hisr & SDIO_HISR_TXBCNOK)
-	{
 		DBG_8192C("%s: SDIO_HISR_TXBCNOK\n", __func__);
-	}
 
 	if (phal->sdio_hisr & SDIO_HISR_TXBCNERR)
-	{
 		DBG_8192C("%s: SDIO_HISR_TXBCNERR\n", __func__);
-	}
-#ifndef CONFIG_C2H_PACKET_EN
-	if (phal->sdio_hisr & SDIO_HISR_C2HCMD)
-	{
-		struct c2h_evt_hdr_88xx *c2h_evt;
 
-		DBG_8192C("%s: C2H Command\n", __func__);
-		if ((c2h_evt = (struct c2h_evt_hdr_88xx*)rtw_zmalloc(16)) != NULL) {
-			if (rtw_hal_c2h_evt_read(padapter, (u8 *)c2h_evt) == _SUCCESS) {
-				if (c2h_id_filter_ccx_8188f((u8 *)c2h_evt)) {
-					/* Handle CCX report here */
-					rtw_hal_c2h_handler(padapter, (u8 *)c2h_evt);
-					rtw_mfree((u8*)c2h_evt, 16);
-				} else {
-					rtw_c2h_wk_cmd(padapter, (u8 *)c2h_evt);
-				}
-			}
-		} else {
-			/* Error handling for malloc fail */
-			if (rtw_cbuf_push(padapter->evtpriv.c2h_queue, (void*)NULL) != _SUCCESS)
-				DBG_871X("%s rtw_cbuf_push fail\n", __func__);
-			_set_workitem(&padapter->evtpriv.c2h_wk);
-		}
-	}
-#endif	
 
 	if (phal->sdio_hisr & SDIO_HISR_RXFOVW)
 	{

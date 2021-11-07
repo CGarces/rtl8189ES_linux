@@ -100,7 +100,6 @@ uint rtw_tx_bw_mode = 0x21;
 module_param(rtw_tx_bw_mode, uint, 0644);
 MODULE_PARM_DESC(rtw_tx_bw_mode, "The max tx bw for 2.4G and 5G. format is the same as rtw_bw_mode");
 
-#ifdef CONFIG_80211N_HT
 int rtw_ht_enable = 1;
 // 0: 20 MHz, 1: 40 MHz, 2: 80 MHz, 3: 160MHz, 4: 80+80MHz
 // 2.4G use bit 0 ~ 3, 5G use bit 4 ~ 7
@@ -124,7 +123,6 @@ int rtw_beamform_cap = 0x2;
 int rtw_bfer_rf_number = 0; /*BeamformerCapRfNum Rf path number, 0 for auto, others for manual*/
 int rtw_bfee_rf_number = 0; /*BeamformeeCapRfNum  Rf path number, 0 for auto, others for manual*/
 
-#endif //CONFIG_80211N_HT
 
 #ifdef CONFIG_80211AC_VHT
 int rtw_vht_enable = 1; //0:disable, 1:enable, 2:force auto enable
@@ -233,13 +231,11 @@ module_param(rtw_vrtl_carrier_sense, int, 0644);
 module_param(rtw_vcs_type, int, 0644);
 module_param(rtw_busy_thresh, int, 0644);
 
-#ifdef CONFIG_80211N_HT
 module_param(rtw_ht_enable, int, 0644);
 module_param(rtw_bw_mode, int, 0644);
 module_param(rtw_ampdu_enable, int, 0644);
 module_param(rtw_rx_stbc, int, 0644);
 module_param(rtw_ampdu_amsdu, int, 0644);
-#endif //CONFIG_80211N_HT
 #ifdef CONFIG_80211AC_VHT
 module_param(rtw_vht_enable, int, 0644);
 #endif //CONFIG_80211AC_VHT
@@ -273,11 +269,9 @@ module_param(rtw_adaptor_info_caching_file_path, charp, 0644);
 MODULE_PARM_DESC(rtw_adaptor_info_caching_file_path, "The path of adapter info cache file");
 #endif //CONFIG_ADAPTOR_INFO_CACHING_FILE
 
-#ifdef CONFIG_LAYER2_ROAMING
 uint rtw_max_roaming_times=2;
 module_param(rtw_max_roaming_times, uint, 0644);
 MODULE_PARM_DESC(rtw_max_roaming_times,"The max roaming times to try");
-#endif //CONFIG_LAYER2_ROAMING
 
 #ifdef CONFIG_IOL
 int rtw_fw_iol=1;
@@ -308,7 +302,7 @@ module_param(rtw_80211d, int, 0644);
 MODULE_PARM_DESC(rtw_80211d, "Enable 802.11d mechanism");
 #endif
 
-uint rtw_notch_filter = RTW_NOTCH_FILTER;
+uint rtw_notch_filter = 0;
 module_param(rtw_notch_filter, uint, 0644);
 MODULE_PARM_DESC(rtw_notch_filter, "0:Disable, 1:Enable, 2:Enable only for P2P");
 
@@ -537,7 +531,6 @@ _func_enter_;
 	
 	registry_par->tx_bw_mode = (u8)rtw_tx_bw_mode;
 
-#ifdef CONFIG_80211N_HT
 	registry_par->ht_enable = (u8)rtw_ht_enable;
 	registry_par->bw_mode = (u8)rtw_bw_mode;
 	registry_par->ampdu_enable = (u8)rtw_ampdu_enable;
@@ -549,7 +542,6 @@ _func_enter_;
 	registry_par->beamform_cap = (u8)rtw_beamform_cap;
 	registry_par->beamformer_rf_num = (u8)rtw_bfer_rf_number;
 	registry_par->beamformee_rf_num = (u8)rtw_bfee_rf_number;
-#endif
 
 #ifdef CONFIG_80211AC_VHT
 	registry_par->vht_enable = (u8)rtw_vht_enable;
@@ -601,9 +593,7 @@ _func_enter_;
 	registry_par->adaptor_info_caching_file_path[PATH_LENGTH_MAX-1]=0;
 #endif
 
-#ifdef CONFIG_LAYER2_ROAMING
 	registry_par->max_roaming_times = (u8)rtw_max_roaming_times;
-#endif
 
 #ifdef CONFIG_IOL
 	registry_par->fw_iol = rtw_fw_iol;
@@ -1236,13 +1226,11 @@ u32 rtw_start_drv_threads(_adapter *padapter)
 
 	RT_TRACE(_module_os_intfs_c_,_drv_info_,("+rtw_start_drv_threads\n"));
 
-#ifdef CONFIG_XMIT_THREAD_MODE
 	if (is_primary_adapter(padapter)) {
 		padapter->xmitThread = kthread_run(rtw_xmit_thread, padapter, "RTW_XMIT_THREAD");
 		if(IS_ERR(padapter->xmitThread))
 			_status = _FAIL;
 	}
-#endif //#ifdef CONFIG_XMIT_THREAD_MODE
 
 #ifdef CONFIG_RECV_THREAD_MODE
 	if (is_primary_adapter(padapter)) {
@@ -1286,7 +1274,6 @@ void rtw_stop_drv_threads (_adapter *padapter)
 	}
 #endif
 
-#ifdef CONFIG_XMIT_THREAD_MODE
 	// Below is to termindate tx_thread...
 	// Only wake-up primary adapter
 	if (is_primary_adapter(padapter)) {
@@ -1294,7 +1281,6 @@ void rtw_stop_drv_threads (_adapter *padapter)
 		_rtw_down_sema(&padapter->xmitpriv.terminate_xmitthread_sema);
 	}
 	RT_TRACE(_module_os_intfs_c_, _drv_info_, ("\n drv_halt: rtw_xmit_thread can be terminated !\n"));
-#endif
 
 #ifdef CONFIG_RECV_THREAD_MODE
 	if (is_primary_adapter(padapter)) {
@@ -1332,9 +1318,7 @@ u8 rtw_init_default_value(_adapter *padapter)
 	//pmlmepriv->qospriv.qos_option = pregistrypriv->wmm_enable;
 
 	//ht_priv
-#ifdef CONFIG_80211N_HT
 	pmlmepriv->htpriv.ampdu_enable = _FALSE;//set to disabled
-#endif
 
 	//security_priv
 	//rtw_get_encrypt_decrypt_from_registrypriv(padapter);
@@ -1493,9 +1477,7 @@ u8 rtw_reset_drv_sw(_adapter *padapter)
 	//mlmeextpriv
 	mlmeext_set_scan_state(&padapter->mlmeextpriv, SCAN_DISABLE);
 
-#ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
 	rtw_set_signal_stat_timer(&padapter->recvpriv);
-#endif
 
 	return ret8;
 }
@@ -1650,9 +1632,7 @@ void rtw_cancel_all_timer(_adapter *padapter)
 	rtw_clear_scan_deny(padapter);
 	RT_TRACE(_module_os_intfs_c_,_drv_info_,("rtw_cancel_all_timer:cancel set_scan_deny_timer! \n"));
 
-#ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
 	_cancel_timer_ex(&padapter->recvpriv.signal_stat_timer);
-#endif
 	//cancel dm timer
 	rtw_hal_dm_deinit(padapter);
 }
@@ -2196,10 +2176,8 @@ void rtw_dev_unload(PADAPTER padapter)
 		DBG_871X("===> %s\n",__FUNCTION__);
 
 		rtw_set_drv_stopped(padapter);
-		#ifdef CONFIG_XMIT_ACK
 		if (padapter->xmitpriv.ack_tx)
 			rtw_ack_tx_done(&padapter->xmitpriv, RTW_SCTX_DONE_DRV_STOP);
-		#endif
 
 		if (padapter->intf_stop)
 			padapter->intf_stop(padapter);

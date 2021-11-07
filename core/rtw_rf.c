@@ -839,7 +839,6 @@ s8 rtw_rf_get_kfree_tx_gain_offset(_adapter *padapter, u8 path, u8 ch)
 {
 	s8 kfree_offset = 0;
 
-#ifdef CONFIG_RF_GAIN_OFFSET
 	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(padapter);
 	struct kfree_data_t *kfree_data = GET_KFREE_DATA(padapter);
 	s8 bb_gain_sel = rtw_ch_to_bb_gain_sel(ch);
@@ -855,7 +854,6 @@ s8 rtw_rf_get_kfree_tx_gain_offset(_adapter *padapter, u8 path, u8 ch)
 			, __func__, path, ch, bb_gain_sel, kfree_offset);
 	}
 exit:
-#endif /* CONFIG_RF_GAIN_OFFSET */
 	return kfree_offset;
 }
 

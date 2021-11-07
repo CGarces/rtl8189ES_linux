@@ -1086,11 +1086,8 @@ u8 rtw_set_country_cmd(_adapter *adapter, int flags, const char *country_code, u
 extern u8 rtw_led_blink_cmd(_adapter*padapter, PVOID pLed);
 extern u8 rtw_set_csa_cmd(_adapter*padapter, u8 new_ch_no);
 
-//#ifdef CONFIG_C2H_PACKET_EN
 extern u8 rtw_c2h_packet_wk_cmd(PADAPTER padapter, u8 *pbuf, u16 length);
-//#else
 extern u8 rtw_c2h_wk_cmd(PADAPTER padapter, u8 *c2h_evt);
-//#endif
 
 #ifdef CONFIG_RTW_CUSTOMER_STR
 u8 rtw_customer_str_req_cmd(_adapter *adapter);

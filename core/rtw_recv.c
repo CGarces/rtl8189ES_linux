@@ -22,7 +22,6 @@
 #include <drv_types.h>
 #include <hal_data.h>
 
-#ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
 void rtw_signal_stat_timer_hdl(RTW_TIMER_HDL_ARGS);
 
 enum {
@@ -40,7 +39,6 @@ u8 signal_stat_calc_profile[SIGNAL_STAT_CALC_PROFILE_MAX][2] = {
 #define RTW_SIGNAL_STATE_CALC_PROFILE SIGNAL_STAT_CALC_PROFILE_1
 #endif
 
-#endif //CONFIG_NEW_SIGNAL_STAT_PROCESS
 
 void _rtw_init_sta_recv_priv(struct sta_recv_priv *psta_recvpriv)
 {
@@ -127,14 +125,12 @@ _func_enter_;
 
 	res = rtw_hal_init_recv_priv(padapter);
 
-#ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
 	rtw_init_timer(&precvpriv->signal_stat_timer, padapter, RTW_TIMER_HDL_NAME(signal_stat));
 
 	precvpriv->signal_stat_sampling_interval = 2000; //ms
 	//precvpriv->signal_stat_converging_constant = 5000; //ms
 
 	rtw_set_signal_stat_timer(precvpriv);
-#endif //CONFIG_NEW_SIGNAL_STAT_PROCESS
 
 exit:
 
@@ -2036,58 +2032,6 @@ _func_exit_;
 
 }
 
-static void recvframe_expand_pkt(
-	PADAPTER padapter,
-	union recv_frame *prframe)
-{
-	struct recv_frame_hdr *pfhdr;
-	_pkt *ppkt;
-	u8 shift_sz;
-	u32 alloc_sz;
-	u8 *ptr;
-
-
-	pfhdr = &prframe->u.hdr;
-
-	//	6 is for IP header 8 bytes alignment in QoS packet case.
-	if (pfhdr->attrib.qos)
-		shift_sz = 6;
-	else
-		shift_sz = 0;
-
-	// for first fragment packet, need to allocate
-	// (1536 + RXDESC_SIZE + drvinfo_sz) to reassemble packet
-	//	8 is for skb->data 8 bytes alignment.
-//	alloc_sz = _RND(1536 + RXDESC_SIZE + pfhdr->attrib.drvinfosize + shift_sz + 8, 128);
-	alloc_sz = 1664; // round (1536 + 24 + 32 + shift_sz + 8) to 128 bytes alignment
-
-	//3 1. alloc new skb
-	// prepare extra space for 4 bytes alignment
-	ppkt = rtw_skb_alloc(alloc_sz);
-
-	if (!ppkt) return; // no way to expand
-
-	//3 2. Prepare new skb to replace & release old skb
-	// force ppkt->data at 8-byte alignment address
-	skb_reserve(ppkt, 8 - ((SIZE_PTR)ppkt->data & 7));
-	// force ip_hdr at 8-byte alignment address according to shift_sz
-	skb_reserve(ppkt, shift_sz);
-
-	// copy data to new pkt
-	ptr = skb_put(ppkt, pfhdr->len);
-	if (ptr)
-		_rtw_memcpy(ptr, pfhdr->rx_data, pfhdr->len);
-
-	rtw_skb_free(pfhdr->pkt);
-
-	// attach new pkt to recvframe
-	pfhdr->pkt = ppkt;
-	pfhdr->rx_head = ppkt->head;
-	pfhdr->rx_data = ppkt->data;
-	pfhdr->rx_tail = skb_tail_pointer(ppkt);
-	pfhdr->rx_end = skb_end_pointer(ppkt);
-}
-
 //perform defrag
 union recv_frame * recvframe_defrag(_adapter *adapter,_queue *defrag_q);
 union recv_frame * recvframe_defrag(_adapter *adapter,_queue *defrag_q)
@@ -2120,9 +2064,6 @@ _func_enter_;
 		return NULL;
 	}
 
-#ifndef CONFIG_SDIO_RX_COPY
-	recvframe_expand_pkt(adapter, prframe);
-#endif
 
 	curfragnum++;
 
@@ -2750,17 +2691,10 @@ int recv_indicatepkt_reorder(_adapter *padapter, union recv_frame *prframe)
 			return _SUCCESS;	
 		}			
 
-#ifndef CONFIG_RECV_REORDERING_CTRL
-		//indicate this recv_frame
-		rtw_recv_indicatepkt(padapter, prframe);
-		return _SUCCESS;
-#endif
 
-	}
-	else if(pattrib->amsdu==1) //temp filter -> means didn't support A-MSDUs in a A-MPDU
-	{
-		if (preorder_ctrl->enable == _FALSE)
-		{
+	} else if(pattrib->amsdu==1) {
+		//temp filter -> means didn't support A-MSDUs in a A-MPDU
+		if (preorder_ctrl->enable == _FALSE) {
 			preorder_ctrl->indicate_seq = pattrib->seq_num;
 			#ifdef DBG_RX_SEQ
 			DBG_871X("DBG_RX_SEQ %s:%d IndicateSeq: %d, NewSeq: %d\n", __FUNCTION__, __LINE__,
@@ -2775,7 +2709,7 @@ int recv_indicatepkt_reorder(_adapter *padapter, union recv_frame *prframe)
 				preorder_ctrl->indicate_seq, pattrib->seq_num);
 			#endif
 
-			if(retval != _SUCCESS){
+			if(retval != _SUCCESS) {
 				#ifdef DBG_RX_DROP_FRAME
 				DBG_871X("DBG_RX_DROP_FRAME %s amsdu_to_msdu fail\n", __FUNCTION__);
 				#endif
@@ -2783,10 +2717,6 @@ int recv_indicatepkt_reorder(_adapter *padapter, union recv_frame *prframe)
 
 			return retval;
 		}
-	}
-	else
-	{
-
 	}
 
 	_enter_critical_bh(&ppending_recvframe_queue->lock, &irql);
@@ -2796,8 +2726,7 @@ int recv_indicatepkt_reorder(_adapter *padapter, union recv_frame *prframe)
 		  preorder_ctrl->indicate_seq, pattrib->seq_num));
 
 	//s2. check if winstart_b(indicate_seq) needs to been updated
-	if(!check_indicate_seq(preorder_ctrl, pattrib->seq_num))
-	{
+	if (!check_indicate_seq(preorder_ctrl, pattrib->seq_num)) {
 		pdbgpriv->dbg_rx_ampdu_drop_count++;
 		//pHTInfo->RxReorderDropCounter++;
 		//ReturnRFDList(Adapter, pRfd);
@@ -2814,8 +2743,7 @@ int recv_indicatepkt_reorder(_adapter *padapter, union recv_frame *prframe)
 
 
 	//s3. Insert all packet into Reorder Queue to maintain its ordering.
-	if(!enqueue_reorder_recvframe(preorder_ctrl, prframe))
-	{
+	if (!enqueue_reorder_recvframe(preorder_ctrl, prframe)) {
 		//DbgPrint("recv_indicatepkt_reorder, enqueue_reorder_recvframe fail!\n");
 		//_exit_critical_ex(&ppending_recvframe_queue->lock, &irql);
 		//return _FAIL;
@@ -2837,16 +2765,13 @@ int recv_indicatepkt_reorder(_adapter *padapter, union recv_frame *prframe)
 	//
 
 	//recv_indicatepkts_in_order(padapter, preorder_ctrl, _TRUE);
-	if(recv_indicatepkts_in_order(padapter, preorder_ctrl, _FALSE)==_TRUE)
-	{
+	if (recv_indicatepkts_in_order(padapter, preorder_ctrl, _FALSE)) {
 		if (!preorder_ctrl->bReorderWaiting) {
 			preorder_ctrl->bReorderWaiting = _TRUE;
 		_set_timer(&preorder_ctrl->reordering_ctrl_timer, REORDER_WAIT_TIME);
 		}
 		_exit_critical_bh(&ppending_recvframe_queue->lock, &irql);
-	}
-	else
-	{
+	} else {
 		preorder_ctrl->bReorderWaiting = _FALSE;
 		_exit_critical_bh(&ppending_recvframe_queue->lock, &irql);
 		_cancel_timer_ex(&preorder_ctrl->reordering_ctrl_timer);
@@ -2901,7 +2826,6 @@ int process_recv_indicatepkts(_adapter *padapter, union recv_frame *prframe)
 	//struct rx_pkt_attrib *pattrib = &prframe->u.hdr.attrib;
 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
 
-#ifdef CONFIG_80211N_HT
 
 	struct ht_priv	*phtpriv = &pmlmepriv->htpriv;
 	
@@ -2924,7 +2848,6 @@ int process_recv_indicatepkts(_adapter *padapter, union recv_frame *prframe)
 		}
 	}
 	else //B/G mode
-#endif
 	{
 		retval=wlanhdr_to_ethhdr (prframe);
 		if(retval != _SUCCESS)
@@ -3595,7 +3518,6 @@ int recv_func_posthandle(_adapter *padapter, union recv_frame *prframe)
 
 	count_rx_stats(padapter, prframe, NULL);
 
-#ifdef CONFIG_80211N_HT
 	ret = process_recv_indicatepkts(padapter, prframe);
 	if (ret != _SUCCESS)
 	{
@@ -3607,67 +3529,6 @@ int recv_func_posthandle(_adapter *padapter, union recv_frame *prframe)
 		DBG_COUNTER(padapter->rx_logs.core_rx_post_indicate_err);
 		goto _recv_data_drop;
 	}
-#else // CONFIG_80211N_HT
-	if (!pattrib->amsdu)
-	{
-		ret = wlanhdr_to_ethhdr (prframe);
-		if (ret != _SUCCESS)
-		{
-			RT_TRACE(_module_rtl871x_recv_c_,_drv_err_,("wlanhdr_to_ethhdr: drop pkt \n"));
-			#ifdef DBG_RX_DROP_FRAME
-			DBG_871X("DBG_RX_DROP_FRAME %s wlanhdr_to_ethhdr: drop pkt\n", __FUNCTION__);
-			#endif
-			rtw_free_recvframe(orig_prframe, pfree_recv_queue);//free this recv_frame
-			goto _recv_data_drop;
-		}
-
-		if (!RTW_CANNOT_RUN(padapter)) {
-			RT_TRACE(_module_rtl871x_recv_c_, _drv_alert_, ("@@@@ recv_func: recv_func rtw_recv_indicatepkt\n" ));
-			//indicate this recv_frame
-			ret = rtw_recv_indicatepkt(padapter, prframe);
-			if (ret != _SUCCESS)
-			{	
-				#ifdef DBG_RX_DROP_FRAME
-				DBG_871X("DBG_RX_DROP_FRAME %s rtw_recv_indicatepkt fail!\n", __FUNCTION__);
-				#endif
-				goto _recv_data_drop;
-			}
-		}
-		else
-		{
-			RT_TRACE(_module_rtl871x_recv_c_, _drv_alert_, ("@@@@  recv_func: rtw_free_recvframe\n" ));
-			RT_TRACE(_module_rtl871x_recv_c_, _drv_debug_, ("recv_func:bDriverStopped(%d) OR bSurpriseRemoved(%d)", padapter->bDriverStopped, padapter->bSurpriseRemoved));
-			#ifdef DBG_RX_DROP_FRAME
-			DBG_871X("DBG_RX_DROP_FRAME %s ecv_func:bDriverStopped(%s) OR bSurpriseRemoved(%s)\n", __func__
-				, rtw_is_drv_stopped(padapter)?"True":"False"
-				, rtw_is_surprise_removed(padapter)?"True":"False");
-			#endif
-			ret = _FAIL;
-			rtw_free_recvframe(orig_prframe, pfree_recv_queue); //free this recv_frame
-		}
-
-	}
-	else if(pattrib->amsdu==1)
-	{
-
-		ret = amsdu_to_msdu(padapter, prframe);
-		if(ret != _SUCCESS)
-		{
-			#ifdef DBG_RX_DROP_FRAME
-			DBG_871X("DBG_RX_DROP_FRAME %s amsdu_to_msdu fail\n", __FUNCTION__);
-			#endif
-			rtw_free_recvframe(orig_prframe, pfree_recv_queue);
-			goto _recv_data_drop;
-		}
-	}
-	else
-	{
-		#ifdef DBG_RX_DROP_FRAME
-		DBG_871X("DBG_RX_DROP_FRAME %s what is this condition??\n", __FUNCTION__);
-		#endif
-		goto _recv_data_drop;
-	}
-#endif // CONFIG_80211N_HT
 
 _exit_recv_func:
 	return ret;
@@ -3789,7 +3650,6 @@ _func_exit_;
 	return ret;
 }
 
-#ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
 void rtw_signal_stat_timer_hdl(RTW_TIMER_HDL_ARGS){
 	_adapter *adapter = (_adapter *)FunctionContext;
 	struct recv_priv *recvpriv = &adapter->recvpriv;
@@ -3881,20 +3741,16 @@ set_timer:
 	rtw_set_signal_stat_timer(recvpriv);
 	
 }
-#endif //CONFIG_NEW_SIGNAL_STAT_PROCESS
 
 static void rx_process_rssi(_adapter *padapter,union recv_frame *prframe)
 {
 	u32	last_rssi, tmp_val;
 	struct rx_pkt_attrib *pattrib = &prframe->u.hdr.attrib;
-#ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
 	struct signal_stat * signal_stat = &padapter->recvpriv.signal_strength_data;
-#endif //CONFIG_NEW_SIGNAL_STAT_PROCESS
 
 	//DBG_8192C("process_rssi=> pattrib->rssil(%d) signal_strength(%d)\n ",pattrib->RecvSignalPower,pattrib->signal_strength);
 	//if(pRfd->Status.bPacketToSelf || pRfd->Status.bPacketBeacon)
 	{
-	#ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
 		if(signal_stat->update_req) {
 			signal_stat->total_num = 0;
 			signal_stat->total_val = 0;
@@ -3904,34 +3760,6 @@ static void rx_process_rssi(_adapter *padapter,union recv_frame *prframe)
 		signal_stat->total_num++;
 		signal_stat->total_val  += pattrib->phy_info.SignalStrength;
 		signal_stat->avg_val = signal_stat->total_val / signal_stat->total_num;		
-	#else //CONFIG_NEW_SIGNAL_STAT_PROCESS
-	
-		//Adapter->RxStats.RssiCalculateCnt++;	//For antenna Test
-		if(padapter->recvpriv.signal_strength_data.total_num++ >= PHY_RSSI_SLID_WIN_MAX)
-		{
-			padapter->recvpriv.signal_strength_data.total_num = PHY_RSSI_SLID_WIN_MAX;
-			last_rssi = padapter->recvpriv.signal_strength_data.elements[padapter->recvpriv.signal_strength_data.index];
-			padapter->recvpriv.signal_strength_data.total_val -= last_rssi;
-		}
-		padapter->recvpriv.signal_strength_data.total_val  +=pattrib->phy_info.SignalStrength;
-
-		padapter->recvpriv.signal_strength_data.elements[padapter->recvpriv.signal_strength_data.index++] = pattrib->phy_info.SignalStrength;
-		if(padapter->recvpriv.signal_strength_data.index >= PHY_RSSI_SLID_WIN_MAX)
-			padapter->recvpriv.signal_strength_data.index = 0;
-
-
-		tmp_val = padapter->recvpriv.signal_strength_data.total_val/padapter->recvpriv.signal_strength_data.total_num;
-		
-		if(padapter->recvpriv.is_signal_dbg) {
-			padapter->recvpriv.signal_strength= padapter->recvpriv.signal_strength_dbg;
-			padapter->recvpriv.rssi=(s8)translate_percentage_to_dbm(padapter->recvpriv.signal_strength_dbg);
-		} else {
-			padapter->recvpriv.signal_strength= tmp_val;
-			padapter->recvpriv.rssi=(s8)translate_percentage_to_dbm(tmp_val);
-		}
-
-		RT_TRACE(_module_rtl871x_recv_c_,_drv_info_,("UI RSSI = %d, ui_rssi.TotalVal = %d, ui_rssi.TotalNum = %d\n", tmp_val, padapter->recvpriv.signal_strength_data.total_val,padapter->recvpriv.signal_strength_data.total_num));
-	#endif //CONFIG_NEW_SIGNAL_STAT_PROCESS
 	}
 }
 
@@ -3939,22 +3767,17 @@ static void rx_process_link_qual(_adapter *padapter,union recv_frame *prframe)
 {
 	u32	last_evm=0, tmpVal;
  	struct rx_pkt_attrib *pattrib;
-#ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
 	struct signal_stat * signal_stat;
-#endif //CONFIG_NEW_SIGNAL_STAT_PROCESS
 
 	if(prframe == NULL || padapter==NULL){
 		return;
 	}
 
 	pattrib = &prframe->u.hdr.attrib;
-#ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
 	signal_stat = &padapter->recvpriv.signal_qual_data;
-#endif //CONFIG_NEW_SIGNAL_STAT_PROCESS
 
 	//DBG_8192C("process_link_qual=> pattrib->signal_qual(%d)\n ",pattrib->signal_qual);
 
-#ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
 	if(signal_stat->update_req) {
 		signal_stat->total_num = 0;
 		signal_stat->total_val = 0;
@@ -3965,36 +3788,6 @@ static void rx_process_link_qual(_adapter *padapter,union recv_frame *prframe)
 	signal_stat->total_val  += pattrib->phy_info.SignalQuality;
 	signal_stat->avg_val = signal_stat->total_val / signal_stat->total_num;
 	
-#else //CONFIG_NEW_SIGNAL_STAT_PROCESS
-	if(pattrib->phy_info.SignalQuality != 0)
-	{
-			//
-			// 1. Record the general EVM to the sliding window.
-			//
-			if(padapter->recvpriv.signal_qual_data.total_num++ >= PHY_LINKQUALITY_SLID_WIN_MAX)
-			{
-				padapter->recvpriv.signal_qual_data.total_num = PHY_LINKQUALITY_SLID_WIN_MAX;
-				last_evm = padapter->recvpriv.signal_qual_data.elements[padapter->recvpriv.signal_qual_data.index];
-				padapter->recvpriv.signal_qual_data.total_val -= last_evm;
-			}
-			padapter->recvpriv.signal_qual_data.total_val += pattrib->phy_info.SignalQuality;
-
-			padapter->recvpriv.signal_qual_data.elements[padapter->recvpriv.signal_qual_data.index++] = pattrib->phy_info.SignalQuality;
-			if(padapter->recvpriv.signal_qual_data.index >= PHY_LINKQUALITY_SLID_WIN_MAX)
-				padapter->recvpriv.signal_qual_data.index = 0;
-
-			RT_TRACE(_module_rtl871x_recv_c_,_drv_info_,("Total SQ=%d  pattrib->signal_qual= %d\n", padapter->recvpriv.signal_qual_data.total_val, pattrib->phy_info.SignalQuality));
-
-			// <1> Showed on UI for user, in percentage.
-			tmpVal = padapter->recvpriv.signal_qual_data.total_val/padapter->recvpriv.signal_qual_data.total_num;
-			padapter->recvpriv.signal_qual=(u8)tmpVal;
-
-	}
-	else
-	{
-		RT_TRACE(_module_rtl871x_recv_c_,_drv_err_,(" pattrib->signal_qual =%d\n", pattrib->phy_info.SignalQuality));
-	}
-#endif //CONFIG_NEW_SIGNAL_STAT_PROCESS
 }
 
 void rx_process_phy_info(_adapter *padapter, union recv_frame *rframe)

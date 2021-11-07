@@ -139,9 +139,7 @@ static void _init_mp_priv_(struct mp_priv *pmp_priv)
 	_rtw_memcpy(pnetwork->Ssid.Ssid, "mp_871x", pnetwork->Ssid.SsidLength);
 
 	pmp_priv->tx.payload = 2;
-#ifdef CONFIG_80211N_HT
 	pmp_priv->tx.attrib.ht_en = 1;
-#endif
 
 }
 
@@ -1278,11 +1276,7 @@ u32 mp_query_psd(PADAPTER pAdapter, u8 *data)
 		i++;
 	}
 
-	#ifdef CONFIG_LONG_DELAY_ISSUE
 	rtw_msleep_os(100);
-	#else
-	rtw_mdelay_os(100);
-	#endif
 
 	return strlen(data)+1;
 }
