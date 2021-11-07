@@ -73,13 +73,10 @@
 
 	struct	evt_priv {
 
-#define CONFIG_C2H_WK
-#ifdef CONFIG_C2H_WK
 		_workitem c2h_wk;
 		bool c2h_wk_alive;
 		struct rtw_cbuf *c2h_queue;
 		#define C2H_QUEUE_MAX_LEN 10
-#endif
 
 		ATOMIC_T event_seq;
 		u8	*evt_buf;	//shall be non-paged, and 4 bytes aligned		

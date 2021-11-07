@@ -77,9 +77,7 @@ _func_exit_;
 	
 }	
 
-#ifdef CONFIG_C2H_WK
 static void c2h_wk_callback(_workitem *work);
-#endif
 sint _rtw_init_evt_priv(struct evt_priv *pevtpriv)
 {
 	sint res=_SUCCESS;
@@ -90,11 +88,9 @@ _func_enter_;
 	ATOMIC_SET(&pevtpriv->event_seq, 0);
 	pevtpriv->evt_done_cnt = 0;
 
-#ifdef CONFIG_C2H_WK
 	_init_workitem(&pevtpriv->c2h_wk, c2h_wk_callback, NULL);
 	pevtpriv->c2h_wk_alive = _FALSE;
 	pevtpriv->c2h_queue = rtw_cbuf_alloc(C2H_QUEUE_MAX_LEN+1);
-#endif
 
 _func_exit_;		 
 
@@ -107,7 +103,6 @@ _func_enter_;
 
 	RT_TRACE(_module_rtl871x_cmd_c_,_drv_info_,("+_rtw_free_evt_priv \n"));
 
-#ifdef CONFIG_C2H_WK
 	_cancel_workitem_sync(&pevtpriv->c2h_wk);
 	while(pevtpriv->c2h_wk_alive)
 		rtw_msleep_os(10);
@@ -120,7 +115,6 @@ _func_enter_;
 		}
 	}
 	rtw_cbuf_free(pevtpriv->c2h_queue);
-#endif
 
 	RT_TRACE(_module_rtl871x_cmd_c_,_drv_info_,("-_rtw_free_evt_priv \n"));
 
@@ -3121,7 +3115,6 @@ exit:
 	return ret;
 }
 
-#ifdef CONFIG_C2H_WK
 static void c2h_wk_callback(_workitem *work)
 {
 	struct evt_priv *evtpriv = container_of(work, struct evt_priv, c2h_wk);
@@ -3167,7 +3160,6 @@ static void c2h_wk_callback(_workitem *work)
 
 	evtpriv->c2h_wk_alive = _FALSE;
 }
-#endif
 
 u8 session_tracker_cmd(_adapter *adapter, u8 cmd, struct sta_info *sta, u8 *local_naddr, u8 *local_port, u8 *remote_naddr, u8 *remote_port)
 {
