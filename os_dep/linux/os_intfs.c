@@ -188,15 +188,6 @@ int rtw_qos_opt_enable=0;//0: disable,1:enable
 #endif
 module_param(rtw_qos_opt_enable,int,0644);
 
-#ifdef CONFIG_AUTO_CHNL_SEL_NHM
-int rtw_acs_mode = 1; /*0:disable, 1:enable*/
-module_param(rtw_acs_mode, int, 0644);
-
-int rtw_acs_auto_scan = 0; /*0:disable, 1:enable*/
-module_param(rtw_acs_auto_scan, int, 0644);
-
-#endif
-
 char* ifname = "wlan%d";
 module_param(ifname, charp, 0644);
 MODULE_PARM_DESC(ifname, "The default name to allocate for first interface");
@@ -633,10 +624,7 @@ _func_enter_;
 
 	registry_par->boffefusemask = (u8)rtw_OffEfuseMask;
 	registry_par->bFileMaskEfuse = (u8)rtw_FileMaskEfuse;
-#ifdef CONFIG_AUTO_CHNL_SEL_NHM
-	registry_par->acs_mode = (u8)rtw_acs_mode;
-	registry_par->acs_auto_scan = (u8)rtw_acs_auto_scan;
-#endif
+
 	registry_par->reg_rxgain_offset_2g = (u32) rtw_rxgain_offset_2g;
 	registry_par->reg_rxgain_offset_5gl = (u32) rtw_rxgain_offset_5gl;
 	registry_par->reg_rxgain_offset_5gm = (u32) rtw_rxgain_offset_5gm;
@@ -1234,13 +1222,6 @@ u32 rtw_start_drv_threads(_adapter *padapter)
 			_rtw_down_sema(&padapter->cmdpriv.terminate_cmdthread_sema); //wait for cmd_thread to run
 	}
 
-
-#ifdef CONFIG_EVENT_THREAD_MODE
-	padapter->evtThread = kthread_run(event_thread, padapter, "RTW_EVENT_THREAD");
-	if(IS_ERR(padapter->evtThread))
-		_status = _FAIL;
-#endif
-
 	rtw_hal_start_thread(padapter);
 	return _status;
 
@@ -1252,13 +1233,6 @@ void rtw_stop_drv_threads (_adapter *padapter)
 
 	if (is_primary_adapter(padapter))
 		rtw_stop_cmd_thread(padapter);
-
-#ifdef CONFIG_EVENT_THREAD_MODE
-        _rtw_up_sema(&padapter->evtpriv.evt_notify);
-	if(padapter->evtThread){
-		_rtw_down_sema(&padapter->evtpriv.terminate_evtthread_sema);
-	}
-#endif
 
 	// Below is to termindate tx_thread...
 	// Only wake-up primary adapter
@@ -1379,9 +1353,6 @@ struct dvobj_priv *devobj_init(void)
 	_rtw_mutex_init(&pdvobj->setch_mutex);
 	_rtw_mutex_init(&pdvobj->setbw_mutex);
 	_rtw_mutex_init(&pdvobj->rf_read_reg_mutex);
-#ifdef CONFIG_SDIO_INDIRECT_ACCESS
-	_rtw_mutex_init(&pdvobj->sd_indirect_access_mutex);
-#endif
 
 #ifdef CONFIG_RTW_CUSTOMER_STR
 	_rtw_mutex_init(&pdvobj->customer_str_mutex);
@@ -1418,9 +1389,6 @@ void devobj_deinit(struct dvobj_priv *pdvobj)
 	_rtw_mutex_free(&pdvobj->setch_mutex);
 	_rtw_mutex_free(&pdvobj->setbw_mutex);
 	_rtw_mutex_free(&pdvobj->rf_read_reg_mutex);
-#ifdef CONFIG_SDIO_INDIRECT_ACCESS
-	_rtw_mutex_free(&pdvobj->sd_indirect_access_mutex);
-#endif
 
 	rtw_macid_ctl_deinit(&pdvobj->macid_ctl);
 	_rtw_spinlock_free(&pdvobj->cam_ctl.lock);
@@ -1598,10 +1566,6 @@ void rtw_cancel_all_timer(_adapter *padapter)
 
 	_cancel_timer_ex(&padapter->mlmepriv.scan_to_timer);
 	RT_TRACE(_module_os_intfs_c_, _drv_info_, ("rtw_cancel_all_timer:cancel scan_to_timer!\n"));
-
-	#ifdef CONFIG_DFS_MASTER
-	_cancel_timer_ex(&padapter->mlmepriv.dfs_master_timer);
-	#endif
 
 	_cancel_timer_ex(&padapter->mlmepriv.dynamic_chk_timer);
 	RT_TRACE(_module_os_intfs_c_, _drv_info_, ("rtw_cancel_all_timer:cancel dynamic_chk_timer!\n"));

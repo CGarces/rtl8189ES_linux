@@ -1506,11 +1506,7 @@ _func_enter_;
 
 	bpwrup = *(u8 *)poid_par_priv->information_buf;
 	//CALL  the power_down function
-#ifdef PLATFORM_LINUX
-#if defined(CONFIG_RTL8712) //Linux MP insmod unknown symbol
-	dev_power_down(padapter,bpwrup); 
-#endif
-#endif
+
 	_irqlevel_changed_(&oldirql, RAISE);
 
 	//DEBUG_ERR(("\n <=== Query OID_RT_PRO_READ_REGISTER.

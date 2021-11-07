@@ -519,10 +519,6 @@ void Debug_FwC2H(PADAPTER padapter, u8 *pdata, u8 len);
 
 void update_IOT_info(_adapter *padapter);
 
-#ifdef CONFIG_AUTO_CHNL_SEL_NHM
-void rtw_acs_start(_adapter *padapter, bool bStart);
-#endif
-
 void hal_set_crystal_cap(_adapter *adapter, u8 crystal_cap);
 
 #endif //__HAL_COMMON_H__

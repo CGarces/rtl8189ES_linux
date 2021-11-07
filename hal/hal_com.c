@@ -3547,38 +3547,6 @@ void SetHalODMVar(
 		}		
 		break;
 
-#ifdef CONFIG_AUTO_CHNL_SEL_NHM
-		case HAL_ODM_AUTO_CHNL_SEL:
-		{
-			ACS_OP	acs_op = *(ACS_OP *)pValue1;
-
-			rtw_phydm_func_set(Adapter, ODM_BB_NHM_CNT);
-
-			if (ACS_INIT == acs_op) {
-				#ifdef DBG_AUTO_CHNL_SEL_NHM
-				DBG_871X("[ACS-"ADPT_FMT"] HAL_ODM_AUTO_CHNL_SEL: ACS_INIT\n", ADPT_ARG(Adapter));
-				#endif
-				odm_AutoChannelSelectInit(podmpriv); 
-			} else if (ACS_RESET == acs_op) {
-				/* Reset statistics for auto channel selection mechanism.*/
-				#ifdef DBG_AUTO_CHNL_SEL_NHM
-				DBG_871X("[ACS-"ADPT_FMT"] HAL_ODM_AUTO_CHNL_SEL: ACS_RESET\n", ADPT_ARG(Adapter));
-				#endif
-				odm_AutoChannelSelectReset(podmpriv);
-				
-			} else if (ACS_SELECT == acs_op) {
-				/* Collect NHM measurement result after current channel */
-				#ifdef DBG_AUTO_CHNL_SEL_NHM
-				DBG_871X("[ACS-"ADPT_FMT"] HAL_ODM_AUTO_CHNL_SEL: ACS_SELECT, CH(%d)\n", ADPT_ARG(Adapter), rtw_get_acs_channel(Adapter));
-				#endif
-				odm_AutoChannelSelect(podmpriv, rtw_get_acs_channel(Adapter));
-			} else 
-				DBG_871X("[ACS-"ADPT_FMT"] HAL_ODM_AUTO_CHNL_SEL: Unexpected OP\n", ADPT_ARG(Adapter));
-
-		}
-		break;
-#endif
-
 		default:
 			break;
 	}
@@ -3601,20 +3569,6 @@ void GetHalODMVar(
 		*((u4Byte *)pValue1) = podmpriv->DebugLevel;
 		break;
 
-#ifdef CONFIG_AUTO_CHNL_SEL_NHM
-	case HAL_ODM_AUTO_CHNL_SEL:
-		{
-			#ifdef DBG_AUTO_CHNL_SEL_NHM
-			DBG_871X("[ACS-"ADPT_FMT"] HAL_ODM_AUTO_CHNL_SEL: GET_BEST_CHAN\n", ADPT_ARG(Adapter));
-			#endif	
-			/* Retrieve better channel from NHM mechanism	*/
-			if (IsSupported24G(Adapter->registrypriv.wireless_mode)) 
-				*((u8 *)(pValue1)) = ODM_GetAutoChannelSelectResult(podmpriv, BAND_ON_2_4G);
-			if (IsSupported5G(Adapter->registrypriv.wireless_mode)) 
-				*((u8 *)(pValue2)) = ODM_GetAutoChannelSelectResult(podmpriv, BAND_ON_5G);
-		}
-		break;
-#endif
 	case HAL_ODM_INITIAL_GAIN:
 		{
 			pDIG_T pDM_DigTable = &podmpriv->DM_DigTable;
@@ -4817,28 +4771,6 @@ void update_IOT_info(_adapter *padapter)
 	}
 	
 }
-#ifdef CONFIG_AUTO_CHNL_SEL_NHM
-void rtw_acs_start(_adapter *padapter, bool bStart)
-{	
-	if (_TRUE == bStart) {
-		ACS_OP acs_op = ACS_INIT;
-		
-		rtw_hal_set_odm_var(padapter, HAL_ODM_AUTO_CHNL_SEL, &acs_op, _TRUE);
-		rtw_set_acs_channel(padapter, 0);
-		SET_ACS_STATE(padapter, ACS_ENABLE);		
-	} else {		
-		SET_ACS_STATE(padapter, ACS_DISABLE);
-		#ifdef DBG_AUTO_CHNL_SEL_NHM
-		u8 best_24g_ch = 0;
-		u8 best_5g_ch = 0;
-		
-		rtw_hal_get_odm_var(padapter, HAL_ODM_AUTO_CHNL_SEL, &(best_24g_ch), &(best_5g_ch));
-		DBG_871X("[ACS-"ADPT_FMT"] Best 2.4G CH:%u\n", ADPT_ARG(padapter), best_24g_ch);
-		DBG_871X("[ACS-"ADPT_FMT"] Best 5G CH:%u\n", ADPT_ARG(padapter), best_5g_ch);
-		#endif
-	}
-}
-#endif
 
 /* TODO: merge with phydm, see odm_SetCrystalCap() */
 void hal_set_crystal_cap(_adapter *adapter, u8 crystal_cap)

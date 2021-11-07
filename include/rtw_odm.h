@@ -45,11 +45,5 @@ void rtw_odm_get_perpkt_rssi(void *sel, _adapter *adapter);
 void rtw_odm_acquirespinlock(_adapter *adapter,	RT_SPINLOCK_TYPE type);
 void rtw_odm_releasespinlock(_adapter *adapter,	RT_SPINLOCK_TYPE type);
 
-#ifdef CONFIG_DFS_MASTER
-VOID rtw_odm_radar_detect_reset(_adapter *adapter);
-VOID rtw_odm_radar_detect_disable(_adapter *adapter);
-VOID rtw_odm_radar_detect_enable(_adapter *adapter);
-BOOLEAN rtw_odm_radar_detect(_adapter *adapter);
-#endif /* CONFIG_DFS_MASTER */
 #endif // __RTW_ODM_H__
 

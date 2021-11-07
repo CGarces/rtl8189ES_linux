@@ -405,10 +405,7 @@ int proc_get_suspend_resume_info(struct seq_file *m, void *v);
 
 ssize_t proc_set_fwdl_test_case(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
 ssize_t proc_set_del_rx_ampdu_test_case(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
-#ifdef CONFIG_DFS_MASTER
-int proc_get_dfs_master_test_case(struct seq_file *m, void *v);
-ssize_t proc_set_dfs_master_test_case(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
-#endif /* CONFIG_DFS_MASTER */
+
 ssize_t proc_set_wait_hiq_empty(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
 
 int proc_get_all_sta_info(struct seq_file *m, void *v);

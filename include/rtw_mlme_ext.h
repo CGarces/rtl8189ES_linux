@@ -451,9 +451,6 @@ typedef struct _RT_CHANNEL_INFO
 #ifdef CONFIG_FIND_BEST_CHANNEL
 	u32				rx_count;
 #endif
-#ifdef CONFIG_DFS_MASTER
-	u32 non_ocp_end_time;
-#endif
 }RT_CHANNEL_INFO, *PRT_CHANNEL_INFO;
 
 #define DFS_MASTER_TIMER_MS 100
@@ -461,22 +458,9 @@ typedef struct _RT_CHANNEL_INFO
 #define CAC_TIME_CE_MS (10*60*1000)
 #define NON_OCP_TIME_MS (30*60*1000)
 
-#ifdef CONFIG_DFS_MASTER
-struct rf_ctl_t;
-#define CH_IS_NON_OCP(rt_ch_info) ((rt_ch_info)->non_ocp_end_time > rtw_get_current_time())
-void rtw_rfctl_reset_cac(struct rf_ctl_t *rfctl);
-bool rtw_is_cac_reset_needed(_adapter *adapter);
-bool _rtw_rfctl_overlap_radar_detect_ch(struct rf_ctl_t *rfctl, u8 ch, u8 bw, u8 offset);
-bool rtw_rfctl_overlap_radar_detect_ch(struct rf_ctl_t *rfctl);
-bool rtw_rfctl_is_tx_blocked_by_cac(struct rf_ctl_t *rfctl);
-bool rtw_chset_is_ch_non_ocp(RT_CHANNEL_INFO *ch_set, u8 ch, u8 bw, u8 offset);
-void rtw_chset_update_non_ocp(RT_CHANNEL_INFO *ch_set, u8 ch, u8 bw, u8 offset);
-void rtw_chset_update_non_ocp_ms(RT_CHANNEL_INFO *ch_set, u8 ch, u8 bw, u8 offset, int ms);
-#else
 #define CH_IS_NON_OCP(rt_ch_info) 0
 #define rtw_chset_is_ch_non_ocp(ch_set, ch, bw, offset) _FALSE
 #define rtw_rfctl_is_tx_blocked_by_cac(rfctl) _FALSE
-#endif
 
 enum {
 	RTW_CHF_2G = BIT0,
@@ -713,9 +697,7 @@ int rtw_get_bcn_keys(ADAPTER *Adapter, u8 *pframe, u32 packet_len,
 void rtw_dump_bcn_keys(struct beacon_keys *recv_beacon);
 int rtw_check_bcn_info(ADAPTER *Adapter, u8 *pframe, u32 packet_len);
 void update_beacon_info(_adapter *padapter, u8 *pframe, uint len, struct sta_info *psta);
-#ifdef CONFIG_DFS
-void process_csa_ie(_adapter *padapter, u8 *pframe, uint len);
-#endif //CONFIG_DFS
+
 void update_capinfo(PADAPTER Adapter, u16 updateCap);
 void update_wireless_mode(_adapter * padapter);
 void update_tx_basic_rate(_adapter *padapter, u8 modulation);

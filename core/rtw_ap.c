@@ -1093,23 +1093,12 @@ static void rtw_ap_check_scan(_adapter *padapter)
 			do_scan = _TRUE;
 	_exit_critical_bh(&(pmlmepriv->scanned_queue.lock), &irqL);
 
-#ifdef CONFIG_AUTO_CHNL_SEL_NHM
-	if (padapter->registrypriv.acs_auto_scan) {
-		do_scan = _TRUE;
-		rtw_acs_start(padapter, _TRUE);
-	}
-#endif
-		
-	if (_TRUE == do_scan) {
+	if (do_scan) {
 		DBG_871X("%s : drv scans by itself and wait_completed\n", __func__);
 		rtw_drv_scan_by_self(padapter);
 		rtw_scan_wait_completed(padapter);
 	}
-	
-#ifdef CONFIG_AUTO_CHNL_SEL_NHM
-	if (padapter->registrypriv.acs_auto_scan)
-		rtw_acs_start(padapter, _FALSE);
-#endif	
+
 	_enter_critical_bh(&(pmlmepriv->scanned_queue.lock), &irqL);
 
 	phead = get_list_head(queue);
@@ -1290,10 +1279,6 @@ change_chbw:
 	_rtw_memcpy(pnetwork_mlmeext, pnetwork, pnetwork->Length);
 
 	rtw_start_bss_hdl_after_chbw_decided(padapter);
-
-	#if defined(CONFIG_DFS_MASTER)
-	rtw_dfs_master_status_apply(padapter, MLME_AP_STARTED);
-	#endif
 
 	doiqk = _TRUE;
 	rtw_hal_set_hwreg(padapter , HW_VAR_DO_IQK , &doiqk);
@@ -3296,10 +3281,6 @@ void stop_ap_mode(_adapter *padapter)
 	padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeOpen;
 	padapter->securitypriv.ndisencryptstatus = Ndis802_11WEPDisabled;
 
-	#ifdef CONFIG_DFS_MASTER
-	rtw_dfs_master_status_apply(padapter, MLME_AP_STOPPED);
-	#endif
-
 	/* free scan queue */
 	rtw_free_network_queue(padapter, _TRUE);
 
@@ -3485,31 +3466,6 @@ bool rtw_ap_chbw_decision(_adapter *adapter, u8 req_ch, u8 req_bw, u8 req_offset
 
 		DBG_871X(FUNC_ADPT_FMT" req: %u,%u,%u\n", FUNC_ADPT_ARG(adapter), req_ch, req_bw, req_offset);
 		rtw_adjust_chbw(adapter, dec_ch, &dec_bw, &dec_offset);
-
-		#if defined(CONFIG_DFS_MASTER)
-		/* check NOL */
-		if (rtw_chset_is_ch_non_ocp(mlmeext->channel_set, dec_ch, dec_bw, dec_offset)) {
-			/* choose 5G DFS channel for debug */
-			if (adapter_to_rfctl(adapter)->dbg_dfs_master_choose_dfs_ch_first
-				&& rtw_choose_available_chbw(adapter, req_bw, &dec_ch, &dec_bw, &dec_offset, RTW_CHF_2G|RTW_CHF_NON_DFS) == _TRUE) {
-				DBG_871X(FUNC_ADPT_FMT" choose 5G DFS channel for debug\n", FUNC_ADPT_ARG(adapter));
-			} else 
-			/* choose from 5G no DFS */
-			if (rtw_choose_available_chbw(adapter, req_bw, &dec_ch, &dec_bw, &dec_offset, RTW_CHF_2G|RTW_CHF_DFS) == _FALSE) {
-				/* including 5G DFS, not long CAC */
-				if (rtw_choose_available_chbw(adapter, req_bw, &dec_ch, &dec_bw, &dec_offset, RTW_CHF_2G|RTW_CHF_LONG_CAC) == _FALSE) {
-					/* including 5G DFS, long CAC */
-					if (rtw_choose_available_chbw(adapter, req_bw, &dec_ch, &dec_bw, &dec_offset, RTW_CHF_2G) == _FALSE) {
-						/* including 2.4G channel */
-						if (rtw_choose_available_chbw(adapter, req_bw, &dec_ch, &dec_bw, &dec_offset, RTW_CHF_5G) == _FALSE) {
-							DBG_871X(FUNC_ADPT_FMT" no available ch\n", FUNC_ADPT_ARG(adapter));
-							rtw_warn_on(1);
-						}
-					}
-				}
-			}
-		}
-		#endif /* defined(CONFIG_DFS_MASTER) */
 
 		rtw_ap_update_bss_chbw(adapter, &(adapter->mlmepriv.cur_network.network)
 				, dec_ch, dec_bw, dec_offset);

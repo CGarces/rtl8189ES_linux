@@ -752,75 +752,6 @@ exit:
 	return count;
 }
 
-#ifdef CONFIG_DFS_MASTER
-ssize_t proc_set_update_non_ocp(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
-{
-	struct net_device *dev = data;
-	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
-	struct mlme_priv *mlme = &adapter->mlmepriv;
-	struct mlme_ext_priv *mlmeext = &adapter->mlmeextpriv;
-	char tmp[32];
-	u8 ch, bw = CHANNEL_WIDTH_20, offset = HAL_PRIME_CHNL_OFFSET_DONT_CARE;
-	int ms = -1;
-
-	if (count < 1)
-		return -EFAULT;
-
-	if (count > sizeof(tmp)) {
-		rtw_warn_on(1);
-		return -EFAULT;
-	}
-
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
-
-		int num = sscanf(tmp, "%hhu %hhu %hhu %d", &ch, &bw, &offset, &ms);
-
-		if (num < 1 || (bw != CHANNEL_WIDTH_20 && num < 3))
-			goto exit;
-
-		if (bw == CHANNEL_WIDTH_20)
-			rtw_chset_update_non_ocp_ms(mlmeext->channel_set
-				, ch, bw, HAL_PRIME_CHNL_OFFSET_DONT_CARE, ms);
-		else
-			rtw_chset_update_non_ocp_ms(mlmeext->channel_set
-				, ch, bw, offset, ms);
-	}
-
-exit:
-	return count;
-}
-
-ssize_t proc_set_radar_detect(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
-{
-	struct net_device *dev = data;
-	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
-	struct rf_ctl_t *rfctl = adapter_to_rfctl(adapter);
-	char tmp[32];
-	u8 fake_radar_detect_cnt = 0;
-
-	if (count < 1)
-		return -EFAULT;
-
-	if (count > sizeof(tmp)) {
-		rtw_warn_on(1);
-		return -EFAULT;
-	}
-
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
-
-		int num = sscanf(tmp, "%hhu", &fake_radar_detect_cnt);
-
-		if (num < 1)
-			goto exit;
-
-		rfctl->dbg_dfs_master_fake_radar_detect_cnt = fake_radar_detect_cnt;
-	}
-
-exit:
-	return count;
-}
-#endif /* CONFIG_DFS_MASTER */
-
 static int proc_get_udpport(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
@@ -1441,51 +1372,6 @@ static ssize_t proc_set_tx_gain_offset(struct file *file, const char __user *buf
 	return count;
 }
 
-#ifdef CONFIG_AUTO_CHNL_SEL_NHM
-static int proc_get_best_chan(struct seq_file *m, void *v)
-{
-	struct net_device *dev = m->private;
-	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
-	u8 best_24g_ch = 0, best_5g_ch = 0;
-
-	rtw_hal_get_odm_var(adapter, HAL_ODM_AUTO_CHNL_SEL, &(best_24g_ch), &(best_5g_ch));
-
-	DBG_871X_SEL_NL(m, "Best 2.4G CH:%u\n", best_24g_ch);
-	DBG_871X_SEL_NL(m, "Best 5G CH:%u\n", best_5g_ch);
-	return 0;
-}
-
-static ssize_t  proc_set_acs(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
-{
-	struct net_device *dev = data;
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	char tmp[32];
-	u8 acs_satae = 0;
-
-	if (count < 1)
-		return -EFAULT;
-
-	if (count > sizeof(tmp)) {
-		rtw_warn_on(1);
-		return -EFAULT;
-	}
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
-
-		int num = sscanf(tmp, "%hhu", &acs_satae);
-		
-		if (num < 1)
-			return -EINVAL;
-
-		if (1 == acs_satae)
-			rtw_acs_start(padapter, _TRUE);
-		else
-			rtw_acs_start(padapter, _FALSE);
-
-	}
-	return count;
-}
-#endif
-
 static int proc_get_hal_spec(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
@@ -1595,11 +1481,7 @@ const struct rtw_proc_hdl adapter_proc_hdls[] = {
 #endif
 	RTW_PROC_HDL_SSEQ("country_code", proc_get_country_code, proc_set_country_code),
 	RTW_PROC_HDL_SSEQ("chan_plan", proc_get_chan_plan, proc_set_chan_plan),
-#ifdef CONFIG_DFS_MASTER
-	RTW_PROC_HDL_SSEQ("dfs_master_test_case", proc_get_dfs_master_test_case, proc_set_dfs_master_test_case),
-	RTW_PROC_HDL_SSEQ("update_non_ocp", NULL, proc_set_update_non_ocp),
-	RTW_PROC_HDL_SSEQ("radar_detect", NULL, proc_set_radar_detect),
-#endif
+
 	RTW_PROC_HDL_SSEQ("new_bcn_max", proc_get_new_bcn_max, proc_set_new_bcn_max),
 	RTW_PROC_HDL_SSEQ("sink_udpport", proc_get_udpport, proc_set_udpport),
 #ifdef DBG_RX_COUNTER_DUMP
@@ -1620,10 +1502,6 @@ const struct rtw_proc_hdl adapter_proc_hdls[] = {
 	RTW_PROC_HDL_SSEQ("ps_info", proc_get_ps_info, NULL),
 
 	RTW_PROC_HDL_SSEQ("monitor", proc_get_monitor, proc_set_monitor),
-
-#ifdef CONFIG_AUTO_CHNL_SEL_NHM
-	RTW_PROC_HDL_SSEQ("acs", proc_get_best_chan, proc_set_acs),
-#endif
 
 	RTW_PROC_HDL_SSEQ("efuse_map", proc_get_efuse_map, NULL),
 	RTW_PROC_HDL_SSEQ("hal_spec", proc_get_hal_spec, NULL),

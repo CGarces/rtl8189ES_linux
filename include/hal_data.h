@@ -125,24 +125,6 @@ typedef struct _BB_INIT_REGISTER {
 #define HCI_SUS_ENTERING	3
 #define HCI_SUS_ERR			4
 
-#ifdef CONFIG_AUTO_CHNL_SEL_NHM
-typedef enum _ACS_OP {
-	ACS_INIT,		/*ACS - Variable init*/
-	ACS_RESET,		/*ACS - NHM Counter reset*/
-	ACS_SELECT,		/*ACS - NHM Counter Statistics */
-} ACS_OP;
-
-typedef enum _ACS_STATE {
-	ACS_DISABLE,
-	ACS_ENABLE,
-} ACS_STATE;
-
-struct auto_chan_sel {
-	ATOMIC_T state;
-	u8	ch; /* previous channel*/
-};
-#endif /*CONFIG_AUTO_CHNL_SEL_NHM*/
-
 #define EFUSE_FILE_UNUSED 0
 #define EFUSE_FILE_FAILED 1
 #define EFUSE_FILE_LOADED 2
@@ -218,9 +200,7 @@ typedef struct hal_com_data {
 	BOOLEAN			bSwChnl;
 	BOOLEAN			bSetChnlBW;
 	BOOLEAN			bChnlBWInitialized;
-#ifdef CONFIG_AUTO_CHNL_SEL_NHM
-	struct auto_chan_sel acs;
-#endif
+
 	/****** rf_ctrl *****/
 	u8	rf_chip;
 	u8	rf_type;
@@ -525,13 +505,6 @@ typedef struct hal_com_data HAL_DATA_TYPE, *PHAL_DATA_TYPE;
 #define is_boot_from_eeprom(adapter) 			(GET_HAL_DATA(adapter)->EepromOrEfuse)
 #define rtw_get_hw_init_completed(adapter)		(GET_HAL_DATA(adapter)->hw_init_completed)
 #define rtw_is_hw_init_completed(adapter)		(GET_HAL_DATA(adapter)->hw_init_completed == _TRUE)
-
-#ifdef CONFIG_AUTO_CHNL_SEL_NHM
-#define GET_ACS_STATE(padapter)					(ATOMIC_READ(&GET_HAL_DATA(padapter)->acs.state))
-#define SET_ACS_STATE(padapter, set_state)			(ATOMIC_SET(&GET_HAL_DATA(padapter)->acs.state, set_state))
-#define rtw_get_acs_channel(padapter)				(GET_HAL_DATA(padapter)->acs.ch)
-#define rtw_set_acs_channel(padapter, survey_ch)	(GET_HAL_DATA(padapter)->acs.ch = survey_ch)
-#endif /*CONFIG_AUTO_CHNL_SEL_NHM*/
 
 #endif //__HAL_DATA_H__
 

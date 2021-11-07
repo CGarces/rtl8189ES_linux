@@ -276,10 +276,7 @@ struct registry_priv
 
 	u8 boffefusemask;
 	BOOLEAN bFileMaskEfuse;
-#ifdef CONFIG_AUTO_CHNL_SEL_NHM
-	u8 acs_mode;
-	u8 acs_auto_scan;
-#endif
+
 	u32	reg_rxgain_offset_2g;
 	u32	reg_rxgain_offset_5gl;
 	u32	reg_rxgain_offset_5gm;
@@ -629,24 +626,6 @@ struct rf_ctl_t {
 	u8 highest_ht_rate_bw_bmp;
 	u8 highest_vht_rate_bw_bmp;
 
-	#ifdef CONFIG_DFS_MASTER
-	bool radar_detect_by_sta_link;
-	bool pre_radar_detect_by_sta_link;
-	bool dfs_master_enabled;
-
-	u8 radar_detect_ch;
-	u8 radar_detect_bw;
-	u8 radar_detect_offset;
-	u8 pre_radar_detect_ch;
-	u8 pre_radar_detect_bw;
-	u8 pre_radar_detect_offset;
-
-	u32 cac_end_time;
-
-	u8 dbg_dfs_master_fake_radar_detect_cnt;
-	u8 dbg_dfs_master_radar_detect_trigger_non;
-	u8 dbg_dfs_master_choose_dfs_ch_first;
-	#endif
 };
 
 #define RTW_CAC_STOPPED 0
@@ -679,9 +658,6 @@ struct dvobj_priv
 	_mutex setch_mutex;
 	_mutex setbw_mutex;
 	_mutex rf_read_reg_mutex;
-#ifdef CONFIG_SDIO_INDIRECT_ACCESS
-	_mutex sd_indirect_access_mutex;
-#endif
 
 	unsigned char	oper_channel; //saved channel info when call set_channel_bw
 	unsigned char	oper_bwmode;

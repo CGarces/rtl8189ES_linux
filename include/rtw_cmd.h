@@ -71,22 +71,7 @@
 		_mutex sctx_mutex;
 	};
 
-#ifdef CONFIG_EVENT_THREAD_MODE
-	struct evt_obj {
-		u16	evtcode;
-		u8	res;
-		u8	*parmbuf;
-		u32	evtsz;		
-		_list	list;
-	};
-#endif
-
 	struct	evt_priv {
-#ifdef CONFIG_EVENT_THREAD_MODE
-		_sema	evt_notify;
-		_sema	terminate_evtthread_sema;
-		_queue	evt_queue;
-#endif
 
 #define CONFIG_C2H_WK
 #ifdef CONFIG_C2H_WK
@@ -176,12 +161,6 @@ struct P2P_WoWlan_Offload_t{
 extern u32 rtw_enqueue_cmd(struct cmd_priv *pcmdpriv, struct cmd_obj *obj);
 extern struct cmd_obj *rtw_dequeue_cmd(struct cmd_priv *pcmdpriv);
 extern void rtw_free_cmd_obj(struct cmd_obj *pcmd);
-
-#ifdef CONFIG_EVENT_THREAD_MODE
-extern u32 rtw_enqueue_evt(struct evt_priv *pevtpriv, struct evt_obj *obj);
-extern struct evt_obj *rtw_dequeue_evt(_queue *queue);
-extern void rtw_free_evt_obj(struct evt_obj *pcmd);
-#endif
 
 void rtw_stop_cmd_thread(_adapter *adapter);
 thread_return rtw_cmd_thread(thread_context context);
@@ -1061,20 +1040,6 @@ u8 rtw_dm_ra_mask_wk_cmd(_adapter*padapter, u8 *psta);
 extern u8 rtw_ps_cmd(_adapter*padapter);
 
 u8 rtw_chk_hi_queue_cmd(_adapter*padapter);
-#ifdef CONFIG_DFS_MASTER
-u8 rtw_dfs_master_cmd(_adapter *adapter, bool enqueue);
-void rtw_dfs_master_timer_hdl(RTW_TIMER_HDL_ARGS);
-void rtw_dfs_master_enable(_adapter *adapter, u8 ch, u8 bw, u8 offset);
-void rtw_dfs_master_disable(_adapter *adapter, bool ld_sta_in_dfs);
-enum {
-	MLME_STA_CONNECTING,
-	MLME_STA_CONNECTED,
-	MLME_STA_DISCONNECTED,
-	MLME_AP_STARTED,
-	MLME_AP_STOPPED,
-};
-void rtw_dfs_master_status_apply(_adapter *adapter, u8 self_action);
-#endif /* CONFIG_DFS_MASTER */
 
 u8 rtw_enable_hw_update_tsf_cmd(_adapter *padapter);
 

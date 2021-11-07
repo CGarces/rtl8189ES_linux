@@ -365,22 +365,6 @@ void dump_adapters_status(void *sel, struct dvobj_priv *dvobj)
 		, dvobj->oper_bwmode
 		, dvobj->oper_ch_offset
 	);
-
-	#ifdef CONFIG_DFS_MASTER
-	if (rfctl->radar_detect_ch != 0) {
-		DBG_871X_SEL_NL(sel, "%34s %3u,%u,%u"
-			, "radar_detect:"
-			, rfctl->radar_detect_ch
-			, rfctl->radar_detect_bw
-			, rfctl->radar_detect_offset
-		);
-
-		if (IS_UNDER_CAC(rfctl))
-			DBG_871X_SEL(sel, ", cac:%d\n", rtw_systime_to_ms(rfctl->cac_end_time - rtw_get_current_time()));
-		else
-			DBG_871X_SEL(sel, "\n");
-	}
-	#endif
 }
 
 #define SEC_CAM_ENT_ID_TITLE_FMT "%-2s"
@@ -1280,52 +1264,6 @@ ssize_t proc_set_del_rx_ampdu_test_case(struct file *file, const char __user *bu
 
 	return count;
 }
-
-#ifdef CONFIG_DFS_MASTER
-int proc_get_dfs_master_test_case(struct seq_file *m, void *v)
-{
-	struct net_device *dev = m->private;
-	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
-	struct rf_ctl_t *rfctl = adapter_to_rfctl(adapter);
-
-	DBG_871X_SEL_NL(m, "%-24s %-19s\n", "radar_detect_trigger_non", "choose_dfs_ch_first");
-	DBG_871X_SEL_NL(m, "%24hhu %19hhu\n"
-		, rfctl->dbg_dfs_master_radar_detect_trigger_non
-		, rfctl->dbg_dfs_master_choose_dfs_ch_first
-	);
-
-	return 0;
-}
-
-ssize_t proc_set_dfs_master_test_case(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
-{
-	struct net_device *dev = data;
-	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
-	struct rf_ctl_t *rfctl = adapter_to_rfctl(adapter);
-	char tmp[32];
-	u8 radar_detect_trigger_non;
-	u8 choose_dfs_ch_first;
-
-	if (count < 1)
-		return -EFAULT;
-
-	if (count > sizeof(tmp)) {
-		rtw_warn_on(1);
-		return -EFAULT;
-	}
-
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
-		int num = sscanf(tmp, "%hhu %hhu", &radar_detect_trigger_non, &choose_dfs_ch_first);
-
-		if (num >= 1)
-			rfctl->dbg_dfs_master_radar_detect_trigger_non = radar_detect_trigger_non;
-		if (num >= 2)
-			rfctl->dbg_dfs_master_choose_dfs_ch_first = choose_dfs_ch_first;
-	}
-
-	return count;
-}
-#endif /* CONFIG_DFS_MASTER */
 
 ssize_t proc_set_wait_hiq_empty(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
 {

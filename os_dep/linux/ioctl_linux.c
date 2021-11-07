@@ -1802,10 +1802,6 @@ static int rtw_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
 
 _func_enter_;
 
-	#ifdef DBG_IOCTL
-	DBG_871X("DBG_IOCTL %s:%d\n",__FUNCTION__, __LINE__);
-	#endif
-
 #ifdef CONFIG_MP_INCLUDED
 		if (padapter->registrypriv.mp_mode == 1)
 		{
@@ -1976,10 +1972,6 @@ exit:
 
 	rtw_ps_deny_cancel(padapter, PS_DENY_SCAN);
 
-	#ifdef DBG_IOCTL
-	DBG_871X("DBG_IOCTL %s:%d return %d\n",__FUNCTION__, __LINE__, ret);
-	#endif
-
 _func_exit_;
 
 	return ret;	
@@ -2006,10 +1998,6 @@ static int rtw_wx_get_scan(struct net_device *dev, struct iw_request_info *a,
 	RT_TRACE(_module_rtl871x_ioctl_os_c,_drv_info_, (" Start of Query SIOCGIWSCAN .\n"));
 
 	_func_enter_;
-
-	#ifdef DBG_IOCTL
-	DBG_871X("DBG_IOCTL %s:%d\n",__FUNCTION__, __LINE__);
-	#endif
 
 	if (adapter_to_pwrctl(padapter)->brfoffbyhw && rtw_is_drv_stopped(padapter)) {
 		ret = -EINVAL;
@@ -2072,11 +2060,7 @@ static int rtw_wx_get_scan(struct net_device *dev, struct iw_request_info *a,
 exit:		
 	
 	_func_exit_;	
-	
-	#ifdef DBG_IOCTL
-	DBG_871X("DBG_IOCTL %s:%d return %d\n",__FUNCTION__, __LINE__, ret);
-	#endif
-	
+
 	return ret ;
 	
 }
@@ -2105,9 +2089,6 @@ static int rtw_wx_set_essid(struct net_device *dev,
 
 	_func_enter_;
 	
-	#ifdef DBG_IOCTL
-	DBG_871X("DBG_IOCTL %s:%d\n",__FUNCTION__, __LINE__);
-	#endif
 	#ifdef CONFIG_WEXT_DONT_JOIN_BYSSID
 	DBG_871X("%s: CONFIG_WEXT_DONT_JOIN_BYSSID be defined!! only allow bssid joining\n", __func__);
 	return -EPERM;
@@ -2231,10 +2212,6 @@ exit:
 	rtw_ps_deny_cancel(padapter, PS_DENY_JOIN);
 
 	DBG_871X("<=%s, ret %d\n",__FUNCTION__, ret);
-	
-	#ifdef DBG_IOCTL
-	DBG_871X("DBG_IOCTL %s:%d return %d\n",__FUNCTION__, __LINE__, ret);
-	#endif
 	
 	_func_exit_;
 	
@@ -9156,140 +9133,6 @@ free_buf:
 }
 #endif /* CONFIG_RTW_CUSTOMER_STR */
 
-#ifdef CONFIG_SDIO_INDIRECT_ACCESS
-#define DBG_MP_SDIO_INDIRECT_ACCESS 1
-static int rtw_mp_sd_iread(struct net_device *dev
-	, struct iw_request_info *info
-	, struct iw_point *wrqu
-	, char *extra)
-{
-	char input[16];
-	u8 width;
-	unsigned long addr;
-	u32 ret = 0;
-	PADAPTER padapter = rtw_netdev_priv(dev);
-
-	if (wrqu->length > 16) {
-		DBG_871X(FUNC_ADPT_FMT" wrqu->length:%d\n", FUNC_ADPT_ARG(padapter), wrqu->length);
-		ret = -EINVAL;
-		goto exit;
-	}
-
-	if (copy_from_user(input, wrqu->pointer, wrqu->length)) {
-		DBG_871X(FUNC_ADPT_FMT" copy_from_user fail\n", FUNC_ADPT_ARG(padapter));
-		ret = -EFAULT;
-		goto exit;
-	}
-
-	_rtw_memset(extra, 0, wrqu->length);
-
-	if (sscanf(input, "%hhu,%lx", &width, &addr) != 2) {
-		DBG_871X(FUNC_ADPT_FMT" sscanf fail\n", FUNC_ADPT_ARG(padapter));
-		ret = -EINVAL;
-		goto exit;
-	}
-
-	if (addr > 0x3FFF) {
-		DBG_871X(FUNC_ADPT_FMT" addr:0x%lx\n", FUNC_ADPT_ARG(padapter), addr);
-		ret = -EINVAL;
-		goto exit;
-	}
-
-	if (DBG_MP_SDIO_INDIRECT_ACCESS)
-		DBG_871X(FUNC_ADPT_FMT" width:%u, addr:0x%lx\n", FUNC_ADPT_ARG(padapter), width, addr);
-
-	switch (width) {
-	case 1:
-		sprintf(extra, "0x%02x", rtw_sd_iread8(padapter, addr));
-		wrqu->length = strlen(extra);
-		break;
-	case 2:
-		sprintf(extra, "0x%04x", rtw_sd_iread16(padapter, addr));
-		wrqu->length = strlen(extra);
-		break;
-	case 4:
-		sprintf(extra, "0x%08x", rtw_sd_iread32(padapter, addr));
-		wrqu->length = strlen(extra);
-		break;
-	default:
-		wrqu->length = 0;
-		ret = -EINVAL;
-		break;
-	}
-
-exit:
-	return ret;
-}
-
-static int rtw_mp_sd_iwrite(struct net_device *dev
-	, struct iw_request_info *info
-	, struct iw_point *wrqu
-	, char *extra)
-{
-	char width;
-	unsigned long addr, data;
-	int ret = 0;
-	PADAPTER padapter = rtw_netdev_priv(dev);
-	char input[32];
-
-	if (wrqu->length > 32) {
-		DBG_871X(FUNC_ADPT_FMT" wrqu->length:%d\n", FUNC_ADPT_ARG(padapter), wrqu->length);
-		ret = -EINVAL;
-		goto exit;
-	}
-
-	if (copy_from_user(input, wrqu->pointer, wrqu->length)) {
-		DBG_871X(FUNC_ADPT_FMT" copy_from_user fail\n", FUNC_ADPT_ARG(padapter));
-		ret = -EFAULT;
-		goto exit;
-	}
-				 
-	_rtw_memset(extra, 0, wrqu->length);	
-
-	if (sscanf(input, "%hhu,%lx,%lx", &width, &addr, &data) != 3) {
-		DBG_871X(FUNC_ADPT_FMT" sscanf fail\n", FUNC_ADPT_ARG(padapter));
-		ret = -EINVAL;
-		goto exit;
-	}
-
-	if (addr > 0x3FFF) {
-		DBG_871X(FUNC_ADPT_FMT" addr:0x%lx\n", FUNC_ADPT_ARG(padapter), addr);
-		ret = -EINVAL;
-		goto exit;
-	}
-
-	if (DBG_MP_SDIO_INDIRECT_ACCESS)
-		DBG_871X(FUNC_ADPT_FMT" width:%u, addr:0x%lx, data:0x%lx\n", FUNC_ADPT_ARG(padapter), width, addr, data);
-
-	switch (width) {
-	case 1:
-		if (data > 0xFF) {
-			ret = -EINVAL;
-			break;
-		}
-		rtw_sd_iwrite8(padapter, addr, data);
-		break;
-	case 2:
-		if (data > 0xFFFF) {
-			ret = -EINVAL;
-			break;
-		}
-		rtw_sd_iwrite16(padapter, addr, data);
-		break;
-	case 4:
-		rtw_sd_iwrite32(padapter, addr, data);
-		break;
-	default:
-		wrqu->length = 0;
-		ret = -EINVAL;
-		break;
-	}
-
-exit:
-	return ret;
-}
-#endif /* CONFIG_SDIO_INDIRECT_ACCESS */
-
 static int rtw_mp_set(struct net_device *dev,
 			struct iw_request_info *info,
 			union iwreq_data *wdata, char *extra)
@@ -9525,14 +9368,7 @@ static int rtw_mp_get(struct net_device *dev,
 			DBG_871X("mp_get MP_RX\n");
 			rtw_mp_rx(dev, info, wdata, extra);
 			break;
-#ifdef CONFIG_SDIO_INDIRECT_ACCESS
-	case MP_SD_IREAD:
-		rtw_mp_sd_iread(dev, info, wrqu, extra);
-		break;
-	case MP_SD_IWRITE:
-		rtw_mp_sd_iwrite(dev, info, wrqu, extra);
-		break;
-#endif
+
 #ifdef CONFIG_RTW_CUSTOMER_STR
 	case MP_CUSTOMER_STR:
 		RTW_INFO("customer str\n");
@@ -9849,10 +9685,6 @@ static const struct iw_priv_args rtw_private_args[] = {
 		#endif
 #endif
 
-#ifdef CONFIG_SDIO_INDIRECT_ACCESS
-		{ MP_SD_IREAD, IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "sd_iread" },
-		{ MP_SD_IWRITE, IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "sd_iwrite" },
-#endif
 };
 
 static iw_handler rtw_private_handler[] = 

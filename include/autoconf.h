@@ -32,9 +32,6 @@
 #define MP_DRIVER	1
 #define CONFIG_MP_IWPRIV_SUPPORT
 
-
-#define BT_30_SUPPORT 0
-
 /*
  * Debug Related Config
  */
