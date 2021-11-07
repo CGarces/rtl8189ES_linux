@@ -2202,31 +2202,25 @@ void rtw_stassoc_event_callback(_adapter *adapter, u8 *pbuf)
 	
 _func_enter_;	
 	
-	if(rtw_access_ctrl(adapter, pstassoc->macaddr) == _FALSE)
+	if (rtw_access_ctrl(adapter, pstassoc->macaddr) == _FALSE)
 		return;
 
-	if(check_fwstate(pmlmepriv, WIFI_AP_STATE))
-	{
+	if (check_fwstate(pmlmepriv, WIFI_AP_STATE)) {
 		psta = rtw_get_stainfo(&adapter->stapriv, pstassoc->macaddr);	
-		if(psta)
-		{		
+		if (psta) {		
 			u8 *passoc_req = NULL;
 			u32 assoc_req_len = 0;
 		
 			rtw_sta_media_status_rpt(adapter, psta, 1);
-		
-#ifndef CONFIG_AUTO_AP_MODE
 
 			ap_sta_info_defer_update(adapter, psta);
 
 			//report to upper layer 
 			DBG_871X("indicate_sta_assoc_event to upper layer - hostapd\n");
 			_enter_critical_bh(&psta->lock, &irqL);
-			if(psta->passoc_req && psta->assoc_req_len>0)
-			{				
+			if (psta->passoc_req && psta->assoc_req_len>0) {				
 				passoc_req = rtw_zmalloc(psta->assoc_req_len);
-				if(passoc_req)
-				{
+				if (passoc_req) {
 					assoc_req_len = psta->assoc_req_len;
 					_rtw_memcpy(passoc_req, psta->passoc_req, assoc_req_len);
 					
@@ -2237,14 +2231,11 @@ _func_enter_;
 			}			
 			_exit_critical_bh(&psta->lock, &irqL);
 
-			if(passoc_req && assoc_req_len>0)
-			{
+			if (passoc_req && assoc_req_len>0) {
 				rtw_cfg80211_indicate_sta_assoc(adapter, passoc_req, assoc_req_len);
 
 				rtw_mfree(passoc_req, assoc_req_len);
 			}			
-#endif //!CONFIG_AUTO_AP_MODE
-
 		}		
 		goto exit;
 	}	

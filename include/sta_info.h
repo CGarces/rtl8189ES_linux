@@ -274,10 +274,6 @@ struct sta_info {
 	u8 ht_20mhz_set;
 	u8 ht_40mhz_intolerant;
 
-#ifdef CONFIG_ATMEL_RC_PATCH
-	u8 flag_atmel_rc;
-#endif
-
 	u8 qos_info;
 
 	u8 max_sp_len;
@@ -309,12 +305,6 @@ struct sta_info {
 	u8 under_exist_checking;
 	
 	u8 keep_alive_trycnt;
-
-#ifdef CONFIG_AUTO_AP_MODE
-	u8 isrc; //this device is rc
-	u16 pid; // pairing id
-#endif
-
 
 	u8 *passoc_req;
 	u32 assoc_req_len;
@@ -483,10 +473,6 @@ struct	sta_priv {
 	u16 max_num_sta;
 
 	struct wlan_acl_pool acl_list;
-
-#ifdef CONFIG_ATMEL_RC_PATCH
-	u8 atmel_rc_pattern [6];
-#endif
 
 };
 

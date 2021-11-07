@@ -390,13 +390,9 @@ struct ss_res {
  * 4. Back to channel 1 for 300 milliseconds
  * 5. ... and so on, till survey done.
  */
-#if defined(CONFIG_ATMEL_RC_PATCH)
-#define RTW_SCAN_NUM_OF_CH 2
-#define RTW_BACK_OP_CH_MS 200
-#else
+
 #define RTW_SCAN_NUM_OF_CH 3
 #define RTW_BACK_OP_CH_MS 400
-#endif
 
 struct mlme_ext_info
 {
@@ -941,7 +937,6 @@ u8 read_bbreg_hdl(_adapter *padapter, u8 *pbuf);
 u8 write_bbreg_hdl(_adapter *padapter, u8 *pbuf);
 u8 read_rfreg_hdl(_adapter *padapter, u8 *pbuf);
 u8 write_rfreg_hdl(_adapter *padapter, u8 *pbuf);
-
 
 u8 NULL_hdl(_adapter *padapter, u8 *pbuf);
 u8 join_cmd_hdl(_adapter *padapter, u8 *pbuf);
