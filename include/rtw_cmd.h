@@ -80,13 +80,7 @@
 		struct rtw_cbuf *c2h_queue;
 		#define C2H_QUEUE_MAX_LEN 10
 #endif
-		
-#ifdef CONFIG_H2CLBK
-		_sema	lbkevt_done;
-		u8	lbkevt_limit;
-		u8	lbkevt_num;
-		u8	*cmdevt_parm;		
-#endif
+
 		ATOMIC_T event_seq;
 		u8	*evt_buf;	//shall be non-paged, and 4 bytes aligned		
 		u8	*evt_allocated_buf;
@@ -606,90 +600,6 @@ struct Tx_Beacon_param
 {
 	WLAN_BSSID_EX network;
 };
-
-/*
-	Notes: This command is used for H2C/C2H loopback testing
-
-	mac[0] == 0 
-	==> CMD mode, return H2C_SUCCESS.
-	The following condition must be ture under CMD mode
-		mac[1] == mac[4], mac[2] == mac[3], mac[0]=mac[5]= 0;
-		s0 == 0x1234, s1 == 0xabcd, w0 == 0x78563412, w1 == 0x5aa5def7;
-		s2 == (b1 << 8 | b0);
-	
-	mac[0] == 1
-	==> CMD_RSP mode, return H2C_SUCCESS_RSP
-	
-	The rsp layout shall be:
-	rsp: 			parm:
-		mac[0]  =   mac[5];
-		mac[1]  =   mac[4];
-		mac[2]  =   mac[3];
-		mac[3]  =   mac[2];
-		mac[4]  =   mac[1];
-		mac[5]  =   mac[0];
-		s0		=   s1;
-		s1		=   swap16(s0);
-		w0		=  	swap32(w1);
-		b0		= 	b1
-		s2		= 	s0 + s1
-		b1		= 	b0
-		w1		=	w0
-		
-	mac[0] == 	2
-	==> CMD_EVENT mode, return 	H2C_SUCCESS
-	The event layout shall be:
-	event:			parm:
-		mac[0]  =   mac[5];
-		mac[1]  =   mac[4];
-		mac[2]  =   event's sequence number, starting from 1 to parm's marc[3]
-		mac[3]  =   mac[2];
-		mac[4]  =   mac[1];
-		mac[5]  =   mac[0];
-		s0		=   swap16(s0) - event.mac[2];
-		s1		=   s1 + event.mac[2];
-		w0		=  	swap32(w0);
-		b0		= 	b1
-		s2		= 	s0 + event.mac[2]
-		b1		= 	b0 
-		w1		=	swap32(w1) - event.mac[2];	
-	
-		parm->mac[3] is the total event counts that host requested.
-		
-	
-	event will be the same with the cmd's param.
-		
-*/
-
-#ifdef CONFIG_H2CLBK
-
-struct seth2clbk_parm {
-	u8 mac[6];
-	u16	s0;
-	u16	s1;
-	u32	w0;
-	u8	b0;
-	u16  s2;
-	u8	b1;
-	u32	w1;
-};
-
-struct geth2clbk_parm {
-	u32 rsv;	
-};
-
-struct geth2clbk_rsp {
-	u8	mac[6];
-	u16	s0;
-	u16	s1;
-	u32	w0;
-	u8	b0;
-	u16	s2;
-	u8	b1;
-	u32	w1;
-};
-
-#endif	/* CONFIG_H2CLBK */
 
 // CMD param Formart for driver extra cmd handler
 struct drvextra_cmd_parm {
