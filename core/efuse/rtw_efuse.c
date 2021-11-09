@@ -842,23 +842,6 @@ u8 rtw_efuse_file_read(PADAPTER padapter,u8 *filepatch,u8 *buf,u32 len)
 	return _TRUE;
 }
 
-
-BOOLEAN 
-efuse_IsMasked(
-	PADAPTER	pAdapter,
-	u16		Offset
-	)
-{
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
-	
-
-	//if (bEfuseMaskOFF(pAdapter))
-	if(pAdapter->registrypriv.boffefusemask)
-		return FALSE;
-
-	return FALSE;	
-}
-
 //------------------------------------------------------------------------------
 u8 rtw_efuse_map_write(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 {
@@ -899,11 +882,8 @@ u8 rtw_efuse_map_write(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 
 	if (padapter->registrypriv.boffefusemask == 0) {
 		for (i = 0; i < cnts; i++) {
-			if (padapter->registrypriv.bFileMaskEfuse == _TRUE) {
+			if (padapter->registrypriv.bFileMaskEfuse) {
 				if (rtw_file_efuse_IsMasked(padapter, addr + i))	/*use file efuse mask. */
-					data[i] = map[addr + i];
-			} else {
-				if (efuse_IsMasked(padapter, addr + i))
 					data[i] = map[addr + i];
 			}
 			RTW_INFO("%s , data[%d] = %x, map[addr+i]= %x\n", __func__, i, data[i], map[addr + i]);
@@ -1000,16 +980,10 @@ u8 rtw_efuse_mask_map_read(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 	if (padapter->registrypriv.boffefusemask == 0) {
 
 			for (i = 0; i < cnts; i++) { 
-				if (padapter->registrypriv.bFileMaskEfuse == _TRUE) {
+				if (padapter->registrypriv.bFileMaskEfuse) {
 					if (rtw_file_efuse_IsMasked(padapter, addr+i)) /*use file efuse mask.*/ 
 							data[i] = 0xff;
-				} else {
-					/*DBG_8192C(" %s , data[%d] = %x\n", __func__, i, data[i]);*/
-					if (efuse_IsMasked(padapter, addr+i)) {
-						data[i] = 0xff;
-						/*DBG_8192C(" %s ,mask data[%d] = %x\n", __func__, i, data[i]);*/
-					}
-				}
+				} 
 			}
 	
 	}
