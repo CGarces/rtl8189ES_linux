@@ -117,14 +117,6 @@ odm_EdcaTurboCheckCE(
 		return;
 	}
 
-	if(	(pDM_Odm->SupportICType == ODM_RTL8192C) ||
-		(pDM_Odm->SupportICType == ODM_RTL8723A) ||
-		(pDM_Odm->SupportICType == ODM_RTL8188E))
-	{
-		if((IOTPeer == HT_IOT_PEER_RALINK)||(IOTPeer == HT_IOT_PEER_ATHEROS))
-			bBiasOnRx = _TRUE;
-	}
-
 	// Check if the status needs to be changed.
 	if((bbtchange) || (!precvpriv->bIsAnyNonBEPkts) )
 	{

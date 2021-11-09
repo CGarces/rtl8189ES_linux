@@ -39,37 +39,6 @@ odm_DynamicBBPowerSavingInit(
 	pDM_PSTable->initialize = 0;
 }
 
-
-VOID
-odm_DynamicBBPowerSaving(
-	IN		PVOID					pDM_VOID
-	)
-{	
-	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
-
-	if (pDM_Odm->SupportICType != ODM_RTL8723A)
-		return;
-	if(!(pDM_Odm->SupportAbility & ODM_BB_PWR_SAVE))
-		return;
-	if(!(pDM_Odm->SupportPlatform & (ODM_WIN|ODM_CE)))
-		return;
-	
-	//1 2.Power Saving for 92C
-	if((pDM_Odm->SupportICType == ODM_RTL8192C) &&(pDM_Odm->RFType == ODM_2T2R))
-	{
-		odm_1R_CCA(pDM_Odm);
-	}
-	
-	// 20100628 Joseph: Turn off BB power save for 88CE because it makesthroughput unstable.
-	// 20100831 Joseph: Turn ON BB power save again after modifying AGC delay from 900ns ot 600ns.
-	//1 3.Power Saving for 88C
-	else
-	{
-		ODM_RF_Saving(pDM_Odm, FALSE);
-	}
-	
-}
-
 VOID
 odm_1R_CCA(
 	IN		PVOID					pDM_VOID
@@ -136,8 +105,7 @@ ODM_RF_Saving(
 	u1Byte	Rssi_Up_bound = 30 ;
 	u1Byte	Rssi_Low_bound = 25;
 
-	if(pDM_Odm->PatchID == 40 ) //RT_CID_819x_FUNAI_TV
-	{
+	if (pDM_Odm->PatchID == 40 ) { //RT_CID_819x_FUNAI_TV
 		Rssi_Up_bound = 50 ;
 		Rssi_Low_bound = 45;
 	}
@@ -152,42 +120,29 @@ ODM_RF_Saving(
 		pDM_PSTable->initialize = 1;
 	}
 
-	if(!bForceInNormal)
-	{
-		if(pDM_Odm->RSSI_Min != 0xFF)
-		{			 
-			if(pDM_PSTable->PreRFState == RF_Normal)
-			{
+	if (!bForceInNormal) {
+		if (pDM_Odm->RSSI_Min != 0xFF) {			 
+			if (pDM_PSTable->PreRFState == RF_Normal) {
 				if(pDM_Odm->RSSI_Min >= Rssi_Up_bound)
 					pDM_PSTable->CurRFState = RF_Save;
 				else
 					pDM_PSTable->CurRFState = RF_Normal;
-			}
-			else{
+			} else {
 				if(pDM_Odm->RSSI_Min <= Rssi_Low_bound)
 					pDM_PSTable->CurRFState = RF_Normal;
 				else
 					pDM_PSTable->CurRFState = RF_Save;
 			}
-		}
-		else
+		} else
 			pDM_PSTable->CurRFState=RF_MAX;
-	}
-	else
-	{
+	} else
 		pDM_PSTable->CurRFState = RF_Normal;
-	}
-	
-	if(pDM_PSTable->PreRFState != pDM_PSTable->CurRFState)
-	{
-		if(pDM_PSTable->CurRFState == RF_Save)
-		{
+
+	if (pDM_PSTable->PreRFState != pDM_PSTable->CurRFState) {
+		if (pDM_PSTable->CurRFState == RF_Save) {
 			// <tynli_note> 8723 RSSI report will be wrong. Set 0x874[5]=1 when enter BB power saving mode.
 			// Suggested by SD3 Yu-Nan. 2011.01.20.
-			if(pDM_Odm->SupportICType == ODM_RTL8723A)
-			{
-				ODM_SetBBReg(pDM_Odm, 0x874  , BIT5, 0x1); //Reg874[5]=1b'1
-			}
+
 			ODM_SetBBReg(pDM_Odm, 0x874  , 0x1C0000, 0x2); //Reg874[20:18]=3'b010
 			ODM_SetBBReg(pDM_Odm, 0xc70, BIT3, 0); //RegC70[3]=1'b0
 			ODM_SetBBReg(pDM_Odm, 0x85c, 0xFF000000, 0x63); //Reg85C[31:24]=0x63
@@ -195,19 +150,12 @@ ODM_RF_Saving(
 			ODM_SetBBReg(pDM_Odm, 0xa74, 0xF000, 0x3); //RegA75[7:4]=0x3
 			ODM_SetBBReg(pDM_Odm, 0x818, BIT28, 0x0); //Reg818[28]=1'b0
 			ODM_SetBBReg(pDM_Odm, 0x818, BIT28, 0x1); //Reg818[28]=1'b1
-		}
-		else
-		{
+		} else {
 			ODM_SetBBReg(pDM_Odm, 0x874  , 0x1CC000, pDM_PSTable->Reg874); 
 			ODM_SetBBReg(pDM_Odm, 0xc70, BIT3, pDM_PSTable->RegC70); 
 			ODM_SetBBReg(pDM_Odm, 0x85c, 0xFF000000, pDM_PSTable->Reg85C);
 			ODM_SetBBReg(pDM_Odm, 0xa74, 0xF000, pDM_PSTable->RegA74); 
 			ODM_SetBBReg(pDM_Odm,0x818, BIT28, 0x0);  
-
-			if(pDM_Odm->SupportICType == ODM_RTL8723A)
-			{
-				ODM_SetBBReg(pDM_Odm,0x874  , BIT5, 0x0); //Reg874[5]=1b'0
-			}
 		}
 		pDM_PSTable->PreRFState =pDM_PSTable->CurRFState;
 	}

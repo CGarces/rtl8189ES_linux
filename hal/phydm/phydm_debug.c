@@ -140,35 +140,7 @@ VOID phydm_BasicProfile(
 	u4Byte	release_ver = 0;
 
 	PHYDM_SNPRINTF((output + used, out_len - used, "%-35s\n", "% Basic Profile %"));
-
-	if (pDM_Odm->SupportICType == ODM_RTL8192C)			
-		ICType = "RTL8192C";
-	else if (pDM_Odm->SupportICType == ODM_RTL8192D)
-		ICType = "RTL8192D";
-	else if (pDM_Odm->SupportICType == ODM_RTL8723A)
-		ICType = "RTL8723A";
-	else if (pDM_Odm->SupportICType == ODM_RTL8188E)
-		ICType = "RTL8188E";
-	else if (pDM_Odm->SupportICType == ODM_RTL8812)
-		ICType = "RTL8812A";
-	else if (pDM_Odm->SupportICType == ODM_RTL8821)
-		ICType = "RTL8821A";
-	else if (pDM_Odm->SupportICType == ODM_RTL8192E)
-		ICType = "RTL8192E";
-	else if (pDM_Odm->SupportICType == ODM_RTL8723B)
-		ICType = "RTL8723B";
-	else if (pDM_Odm->SupportICType == ODM_RTL8814A)
-		ICType = "RTL8814A";
-	else if (pDM_Odm->SupportICType == ODM_RTL8881A)
-		ICType = "RTL8881A";
-	else if (pDM_Odm->SupportICType == ODM_RTL8821B)
-		ICType = "RTL8821B";
-	else if (pDM_Odm->SupportICType == ODM_RTL8822B)
-		ICType = "RTL8822B";
-	else if (pDM_Odm->SupportICType == ODM_RTL8195A)
-		ICType = "RTL8195A";
-	else if (pDM_Odm->SupportICType == ODM_RTL8188F)
-		ICType = "RTL8188F";
+	ICType = "RTL8188F";
 	PHYDM_SNPRINTF((output + used, out_len - used, "  %-35s: %s (MP Chip: %s)\n", "IC Type", ICType, pDM_Odm->bIsMPChip ? "Yes" : "No"));
 
 	if (pDM_Odm->CutVersion == ODM_CUT_A)			
@@ -375,41 +347,6 @@ odm_debug_trace(
 }
 
 VOID
-phydm_DumpBbReg(
-	IN		PVOID			pDM_VOID
-	)
-{
-	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
-	u4Byte			Addr = 0;
-	
-	/* BB Reg */
-	for (Addr = 0x800; Addr < 0xfff; Addr += 4)
-		DbgPrint("%04x %08x\n", Addr, ODM_GetBBReg(pDM_Odm, Addr, bMaskDWord));
-
-	if (pDM_Odm->SupportICType & (ODM_RTL8822B|ODM_RTL8814A)) {
-
-		if (pDM_Odm->RFType > ODM_2T2R) {
-			for (Addr = 0x1800; Addr < 0x18ff; Addr += 4)
-				DbgPrint("%04x %08x\n", Addr, ODM_GetBBReg(pDM_Odm, Addr, bMaskDWord));
-		}
-
-		if (pDM_Odm->RFType > ODM_3T3R) {
-			for (Addr = 0x1a00; Addr < 0x1aff; Addr += 4)
-				DbgPrint("%04x %08x\n", Addr, ODM_GetBBReg(pDM_Odm, Addr, bMaskDWord));
-		}
-
-		for (Addr = 0x1900; Addr < 0x19ff; Addr += 4)
-			DbgPrint("%04x %08x\n", Addr, ODM_GetBBReg(pDM_Odm, Addr, bMaskDWord));
-
-		for (Addr = 0x1c00; Addr < 0x1cff; Addr += 4)
-			DbgPrint("%04x %08x\n", Addr, ODM_GetBBReg(pDM_Odm, Addr, bMaskDWord));
-
-		for (Addr = 0x1f00; Addr < 0x1fff; Addr += 4)
-			DbgPrint("%04x %08x\n", Addr, ODM_GetBBReg(pDM_Odm, Addr, bMaskDWord));
-	}
-}
-
-VOID
 phydm_DumpAllReg(
 	IN		PVOID			pDM_VOID
 	)
@@ -424,10 +361,6 @@ phydm_DumpAllReg(
 
 	for (Addr = 1000; Addr < 0x17ff; Addr += 4)
 		DbgPrint("%04x %08x\n", Addr, ODM_GetBBReg(pDM_Odm, Addr, bMaskDWord));
-
-	/* dump BB register */
-	DbgPrint("BB==========\n");
-	phydm_DumpBbReg(pDM_Odm);
 
 	/* dump RF register */
 	DbgPrint("RF-A==========\n");
@@ -658,9 +591,7 @@ phydm_cmd_parser(
 			type = (u1Byte)var1[0];
 		}
 
-		if (type == 0)
-			phydm_DumpBbReg(pDM_Odm);
-		else if (type == 1)
+		if (type == 1)
 			phydm_DumpAllReg(pDM_Odm);
 	}
 		break;

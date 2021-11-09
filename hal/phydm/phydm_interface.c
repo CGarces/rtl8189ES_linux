@@ -315,9 +315,6 @@ phydm_c2H_content_parsing(
 
 	switch (c2hCmdId) {
 	case PHYDM_C2H_DBG:
-		if (pDM_Odm->SupportICType & (ODM_RTL8814A|ODM_RTL8822B))
-			phydm_fw_trace_handler(pDM_Odm, tmpBuf, c2hCmdLen);
-		
 		break;
 
 	case PHYDM_C2H_RA_RPT:

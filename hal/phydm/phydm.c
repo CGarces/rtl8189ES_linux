@@ -254,10 +254,7 @@ ODM_DMInit(
 	odm_AutoChannelSelectInit(pDM_Odm);
 	phydm_Beamforming_Init(pDM_Odm);
 
-	if(pDM_Odm->SupportICType & ODM_IC_11N_SERIES) {
-		odm_DynamicBBPowerSavingInit(pDM_Odm);
-	}
-
+	odm_DynamicBBPowerSavingInit(pDM_Odm);
 }
 
 VOID
@@ -369,7 +366,6 @@ ODM_DMWatchdog(
 	odm_CCKPacketDetectionThresh(pDM_Odm);
 	phydm_ra_dynamic_retry_count(pDM_Odm);
 	odm_RefreshRateAdaptiveMask(pDM_Odm);
-	odm_DynamicBBPowerSaving(pDM_Odm);
 	odm_EdcaTurboCheck(pDM_Odm);
 	ODM_CfoTracking(pDM_Odm);
 	phydm_Beamforming_Watchdog(pDM_Odm);
@@ -396,8 +392,7 @@ ODM_CmnInfoInit(
 	//
 	// This section is used for init value
 	//
-	switch	(CmnInfo)
-	{
+	switch (CmnInfo) {
 		//
 		// Fixed ODM value.
 		//

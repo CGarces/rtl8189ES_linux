@@ -50,11 +50,6 @@ odm_DynamicBBPowerSavingInit(
 	IN		PVOID					pDM_VOID
 	);
 
-VOID 
-odm_DynamicBBPowerSaving(
-	IN		PVOID					pDM_VOID
-	);
-
 VOID
 odm_1R_CCA(
 	IN		PVOID					pDM_VOID

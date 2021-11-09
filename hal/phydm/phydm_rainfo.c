@@ -74,31 +74,28 @@ phydm_c2h_ra_report_handler(
 	ODM_UpdateInitRate(pDM_Odm, rate_idx);
 
 	/*ODM_RT_TRACE(pDM_Odm, ODM_COMP_RATE_ADAPTIVE, ODM_DBG_LOUD,("RA: rate_idx=0x%x , sgi = %d\n", rate_idx, b_sgi));*/
-	/*if (pDM_Odm->SupportICType & (ODM_RTL8703B))*/
-	{
-		if (CmdLen >= 4) {
-			if (CmdBuf[3] == 0) {
-				ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("Init-Rate Update\n"));
-				/**/
-			} else if (CmdBuf[3] == 0xff) {
-				ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("FW Level: Fix rate\n"));
-				/**/
-			} else if (CmdBuf[3] == 1) {
-				ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("Try Success\n"));
-				/**/
-			} else if (CmdBuf[3] == 2) {
-				ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("Try Fail & Try Again\n"));
-				/**/
-			} else if (CmdBuf[3] == 3) {
-				ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("Rate Back\n"));
-				/**/
-			} else if (CmdBuf[3] == 4) {
-				ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("start rate by RSSI\n"));
-				/**/
-			} else if (CmdBuf[3] == 5) {
-				ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("Try rate\n"));
-				/**/
-			}
+	if (CmdLen >= 4) {
+		if (CmdBuf[3] == 0) {
+			ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("Init-Rate Update\n"));
+			/**/
+		} else if (CmdBuf[3] == 0xff) {
+			ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("FW Level: Fix rate\n"));
+			/**/
+		} else if (CmdBuf[3] == 1) {
+			ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("Try Success\n"));
+			/**/
+		} else if (CmdBuf[3] == 2) {
+			ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("Try Fail & Try Again\n"));
+			/**/
+		} else if (CmdBuf[3] == 3) {
+			ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("Rate Back\n"));
+			/**/
+		} else if (CmdBuf[3] == 4) {
+			ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("start rate by RSSI\n"));
+			/**/
+		} else if (CmdBuf[3] == 5) {
+			ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("Try rate\n"));
+			/**/
 		}
 	}
 	
@@ -611,10 +608,6 @@ ODM_UpdateNoisyState(
 {
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 
-	/*DbgPrint("Get C2H Command! NoisyState=0x%x\n ", bNoisyStateFromC2H);*/
-	if (pDM_Odm->SupportICType == ODM_RTL8821  || pDM_Odm->SupportICType == ODM_RTL8812  ||
-		pDM_Odm->SupportICType == ODM_RTL8723B || pDM_Odm->SupportICType == ODM_RTL8192E || pDM_Odm->SupportICType == ODM_RTL8188E)
-		pDM_Odm->bNoisyState = bNoisyStateFromC2H;
 	odm_Set_RA_DM_ARFB_by_Noisy(pDM_Odm);
 };
 
