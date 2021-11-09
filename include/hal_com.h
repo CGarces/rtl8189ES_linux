@@ -247,16 +247,6 @@ void rtw_dump_phy_rx_counters(_adapter* padapter,struct dbg_rx_counter *rx_count
 void rtw_reset_mac_rx_counters(_adapter* padapter);
 void rtw_reset_phy_rx_counters(_adapter* padapter);
 
-#ifdef DBG_RX_COUNTER_DUMP
-#define DUMP_DRV_RX_COUNTER	BIT0
-#define DUMP_MAC_RX_COUNTER	BIT1
-#define DUMP_PHY_RX_COUNTER	BIT2
-#define DUMP_DRV_TRX_COUNTER_DATA	BIT3
-
-void rtw_dump_phy_rxcnts_preprocess(_adapter* padapter,u8 rx_cnt_mode);
-void rtw_dump_rx_counters(_adapter* padapter);
-#endif
-
 void dump_chip_info(HAL_VERSION	ChipVersion);
 void rtw_hal_config_rftype(PADAPTER  padapter);
 
@@ -452,7 +442,6 @@ struct noise_info
 };
 #endif
 
-void rtw_get_noise(_adapter* padapter);
 u8 rtw_get_current_tx_rate(_adapter *padapter, u8 macid);
 void rtw_hal_set_fw_rsvd_page(_adapter* adapter, bool finished);
 

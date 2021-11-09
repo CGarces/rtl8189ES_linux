@@ -1181,48 +1181,7 @@ ssize_t proc_set_rate_ctl(struct file *file, const char __user *buffer, size_t c
 
 	return count;
 }
-#ifdef DBG_RX_COUNTER_DUMP
-int proc_get_rx_cnt_dump(struct seq_file *m, void *v)
-{
-	struct net_device *dev = m->private;
-	int i;
-	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
 
-	DBG_871X_SEL_NL(m, "BIT0- Dump RX counters of DRV \n");
-	DBG_871X_SEL_NL(m, "BIT1- Dump RX counters of MAC \n");
-	DBG_871X_SEL_NL(m, "BIT2- Dump RX counters of PHY \n");
-	DBG_871X_SEL_NL(m, "BIT3- Dump TRX data frame of DRV \n");
-	DBG_871X_SEL_NL(m, "dump_rx_cnt_mode = 0x%02x \n", adapter->dump_rx_cnt_mode);
-
-	return 0;
-}
-ssize_t proc_set_rx_cnt_dump(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
-{
-	struct net_device *dev = data;
-	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
-	char tmp[32];
-	u8 dump_rx_cnt_mode;
-
-	if (count < 1)
-		return -EFAULT;
-
-	if (count > sizeof(tmp)) {
-		rtw_warn_on(1);
-		return -EFAULT;
-	}
-
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
-
-		int num = sscanf(tmp, "%hhx", &dump_rx_cnt_mode);
-
-		rtw_dump_phy_rxcnts_preprocess(adapter,dump_rx_cnt_mode);
-		adapter->dump_rx_cnt_mode = dump_rx_cnt_mode;
-		
-	}
-
-	return count;
-}
-#endif
 ssize_t proc_set_fwdl_test_case(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
 {
 	struct net_device *dev = data;
@@ -1619,7 +1578,6 @@ int proc_get_rx_signal(struct seq_file *m, void *v)
 	DBG_871X_SEL_NL(m, "signal_strength:%u\n", padapter->recvpriv.signal_strength);
 	DBG_871X_SEL_NL(m, "signal_qual:%u\n", padapter->recvpriv.signal_qual);
 
-	rtw_get_noise(padapter);
 	DBG_871X_SEL_NL(m, "noise:%d\n", padapter->recvpriv.noise);
 	#ifdef DBG_RX_SIGNAL_DISPLAY_RAW_DATA
 	rtw_odm_get_perpkt_rssi(m,padapter);

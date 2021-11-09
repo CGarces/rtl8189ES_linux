@@ -394,10 +394,7 @@ int proc_get_trx_info(struct seq_file *m, void *v);
 int proc_get_rate_ctl(struct seq_file *m, void *v);
 int proc_get_wifi_spec(struct seq_file *m, void *v);
 ssize_t proc_set_rate_ctl(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
-#ifdef DBG_RX_COUNTER_DUMP
-int proc_get_rx_cnt_dump(struct seq_file *m, void *v);
-ssize_t proc_set_rx_cnt_dump(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);	
-#endif
+
 int proc_get_dis_pwt(struct seq_file *m, void *v);
 ssize_t proc_set_dis_pwt(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);	
 
