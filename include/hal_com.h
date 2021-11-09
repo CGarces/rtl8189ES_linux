@@ -329,8 +329,7 @@ void c2h_evt_clear(_adapter *adapter);
 s32 c2h_evt_read(_adapter *adapter, u8 *buf);
 s32 c2h_evt_read_88xx(_adapter *adapter, u8 *buf);
 
-u8  rtw_hal_networktype_to_raid(_adapter *adapter, struct sta_info *psta);
-u8 rtw_get_mgntframe_raid(_adapter *adapter,unsigned char network_type);
+u8 rtw_get_mgntframe_raid(unsigned char network_type);
 void rtw_hal_update_sta_rate_mask(PADAPTER padapter, struct sta_info *psta);
 
 /* access HW only */

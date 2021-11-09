@@ -211,26 +211,15 @@ static void sdio_deinit(struct dvobj_priv *dvobj)
 	}
 }
 
-static void rtw_decide_chip_type_by_device_id(struct dvobj_priv *dvobj, const struct sdio_device_id  *pdid)
-{
-	dvobj->chip_type = pdid->driver_data;
-
-	if (dvobj->chip_type == RTL8188F) {
-		dvobj->HardwareType = HARDWARE_TYPE_RTL8188FS;
-		DBG_871X("CHIP TYPE: RTL8188F\n");
-	}
-}
-
 static struct dvobj_priv *sdio_dvobj_init(struct sdio_func *func, const struct sdio_device_id  *pdid)
 {
 	int status = _FAIL;
 	struct dvobj_priv *dvobj = NULL;
 	PSDIO_DATA psdio;
-_func_enter_;
 
-	if((dvobj = devobj_init()) == NULL) {
+	dvobj = devobj_init();
+	if (!dvobj)
 		goto exit;
-	}
 
 	sdio_set_drvdata(func, dvobj);
 
@@ -243,7 +232,8 @@ _func_enter_;
 	}
 
 	dvobj->interface_type = RTW_SDIO;
-	rtw_decide_chip_type_by_device_id(dvobj, pdid);
+	dvobj->chip_type = pdid->driver_data;
+	DBG_871X("CHIP TYPE: RTL8188F\n");
 
 	rtw_reset_continual_io_error(dvobj);
 	status = _SUCCESS;

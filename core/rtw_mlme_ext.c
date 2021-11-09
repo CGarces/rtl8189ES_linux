@@ -5955,7 +5955,7 @@ void update_monitor_frame_attrib(_adapter *padapter, struct pkt_attrib *pattrib)
 	else
 		wireless_mode = WIRELESS_11G;
 
-	pattrib->raid = rtw_get_mgntframe_raid(padapter, wireless_mode);
+	pattrib->raid = rtw_get_mgntframe_raid(wireless_mode);
 
 	pattrib->rate = MGN_MCS7;
 	pattrib->encrypt = _NO_PRIVACY_;
@@ -6007,7 +6007,7 @@ void update_mgntframe_attrib(_adapter *padapter, struct pkt_attrib *pattrib)
 		wireless_mode = WIRELESS_11B;
 	else
 		wireless_mode = WIRELESS_11G;
-	pattrib->raid =  rtw_get_mgntframe_raid(padapter, wireless_mode);
+	pattrib->raid =  rtw_get_mgntframe_raid(wireless_mode);
 	pattrib->rate = pmlmeext->tx_rate;
 
 	pattrib->encrypt = _NO_PRIVACY_;
@@ -10084,7 +10084,7 @@ void mlmeext_sta_add_event_callback(_adapter *padapter, struct sta_info *psta)
 
 	// ToDo: HT for Ad-hoc 
 	psta->wireless_mode = rtw_check_network_type(psta->bssrateset, psta->bssratelen, pmlmeext->cur_channel);
-	psta->raid = rtw_hal_networktype_to_raid(padapter, psta);
+	psta->raid = networktype_to_raid_ex(padapter, psta);
 
 	//rate radaptive
 	Update_RA_Entry(padapter, psta);

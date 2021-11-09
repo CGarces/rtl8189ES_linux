@@ -636,7 +636,6 @@ struct dvobj_priv
 {
 	/*-------- below is common data --------*/	
 	u8	chip_type;
-	u8	HardwareType;
 	u8	interface_type;/*USB,SDIO,SPI,PCI*/
 
 	ATOMIC_T	bSurpriseRemoved;
@@ -946,7 +945,6 @@ struct _ADAPTER{
 #define mlme_to_adapter(mlme) container_of((mlme), struct _ADAPTER, mlmepriv)
 
 #define rtw_get_chip_type(adapter) (((PADAPTER)adapter)->dvobj->chip_type)
-#define rtw_get_hw_type(adapter) (((PADAPTER)adapter)->dvobj->HardwareType)
 #define rtw_get_intf_type(adapter) (((PADAPTER)adapter)->dvobj->interface_type)
 
 static inline void rtw_set_surprise_removed(_adapter *padapter)

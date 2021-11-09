@@ -593,7 +593,7 @@ void add_RATid(_adapter *padapter, struct sta_info *psta, u8 rssi_level)
 	}
 
 	psta->wireless_mode = sta_band;
-	psta->raid = rtw_hal_networktype_to_raid(padapter, psta);
+	psta->raid = networktype_to_raid_ex(padapter, psta);
 	
 	if (psta->aid < NUM_STA)
 	{
@@ -656,7 +656,7 @@ void update_bmc_sta(_adapter *padapter)
 		rtw_hal_update_sta_rate_mask(padapter, psta);
 		tx_ra_bitmap = psta->ra_mask;
 
-		psta->raid = rtw_hal_networktype_to_raid(padapter,psta);
+		psta->raid = networktype_to_raid_ex(padapter,psta);
 
 		//ap mode
 		rtw_hal_set_odm_var(padapter, HAL_ODM_STA_INFO, psta, _TRUE);

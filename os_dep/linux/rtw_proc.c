@@ -821,9 +821,6 @@ static int proc_get_macid_info(struct seq_file *m, void *v)
 	RTW_PRINT_SEL(m, "%-3s %-3s %-4s %-4s %-17s %-6s %-3s"
 		, "id", "bmc", "if_g", "ch_g", "macaddr", "bw", "vht");
 
-	if (chip_type == RTL8814A)
-		_RTW_PRINT_SEL(m, " %-10s", "rate_bmp1");
-
 	_RTW_PRINT_SEL(m, " %-10s %s\n", "rate_bmp0", "status");
 
 	for (i = 0; i < macid_ctl->num; i++) {
@@ -844,9 +841,6 @@ static int proc_get_macid_info(struct seq_file *m, void *v)
 				, ch_width_str(macid_ctl->bw[i])
 				, macid_ctl->vht_en[i]
 			);
-
-			if (chip_type == RTL8814A)
-				_RTW_PRINT_SEL(m, " 0x%08X", macid_ctl->rate_bmp1[i]);
 
 			_RTW_PRINT_SEL(m, " 0x%08X "H2C_MSR_FMT" %s\n"
 				, macid_ctl->rate_bmp0[i]

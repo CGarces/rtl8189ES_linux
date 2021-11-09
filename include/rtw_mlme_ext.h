@@ -617,7 +617,6 @@ struct xmit_frame *alloc_mgtxmitframe_once(struct xmit_priv *pxmitpriv);
 
 //void fill_fwpriv(_adapter * padapter, struct fw_priv *pfwpriv);
 
-unsigned char networktype_to_raid(_adapter *adapter,struct sta_info *psta);
 unsigned char networktype_to_raid_ex(_adapter *adapter, struct sta_info *psta);
 
 u8 judge_network_type(_adapter *padapter, unsigned char *rate, int ratelen);
