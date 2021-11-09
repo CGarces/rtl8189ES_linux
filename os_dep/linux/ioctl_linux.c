@@ -12766,7 +12766,7 @@ static void printdata(u8 *pbuf, u32 len)
 
 	if (i < len)
 	{
-#ifdef CONFIG_BIG_ENDIAN
+#ifdef __BIG_ENDIAN
 		for (; i < len, i++)
 			printk("%02X", pbuf+i);
 #else // CONFIG_LITTLE_ENDIAN
