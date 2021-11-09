@@ -142,13 +142,5 @@ typedef	struct tag_HAL_VERSION
 #define IS_3T4R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_3T4R)? TRUE : FALSE)
 #define IS_4T4R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_4T4R)? TRUE : FALSE)
 
-
-
-//----------------------------------------------------------------------------
-//Chip version Macro. --
-//----------------------------------------------------------------------------
-
-#define IS_VENDOR_8192E_B_CUT(_Adapter)		((GET_CVID_CUT_VERSION(GET_HAL_DATA(_Adapter)->VersionID) == B_CUT_VERSION) ? TRUE : FALSE)
-
 #endif
 

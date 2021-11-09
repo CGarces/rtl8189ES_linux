@@ -252,10 +252,6 @@ phydm_trans_h2c_id(
 			break;
 		//1 [5]
 		case ODM_H2C_RA_PARA_ADJUST:
-			#if (RTL8822B_SUPPORT == 1)
-				platform_h2c_id = H2C_RA_PARA_ADJUST;
-			#endif
-		
 			break;
 
 

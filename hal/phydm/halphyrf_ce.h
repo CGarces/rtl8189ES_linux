@@ -23,11 +23,7 @@
  
 /*#include "phydm_kfree.h"*/
 
-#if (RTL8822B_SUPPORT == 1)
-#include "rtl8822b/phydm_iqk_8822b.h"
-#endif
 #include "phydm_powertracking_ce.h"
-
 
 typedef enum _SPUR_CAL_METHOD {
 	PLL_RESET,

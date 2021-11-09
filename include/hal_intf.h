@@ -397,14 +397,6 @@ typedef enum _HARDWARE_TYPE{
 #define	IS_HARDWARE_TYPE_8188F(_Adapter)			\
 (IS_HARDWARE_TYPE_8188FE(_Adapter) || IS_HARDWARE_TYPE_8188FU(_Adapter) || IS_HARDWARE_TYPE_8188FS(_Adapter))
 
-#define IS_HARDWARE_TYPE_8822BE(_Adapter)		(rtw_get_hw_type(_Adapter) == HARDWARE_TYPE_RTL8822BE)
-#define IS_HARDWARE_TYPE_8822BU(_Adapter)		(rtw_get_hw_type(_Adapter) == HARDWARE_TYPE_RTL8822BU)
-#define IS_HARDWARE_TYPE_8822BS(_Adapter)		(rtw_get_hw_type(_Adapter) == HARDWARE_TYPE_RTL8822BS)
-#define IS_HARDWARE_TYPE_8822B(_Adapter)		\
-(IS_HARDWARE_TYPE_8822BE(_Adapter) || IS_HARDWARE_TYPE_8822BU(_Adapter) || IS_HARDWARE_TYPE_8822BS(_Adapter))
-
-
-
 typedef enum _wowlan_subcode {
 	WOWLAN_ENABLE			= 0,
 	WOWLAN_DISABLE			= 1,

@@ -219,13 +219,7 @@
 #define ODM_RATEVHTSS4MCS8		0x52
 #define ODM_RATEVHTSS4MCS9		0x53
 
-#if (RTL8188F_SUPPORT == 1) 
-	#define ODM_NUM_RATE_IDX (ODM_RATEMCS7+1)
-#elif (RTL8881A_SUPPORT == 1) 
-	#define ODM_NUM_RATE_IDX (ODM_RATEVHTSS1MCS9+1)
-#else
-	#define ODM_NUM_RATE_IDX (ODM_RATEVHTSS4MCS9+1)
-#endif
+#define ODM_NUM_RATE_IDX (ODM_RATEMCS7+1)
 
 //1 ============================================================
 //1  enumeration
@@ -271,14 +265,8 @@ typedef enum tag_ODM_Support_IC_Type_Definition
 #define ODM_IC_11N_GAIN_IDX_EDCCA		(ODM_RTL8195A|ODM_RTL8703B|ODM_RTL8188F)
 #define ODM_IC_11AC_GAIN_IDX_EDCCA		(ODM_RTL8814A|ODM_RTL8822B)
 
-#if((RTL8192C_SUPPORT == 1) || (RTL8192D_SUPPORT == 1) || (RTL8723A_SUPPORT == 1) ||\
-(RTL8195A_SUPPORT == 1) || (RTL8188F_SUPPORT == 1))
 #define ODM_IC_11N_SERIES_SUPPORT			1
 #define ODM_IC_11AC_SERIES_SUPPORT		0
-#else
-#define ODM_IC_11N_SERIES_SUPPORT			0
-#define ODM_IC_11AC_SERIES_SUPPORT		1
-#endif
 
 //ODM_CMNINFO_CUT_VER
 typedef enum tag_ODM_Cut_Version_Definition

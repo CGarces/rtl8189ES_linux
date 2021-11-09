@@ -134,19 +134,8 @@ typedef struct _ODM_Phy_Status_Info_
 	u1Byte		SignalStrength;				/* in 0-100 index. */
 	s1Byte		RxPwr[4];					/* per-path's pwdb */
 	s1Byte		RxSNR[4];					/* per-path's SNR	*/
-#if (RTL8822B_SUPPORT == 1)
-	u1Byte		RxCount:2;					/* RX path counter---*/
-	u1Byte		BandWidth:2;
-	u1Byte		rxsc:4;						/* sub-channel---*/
-#else
 	u1Byte		BandWidth;
-#endif
 	u1Byte		btCoexPwrAdjust;
-#if (RTL8822B_SUPPORT == 1)
-	u1Byte		channel;						/* channel number---*/
-	BOOLEAN		bMuPacket;					/* is MU packet or not---*/
-	BOOLEAN		bBeamformed;				/* BF packet---*/
-#endif
 }ODM_PHY_INFO_T,*PODM_PHY_INFO_T;
 
 typedef struct _ODM_Per_Pkt_Info_
@@ -168,10 +157,6 @@ typedef struct _ODM_Phy_Dbg_Info_
 	u4Byte		NumQryPhyStatus;
 	u4Byte		NumQryPhyStatusCCK;
 	u4Byte		NumQryPhyStatusOFDM;
-#if (RTL8822B_SUPPORT == 1)
-	u4Byte		NumQryMuPkt;
-	u4Byte		NumQryBfPkt;
-#endif
 	u1Byte		NumQryBeaconPkt;
 	//Others
 	s4Byte		RxEVM[4];	
