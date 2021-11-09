@@ -303,13 +303,9 @@ void mpt_InitHWConfig(PADAPTER Adapter)
 
 	hal = GET_HAL_DATA(Adapter);
 
-	if (IS_HARDWARE_TYPE_8188ES(Adapter))
-		PHY_SetMacReg(Adapter, 0x4C , BIT23, 0);		/*select DPDT_P and DPDT_N as output pin*/
-	else if (IS_HARDWARE_TYPE_8188F(Adapter)) {
-		if (IS_A_CUT(hal->VersionID) || (IS_B_CUT(hal->VersionID) && hal->VersionID.irv == 0xF)) {
-			RTW_INFO("%s() Active large power detection\n", __func__);
-			phy_active_large_power_detection_8188f(&hal->odmpriv);
-		}
+	if (IS_A_CUT(hal->VersionID) || (IS_B_CUT(hal->VersionID) && hal->VersionID.irv == 0xF)) {
+		RTW_INFO("%s() Active large power detection\n", __func__);
+		phy_active_large_power_detection_8188f(&hal->odmpriv);
 	}
 }
 
@@ -1045,8 +1041,7 @@ void SetPacketTx(PADAPTER padapter)
 	pkt_start = ptr;
 	pkt_end = pkt_start + pkt_size;
 
-	if (IS_HARDWARE_TYPE_8188F(padapter))
-		fill_tx_desc_8188f(padapter);
+	fill_tx_desc_8188f(padapter);
 
 	//3 4. make wlan header, make_wlanhdr()
 	hdr = (struct rtw_ieee80211_hdr *)pkt_start;

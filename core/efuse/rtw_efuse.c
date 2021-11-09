@@ -855,11 +855,6 @@ efuse_IsMasked(
 	//if (bEfuseMaskOFF(pAdapter))
 	if(pAdapter->registrypriv.boffefusemask)
 		return FALSE;
-		
-#ifdef CONFIG_RTL8188F_SDIO
-	if (IS_HARDWARE_TYPE_8188F(pAdapter))  
-		return (IS_MASKED(8188F, _MSDIO, Offset)) ? TRUE : FALSE;
-#endif
 
 	return FALSE;	
 }

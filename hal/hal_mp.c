@@ -48,33 +48,6 @@ void hal_mpt_SwitchRfSetting(PADAPTER	pAdapter)
 	ULONG				ulRateIdx = pMptCtx->MptRateIndex;
 	ULONG				ulbandwidth = pMptCtx->MptBandWidth;
 	
-	/* <20120525, Kordan> Dynamic mechanism for APK, asked by Dennis.*/
-	if (IS_HARDWARE_TYPE_8188ES(pAdapter) && (1 <= ChannelToSw && ChannelToSw <= 11) &&
-		(ulRateIdx == MPT_RATE_MCS0 || ulRateIdx == MPT_RATE_1M || ulRateIdx == MPT_RATE_6M)) {
-		pMptCtx->backup0x52_RF_A = (u1Byte)PHY_QueryRFReg(pAdapter, ODM_RF_PATH_A, RF_0x52, 0x000F0);
-		pMptCtx->backup0x52_RF_B = (u1Byte)PHY_QueryRFReg(pAdapter, ODM_RF_PATH_B, RF_0x52, 0x000F0);
-		
-		if ((PlatformEFIORead4Byte(pAdapter, 0xF4)&BIT29) == BIT29) {
-			PHY_SetRFReg(pAdapter, ODM_RF_PATH_A, RF_0x52, 0x000F0, 0xB);
-			PHY_SetRFReg(pAdapter, ODM_RF_PATH_B, RF_0x52, 0x000F0, 0xB);
-		} else {
-			PHY_SetRFReg(pAdapter, ODM_RF_PATH_A, RF_0x52, 0x000F0, 0xD);
-			PHY_SetRFReg(pAdapter, ODM_RF_PATH_B, RF_0x52, 0x000F0, 0xD);
-		}
-	} else if (IS_HARDWARE_TYPE_8188EE(pAdapter)) { /* <20140903, VincentL> Asked by RF Eason and Edlu*/
-	
-		if (ChannelToSw == 3 && ulbandwidth == MPT_BW_40MHZ) {
-			PHY_SetRFReg(pAdapter, ODM_RF_PATH_A, RF_0x52, 0x000F0, 0xB); /*RF 0x52 = 0x0007E4BD*/
-			PHY_SetRFReg(pAdapter, ODM_RF_PATH_B, RF_0x52, 0x000F0, 0xB); /*RF 0x52 = 0x0007E4BD*/
-		} else {
-			PHY_SetRFReg(pAdapter, ODM_RF_PATH_A, RF_0x52, 0x000F0, 0x9); /*RF 0x52 = 0x0007E49D*/
-			PHY_SetRFReg(pAdapter, ODM_RF_PATH_B, RF_0x52, 0x000F0, 0x9); /*RF 0x52 = 0x0007E49D*/
-		}
-		
-	} else if (IS_HARDWARE_TYPE_8188E(pAdapter)) {
-		PHY_SetRFReg(pAdapter, ODM_RF_PATH_A, RF_0x52, 0x000F0, pMptCtx->backup0x52_RF_A);
-		PHY_SetRFReg(pAdapter, ODM_RF_PATH_B, RF_0x52, 0x000F0, pMptCtx->backup0x52_RF_B);
-	}
 }
 
 s32 hal_mpt_SetPowerTracking(PADAPTER padapter, u8 enable)
@@ -129,127 +102,63 @@ void hal_mpt_CCKTxPowerAdjust(PADAPTER Adapter, BOOLEAN bInCH14)
 	else
 		pHalData->bCCKinCH14 = FALSE;
 
-	if (IS_HARDWARE_TYPE_8188F(Adapter)) {
-		/* get current cck swing value and check 0xa22 & 0xa23 later to match the table.*/
-		CurrCCKSwingVal = read_bbreg(Adapter, rCCK0_TxFilter1, bMaskHWord);
-		CCKSwingIndex = 20; /* default index */
+	/* get current cck swing value and check 0xa22 & 0xa23 later to match the table.*/
+	CurrCCKSwingVal = read_bbreg(Adapter, rCCK0_TxFilter1, bMaskHWord);
+	CCKSwingIndex = 20; /* default index */
 
-		if (!pHalData->bCCKinCH14) {
-			/* Readback the current bb cck swing value and compare with the table to */
-			/* get the current swing index */
-			for (i = 0; i < CCK_TABLE_SIZE_88F; i++) {
-				if (((CurrCCKSwingVal & 0xff) == (u32)CCKSwingTable_Ch1_Ch13_88F[i][0]) &&
-				    (((CurrCCKSwingVal & 0xff00) >> 8) == (u32)CCKSwingTable_Ch1_Ch13_88F[i][1])) {
-					CCKSwingIndex = i;
-					break;
-				}
+	if (!pHalData->bCCKinCH14) {
+		/* Readback the current bb cck swing value and compare with the table to */
+		/* get the current swing index */
+		for (i = 0; i < CCK_TABLE_SIZE_88F; i++) {
+			if (((CurrCCKSwingVal & 0xff) == (u32)CCKSwingTable_Ch1_Ch13_88F[i][0]) &&
+				(((CurrCCKSwingVal & 0xff00) >> 8) == (u32)CCKSwingTable_Ch1_Ch13_88F[i][1])) {
+				CCKSwingIndex = i;
+				break;
 			}
-			write_bbreg(Adapter, 0xa22, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][0]);
-			write_bbreg(Adapter, 0xa23, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][1]);
-			write_bbreg(Adapter, 0xa24, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][2]);
-			write_bbreg(Adapter, 0xa25, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][3]);
-			write_bbreg(Adapter, 0xa26, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][4]);
-			write_bbreg(Adapter, 0xa27, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][5]);
-			write_bbreg(Adapter, 0xa28, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][6]);
-			write_bbreg(Adapter, 0xa29, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][7]);
-			write_bbreg(Adapter, 0xa9a, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][8]);
-			write_bbreg(Adapter, 0xa9b, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][9]);
-			write_bbreg(Adapter, 0xa9c, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][10]);
-			write_bbreg(Adapter, 0xa9d, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][11]);
-			write_bbreg(Adapter, 0xaa0, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][12]);
-			write_bbreg(Adapter, 0xaa1, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][13]);
-			write_bbreg(Adapter, 0xaa2, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][14]);
-			write_bbreg(Adapter, 0xaa3, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][15]);
-			DBG_871X("%s , CCKSwingTable_Ch1_Ch13_88F[%d]\n", __func__, CCKSwingIndex);
-		}  else {
-			for (i = 0; i < CCK_TABLE_SIZE_88F; i++) {
-				if (((CurrCCKSwingVal & 0xff) == (u32)CCKSwingTable_Ch14_88F[i][0]) &&
-				    (((CurrCCKSwingVal & 0xff00) >> 8) == (u32)CCKSwingTable_Ch14_88F[i][1])) {
-					CCKSwingIndex = i;
-					break;
-				}
-			}
-			write_bbreg(Adapter, 0xa22, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][0]);
-			write_bbreg(Adapter, 0xa23, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][1]);
-			write_bbreg(Adapter, 0xa24, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][2]);
-			write_bbreg(Adapter, 0xa25, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][3]);
-			write_bbreg(Adapter, 0xa26, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][4]);
-			write_bbreg(Adapter, 0xa27, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][5]);
-			write_bbreg(Adapter, 0xa28, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][6]);
-			write_bbreg(Adapter, 0xa29, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][7]);
-			write_bbreg(Adapter, 0xa9a, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][8]);
-			write_bbreg(Adapter, 0xa9b, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][9]);
-			write_bbreg(Adapter, 0xa9c, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][10]);
-			write_bbreg(Adapter, 0xa9d, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][11]);
-			write_bbreg(Adapter, 0xaa0, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][12]);
-			write_bbreg(Adapter, 0xaa1, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][13]);
-			write_bbreg(Adapter, 0xaa2, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][14]);
-			write_bbreg(Adapter, 0xaa3, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][15]);
-			DBG_871X("%s , CCKSwingTable_Ch14_88F[%d]\n", __func__, CCKSwingIndex);
 		}
-	} else {
-
-		/* get current cck swing value and check 0xa22 & 0xa23 later to match the table.*/
-		CurrCCKSwingVal = read_bbreg(Adapter, rCCK0_TxFilter1, bMaskHWord);
-
-		if (!pHalData->bCCKinCH14) {
-			/* Readback the current bb cck swing value and compare with the table to */
-			/* get the current swing index */
-			for (i = 0; i < CCK_TABLE_SIZE; i++) {
-				if (((CurrCCKSwingVal & 0xff) == (u32)CCKSwingTable_Ch1_Ch13[i][0]) &&
-				    (((CurrCCKSwingVal & 0xff00) >> 8) == (u32)CCKSwingTable_Ch1_Ch13[i][1])) {
-					CCKSwingIndex = i;
-					break;
-				}
+		write_bbreg(Adapter, 0xa22, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][0]);
+		write_bbreg(Adapter, 0xa23, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][1]);
+		write_bbreg(Adapter, 0xa24, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][2]);
+		write_bbreg(Adapter, 0xa25, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][3]);
+		write_bbreg(Adapter, 0xa26, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][4]);
+		write_bbreg(Adapter, 0xa27, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][5]);
+		write_bbreg(Adapter, 0xa28, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][6]);
+		write_bbreg(Adapter, 0xa29, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][7]);
+		write_bbreg(Adapter, 0xa9a, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][8]);
+		write_bbreg(Adapter, 0xa9b, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][9]);
+		write_bbreg(Adapter, 0xa9c, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][10]);
+		write_bbreg(Adapter, 0xa9d, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][11]);
+		write_bbreg(Adapter, 0xaa0, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][12]);
+		write_bbreg(Adapter, 0xaa1, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][13]);
+		write_bbreg(Adapter, 0xaa2, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][14]);
+		write_bbreg(Adapter, 0xaa3, bMaskByte0, CCKSwingTable_Ch1_Ch13_88F[CCKSwingIndex][15]);
+		DBG_871X("%s , CCKSwingTable_Ch1_Ch13_88F[%d]\n", __func__, CCKSwingIndex);
+	}  else {
+		for (i = 0; i < CCK_TABLE_SIZE_88F; i++) {
+			if (((CurrCCKSwingVal & 0xff) == (u32)CCKSwingTable_Ch14_88F[i][0]) &&
+				(((CurrCCKSwingVal & 0xff00) >> 8) == (u32)CCKSwingTable_Ch14_88F[i][1])) {
+				CCKSwingIndex = i;
+				break;
 			}
-
-			/*Write 0xa22 0xa23*/
-			TempVal = CCKSwingTable_Ch1_Ch13[CCKSwingIndex][0] +
-				(CCKSwingTable_Ch1_Ch13[CCKSwingIndex][1] << 8);
-
-
-			/*Write 0xa24 ~ 0xa27*/
-			TempVal2 = 0;
-			TempVal2 = CCKSwingTable_Ch1_Ch13[CCKSwingIndex][2] +
-				(CCKSwingTable_Ch1_Ch13[CCKSwingIndex][3] << 8) +
-				(CCKSwingTable_Ch1_Ch13[CCKSwingIndex][4] << 16) +
-				(CCKSwingTable_Ch1_Ch13[CCKSwingIndex][5] << 24);
-
-			/*Write 0xa28  0xa29*/
-			TempVal3 = 0;
-			TempVal3 = CCKSwingTable_Ch1_Ch13[CCKSwingIndex][6] +
-				(CCKSwingTable_Ch1_Ch13[CCKSwingIndex][7] << 8);
-		}  else {
-			for (i = 0; i < CCK_TABLE_SIZE; i++) {
-				if (((CurrCCKSwingVal & 0xff) == (u32)CCKSwingTable_Ch14[i][0]) &&
-				    (((CurrCCKSwingVal & 0xff00) >> 8) == (u32)CCKSwingTable_Ch14[i][1])) {
-					CCKSwingIndex = i;
-					break;
-				}
-			}
-
-			/*Write 0xa22 0xa23*/
-			TempVal = CCKSwingTable_Ch14[CCKSwingIndex][0] +
-				  (CCKSwingTable_Ch14[CCKSwingIndex][1] << 8);
-
-			/*Write 0xa24 ~ 0xa27*/
-			TempVal2 = 0;
-			TempVal2 = CCKSwingTable_Ch14[CCKSwingIndex][2] +
-				   (CCKSwingTable_Ch14[CCKSwingIndex][3] << 8) +
-				(CCKSwingTable_Ch14[CCKSwingIndex][4] << 16) +
-				   (CCKSwingTable_Ch14[CCKSwingIndex][5] << 24);
-
-			/*Write 0xa28  0xa29*/
-			TempVal3 = 0;
-			TempVal3 = CCKSwingTable_Ch14[CCKSwingIndex][6] +
-				   (CCKSwingTable_Ch14[CCKSwingIndex][7] << 8);
 		}
-
-		write_bbreg(Adapter, rCCK0_TxFilter1, bMaskHWord, TempVal);
-		write_bbreg(Adapter, rCCK0_TxFilter2, bMaskDWord, TempVal2);
-		write_bbreg(Adapter, rCCK0_DebugPort, bMaskLWord, TempVal3);
-	}
-
+		write_bbreg(Adapter, 0xa22, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][0]);
+		write_bbreg(Adapter, 0xa23, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][1]);
+		write_bbreg(Adapter, 0xa24, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][2]);
+		write_bbreg(Adapter, 0xa25, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][3]);
+		write_bbreg(Adapter, 0xa26, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][4]);
+		write_bbreg(Adapter, 0xa27, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][5]);
+		write_bbreg(Adapter, 0xa28, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][6]);
+		write_bbreg(Adapter, 0xa29, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][7]);
+		write_bbreg(Adapter, 0xa9a, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][8]);
+		write_bbreg(Adapter, 0xa9b, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][9]);
+		write_bbreg(Adapter, 0xa9c, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][10]);
+		write_bbreg(Adapter, 0xa9d, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][11]);
+		write_bbreg(Adapter, 0xaa0, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][12]);
+		write_bbreg(Adapter, 0xaa1, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][13]);
+		write_bbreg(Adapter, 0xaa2, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][14]);
+		write_bbreg(Adapter, 0xaa3, bMaskByte0, CCKSwingTable_Ch14_88F[CCKSwingIndex][15]);
+		DBG_871X("%s , CCKSwingTable_Ch14_88F[%d]\n", __func__, CCKSwingIndex);
+	} 
 }
 
 void hal_mpt_SetChannel(PADAPTER pAdapter)
@@ -366,8 +275,7 @@ mpt_SetTxPower(
 	u1Byte path = 0 , i = 0, MaxRate = MGN_6M;
 	u1Byte StartPath = ODM_RF_PATH_A, EndPath = ODM_RF_PATH_B;
 	
-	if (IS_HARDWARE_TYPE_8188F(pAdapter))
-		EndPath = ODM_RF_PATH_A;
+	EndPath = ODM_RF_PATH_A;
 
 	switch (Rate) {
 	case MPT_CCK:
@@ -463,24 +371,13 @@ void hal_mpt_SetTxPower(PADAPTER pAdapter)
 	PDM_ODM_T		pDM_Odm = &pHalData->odmpriv;
 
 	if (pHalData->rf_chip < RF_TYPE_MAX) {
-		if (IS_HARDWARE_TYPE_8188E(pAdapter) || 
-			IS_HARDWARE_TYPE_8188F(pAdapter)) {
-			u8 path = (pHalData->AntennaTxPath == ANTENNA_A) ? (ODM_RF_PATH_A) : (ODM_RF_PATH_B);
+		u8 path = (pHalData->AntennaTxPath == ANTENNA_A) ? (ODM_RF_PATH_A) : (ODM_RF_PATH_B);
 
-			DBG_8192C("===> MPT_ProSetTxPower: Old\n");
+		DBG_8192C("===> MPT_ProSetTxPower: Old\n");
 
-			RT_TRACE(_module_mp_, DBG_LOUD, ("===> MPT_ProSetTxPower[Old]:\n"));
-			mpt_SetTxPower_Old(pAdapter, MPT_CCK, pMptCtx->TxPwrLevel);		
-			mpt_SetTxPower_Old(pAdapter, MPT_OFDM_AND_HT, pMptCtx->TxPwrLevel);
-
-		} else {
-			DBG_871X("===> MPT_ProSetTxPower: Jaguar\n");
-			mpt_SetTxPower(pAdapter, MPT_CCK, pMptCtx->TxPwrLevel);
-			mpt_SetTxPower(pAdapter, MPT_OFDM, pMptCtx->TxPwrLevel);
-			mpt_SetTxPower(pAdapter, MPT_HT, pMptCtx->TxPwrLevel);
-			mpt_SetTxPower(pAdapter, MPT_VHT, pMptCtx->TxPwrLevel);
-
-			}
+		RT_TRACE(_module_mp_, DBG_LOUD, ("===> MPT_ProSetTxPower[Old]:\n"));
+		mpt_SetTxPower_Old(pAdapter, MPT_CCK, pMptCtx->TxPwrLevel);		
+		mpt_SetTxPower_Old(pAdapter, MPT_OFDM_AND_HT, pMptCtx->TxPwrLevel);
 	} else
 		DBG_8192C("RFChipID < RF_TYPE_MAX, the RF chip is not supported - %d\n", pHalData->rf_chip);
 
@@ -791,37 +688,21 @@ void hal_mpt_SetSingleToneTx(PADAPTER pAdapter, u8 bStart)
 	if (bStart) {
 		/*/ Start Single Tone.*/
 		/*/ <20120326, Kordan> To amplify the power of tone for Xtal calibration. (asked by Edlu)*/
-		if (IS_HARDWARE_TYPE_8188E(pAdapter)) {
-			regRF = PHY_QueryRFReg(pAdapter, rfPath, LNA_Low_Gain_3, bRFRegOffsetMask);
-			
-			PHY_SetRFReg(pAdapter, ODM_RF_PATH_A, LNA_Low_Gain_3, BIT1, 0x1); /*/ RF LO enabled*/	
-			PHY_SetBBReg(pAdapter, rFPGA0_RFMOD, bCCKEn, 0x0);
-			PHY_SetBBReg(pAdapter, rFPGA0_RFMOD, bOFDMEn, 0x0);
-		} else if (IS_HARDWARE_TYPE_8188F(pAdapter)) {
-			/*Set BB REG 88C: Prevent SingleTone Fail*/
-			PHY_SetBBReg(pAdapter, rFPGA0_AnalogParameter4, 0xF00000, 0xF);
-			PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, LNA_Low_Gain_3, BIT1, 0x1);
-			PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, RF_AC, 0xF0000, 0x2);
-
-		}
-		else	/*/ Turn On SingleTone and turn off the other test modes.*/
-			PHY_SetBBReg(pAdapter, rOFDM1_LSTF, BIT30|BIT29|BIT28, OFDM_SingleTone);			
+		/*Set BB REG 88C: Prevent SingleTone Fail*/
+		PHY_SetBBReg(pAdapter, rFPGA0_AnalogParameter4, 0xF00000, 0xF);
+		PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, LNA_Low_Gain_3, BIT1, 0x1);
+		PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, RF_AC, 0xF0000, 0x2);
 
 		write_bbreg(pAdapter, rFPGA0_XA_HSSIParameter1, bMaskDWord, 0x01000500);
 		write_bbreg(pAdapter, rFPGA0_XB_HSSIParameter1, bMaskDWord, 0x01000500);
 
-	} else {/*/ Stop Single Ton e.*/
+	} else {
+		/*/ Stop Single Ton e.*/
+		PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, RF_AC, 0xF0000, 0x3); /*Tx mode*/
+		PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, LNA_Low_Gain_3, BIT1, 0x0); /*RF LO disabled*/
+		/*Set BB REG 88C: Prevent SingleTone Fail*/
+		PHY_SetBBReg(pAdapter, rFPGA0_AnalogParameter4, 0xF00000, 0xc);	
 
-		if (IS_HARDWARE_TYPE_8188E(pAdapter)) {
-			PHY_SetRFReg(pAdapter, ODM_RF_PATH_A, LNA_Low_Gain_3, bRFRegOffsetMask, regRF);
-			PHY_SetBBReg(pAdapter, rFPGA0_RFMOD, bCCKEn, 0x1);
-			PHY_SetBBReg(pAdapter, rFPGA0_RFMOD, bOFDMEn, 0x1);
-		} else if (IS_HARDWARE_TYPE_8188F(pAdapter)) {
-			PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, RF_AC, 0xF0000, 0x3); /*Tx mode*/
-			PHY_SetRFReg(pAdapter, pMptCtx->MptRfPath, LNA_Low_Gain_3, BIT1, 0x0); /*RF LO disabled*/
-			/*Set BB REG 88C: Prevent SingleTone Fail*/
-			PHY_SetBBReg(pAdapter, rFPGA0_AnalogParameter4, 0xF00000, 0xc);	
-		}
 		write_bbreg(pAdapter, rFPGA0_XA_HSSIParameter1, bMaskDWord, 0x01000100);
 		write_bbreg(pAdapter, rFPGA0_XB_HSSIParameter1, bMaskDWord, 0x01000100);
 

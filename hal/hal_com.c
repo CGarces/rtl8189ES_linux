@@ -4334,14 +4334,6 @@ int  rtw_hal_set_gpio_output_value(_adapter* adapter, u8 gpio_num, bool isHigh)
 {
 	u8 direction = 0;
 	u8 res = -1;
-	if (IS_HARDWARE_TYPE_8188E(adapter)){
-		/* Check GPIO is 4~7 */
-		if( gpio_num > 7 || gpio_num < 4)
-		{
-			DBG_871X("%s The gpio number does not included 4~7.\n",__FUNCTION__);
-			return -1;
-		}
-	}	
 	
 	rtw_ps_deny(adapter, PS_DENY_IOCTL);
 
@@ -4373,13 +4365,6 @@ int  rtw_hal_set_gpio_output_value(_adapter* adapter, u8 gpio_num, bool isHigh)
 
 int rtw_hal_config_gpio(_adapter* adapter, u8 gpio_num, bool isOutput)
 {
-	if (IS_HARDWARE_TYPE_8188E(adapter)){
-		if( gpio_num > 7 || gpio_num < 4)
-		{
-			DBG_871X("%s The gpio number does not included 4~7.\n",__FUNCTION__);
-			return -1;
-		}
-	}	
 
 	DBG_871X("%s gpio_num =%d direction=%d\n",__FUNCTION__,gpio_num,isOutput);
 
@@ -4405,14 +4390,6 @@ int rtw_hal_register_gpio_interrupt(_adapter* adapter, int gpio_num, void(*callb
 	u8 value;
 	u8 direction;
 	PHAL_DATA_TYPE phal = GET_HAL_DATA(adapter);
-
-	if (IS_HARDWARE_TYPE_8188E(adapter)){	
-		if(gpio_num > 7 || gpio_num < 4)
-		{
-			DBG_871X_LEVEL(_drv_always_, "%s The gpio number does not included 4~7.\n",__FUNCTION__);
-			return -1;
-		}
-	}
 
 	rtw_ps_deny(adapter, PS_DENY_IOCTL);
 
@@ -4451,14 +4428,6 @@ int rtw_hal_disable_gpio_interrupt(_adapter* adapter, int gpio_num)
 	u8 value;
 	u8 direction;
 	PHAL_DATA_TYPE phal = GET_HAL_DATA(adapter);
-
-	if (IS_HARDWARE_TYPE_8188E(adapter)){
-		if(gpio_num > 7 || gpio_num < 4)
-		{
-			DBG_871X("%s The gpio number does not included 4~7.\n",__FUNCTION__);
-			return -1;
-		}
-	}
 
 	rtw_ps_deny(adapter, PS_DENY_IOCTL);
 
@@ -4536,9 +4505,7 @@ void rtw_dump_mac_rx_counters(_adapter* padapter,struct dbg_rx_counter *rx_count
 void rtw_reset_mac_rx_counters(_adapter* padapter)
 {
 
-	if (IS_HARDWARE_TYPE_8188F(padapter))
-		PHY_SetMacReg(padapter, 0x608, BIT19, 0x1); /* If no packet rx, MaxRx clock be gating ,BIT_DISGCLK bit19 set 1 for fix*/	
-
+	PHY_SetMacReg(padapter, 0x608, BIT19, 0x1); /* If no packet rx, MaxRx clock be gating ,BIT_DISGCLK bit19 set 1 for fix*/	
 	//reset mac counter
 	PHY_SetMacReg(padapter, REG_RXERR_RPT, BIT27, 0x1); 
 	PHY_SetMacReg(padapter, REG_RXERR_RPT, BIT27, 0x0);
