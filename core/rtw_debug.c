@@ -89,9 +89,6 @@ void dump_drv_cfg(void *sel)
 	DBG_871X_SEL_NL(sel, "CONFIG_POWER_SAVING\n");
 
 	DBG_871X_SEL_NL(sel, "LOAD_PHY_PARA_FROM_FILE - REALTEK_CONFIG_PATH=%s\n", REALTEK_CONFIG_PATH);
-	#if defined(REALTEK_CONFIG_PATH_WITH_IC_NAME_FOLDER)
-	RTW_PRINT_SEL(sel, "LOAD_PHY_PARA_FROM_FILE - REALTEK_CONFIG_PATH_WITH_IC_NAME_FOLDER\n");
-	#endif
 
 	RTW_PRINT_SEL(sel, "CONFIG_TXPWR_BY_RATE_EN=%d\n", CONFIG_TXPWR_BY_RATE_EN);
 	RTW_PRINT_SEL(sel, "CONFIG_TXPWR_LIMIT_EN=%d\n", CONFIG_TXPWR_LIMIT_EN);
@@ -2285,43 +2282,6 @@ ssize_t proc_set_sreset(struct file *file, const char __user *buffer, size_t cou
 	
 }
 #endif /* DBG_CONFIG_ERROR_DETECT */
-
-#ifdef CONFIG_P2P_WOWLAN
-int proc_get_p2p_wowlan_info(struct seq_file *m, void *v)
-{
-	struct net_device *dev = m->private;
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	struct wifidirect_info	*pwdinfo = &( padapter->wdinfo );
-	struct p2p_wowlan_info	 peerinfo = pwdinfo->p2p_wow_info;
-	if(_TRUE == peerinfo.is_trigger)
-	{
-		DBG_871X_SEL_NL(m,"is_trigger: TRUE\n");
-		switch(peerinfo.wowlan_recv_frame_type)
-		{
-			case P2P_WOWLAN_RECV_NEGO_REQ:
-				DBG_871X_SEL_NL(m,"Frame Type: Nego Request\n");
-				break;
-			case P2P_WOWLAN_RECV_INVITE_REQ:
-				DBG_871X_SEL_NL(m,"Frame Type: Invitation Request\n");
-				break;
-			case P2P_WOWLAN_RECV_PROVISION_REQ:
-				DBG_871X_SEL_NL(m,"Frame Type: Provision Request\n");
-				break;
-			default:
-				break;
-		}
-		DBG_871X_SEL_NL(m,"Peer Addr: "MAC_FMT"\n", MAC_ARG(peerinfo.wowlan_peer_addr));
-		DBG_871X_SEL_NL(m,"Peer WPS Config: %x\n", peerinfo.wowlan_peer_wpsconfig);
-		DBG_871X_SEL_NL(m,"Persistent Group: %d\n", peerinfo.wowlan_peer_is_persistent);
-		DBG_871X_SEL_NL(m,"Intivation Type: %d\n", peerinfo.wowlan_peer_invitation_type);
-	}
-	else
-	{
-		DBG_871X_SEL_NL(m,"is_trigger: False\n");
-	}
-	return 0;
-}
-#endif /* CONFIG_P2P_WOWLAN */
 
 int proc_get_new_bcn_max(struct seq_file *m, void *v)
 {

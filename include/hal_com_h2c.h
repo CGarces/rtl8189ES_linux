@@ -277,15 +277,6 @@ s32 rtw_hal_customer_str_write(_adapter *adapter, const u8 *cs);
 #define SET_H2CCMD_AOAC_RSVDPAGE_LOC_GTK_EXT_MEM(__pH2CCmd, __Value)		SET_BITS_TO_LE_1BYTE((__pH2CCmd)+5, 0, 8, __Value)
 #endif //CONFIG_GTK_OL
 
-#ifdef CONFIG_P2P_WOWLAN
-//P2P_RsvdPage_0x8a
-#define SET_H2CCMD_RSVDPAGE_LOC_P2P_BCN(__pH2CCmd, __Value)			SET_BITS_TO_LE_1BYTE(__pH2CCmd, 0, 8, __Value)
-#define SET_H2CCMD_RSVDPAGE_LOC_P2P_PROBE_RSP(__pH2CCmd, __Value)				SET_BITS_TO_LE_1BYTE((__pH2CCmd)+1, 0, 8, __Value)
-#define SET_H2CCMD_RSVDPAGE_LOC_P2P_NEGO_RSP(__pH2CCmd, __Value)			SET_BITS_TO_LE_1BYTE((__pH2CCmd)+2, 0, 8, __Value)
-#define SET_H2CCMD_RSVDPAGE_LOC_P2P_INVITE_RSP(__pH2CCmd, __Value)		SET_BITS_TO_LE_1BYTE((__pH2CCmd)+3, 0, 8, __Value)
-#define SET_H2CCMD_RSVDPAGE_LOC_P2P_PD_RSP(__pH2CCmd, __Value)	SET_BITS_TO_LE_1BYTE((__pH2CCmd)+4, 0, 8, __Value)
-#endif //CONFIG_P2P_WOWLAN
-
 //---------------------------------------------------------------------------------------------------------//
 //-------------------------------------------    Structure    --------------------------------------------------//
 //---------------------------------------------------------------------------------------------------------//
@@ -296,13 +287,6 @@ typedef struct _RSVDPAGE_LOC {
 	u8 LocQosNull;
 	u8 LocBTQosNull;	
 	u8 LocApOffloadBCN;
-#ifdef CONFIG_P2P_WOWLAN
-	u8 LocP2PBeacon;
-	u8 LocP2PProbeRsp;
-	u8 LocNegoRsp;
-	u8 LocInviteRsp;
-	u8 LocPDRsp;
-#endif //CONFIG_P2P_WOWLAN
 } RSVDPAGE_LOC, *PRSVDPAGE_LOC;
 
 #endif

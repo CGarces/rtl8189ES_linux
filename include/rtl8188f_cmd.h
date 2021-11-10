@@ -195,10 +195,6 @@ void rtl8188f_set_p2p_ps_offload_cmd(PADAPTER padapter, u8 p2p_ps_state);
 
 void CheckFwRsvdPageContent(PADAPTER padapter);
 
-#ifdef CONFIG_P2P_WOWLAN
-void rtl8188f_set_p2p_wowlan_offload_cmd(PADAPTER padapter);
-#endif
-
 void rtl8188f_set_FwPwrModeInIPS_cmd(PADAPTER padapter, u8 cmd_param);
 
 s32 FillH2CCmd8188F(PADAPTER padapter, u8 ElementID, u32 CmdLen, u8 *pCmdBuffer);
