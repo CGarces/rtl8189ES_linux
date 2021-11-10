@@ -66,37 +66,6 @@ PHY_LCCalibrate_8188F(
 	IN	PVOID		pDM_VOID
 );
 
-//
-// AP calibrate
-//
-void	
-PHY_DigitalPredistortion_8188F(		IN	PADAPTER	pAdapter);
-
-
-VOID
-_PHY_SaveADDARegisters_8188F(
-	IN	PADAPTER	pAdapter,
-	IN	pu4Byte		ADDAReg,
-	IN	pu4Byte		ADDABackup,
-	IN	u4Byte		RegisterNum
-	);
-
-VOID
-_PHY_PathADDAOn_8188F(
-	IN	PADAPTER	pAdapter,
-	IN	pu4Byte		ADDAReg,
-	IN	BOOLEAN		isPathAOn,
-	IN	BOOLEAN		is2T
-	);
-
-VOID
-_PHY_MACSettingCalibration_8188F(
-	IN	PADAPTER	pAdapter,
-	IN	pu4Byte		MACReg,
-	IN	pu4Byte		MACBackup	
-	);
-
-
 VOID
 _PHY_PathAStandBy(
 	IN	PADAPTER	pAdapter
