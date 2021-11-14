@@ -188,11 +188,11 @@ odm_CommonInfoSelfUpdate(
 	
 	if(EntryCnt == 1)
 	{
-		pDM_Odm->bOneEntryOnly = TRUE;
+		pDM_Odm->bOneEntryOnly = true;
 		pDM_Odm->OneEntry_MACID=OneEntry_MACID;
 	}
 	else
-		pDM_Odm->bOneEntryOnly = FALSE;
+		pDM_Odm->bOneEntryOnly = false;
 
 	pDM_Odm->pre_number_linked_client = pDM_Odm->number_linked_client;
 	pDM_Odm->pre_number_active_client = pDM_Odm->number_active_client;
@@ -345,7 +345,7 @@ ODM_DMWatchdog(
 	
 	odm_RSSIMonitorCheck(pDM_Odm);
 
-	if(*(pDM_Odm->pbPowerSaving) == TRUE)
+	if(*(pDM_Odm->pbPowerSaving) == true)
 	{
 		odm_DIGbyRSSI_LPS(pDM_Odm);
 		{
@@ -983,20 +983,20 @@ odm_UpdatePowerTrainingState(
 		return;
 
 	ODM_RT_TRACE(pDM_Odm,ODM_COMP_RA_MASK, ODM_DBG_LOUD,("odm_UpdatePowerTrainingState()============>\n"));
-	pDM_Odm->bChangeState = FALSE;
+	pDM_Odm->bChangeState = false;
 
 	// Debug command
 	if(pDM_Odm->ForcePowerTrainingState)
 	{
 		if(pDM_Odm->ForcePowerTrainingState == 1 && !pDM_Odm->bDisablePowerTraining)
 		{
-			pDM_Odm->bChangeState = TRUE;
-			pDM_Odm->bDisablePowerTraining = TRUE;
+			pDM_Odm->bChangeState = true;
+			pDM_Odm->bDisablePowerTraining = true;
 		}
 		else if(pDM_Odm->ForcePowerTrainingState == 2 && pDM_Odm->bDisablePowerTraining)
 		{
-			pDM_Odm->bChangeState = TRUE;
-			pDM_Odm->bDisablePowerTraining = FALSE;
+			pDM_Odm->bChangeState = true;
+			pDM_Odm->bDisablePowerTraining = false;
 		}
 
 		pDM_Odm->PT_score = 0;
@@ -1011,10 +1011,10 @@ odm_UpdatePowerTrainingState(
 		return;
 	
 	// First connect
-	if((pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == FALSE))
+	if((pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == false))
 	{
 		pDM_Odm->PT_score = 0;
-		pDM_Odm->bChangeState = TRUE;
+		pDM_Odm->bChangeState = true;
 		pDM_Odm->PhyDbgInfo.NumQryPhyStatusOFDM = 0;
 		pDM_Odm->PhyDbgInfo.NumQryPhyStatusCCK = 0;
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_RA_MASK, ODM_DBG_LOUD,("odm_UpdatePowerTrainingState(): First Connect\n"));
@@ -1060,8 +1060,8 @@ odm_UpdatePowerTrainingState(
 	{
 		if(pDM_Odm->bDisablePowerTraining)
 		{
-			pDM_Odm->bChangeState = TRUE;
-			pDM_Odm->bDisablePowerTraining = FALSE;
+			pDM_Odm->bChangeState = true;
+			pDM_Odm->bDisablePowerTraining = false;
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_RA_MASK, ODM_DBG_LOUD,("odm_UpdatePowerTrainingState(): Change state\n"));
 		}
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_RA_MASK, ODM_DBG_LOUD,("odm_UpdatePowerTrainingState(): Enable Power Training\n"));
@@ -1070,8 +1070,8 @@ odm_UpdatePowerTrainingState(
 	{
 		if(!pDM_Odm->bDisablePowerTraining)
 		{
-			pDM_Odm->bChangeState = TRUE;
-			pDM_Odm->bDisablePowerTraining = TRUE;
+			pDM_Odm->bChangeState = true;
+			pDM_Odm->bDisablePowerTraining = true;
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_RA_MASK, ODM_DBG_LOUD,("odm_UpdatePowerTrainingState(): Change state\n"));
 		}
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_RA_MASK, ODM_DBG_LOUD,("odm_UpdatePowerTrainingState(): Disable Power Training\n"));

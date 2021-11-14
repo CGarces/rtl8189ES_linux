@@ -31,11 +31,11 @@
 
 //#define RTW_STATUS_TIMEDOUT -110
 
-#undef _TRUE
-#define _TRUE		1
+#undef true
+#define true		1
 
-#undef _FALSE
-#define _FALSE		0
+#undef false
+#define false		0
 
 #ifdef PLATFORM_LINUX
 #include <osdep_service_linux.h>
@@ -338,7 +338,7 @@ __inline static void rtw_dump_stack(void)
 
 __inline static int rtw_bug_check(void *parg1, void *parg2, void *parg3, void *parg4)
 {
-	int ret = _TRUE;
+	int ret = true;
 	return ret;
 
 }

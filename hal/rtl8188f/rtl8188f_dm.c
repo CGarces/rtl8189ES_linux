@@ -125,7 +125,7 @@ static void Update_ODM_ComInfo_8188f(PADAPTER	Adapter)
 			 /*| ODM_BB_PWR_TRAIN */
 			 ;
 
-	if (rtw_odm_adaptivity_needed(Adapter) == _TRUE) {
+	if (rtw_odm_adaptivity_needed(Adapter) == true) {
 		rtw_odm_adaptivity_config_msg(RTW_DBGDUMP, Adapter);
 		SupportAbility |= ODM_BB_ADAPTIVITY;
 	}
@@ -169,8 +169,8 @@ rtl8188f_HalDmWatchDog(
 	IN	PADAPTER	Adapter
 )
 {
-	BOOLEAN		bFwCurrentInPSMode = _FALSE;
-	BOOLEAN		bFwPSAwake = _TRUE;
+	BOOLEAN		bFwCurrentInPSMode = false;
+	BOOLEAN		bFwPSAwake = true;
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
 
 	if (Adapter->registrypriv.mp_mode == 1 && Adapter->mppriv.mp_dm == 0) /* for MP power tracking */
@@ -185,7 +185,7 @@ rtl8188f_HalDmWatchDog(
 	/* Fw is under p2p powersaving mode, driver should stop dynamic mechanism. */
 	/* modifed by thomas. 2011.06.11. */
 	if (Adapter->wdinfo.p2p_ps_mode)
-		bFwPSAwake = _FALSE;
+		bFwPSAwake = false;
 
 	if ((rtw_is_hw_init_completed(Adapter))
 		&& ((!bFwCurrentInPSMode) && bFwPSAwake)) {
@@ -203,20 +203,20 @@ rtl8188f_HalDmWatchDog(
 
 	/*ODM */
 	if (rtw_is_hw_init_completed(Adapter)) {
-		u8	bLinked = _FALSE;
-		u8	bsta_state = _FALSE;
-		u8	bBtDisabled = _TRUE;
+		u8	bLinked = false;
+		u8	bsta_state = false;
+		u8	bBtDisabled = true;
 
 		if (rtw_linked_check(Adapter)) {
-			bLinked = _TRUE;
+			bLinked = true;
 			if (check_fwstate(&Adapter->mlmepriv, WIFI_STATION_STATE))
-				bsta_state = _TRUE;
+				bsta_state = true;
 		}
 
 		ODM_CmnInfoUpdate(&pHalData->odmpriv , ODM_CMNINFO_LINK, bLinked);
 		ODM_CmnInfoUpdate(&pHalData->odmpriv , ODM_CMNINFO_STATION_STATE, bsta_state);
 
-		ODM_CmnInfoUpdate(&pHalData->odmpriv, ODM_CMNINFO_BT_ENABLED, ((bBtDisabled == _TRUE) ? _FALSE : _TRUE));
+		ODM_CmnInfoUpdate(&pHalData->odmpriv, ODM_CMNINFO_BT_ENABLED, ((bBtDisabled == true) ? false : true));
 
 		ODM_DMWatchdog(&pHalData->odmpriv);
 	}
@@ -254,7 +254,7 @@ void rtl8188f_hal_dm_in_lps(PADAPTER padapter)
 
 void rtl8188f_HalDmWatchDog_in_LPS(IN	PADAPTER	Adapter)
 {
-	u8	bLinked = _FALSE;
+	u8	bLinked = false;
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
 	struct mlme_priv 	*pmlmepriv = &Adapter->mlmepriv;
 	PDM_ODM_T		pDM_Odm = &pHalData->odmpriv;
@@ -267,11 +267,11 @@ void rtl8188f_HalDmWatchDog_in_LPS(IN	PADAPTER	Adapter)
 
 
 	if (rtw_linked_check(Adapter))
-		bLinked = _TRUE;
+		bLinked = true;
 
 	ODM_CmnInfoUpdate(&pHalData->odmpriv , ODM_CMNINFO_LINK, bLinked);
 
-	if (bLinked == _FALSE)
+	if (bLinked == false)
 		goto skip_lps_dm;
 
 	if (!(pDM_Odm->SupportAbility & ODM_BB_RSSI_MONITOR))

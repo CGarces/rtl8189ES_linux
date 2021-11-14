@@ -387,21 +387,21 @@ odm_TXPowerTrackingThermalMeterInit(
 	PADAPTER		Adapter = pDM_Odm->Adapter;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 
-	pRFCalibrateInfo->bTXPowerTracking = _TRUE;
+	pRFCalibrateInfo->bTXPowerTracking = true;
 	pRFCalibrateInfo->TXPowercount = 0;
-	pRFCalibrateInfo->bTXPowerTrackingInit = _FALSE;
+	pRFCalibrateInfo->bTXPowerTrackingInit = false;
 
-	if(pDM_Odm->mp_mode == FALSE)
-		pRFCalibrateInfo->TxPowerTrackControl = _TRUE;
+	if(pDM_Odm->mp_mode == false)
+		pRFCalibrateInfo->TxPowerTrackControl = true;
 	else
-		pRFCalibrateInfo->TxPowerTrackControl = _FALSE;	
+		pRFCalibrateInfo->TxPowerTrackControl = false;	
 
-	if(pDM_Odm->mp_mode == FALSE)
-		pRFCalibrateInfo->TxPowerTrackControl = _TRUE;
+	if(pDM_Odm->mp_mode == false)
+		pRFCalibrateInfo->TxPowerTrackControl = true;
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("pDM_Odm TxPowerTrackControl = %d\n", pRFCalibrateInfo->TxPowerTrackControl));
 
-	//pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = TRUE;
+	//pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = true;
 	pRFCalibrateInfo->ThermalValue = pHalData->EEPROMThermalMeter;
 	pRFCalibrateInfo->ThermalValue_IQK = pHalData->EEPROMThermalMeter;
 	pRFCalibrateInfo->ThermalValue_LCK = pHalData->EEPROMThermalMeter;	

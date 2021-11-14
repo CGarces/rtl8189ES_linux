@@ -61,14 +61,14 @@ s32 hal_mpt_SetPowerTracking(PADAPTER padapter, u8 enable)
 		return _FAIL;
 	}
 
-	if (check_fwstate(&padapter->mlmepriv, WIFI_MP_STATE) == _FALSE) {
+	if (check_fwstate(&padapter->mlmepriv, WIFI_MP_STATE) == false) {
 		RT_TRACE(_module_mp_, _drv_warning_, ("SetPowerTracking! Fail: not in MP mode!\n"));
 		return _FAIL;
 	}
 	if (enable)
-		pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = _TRUE;	
+		pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = true;	
 	else
-		pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = _FALSE;
+		pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = false;
 
 	return _SUCCESS;
 }
@@ -98,9 +98,9 @@ void hal_mpt_CCKTxPowerAdjust(PADAPTER Adapter, BOOLEAN bInCH14)
 	DataRate = MptToMgntRate(ulRateIdx);
 
 	if (u1Channel == 14 && IS_CCK_RATE(DataRate))
-		pHalData->bCCKinCH14 = TRUE;
+		pHalData->bCCKinCH14 = true;
 	else
-		pHalData->bCCKinCH14 = FALSE;
+		pHalData->bCCKinCH14 = false;
 
 	/* get current cck swing value and check 0xa22 & 0xa23 later to match the table.*/
 	CurrCCKSwingVal = read_bbreg(Adapter, rCCK0_TxFilter1, bMaskHWord);
@@ -172,8 +172,8 @@ void hal_mpt_SetChannel(PADAPTER pAdapter)
 
 	hal_mpt_SwitchRfSetting(pAdapter);
 
-	pHalData->bSwChnl = _TRUE;
-	pHalData->bSetChnlBW = _TRUE;
+	pHalData->bSwChnl = true;
+	pHalData->bSetChnlBW = true;
 	rtw_hal_set_chnl_bw(pAdapter, channel, bandwidth, 0, 0);
 
 	hal_mpt_CCKTxPowerAdjust(pAdapter, pHalData->bCCKinCH14);
@@ -192,8 +192,8 @@ void hal_mpt_SetBandwidth(PADAPTER pAdapter)
 	u8		channel = pmp->channel;
 	u8		bandwidth = pmp->bandwidth;
 
-	pHalData->bSwChnl = _TRUE;
-	pHalData->bSetChnlBW = _TRUE;
+	pHalData->bSwChnl = true;
+	pHalData->bSetChnlBW = true;
 	rtw_hal_set_chnl_bw(pAdapter, channel, bandwidth, 0, 0);
 	
 	hal_mpt_SwitchRfSetting(pAdapter);
@@ -580,7 +580,7 @@ s32 hal_mpt_SetThermalMeter(PADAPTER pAdapter, u8 target_ther)
 	}
 
 
-	if (check_fwstate(&pAdapter->mlmepriv, WIFI_MP_STATE) == _FALSE) {
+	if (check_fwstate(&pAdapter->mlmepriv, WIFI_MP_STATE) == false) {
 		RT_TRACE(_module_mp_, _drv_warning_, ("SetThermalMeter: Fail! not in MP mode!\n"));
 		return _FAIL;
 	}
@@ -808,7 +808,7 @@ void hal_mpt_SetCCKContinuousTx(PADAPTER pAdapter, u8 bStart)
 	}
 
 	pAdapter->mppriv.MptCtx.bCckContTx = bStart;
-	pAdapter->mppriv.MptCtx.bOfdmContTx = _FALSE;
+	pAdapter->mppriv.MptCtx.bOfdmContTx = false;
 }
 
 void hal_mpt_SetOFDMContinuousTx(PADAPTER pAdapter, u8 bStart)
@@ -852,7 +852,7 @@ void hal_mpt_SetOFDMContinuousTx(PADAPTER pAdapter, u8 bStart)
 		write_bbreg(pAdapter, rFPGA0_XB_HSSIParameter1, bMaskDWord, 0x01000100);
 	}
 
-	pAdapter->mppriv.MptCtx.bCckContTx = _FALSE;
+	pAdapter->mppriv.MptCtx.bCckContTx = false;
 	pAdapter->mppriv.MptCtx.bOfdmContTx = bStart;
 }
 

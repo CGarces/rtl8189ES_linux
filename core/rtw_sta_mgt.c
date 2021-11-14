@@ -24,8 +24,8 @@
 bool test_st_match_rule(_adapter *adapter, u8 *local_naddr, u8 *local_port, u8 *remote_naddr, u8 *remote_port)
 {
 	if (ntohs(*((u16 *)local_port)) == 5001 || ntohs(*((u16 *)remote_port)) == 5001)
-		return _TRUE;
-	return _FALSE;
+		return true;
+	return false;
 }
 
 struct st_register test_st_reg = {
@@ -48,7 +48,7 @@ inline void rtw_st_ctl_clear_tracker_q(struct st_ctl_t *st_ctl)
 	_enter_critical_bh(&st_ctl->tracker_q.lock, &irqL);
 	phead = &st_ctl->tracker_q.queue;
 	plist = get_next(phead);
-	while (rtw_end_of_queue_search(phead, plist) == _FALSE) {
+	while (rtw_end_of_queue_search(phead, plist) == false) {
 		st = LIST_CONTAINOR(plist, struct session_tracker, list);
 		plist = get_next(plist);
 		rtw_list_delete(&st->list);
@@ -96,12 +96,12 @@ inline void rtw_st_ctl_unregister(struct st_ctl_t *st_ctl, u8 st_reg_id)
 
 inline bool rtw_st_ctl_chk_reg_s_proto(struct st_ctl_t *st_ctl, u8 s_proto)
 {
-	bool ret = _FALSE;
+	bool ret = false;
 	int i;
 
 	for (i = 0; i < SESSION_TRACKER_REG_ID_NUM; i++) {
 		if (st_ctl->reg[i].s_proto == s_proto) {
-			ret = _TRUE;
+			ret = true;
 			break;
 		}
 	}
@@ -111,14 +111,14 @@ inline bool rtw_st_ctl_chk_reg_s_proto(struct st_ctl_t *st_ctl, u8 s_proto)
 
 inline bool rtw_st_ctl_chk_reg_rule(struct st_ctl_t *st_ctl, _adapter *adapter, u8 *local_naddr, u8 *local_port, u8 *remote_naddr, u8 *remote_port)
 {
-	bool ret = _FALSE;
+	bool ret = false;
 	int i;
 	st_match_rule rule;
 
 	for (i = 0; i < SESSION_TRACKER_REG_ID_NUM; i++) {
 		rule = st_ctl->reg[i].rule;
-		if (rule && rule(adapter, local_naddr, local_port, remote_naddr, remote_port) == _TRUE) {
-			ret = _TRUE;
+		if (rule && rule(adapter, local_naddr, local_port, remote_naddr, remote_port) == true) {
+			ret = true;
 			break;
 		}
 	}
@@ -145,7 +145,7 @@ void dump_st_ctl(void *sel, struct st_ctl_t *st_ctl)
 	_enter_critical_bh(&st_ctl->tracker_q.lock, &irqL);
 	phead = &st_ctl->tracker_q.queue;
 	plist = get_next(phead);
-	while (rtw_end_of_queue_search(phead, plist) == _FALSE) {
+	while (rtw_end_of_queue_search(phead, plist) == false) {
 		st = LIST_CONTAINOR(plist, struct session_tracker, list);
 		plist = get_next(plist);
 
@@ -187,7 +187,7 @@ _func_enter_;
 	
 	psta->capability = 0;
 
-	psta->bpairwise_key_installed = _FALSE;
+	psta->bpairwise_key_installed = false;
 
 
 	psta->nonerp_set = 0;
@@ -349,7 +349,7 @@ _func_enter_;
 	phead = get_list_head(&pstapriv->free_sta_queue);
 	plist = get_next(phead);
 		
-	while ((rtw_end_of_queue_search(phead, plist)) == _FALSE)
+	while ((rtw_end_of_queue_search(phead, plist)) == false)
 	{
 		psta = LIST_CONTAINOR(plist, struct sta_info ,list);
 		plist = get_next(plist);
@@ -400,7 +400,7 @@ _func_enter_;
 			phead = &(pstapriv->sta_hash[index]);
 			plist = get_next(phead);
 			
-			while ((rtw_end_of_queue_search(phead, plist)) == _FALSE)
+			while ((rtw_end_of_queue_search(phead, plist)) == false)
 			{
 				int i;	
 				psta = LIST_CONTAINOR(plist, struct sta_info ,hash_list);
@@ -447,7 +447,7 @@ _func_enter_;
 
 	//_enter_critical_bh(&(pfree_sta_queue->lock), &irqL);
 	_enter_critical_bh(&(pstapriv->sta_hash_lock), &irqL2);
-	if (_rtw_queue_empty(pfree_sta_queue) == _TRUE)
+	if (_rtw_queue_empty(pfree_sta_queue) == true)
 	{
 		//_exit_critical_bh(&(pfree_sta_queue->lock), &irqL);
 		_exit_critical_bh(&(pstapriv->sta_hash_lock), &irqL2);
@@ -510,7 +510,7 @@ _func_enter_;
 
 			preorder_ctrl->padapter = pstapriv->padapter;
 		
-			preorder_ctrl->enable = _FALSE;
+			preorder_ctrl->enable = false;
 		
 			preorder_ctrl->indicate_seq = 0xffff;
 			#ifdef DBG_RX_SEQ
@@ -534,7 +534,7 @@ _func_enter_;
 
 		/* init for the sequence number of received management frame */
 		psta->RxMgmtFrameSeqNum = 0xffff;
-		psta->ra_rpt_linked = _FALSE;
+		psta->ra_rpt_linked = false;
 
 		//alloc mac id for non-bc/mc station,
 		rtw_alloc_macid(pstapriv->padapter, psta);
@@ -683,7 +683,7 @@ _func_enter_;
 	}
 
 	if (!(psta->state & WIFI_AP_STATE))
-		rtw_hal_set_odm_var(padapter, HAL_ODM_STA_INFO, psta, _FALSE);
+		rtw_hal_set_odm_var(padapter, HAL_ODM_STA_INFO, psta, false);
 			
 
 	//release mac id for non-bc/mc station,
@@ -774,7 +774,7 @@ _func_enter_;
 		phead = &(pstapriv->sta_hash[index]);
 		plist = get_next(phead);
 		
-		while ((rtw_end_of_queue_search(phead, plist)) == _FALSE)
+		while ((rtw_end_of_queue_search(phead, plist)) == false)
 		{
 			psta = LIST_CONTAINOR(plist, struct sta_info ,hash_list);
 
@@ -846,12 +846,12 @@ _func_enter_;
 	plist = get_next(phead);
 
 
-	while ((rtw_end_of_queue_search(phead, plist)) == _FALSE)
+	while ((rtw_end_of_queue_search(phead, plist)) == false)
 	{
 	
 		psta = LIST_CONTAINOR(plist, struct sta_info, hash_list);
 		
-		if ((_rtw_memcmp(psta->hwaddr, addr, ETH_ALEN))== _TRUE) 
+		if ((_rtw_memcmp(psta->hwaddr, addr, ETH_ALEN))== true) 
 		{ // if found the matched address
 			break;
 		}
@@ -918,11 +918,11 @@ _func_exit_;
 
 u8 rtw_access_ctrl(_adapter *padapter, u8 *mac_addr)
 {
-	u8 res = _TRUE;
+	u8 res = true;
 	_irqL irqL;
 	_list	*plist, *phead;
 	struct rtw_wlan_acl_node *paclnode;
-	u8 match = _FALSE;
+	u8 match = false;
 	struct sta_priv *pstapriv = &padapter->stapriv;
 	struct wlan_acl_pool *pacl_list = &pstapriv->acl_list;
 	_queue	*pacl_node_q =&pacl_list->acl_node_q;
@@ -930,16 +930,16 @@ u8 rtw_access_ctrl(_adapter *padapter, u8 *mac_addr)
 	_enter_critical_bh(&(pacl_node_q->lock), &irqL);
 	phead = get_list_head(pacl_node_q);
 	plist = get_next(phead);		
-	while ((rtw_end_of_queue_search(phead, plist)) == _FALSE)
+	while ((rtw_end_of_queue_search(phead, plist)) == false)
 	{
 		paclnode = LIST_CONTAINOR(plist, struct rtw_wlan_acl_node, list);
 		plist = get_next(plist);
 
 		if(_rtw_memcmp(paclnode->addr, mac_addr, ETH_ALEN))
 		{
-			if(paclnode->valid == _TRUE)
+			if(paclnode->valid == true)
 			{
-				match = _TRUE;
+				match = true;
 				break;
 			}
 		}		
@@ -949,15 +949,15 @@ u8 rtw_access_ctrl(_adapter *padapter, u8 *mac_addr)
 
 	if(pacl_list->mode == 1)//accept unless in deny list
 	{
-		res = (match == _TRUE) ?  _FALSE:_TRUE;
+		res = (match == true) ?  false:true;
 	}	
 	else if(pacl_list->mode == 2)//deny unless in accept list
 	{
-		res = (match == _TRUE) ?  _TRUE:_FALSE;
+		res = (match == true) ?  true:false;
 	}
 	else
 	{
-		 res = _TRUE;
+		 res = true;
 	}		
 	
 

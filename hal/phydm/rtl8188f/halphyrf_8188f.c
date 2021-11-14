@@ -151,7 +151,7 @@ void DoIQK_8188F(
 	ODM_ResetIQKResult(pDM_Odm);
 
 	pDM_Odm->RFCalibrateInfo.ThermalValue_IQK = ThermalValue;
-	PHY_IQCalibrate_8188F(Adapter, FALSE, FALSE);
+	PHY_IQCalibrate_8188F(Adapter, false, false);
 }
 
 /*-----------------------------------------------------------------------------
@@ -304,7 +304,7 @@ ODM_TxPwrTrackSetPwr_8188F(
 								   pDM_Odm->RFCalibrateInfo.IQKMatrixRegSetting[ChannelMappedIndex].Value[0][0],
 								   pDM_Odm->RFCalibrateInfo.IQKMatrixRegSetting[ChannelMappedIndex].Value[0][1]);
 
-				pRFCalibrateInfo->Modify_TxAGC_Flag_PathA = TRUE;
+				pRFCalibrateInfo->Modify_TxAGC_Flag_PathA = true;
 
 				//Set TxAGC Page C{};
 				
@@ -317,7 +317,7 @@ ODM_TxPwrTrackSetPwr_8188F(
 						 pDM_Odm->RFCalibrateInfo.IQKMatrixRegSetting[ChannelMappedIndex].Value[0][0],
 						 pDM_Odm->RFCalibrateInfo.IQKMatrixRegSetting[ChannelMappedIndex].Value[0][1]);		
 
-					pRFCalibrateInfo->Modify_TxAGC_Flag_PathA = TRUE;
+					pRFCalibrateInfo->Modify_TxAGC_Flag_PathA = true;
 				/* Set TxAGC Page C{}; */
 
 				ODM_RT_TRACE(pDM_Odm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD,
@@ -382,7 +382,7 @@ ODM_TxPwrTrackSetPwr_8188F(
 						ODM_Write1Byte(pDM_Odm, 0xaa3, CCKSwingTable_Ch14_88F[PwrTrackingLimit_CCK][15]);
 					}
 
-					pRFCalibrateInfo->Modify_TxAGC_Flag_PathA_CCK = TRUE;
+					pRFCalibrateInfo->Modify_TxAGC_Flag_PathA_CCK = true;
 
 				} else if (Final_CCK_Swing_Index < 0) { // Lowest CCK Index = 0
 				
@@ -424,7 +424,7 @@ ODM_TxPwrTrackSetPwr_8188F(
 						ODM_Write1Byte(pDM_Odm, 0xaa2, CCKSwingTable_Ch14_88F[0][14]);
 						ODM_Write1Byte(pDM_Odm, 0xaa3, CCKSwingTable_Ch14_88F[0][15]);
 					}
-					pRFCalibrateInfo->Modify_TxAGC_Flag_PathA_CCK = TRUE;
+					pRFCalibrateInfo->Modify_TxAGC_Flag_PathA_CCK = true;
 
 				} else {
 					ODM_RT_TRACE(pDM_Odm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("******Path_A CCK Compensate with BBSwing , Final_CCK_Swing_Index = %d\n", Final_CCK_Swing_Index));	
@@ -464,7 +464,7 @@ ODM_TxPwrTrackSetPwr_8188F(
 						ODM_Write1Byte(pDM_Odm, 0xaa3, CCKSwingTable_Ch14_88F[Final_CCK_Swing_Index][15]);	
 					}
 	
-					pRFCalibrateInfo->Modify_TxAGC_Flag_PathA_CCK=FALSE;
+					pRFCalibrateInfo->Modify_TxAGC_Flag_PathA_CCK=false;
 					pRFCalibrateInfo->Remnant_CCKSwingIdx = 0;     
 
 				}
@@ -1257,7 +1257,7 @@ _PHY_PathADDAOn8188F(
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("ADDA ON.\n"));
 
 	pathOn = isPathAOn ? 0x03c00014 : 0x03c00014;
-	if (FALSE == is2T) {
+	if (false == is2T) {
 		pathOn = 0x03c00014;
 		ODM_SetBBReg(pDM_Odm, ADDAReg[0], bMaskDWord, 0x03c00014);
 	} else
@@ -1337,9 +1337,9 @@ phy_SimularityCompare_8188F(
 #endif
 
 	u1Byte final_candidate[2] = { 0xFF, 0xFF };  //for path A and path B
-	BOOLEAN bResult = TRUE;
+	BOOLEAN bResult = true;
 
-	BOOLEAN is2T = TRUE;
+	BOOLEAN is2T = true;
 
 	s4Byte tmp1 = 0, tmp2 = 0;
 
@@ -1393,7 +1393,7 @@ phy_SimularityCompare_8188F(
 		for (i = 0; i < (bound / 4); i++) {
 			if (final_candidate[i] != 0xFF) {
 				for (j = i * 4; j < (i + 1) * 4 - 2; j++) result[3][j] = result[final_candidate[i]][j];
-				bResult = FALSE;
+				bResult = false;
 			}
 		}
 		return bResult;
@@ -1415,7 +1415,7 @@ phy_SimularityCompare_8188F(
 		if (!(SimularityBitMap & 0xc0)) { //path B RX OK
 			for (i = 6; i < 8; i++) result[3][i] = result[c1][i];
 		}
-		return FALSE;
+		return false;
 	}
 }
 
@@ -1485,7 +1485,7 @@ phy_IQCalibrate_8188F(
 	}
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("IQ Calibration for %s for %d times\n", (is2T ? "2T2R" : "1T1R"), t));
 
-	_PHY_PathADDAOn8188F(pAdapter, ADDA_REG, TRUE, is2T);
+	_PHY_PathADDAOn8188F(pAdapter, ADDA_REG, true, is2T);
 
 	if (t == 0)
 		pDM_Odm->RFCalibrateInfo.bRfPiEnable = (u1Byte)ODM_GetBBReg(pDM_Odm, rFPGA0_XA_HSSIParameter1, BIT(8));
@@ -1560,7 +1560,7 @@ phy_IQCalibrate_8188F(
 		_PHY_PathAStandBy8188F(pAdapter);
 
 		// Turn Path B ADDA on
-		_PHY_PathADDAOn8188F(pAdapter, ADDA_REG, FALSE, is2T);
+		_PHY_PathADDAOn8188F(pAdapter, ADDA_REG, false, is2T);
 //Allen
 		for (i = 0; i < retryCount; i++) {
 			PathBOK = phy_PathB_IQK_8188F(pAdapter);
@@ -1590,7 +1590,7 @@ phy_IQCalibrate_8188F(
 	if (t != 0) {
 		if (!pDM_Odm->RFCalibrateInfo.bRfPiEnable) {
 			// Switch back BB to SI mode after finish IQ Calibration.
-			_PHY_PIModeSwitch8188F(pAdapter, FALSE);
+			_PHY_PIModeSwitch8188F(pAdapter, false);
 		}
 
 		// Reload ADDA power saving parameters
@@ -1711,9 +1711,9 @@ PHY_IQCalibrate_8188F(
 #endif
 	BOOLEAN is12simular, is13simular, is23simular;
 #if MP_DRIVER == 1
-	BOOLEAN bStartContTx = FALSE;
+	BOOLEAN bStartContTx = false;
 #endif
-	BOOLEAN bSingleTone = FALSE, bCarrierSuppression = FALSE;
+	BOOLEAN bSingleTone = false, bCarrierSuppression = false;
 	u4Byte IQK_BB_REG_92C[IQK_BB_REG_NUM] = {
 		rOFDM0_XARxIQImbalance, rOFDM0_XBRxIQImbalance,
 		rOFDM0_ECCAThreshold, rOFDM0_AGCRSSITable,
@@ -1800,15 +1800,15 @@ PHY_IQCalibrate_8188F(
 		result[3][i] = 0;
 	}
 	final_candidate = 0xff;
-	bPathAOK = FALSE;
-	bPathBOK = FALSE;
-	is12simular = FALSE;
-	is23simular = FALSE;
-	is13simular = FALSE;
+	bPathAOK = false;
+	bPathBOK = false;
+	is12simular = false;
+	is23simular = false;
+	is13simular = false;
 
 
 	for (i = 0; i < 3; i++) {
-		phy_IQCalibrate_8188F(pAdapter, result, i, FALSE);
+		phy_IQCalibrate_8188F(pAdapter, result, i, false);
 
 		if (i == 1) {
 			is12simular = phy_SimularityCompare_8188F(pAdapter, result, 0, 1);
@@ -1878,7 +1878,7 @@ PHY_IQCalibrate_8188F(
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("IQK: final_candidate is %x\n", final_candidate));
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("IQK: RegE94=%04x RegE9C=%04x RegEA4=%04x RegEAC=%04x RegEB4=%04x RegEBC=%04x RegEC4=%04x RegECC=%04x\n",
 					 RegE94, RegE9C, RegEA4, RegEAC, RegEB4, RegEBC, RegEC4, RegECC));
-		bPathAOK = bPathBOK = TRUE;
+		bPathAOK = bPathBOK = true;
 	} else {
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("IQK: FAIL use default value\n"));
 
@@ -1908,7 +1908,7 @@ PHY_IQCalibrate_8188F(
 //by sherry 20120321
 	if (final_candidate < 4) {
 		for (i = 0; i < IQK_Matrix_REG_NUM; i++) pDM_Odm->RFCalibrateInfo.IQKMatrixRegSetting[Indexforchannel].Value[0][i] = result[final_candidate][i];
-		pDM_Odm->RFCalibrateInfo.IQKMatrixRegSetting[Indexforchannel].bIQKDone = TRUE;
+		pDM_Odm->RFCalibrateInfo.IQKMatrixRegSetting[Indexforchannel].bIQKDone = true;
 	}
 	//RT_DISP(FINIT, INIT_IQK, ("\nIQK OK Indexforchannel %d.\n", Indexforchannel));
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("\nIQK OK Indexforchannel %d.\n", Indexforchannel));
@@ -1932,9 +1932,9 @@ PHY_LCCalibrate_8188F(
 )
 {
 #if MP_DRIVER == 1
-	BOOLEAN bStartContTx = FALSE;
+	BOOLEAN bStartContTx = false;
 #endif
-	BOOLEAN bSingleTone = FALSE, bCarrierSuppression = FALSE;
+	BOOLEAN bSingleTone = false, bCarrierSuppression = false;
 	u4Byte timeout = 2000, timecount = 0;
 
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
@@ -1961,13 +1961,13 @@ PHY_LCCalibrate_8188F(
 		timecount += 50;
 	}
 
-	pDM_Odm->RFCalibrateInfo.bLCKInProgress = TRUE;
+	pDM_Odm->RFCalibrateInfo.bLCKInProgress = true;
 
 
-	phy_LCCalibrate_8188F(pDM_Odm, FALSE);
+	phy_LCCalibrate_8188F(pDM_Odm, false);
 
 
-	pDM_Odm->RFCalibrateInfo.bLCKInProgress = FALSE;
+	pDM_Odm->RFCalibrateInfo.bLCKInProgress = false;
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("LCK:Finish!!!interface %d 8188F\n", pDM_Odm->InterfaceIndex));
 
@@ -1989,7 +1989,7 @@ VOID phy_SetRFPathSwitch_8188F(
 }
 
 VOID PHY_SetRFPathSwitch_8188F(IN PADAPTER pAdapter, IN BOOLEAN bMain) {
-	phy_SetRFPathSwitch_8188F(pAdapter, bMain, TRUE);
+	phy_SetRFPathSwitch_8188F(pAdapter, bMain, true);
 }
 
 u32 phy_psd_log2base(u32 val)
@@ -2131,13 +2131,13 @@ void phy_active_large_power_detection_8188f(
 		REG_FPGA0_XB_RF_INTERFACE_OE, REG_FPGA0_RFMOD
 	};
 
-	BOOLEAN goout = FALSE;
+	BOOLEAN goout = false;
 
 	_phy_save_adda_registers8188f(p_dm_odm, ADDA_REG, p_dm_odm->RFCalibrateInfo.ADDA_backup, IQK_ADDA_REG_NUM);
 	_phy_save_mac_registers8188f(p_dm_odm, IQK_MAC_REG, p_dm_odm->RFCalibrateInfo.IQK_MAC_backup);
 	_phy_save_adda_registers8188f(p_dm_odm, IQK_BB_REG_92C, p_dm_odm->RFCalibrateInfo.IQK_BB_backup, IQK_BB_REG_NUM);
 
-	_phy_path_adda_on8188f(p_dm_odm, ADDA_REG, TRUE, FALSE);
+	_phy_path_adda_on8188f(p_dm_odm, ADDA_REG, true, false);
 
 	rf_mode = odm_get_rf_reg(p_dm_odm, RF_PATH_A, 0x0, RFREGOFFSETMASK);
 	/*ODM_RT_TRACE(p_dm_odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("[Act_Large_PWR]Original RF mode = 0x%x\n", odm_get_rf_reg(p_dm_odm, ODM_RF_PATH_A, 0x0, RFREGOFFSETMASK)));*/
@@ -2174,7 +2174,7 @@ void phy_active_large_power_detection_8188f(
 			if (odm_get_bb_reg(p_dm_odm, 0xea0, MASKDWORD) <= 0xa) {
 
 				ODM_RT_TRACE(p_dm_odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("[Act_Large_PWR]Skip Activation due to abnormal 0xea0 value (0x%x)\n", odm_get_bb_reg(p_dm_odm, 0xea0, MASKDWORD)));
-				goout = TRUE;
+				goout = true;
 				break;
 
 			} else {
@@ -2209,12 +2209,12 @@ void phy_active_large_power_detection_8188f(
 
 					} else {
 						ODM_RT_TRACE(p_dm_odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("[Act_Large_PWR]Activation fail!!!\n"));
-						goout = TRUE;
+						goout = true;
 						break;
 					}
 				} else {
 					ODM_RT_TRACE(p_dm_odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("[Act_Large_PWR]No need Activation!!!\n"));
-					goout = TRUE;
+					goout = true;
 					break;
 				}
 

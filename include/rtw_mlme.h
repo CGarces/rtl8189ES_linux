@@ -614,9 +614,9 @@ __inline static u8 *get_bssid(struct mlme_priv *pmlmepriv)
 __inline static sint check_fwstate(struct mlme_priv *pmlmepriv, sint state)
 {
 	if (pmlmepriv->fw_state & state)
-		return _TRUE;
+		return true;
 
-	return _FALSE;
+	return false;
 }
 
 __inline static sint get_fwstate(struct mlme_priv *pmlmepriv)
@@ -636,7 +636,7 @@ __inline static void set_fwstate(struct mlme_priv *pmlmepriv, sint state)
 	pmlmepriv->fw_state |= state;
 	//FOR HW integration
 	if(_FW_UNDER_SURVEY==state){
-		pmlmepriv->bScanInProcess = _TRUE;
+		pmlmepriv->bScanInProcess = true;
 	}
 }
 
@@ -645,7 +645,7 @@ __inline static void _clr_fwstate_(struct mlme_priv *pmlmepriv, sint state)
 	pmlmepriv->fw_state &= ~state;
 	//FOR HW integration
 	if(_FW_UNDER_SURVEY==state){
-		pmlmepriv->bScanInProcess = _FALSE;
+		pmlmepriv->bScanInProcess = false;
 	}
 }
 

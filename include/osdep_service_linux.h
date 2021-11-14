@@ -274,7 +274,7 @@ __inline static void _cancel_timer(_timer *ptimer,u8 *bcancelled)
 #else
 	del_timer_sync(ptimer);
 #endif
-	*bcancelled=  _TRUE;//TRUE ==1; FALSE==0
+	*bcancelled=  true;//true ==1; false==0
 }
 
 __inline static void _init_workitem(_workitem *pwork, void *pfunc, PVOID cntx)

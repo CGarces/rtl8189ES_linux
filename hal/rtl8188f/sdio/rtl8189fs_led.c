@@ -50,7 +50,7 @@ SwLedOn_8188FS(
 	if (RTW_CANNOT_RUN(padapter))
 		return;
 
-	pLed->bLedOn = _TRUE;
+	pLed->bLedOn = true;
 
 }
 
@@ -72,7 +72,7 @@ SwLedOff_8188FS(
 		goto exit;
 
 exit:
-	pLed->bLedOn = _FALSE;
+	pLed->bLedOn = false;
 
 }
 

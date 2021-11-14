@@ -216,9 +216,9 @@ bool rtw_fwdl_test_trigger_chksum_fail(void)
 	if (fwdl_test_chksum_fail) {
 		DBG_871X_LEVEL(_drv_always_, "fwdl test case: trigger chksum_fail\n");
 		fwdl_test_chksum_fail--;
-		return _TRUE;
+		return true;
 	}
-	return _FALSE;
+	return false;
 }
 
 bool rtw_fwdl_test_trigger_wintint_rdy_fail(void)
@@ -226,9 +226,9 @@ bool rtw_fwdl_test_trigger_wintint_rdy_fail(void)
 	if (fwdl_test_wintint_rdy_fail) {
 		DBG_871X_LEVEL(_drv_always_, "fwdl test case: trigger wintint_rdy_fail\n");
 		fwdl_test_wintint_rdy_fail--;
-		return _TRUE;
+		return true;
 	}
-	return _FALSE;
+	return false;
 }
 
 static u32 g_wait_hiq_empty_ms = 0;
@@ -245,9 +245,9 @@ bool rtw_del_rx_ampdu_test_trigger_no_tx_fail(void)
 	if (del_rx_ampdu_test_no_tx_fail) {
 		DBG_871X_LEVEL(_drv_always_, "del_rx_ampdu test case: trigger no_tx_fail\n");
 		del_rx_ampdu_test_no_tx_fail--;
-		return _TRUE;
+		return true;
 	}
-	return _FALSE;
+	return false;
 }
 
 void rtw_sink_rtp_seq_dbg( _adapter *adapter,_pkt *pkt)
@@ -875,14 +875,14 @@ int proc_get_survey_info(struct seq_file *m, void *v)
 	DBG_871X_SEL_NL(m, "%5s  %-17s  %3s  %-3s  %-4s  %-4s  %5s  %32s  %32s\n", "index", "bssid", "ch", "RSSI", "SdBm", "Noise", "age", "flag", "ssid");
 	while(1)
 	{
-		if (rtw_end_of_queue_search(phead,plist)== _TRUE)
+		if (rtw_end_of_queue_search(phead,plist)== true)
 			break;
 
 		pnetwork = LIST_CONTAINOR(plist, struct wlan_network, list);
                 if (!pnetwork)
 			break;
 	
-		if ( check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE &&
+		if ( check_fwstate(pmlmepriv, _FW_LINKED)== true &&
 			is_same_network(&pmlmepriv->cur_network.network, &pnetwork->network, 0)) {
 			notify_signal = translate_percentage_to_dbm(padapter->recvpriv.signal_strength);//dbm
 		} else {
@@ -926,8 +926,8 @@ ssize_t proc_set_survey_info(struct file *file, const char __user *buffer, size_
 	struct net_device *dev = data;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct mlme_priv	*pmlmepriv = &(padapter->mlmepriv);
-	bool need_indicate_scan_done = _FALSE;
-	u8 _status = _FALSE;
+	bool need_indicate_scan_done = false;
+	u8 _status = false;
 	NDIS_802_11_SSID ssid[RTW_SSID_SCAN_AMOUNT];
 
 	if (count < 1)
@@ -944,7 +944,7 @@ ssize_t proc_set_survey_info(struct file *file, const char __user *buffer, size_
 		goto exit;
 
 	if (rtw_is_drv_stopped(padapter)) {
-		DBG_871X("scan abort!! bDriverStopped=_TRUE\n");
+		DBG_871X("scan abort!! bDriverStopped=true\n");
 		goto exit;
 	}
 	
@@ -954,7 +954,7 @@ ssize_t proc_set_survey_info(struct file *file, const char __user *buffer, size_
 	}
 	
 	if (!rtw_is_hw_init_completed(padapter)) {
-		DBG_871X("scan abort!! hw_init_completed=FALSE\n");
+		DBG_871X("scan abort!! hw_init_completed=false\n");
 		goto exit;
 	}
 	
@@ -963,12 +963,12 @@ ssize_t proc_set_survey_info(struct file *file, const char __user *buffer, size_
 		goto exit;
 	}
 	
-	if ((pmlmepriv->LinkDetectInfo.bBusyTraffic == _TRUE)) {
-		DBG_871X("scan abort!! BusyTraffic == _TRUE\n");
+	if ((pmlmepriv->LinkDetectInfo.bBusyTraffic == true)) {
+		DBG_871X("scan abort!! BusyTraffic == true\n");
 		goto exit;
 	}
 
-	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY|_FW_UNDER_LINKING) == _TRUE) {
+	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY|_FW_UNDER_LINKING) == true) {
 		DBG_8192C("scan abort!! fwstate=0x%x\n", pmlmepriv->fw_state);
 		goto exit;
 	}
@@ -1090,7 +1090,7 @@ int proc_get_dis_pwt(struct seq_file *m, void *v)
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	u8 dis_pwt = 0;
 	rtw_hal_get_def_var(padapter, HAL_DEF_DBG_DIS_PWT, &(dis_pwt));
-	DBG_871X_SEL_NL(m, " Tx Power training mode:%s \n",(dis_pwt==_TRUE)?"Disable":"Enable");
+	DBG_871X_SEL_NL(m, " Tx Power training mode:%s \n",(dis_pwt==true)?"Disable":"Enable");
 	return 0;
 }
 ssize_t proc_set_dis_pwt(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
@@ -1111,7 +1111,7 @@ ssize_t proc_set_dis_pwt(struct file *file, const char __user *buffer, size_t co
 	if (buffer && !copy_from_user(tmp, buffer, count)) {
 
 		int num = sscanf(tmp, "%hhx", &dis_pwt);
-		DBG_871X("Set Tx Power training mode:%s\n", (dis_pwt == _TRUE)?"Disable":"Enable");
+		DBG_871X("Set Tx Power training mode:%s\n", (dis_pwt == true)?"Disable":"Enable");
 		
 		if (num >= 1)
 			rtw_hal_set_def_var(padapter, HAL_DEF_DBG_DIS_PWT, &(dis_pwt));
@@ -2095,7 +2095,7 @@ int proc_get_all_sta_info(struct seq_file *m, void *v)
 		phead = &(pstapriv->sta_hash[i]);
 		plist = get_next(phead);
 		
-		while ((rtw_end_of_queue_search(phead, plist)) == _FALSE)
+		while ((rtw_end_of_queue_search(phead, plist)) == false)
 		{
 			psta = LIST_CONTAINOR(plist, struct sta_info, hash_list);
 

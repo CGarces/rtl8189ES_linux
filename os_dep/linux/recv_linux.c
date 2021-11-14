@@ -225,7 +225,7 @@ void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, struct rx_pkt_attri
 
 	/* Indicat the packets to upper layer */
 	if (pkt) {
-		if(check_fwstate(pmlmepriv, WIFI_AP_STATE) == _TRUE)
+		if(check_fwstate(pmlmepriv, WIFI_AP_STATE) == true)
 		{
 		 	_pkt *pskb2=NULL;
 		 	struct sta_info *psta = NULL;
@@ -234,7 +234,7 @@ void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, struct rx_pkt_attri
 
 			//DBG_871X("bmcast=%d\n", bmcast);
 
-			if (_rtw_memcmp(pattrib->dst, adapter_mac_addr(padapter), ETH_ALEN) == _FALSE)
+			if (_rtw_memcmp(pattrib->dst, adapter_mac_addr(padapter), ETH_ALEN) == false)
 			{
 				//DBG_871X("not ap psta=%p, addr=%pM\n", psta, pattrib->dst);
 
@@ -286,7 +286,7 @@ void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, struct rx_pkt_attri
 #endif  // (LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 35))
 
 
-		if( br_port && (check_fwstate(pmlmepriv, WIFI_STATION_STATE|WIFI_ADHOC_STATE) == _TRUE) )
+		if( br_port && (check_fwstate(pmlmepriv, WIFI_STATION_STATE|WIFI_ADHOC_STATE) == true) )
 		{
 			int nat25_handle_frame(_adapter *priv, struct sk_buff *skb);
 			if (nat25_handle_frame(padapter, pkt) == -1) {
@@ -356,7 +356,7 @@ void rtw_handle_tkip_mic_err(_adapter *padapter, struct sta_info *sta, u8 bgroup
 
 		if( cur_time - psecuritypriv->last_mic_err_time < 60*HZ )
 		{
-			psecuritypriv->btkip_countermeasure = _TRUE;
+			psecuritypriv->btkip_countermeasure = true;
 			psecuritypriv->last_mic_err_time = 0;
 			psecuritypriv->btkip_countermeasure_time = cur_time;
 		}
@@ -492,11 +492,11 @@ int rtw_recv_indicatepkt(_adapter *padapter, union recv_frame *precv_frame)
 			u8 *ip = pkt->data + 14;
 
 			if (GET_IPV4_PROTOCOL(ip) == 0x06  /* TCP */
-				&& rtw_st_ctl_chk_reg_s_proto(&sta->st_ctl, 0x06) == _TRUE
+				&& rtw_st_ctl_chk_reg_s_proto(&sta->st_ctl, 0x06) == true
 			) {
 				u8 *tcp = ip + GET_IPV4_IHL(ip) * 4;
 
-				if (rtw_st_ctl_chk_reg_rule(&sta->st_ctl, padapter, IPV4_DST(ip), TCP_DST(tcp), IPV4_SRC(ip), TCP_SRC(tcp)) == _TRUE) {
+				if (rtw_st_ctl_chk_reg_rule(&sta->st_ctl, padapter, IPV4_DST(ip), TCP_DST(tcp), IPV4_SRC(ip), TCP_SRC(tcp)) == true) {
 					if (GET_TCP_SYN(tcp) && GET_TCP_ACK(tcp)) {
 						session_tracker_add_cmd(padapter, sta
 							, IPV4_DST(ip), TCP_DST(tcp)

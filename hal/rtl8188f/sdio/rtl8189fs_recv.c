@@ -94,7 +94,7 @@ s32 rtl8188fs_recv_hdl(_adapter *padapter)
 			if ((pattrib->crc_err) || (pattrib->icv_err)) {
 #ifdef CONFIG_MP_INCLUDED
 				if (padapter->registrypriv.mp_mode == 1) {
-					if ((check_fwstate(&padapter->mlmepriv, WIFI_MP_STATE) == _TRUE)) { /* &&(padapter->mppriv.check_mp_pkt == 0)) */
+					if ((check_fwstate(&padapter->mlmepriv, WIFI_MP_STATE) == true)) { /* &&(padapter->mppriv.check_mp_pkt == 0)) */
 						if (pattrib->crc_err == 1)
 							padapter->mppriv.rx_crcerrpktcount++;
 					}

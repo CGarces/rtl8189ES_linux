@@ -72,7 +72,7 @@ PHYDM_InitDebugSetting(
 #endif
 		0;
 
-	pDM_Odm->fw_buff_is_enpty = TRUE;
+	pDM_Odm->fw_buff_is_enpty = true;
 	pDM_Odm->pre_c2h_seq = 0;
 }
 
@@ -681,7 +681,7 @@ phydm_fw_trace_handler(
 	/*ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE,ODM_DBG_LOUD,("pre_seq = (( %d )), current_seq = (( %d ))\n", pDM_Odm->pre_c2h_seq, c2h_seq));*/
 	/*ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE,ODM_DBG_LOUD,("fw_buff_is_enpty = (( %d ))\n", pDM_Odm->fw_buff_is_enpty));*/
 
-	if ((c2h_seq != pDM_Odm->pre_c2h_seq)  &&  pDM_Odm->fw_buff_is_enpty == FALSE) {
+	if ((c2h_seq != pDM_Odm->pre_c2h_seq) && !pDM_Odm->fw_buff_is_enpty) {
 		pDM_Odm->fw_debug_trace[pDM_Odm->c2h_cmd_start] = '\0';
 		ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("[FW Dbg Queue Overflow] %s\n", pDM_Odm->fw_debug_trace));
 		pDM_Odm->c2h_cmd_start = 0;
@@ -696,7 +696,7 @@ phydm_fw_trace_handler(
 
 	strncpy((char *)&(pDM_Odm->fw_debug_trace[pDM_Odm->c2h_cmd_start]), (char *)&CmdBuf[1], (CmdLen-1));
 	pDM_Odm->c2h_cmd_start += (CmdLen - 1);
-	pDM_Odm->fw_buff_is_enpty = FALSE;	
+	pDM_Odm->fw_buff_is_enpty = false;	
 	
 	if (freg_num == 0 || pDM_Odm->c2h_cmd_start >= 60) {
 		if (pDM_Odm->c2h_cmd_start < 60)
@@ -707,7 +707,7 @@ phydm_fw_trace_handler(
 		ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("[FW DBG Msg] %s\n", pDM_Odm->fw_debug_trace));
 		/*DbgPrint("[FW DBG Msg] %s\n", pDM_Odm->fw_debug_trace);*/
 		pDM_Odm->c2h_cmd_start = 0;
-		pDM_Odm->fw_buff_is_enpty = TRUE;
+		pDM_Odm->fw_buff_is_enpty = true;
 	}
 
 	pDM_Odm->pre_c2h_seq = c2h_seq;

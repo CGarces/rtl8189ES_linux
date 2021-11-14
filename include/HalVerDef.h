@@ -20,9 +20,6 @@
 #ifndef __HAL_VERSION_DEF_H__
 #define __HAL_VERSION_DEF_H__
 
-#define TRUE 	_TRUE	
-#define FALSE	_FALSE
-
 // HAL_IC_TYPE_E
 typedef enum tag_HAL_IC_Type_Definition
 {
@@ -96,9 +93,6 @@ typedef	struct tag_HAL_VERSION
 	u8					irv;
 }HAL_VERSION,*PHAL_VERSION;
 
-//VERSION_8192C			VersionID;
-//HAL_VERSION			VersionID;
-
 // Get element
 #define GET_CVID_IC_TYPE(version)			((HAL_IC_TYPE_E)(((HAL_VERSION)version).ICType)	)
 #define GET_CVID_CHIP_TYPE(version)			((HAL_CHIP_TYPE_E)(((HAL_VERSION)version).ChipType)	)
@@ -112,35 +106,33 @@ typedef	struct tag_HAL_VERSION
 //----------------------------------------------------------------------------
 //HAL_VERSION VersionID
 
-// HAL_IC_TYPE_E
-
 //HAL_CHIP_TYPE_E
-#define IS_TEST_CHIP(version)			((GET_CVID_CHIP_TYPE(version)==TEST_CHIP)? TRUE: FALSE)
-#define IS_NORMAL_CHIP(version)			((GET_CVID_CHIP_TYPE(version)==NORMAL_CHIP)? TRUE: FALSE)
+#define IS_TEST_CHIP(version)			((GET_CVID_CHIP_TYPE(version)==TEST_CHIP)? true: false)
+#define IS_NORMAL_CHIP(version)			((GET_CVID_CHIP_TYPE(version)==NORMAL_CHIP)? true: false)
 
 //HAL_CUT_VERSION_E
-#define IS_A_CUT(version)				((GET_CVID_CUT_VERSION(version) == A_CUT_VERSION) ? TRUE : FALSE)
-#define IS_B_CUT(version)				((GET_CVID_CUT_VERSION(version) == B_CUT_VERSION) ? TRUE : FALSE)
-#define IS_C_CUT(version)				((GET_CVID_CUT_VERSION(version) == C_CUT_VERSION) ? TRUE : FALSE)
-#define IS_D_CUT(version)				((GET_CVID_CUT_VERSION(version) == D_CUT_VERSION) ? TRUE : FALSE)
-#define IS_E_CUT(version)				((GET_CVID_CUT_VERSION(version) == E_CUT_VERSION) ? TRUE : FALSE)
-#define IS_F_CUT(version)				((GET_CVID_CUT_VERSION(version) == F_CUT_VERSION) ? TRUE : FALSE)
-#define IS_I_CUT(version)				((GET_CVID_CUT_VERSION(version) == I_CUT_VERSION) ? TRUE : FALSE)
-#define IS_J_CUT(version)				((GET_CVID_CUT_VERSION(version) == J_CUT_VERSION) ? TRUE : FALSE)
-#define IS_K_CUT(version)				((GET_CVID_CUT_VERSION(version) == K_CUT_VERSION) ? TRUE : FALSE)
+#define IS_A_CUT(version)				((GET_CVID_CUT_VERSION(version) == A_CUT_VERSION) ? true : false)
+#define IS_B_CUT(version)				((GET_CVID_CUT_VERSION(version) == B_CUT_VERSION) ? true : false)
+#define IS_C_CUT(version)				((GET_CVID_CUT_VERSION(version) == C_CUT_VERSION) ? true : false)
+#define IS_D_CUT(version)				((GET_CVID_CUT_VERSION(version) == D_CUT_VERSION) ? true : false)
+#define IS_E_CUT(version)				((GET_CVID_CUT_VERSION(version) == E_CUT_VERSION) ? true : false)
+#define IS_F_CUT(version)				((GET_CVID_CUT_VERSION(version) == F_CUT_VERSION) ? true : false)
+#define IS_I_CUT(version)				((GET_CVID_CUT_VERSION(version) == I_CUT_VERSION) ? true : false)
+#define IS_J_CUT(version)				((GET_CVID_CUT_VERSION(version) == J_CUT_VERSION) ? true : false)
+#define IS_K_CUT(version)				((GET_CVID_CUT_VERSION(version) == K_CUT_VERSION) ? true : false)
 
 //HAL_VENDOR_E
-#define IS_CHIP_VENDOR_TSMC(version)	((GET_CVID_MANUFACTUER(version) == CHIP_VENDOR_TSMC)? TRUE: FALSE)
-#define IS_CHIP_VENDOR_UMC(version)	((GET_CVID_MANUFACTUER(version) == CHIP_VENDOR_UMC)? TRUE: FALSE)
-#define IS_CHIP_VENDOR_SMIC(version)	((GET_CVID_MANUFACTUER(version) == CHIP_VENDOR_SMIC)? TRUE: FALSE)
+#define IS_CHIP_VENDOR_TSMC(version)	((GET_CVID_MANUFACTUER(version) == CHIP_VENDOR_TSMC)? true: false)
+#define IS_CHIP_VENDOR_UMC(version)	((GET_CVID_MANUFACTUER(version) == CHIP_VENDOR_UMC)? true: false)
+#define IS_CHIP_VENDOR_SMIC(version)	((GET_CVID_MANUFACTUER(version) == CHIP_VENDOR_SMIC)? true: false)
 
 //HAL_RF_TYPE_E
-#define IS_1T1R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_1T1R)? TRUE : FALSE )
-#define IS_1T2R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_1T2R)? TRUE : FALSE)
-#define IS_2T2R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_2T2R)? TRUE : FALSE)
-#define IS_3T3R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_3T3R)? TRUE : FALSE)
-#define IS_3T4R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_3T4R)? TRUE : FALSE)
-#define IS_4T4R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_4T4R)? TRUE : FALSE)
+#define IS_1T1R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_1T1R)? true : false )
+#define IS_1T2R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_1T2R)? true : false)
+#define IS_2T2R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_2T2R)? true : false)
+#define IS_3T3R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_3T3R)? true : false)
+#define IS_3T4R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_3T4R)? true : false)
+#define IS_4T4R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_4T4R)? true : false)//----------------------------------------------------------------------------
 
 #endif
 

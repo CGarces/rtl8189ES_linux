@@ -459,8 +459,8 @@ typedef struct _RT_CHANNEL_INFO
 #define NON_OCP_TIME_MS (30*60*1000)
 
 #define CH_IS_NON_OCP(rt_ch_info) 0
-#define rtw_chset_is_ch_non_ocp(ch_set, ch, bw, offset) _FALSE
-#define rtw_rfctl_is_tx_blocked_by_cac(rfctl) _FALSE
+#define rtw_chset_is_ch_non_ocp(ch_set, ch, bw, offset) false
+#define rtw_rfctl_is_tx_blocked_by_cac(rfctl) false
 
 enum {
 	RTW_CHF_2G = BIT0,

@@ -181,7 +181,7 @@ void rtw_hal_init_opmode(_adapter *padapter)
 	else
 		return;
 
-	rtw_setopmode_cmd(padapter, networkType, _FALSE); 
+	rtw_setopmode_cmd(padapter, networkType, false); 
 }
 
 uint	 rtw_hal_init(_adapter *padapter) 
@@ -194,7 +194,7 @@ uint	 rtw_hal_init(_adapter *padapter)
 	status = padapter->HalFunc.hal_init(padapter);
 	
 	if (status == _SUCCESS) {
-		pHalData->hw_init_completed = _TRUE;
+		pHalData->hw_init_completed = true;
 			
 		if (padapter->registrypriv.notch_filter == 1)
 			rtw_hal_notch_filter(padapter, 1);
@@ -211,7 +211,7 @@ uint	 rtw_hal_init(_adapter *padapter)
 		rtw_bb_rf_gain_offset(padapter);
 
 	} else {
-		pHalData->hw_init_completed = _FALSE;
+		pHalData->hw_init_completed = false;
 		DBG_871X("rtw_hal_init: hal__init fail\n");
 	}
 
@@ -233,7 +233,7 @@ _func_enter_;
 
 	if(status == _SUCCESS){
 		rtw_led_control(padapter, LED_CTL_POWER_OFF);
-		pHalData->hw_init_completed = _FALSE;
+		pHalData->hw_init_completed = false;
 	}
 	else
 	{
@@ -294,7 +294,7 @@ void rtw_hal_disable_interrupt(_adapter *padapter)
 
 u8 rtw_hal_check_ips_status(_adapter *padapter)
 {
-	u8 val = _FALSE;
+	u8 val = false;
 	if (padapter->HalFunc.check_ips_status)
 		val = padapter->HalFunc.check_ips_status(padapter);
 	else 
@@ -379,7 +379,7 @@ void rtw_hal_update_ra_mask(struct sta_info *psta, u8 rssi_level)
 
 	pmlmepriv = &(padapter->mlmepriv);
 	
-	if(check_fwstate(pmlmepriv, WIFI_AP_STATE) == _TRUE)
+	if(check_fwstate(pmlmepriv, WIFI_AP_STATE) == true)
 	{
 		add_RATid(padapter, psta, rssi_level);
 	}
@@ -463,12 +463,12 @@ void	rtw_hal_set_chnl_bw(_adapter *padapter, u8 channel, CHANNEL_WIDTH Bandwidth
 	u8 cch_20 = Bandwidth == CHANNEL_WIDTH_20 ? channel : 0;
 
 	ODM_AcquireSpinLock(pDM_Odm, RT_IQK_SPINLOCK);
-	if (pDM_Odm->RFCalibrateInfo.bIQKInProgress == _TRUE)
+	if (pDM_Odm->RFCalibrateInfo.bIQKInProgress == true)
 		RTW_ERR("%s, %d, IQK may race condition\n", __func__, __LINE__);
 	ODM_ReleaseSpinLock(pDM_Odm, RT_IQK_SPINLOCK);
 
 	/* MP mode channel don't use secondary channel */
-	if (rtw_mp_mode_check(padapter) == _FALSE) {
+	if (rtw_mp_mode_check(padapter) == false) {
 		if (cch_80 != 0)
 			cch_40 = rtw_get_scch_by_cch_offset(cch_80, CHANNEL_WIDTH_80, Offset80);
 		if (cch_40 != 0)
@@ -626,9 +626,9 @@ s32 rtw_hal_macid_sleep(PADAPTER padapter, u8 macid)
 	struct macid_ctl_t *macid_ctl = dvobj_to_macidctl(dvobj);
 	u8 support;
 
-	support = _FALSE;
+	support = false;
 	rtw_hal_get_def_var(padapter, HAL_DEF_MACID_SLEEP, &support);
-	if (_FALSE == support)
+	if (false == support)
 		return _FAIL;
 
 	if (macid >= macid_ctl->num) {
@@ -648,9 +648,9 @@ s32 rtw_hal_macid_wakeup(PADAPTER padapter, u8 macid)
 	struct macid_ctl_t *macid_ctl = dvobj_to_macidctl(dvobj);
 	u8 support;
 
-	support = _FALSE;
+	support = false;
 	rtw_hal_get_def_var(padapter, HAL_DEF_MACID_SLEEP, &support);
-	if (_FALSE == support)
+	if (false == support)
 		return _FAIL;
 
 	if (macid >= macid_ctl->num) {
@@ -668,7 +668,7 @@ s32 rtw_hal_fill_h2c_cmd(PADAPTER padapter, u8 ElementID, u32 CmdLen, u8 *pCmdBu
 {
 	_adapter *pri_adapter = GET_PRIMARY_ADAPTER(padapter);
 
-	if (pri_adapter->bFWReady == _TRUE)
+	if (pri_adapter->bFWReady == true)
 		return padapter->HalFunc.fill_h2c_cmd(padapter, ElementID, CmdLen, pCmdBuffer);
 	else if (padapter->registrypriv.mp_mode == 0)
 		DBG_871X_LEVEL(_drv_always_, FUNC_ADPT_FMT" FW doesn't exit when no MP mode, by pass H2C id:0x%02x\n"

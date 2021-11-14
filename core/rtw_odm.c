@@ -122,7 +122,7 @@ void rtw_odm_dbg_comp_msg(void *sel, _adapter *adapter)
 
 inline void rtw_odm_dbg_comp_set(_adapter *adapter, u64 comps)
 {
-	rtw_hal_set_odm_var(adapter, HAL_ODM_DBG_FLAG, &comps, _FALSE);
+	rtw_hal_set_odm_var(adapter, HAL_ODM_DBG_FLAG, &comps, false);
 }
 
 void rtw_odm_dbg_level_msg(void *sel, _adapter *adapter)
@@ -143,7 +143,7 @@ void rtw_odm_dbg_level_msg(void *sel, _adapter *adapter)
 
 inline void rtw_odm_dbg_level_set(_adapter *adapter, u32 level)
 {
-	rtw_hal_set_odm_var(adapter, HAL_ODM_DBG_LEVEL, &level, _FALSE);
+	rtw_hal_set_odm_var(adapter, HAL_ODM_DBG_LEVEL, &level, false);
 }
 
 void rtw_odm_ability_msg(void *sel, _adapter *adapter)
@@ -262,10 +262,10 @@ bool rtw_odm_adaptivity_needed(_adapter *adapter)
 {
 	struct registry_priv *regsty = &adapter->registrypriv;
 	struct mlme_priv *mlme = &adapter->mlmepriv;
-	bool ret = _FALSE;
+	bool ret = false;
 
 	if (regsty->adaptivity_en == RTW_ADAPTIVITY_EN_ENABLE)
-		ret = _TRUE;
+		ret = true;
 
 	return ret;
 }

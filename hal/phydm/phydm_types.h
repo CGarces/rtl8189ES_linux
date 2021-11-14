@@ -28,12 +28,6 @@
 #define	ODM_WIN		0x08	/*BIT3*/
 #define	ODM_IOT		0x20	/*BIT5*/
 
-#define GET_PDM_ODM(__pAdapter)	((PDM_ODM_T)(&((GET_HAL_DATA(__pAdapter))->odmpriv)))
-
-#define 	RT_PCI_INTERFACE				1
-#define 	RT_USB_INTERFACE				2
-#define 	RT_SDIO_INTERFACE				3
-
 typedef enum _HAL_STATUS{
 	HAL_STATUS_SUCCESS,
 	HAL_STATUS_FAILURE,
@@ -44,8 +38,6 @@ typedef enum _HAL_STATUS{
 	RT_STATUS_NOT_SUPPORT,
 	RT_STATUS_OS_API_FAILED,*/
 }HAL_STATUS,*PHAL_STATUS;
-
-#define		VISTA_USB_RX_REVISE			0
 
 //
 // Declare for ODM spin lock defintion temporarily fro compile pass.
@@ -62,10 +54,6 @@ typedef enum _RT_SPINLOCK_TYPE{
 	RT_RF_OPERATE_SPINLOCK = 10,
 	RT_INITIAL_SPINLOCK = 11,
 	RT_RF_STATE_SPINLOCK = 12, // For RF state. Added by Bruce, 2007-10-30.
-#if VISTA_USB_RX_REVISE
-	RT_USBRX_CONTEXT_SPINLOCK = 13,
-	RT_USBRX_POSTPROC_SPINLOCK = 14, // protect data of Adapter->IndicateW/ IndicateR
-#endif
 	//Shall we define Ndis 6.2 SpinLock Here ?
 	RT_PORT_SPINLOCK=16,
 	RT_VNIC_SPINLOCK=17,
@@ -121,41 +109,22 @@ typedef enum _RT_SPINLOCK_TYPE{
 
 	#define s8Byte 		s64
 	#define	ps8Byte 	s64*	
-
-	#define DEV_BUS_TYPE  	RT_SDIO_INTERFACE
 	
 #if defined (LINUX_VERSION_CODE) && (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
 	typedef struct legacy_timer_emu		RT_TIMER, *PRT_TIMER;
 #else
 	typedef struct timer_list		RT_TIMER, *PRT_TIMER;
 #endif
-	typedef  void *				RT_TIMER_CALL_BACK;
-	#define	STA_INFO_T			struct sta_info
-	#define	PSTA_INFO_T		struct sta_info *
-		
 
+#define	STA_INFO_T		struct sta_info
+#define	PSTA_INFO_T		struct sta_info *
 
-	#define TRUE 	_TRUE	
-	#define FALSE	_FALSE
+#if (defined(TESTCHIP_SUPPORT))
+	#define	PHYDM_TESTCHIP_SUPPORT 1
+#else
+	#define	PHYDM_TESTCHIP_SUPPORT 0
+#endif
 
-
-	#define SET_TX_DESC_ANTSEL_A_88E(__pTxDesc, __Value) SET_BITS_TO_LE_4BYTE(__pTxDesc+8, 24, 1, __Value)
-	#define SET_TX_DESC_ANTSEL_B_88E(__pTxDesc, __Value) SET_BITS_TO_LE_4BYTE(__pTxDesc+8, 25, 1, __Value)
-	#define SET_TX_DESC_ANTSEL_C_88E(__pTxDesc, __Value) SET_BITS_TO_LE_4BYTE(__pTxDesc+28, 29, 1, __Value)
-
-	//define useless flag to avoid compile warning
-	#define	USE_WORKITEM 0
-	#define	FOR_BRAZIL_PRETEST 0
-
-	#define	FPGA_TWO_MAC_VERIFICATION	0
-
-	#if (defined(TESTCHIP_SUPPORT))
-		#define	PHYDM_TESTCHIP_SUPPORT 1
-	#else
-		#define	PHYDM_TESTCHIP_SUPPORT 0
-	#endif
-
-#define READ_NEXT_PAIR(v1, v2, i) do { if (i+2 >= ArrayLen) break; i += 2; v1 = Array[i]; v2 = Array[i+1]; } while(0)
 #define COND_ELSE  2
 #define COND_ENDIF 3
 

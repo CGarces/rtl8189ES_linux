@@ -109,7 +109,7 @@ odm_AutoChannelSelectReset(
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_ACS, ODM_DBG_LOUD, ("odm_AutoChannelSelectReset()=========> \n"));
 
-	odm_AutoChannelSelectSetting(pDM_Odm,TRUE);// for 20ms measurement
+	odm_AutoChannelSelectSetting(pDM_Odm,true);// for 20ms measurement
 	Phydm_NHMCounterStatisticsReset(pDM_Odm);
 }
 
@@ -140,7 +140,7 @@ odm_AutoChannelSelect(
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_ACS, ODM_DBG_LOUD, ("odm_AutoChannelSelect(): Channel = %d=========> \n", Channel));
 
 	Phydm_GetNHMCounterStatistics(pDM_Odm);
-	odm_AutoChannelSelectSetting(pDM_Odm,FALSE);
+	odm_AutoChannelSelectSetting(pDM_Odm,false);
 
 	if(Channel >=1 && Channel <=14)
 	{
@@ -211,14 +211,14 @@ phydm_checkCLMready(
 {
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	u4Byte			value32 = 0;
-	BOOLEAN			ret = FALSE;
+	BOOLEAN			ret = false;
 	
 	value32 = ODM_GetBBReg(pDM_Odm, ODM_REG_CLM_READY_11N, bMaskDWord);				/*make sure CLM calc is ready*/
 
 	if (value32 & BIT16)
-		ret = TRUE;
+		ret = true;
 	else
-		ret = FALSE;
+		ret = false;
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_ACS, ODM_DBG_LOUD, ("[%s] : CLM ready = %d\n", __func__, ret));
 

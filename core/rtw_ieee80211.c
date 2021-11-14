@@ -133,11 +133,11 @@ uint	rtw_is_cckrates_included(u8 *rate)
 		{		
 			if  (  (((rate[i]) & 0x7f) == 2)	|| (((rate[i]) & 0x7f) == 4) ||		
 			(((rate[i]) & 0x7f) == 11)  || (((rate[i]) & 0x7f) == 22) )		
-				return _TRUE;
+				return true;
 			i++;
 		}
 		
-		return _FALSE;
+		return false;
 }
 
 uint	rtw_is_cckratesonly_included(u8 *rate)
@@ -149,12 +149,12 @@ uint	rtw_is_cckratesonly_included(u8 *rate)
 	{
 			if  (  (((rate[i]) & 0x7f) != 2) && (((rate[i]) & 0x7f) != 4) &&
 				(((rate[i]) & 0x7f) != 11)  && (((rate[i]) & 0x7f) != 22) )
-				return _FALSE;
+				return false;
 
 			i++;
 	}
 	
-	return _TRUE;
+	return true;
 
 }
 
@@ -162,16 +162,16 @@ int rtw_check_network_type(unsigned char *rate, int ratelen, int channel)
 {
 	if (channel > 14)
 	{
-		if ((rtw_is_cckrates_included(rate)) == _TRUE)
+		if ((rtw_is_cckrates_included(rate)) == true)
 			return WIRELESS_INVALID;
 		else
 			return WIRELESS_11A;
 	}	
 	else  // could be pure B, pure G, or B/G
 	{
-		if ((rtw_is_cckratesonly_included(rate)) == _TRUE)	
+		if ((rtw_is_cckratesonly_included(rate)) == true)	
 			return WIRELESS_11B;
-		else if((rtw_is_cckrates_included(rate)) == _TRUE)
+		else if((rtw_is_cckrates_included(rate)) == true)
 			return 	WIRELESS_11BG;
 		else
 			return WIRELESS_11G;
@@ -327,7 +327,7 @@ u8 *rtw_get_ie_ex(u8 *in_ie, uint in_len, u8 eid, u8 *oui, u8 oui_len, u8 *ie, u
 	while(cnt<in_len)
 	{
 		if(eid == in_ie[cnt]
-			&& ( !oui || _rtw_memcmp(&in_ie[cnt+2], oui, oui_len) == _TRUE))
+			&& ( !oui || _rtw_memcmp(&in_ie[cnt+2], oui, oui_len) == true))
 		{
 			target_ie = &in_ie[cnt];
 
@@ -522,7 +522,7 @@ _func_enter_;
 	
 	//HT Cap.
 	if(((pregistrypriv->wireless_mode&WIRELESS_11_5N)||(pregistrypriv->wireless_mode&WIRELESS_11_24N)) 
-		&& (pregistrypriv->ht_enable==_TRUE))
+		&& (pregistrypriv->ht_enable==true))
 	{
 		//todo:
 	}
@@ -552,7 +552,7 @@ unsigned char *rtw_get_wpa_ie(unsigned char *pie, int *wpa_ie_len, int limit)
 		if (pbuf) {
 
 			//check if oui matches...
-			if (_rtw_memcmp((pbuf + 2), wpa_oui_type, sizeof (wpa_oui_type)) == _FALSE) {
+			if (_rtw_memcmp((pbuf + 2), wpa_oui_type, sizeof (wpa_oui_type)) == false) {
 
 				goto check_next_ie;
 			}
@@ -601,15 +601,15 @@ unsigned char *rtw_get_wpa2_ie(unsigned char *pie, int *rsn_ie_len, int limit)
 
 int rtw_get_wpa_cipher_suite(u8 *s)
 {
-	if (_rtw_memcmp(s, WPA_CIPHER_SUITE_NONE, WPA_SELECTOR_LEN) == _TRUE)
+	if (_rtw_memcmp(s, WPA_CIPHER_SUITE_NONE, WPA_SELECTOR_LEN) == true)
 		return WPA_CIPHER_NONE;
-	if (_rtw_memcmp(s, WPA_CIPHER_SUITE_WEP40, WPA_SELECTOR_LEN) == _TRUE)
+	if (_rtw_memcmp(s, WPA_CIPHER_SUITE_WEP40, WPA_SELECTOR_LEN) == true)
 		return WPA_CIPHER_WEP40;
-	if (_rtw_memcmp(s, WPA_CIPHER_SUITE_TKIP, WPA_SELECTOR_LEN) == _TRUE)
+	if (_rtw_memcmp(s, WPA_CIPHER_SUITE_TKIP, WPA_SELECTOR_LEN) == true)
 		return WPA_CIPHER_TKIP;
-	if (_rtw_memcmp(s, WPA_CIPHER_SUITE_CCMP, WPA_SELECTOR_LEN) == _TRUE)
+	if (_rtw_memcmp(s, WPA_CIPHER_SUITE_CCMP, WPA_SELECTOR_LEN) == true)
 		return WPA_CIPHER_CCMP;
-	if (_rtw_memcmp(s, WPA_CIPHER_SUITE_WEP104, WPA_SELECTOR_LEN) == _TRUE)
+	if (_rtw_memcmp(s, WPA_CIPHER_SUITE_WEP104, WPA_SELECTOR_LEN) == true)
 		return WPA_CIPHER_WEP104;
 
 	return 0;
@@ -617,15 +617,15 @@ int rtw_get_wpa_cipher_suite(u8 *s)
 
 int rtw_get_wpa2_cipher_suite(u8 *s)
 {
-	if (_rtw_memcmp(s, RSN_CIPHER_SUITE_NONE, RSN_SELECTOR_LEN) == _TRUE)
+	if (_rtw_memcmp(s, RSN_CIPHER_SUITE_NONE, RSN_SELECTOR_LEN) == true)
 		return WPA_CIPHER_NONE;
-	if (_rtw_memcmp(s, RSN_CIPHER_SUITE_WEP40, RSN_SELECTOR_LEN) == _TRUE)
+	if (_rtw_memcmp(s, RSN_CIPHER_SUITE_WEP40, RSN_SELECTOR_LEN) == true)
 		return WPA_CIPHER_WEP40;
-	if (_rtw_memcmp(s, RSN_CIPHER_SUITE_TKIP, RSN_SELECTOR_LEN) == _TRUE)
+	if (_rtw_memcmp(s, RSN_CIPHER_SUITE_TKIP, RSN_SELECTOR_LEN) == true)
 		return WPA_CIPHER_TKIP;
-	if (_rtw_memcmp(s, RSN_CIPHER_SUITE_CCMP, RSN_SELECTOR_LEN) == _TRUE)
+	if (_rtw_memcmp(s, RSN_CIPHER_SUITE_CCMP, RSN_SELECTOR_LEN) == true)
 		return WPA_CIPHER_CCMP;
-	if (_rtw_memcmp(s, RSN_CIPHER_SUITE_WEP104, RSN_SELECTOR_LEN) == _TRUE)
+	if (_rtw_memcmp(s, RSN_CIPHER_SUITE_WEP104, RSN_SELECTOR_LEN) == true)
 		return WPA_CIPHER_WEP104;
 
 	return 0;
@@ -646,7 +646,7 @@ int rtw_parse_wpa_ie(u8* wpa_ie, int wpa_ie_len, int *group_cipher, int *pairwis
 
 	
 	if ((*wpa_ie != _WPA_IE_ID_) || (*(wpa_ie+1) != (u8)(wpa_ie_len - 2)) ||
-	   (_rtw_memcmp(wpa_ie+2, RTW_WPA_OUI_TYPE, WPA_SELECTOR_LEN) != _TRUE) )
+	   (_rtw_memcmp(wpa_ie+2, RTW_WPA_OUI_TYPE, WPA_SELECTOR_LEN) != true) )
 	{		
 		return _FAIL;
 	}
@@ -814,7 +814,7 @@ _func_enter_;
 	{
 		authmode=in_ie[cnt];
 		
-		if((authmode==_WPA_IE_ID_)&&(_rtw_memcmp(&in_ie[cnt+2], &wpa_oui[0],4)==_TRUE))
+		if((authmode==_WPA_IE_ID_)&&(_rtw_memcmp(&in_ie[cnt+2], &wpa_oui[0],4)==true))
 		{	
 				RT_TRACE(_module_rtl871x_mlme_c_,_drv_info_,("\n rtw_get_wpa_ie: sec_idx=%d in_ie[cnt+1]+2=%d\n",sec_idx,in_ie[cnt+1]+2));		
 
@@ -866,18 +866,18 @@ _func_exit_;
 
 u8 rtw_is_wps_ie(u8 *ie_ptr, uint *wps_ielen)
 {	
-	u8 match = _FALSE;
+	u8 match = false;
 	u8 eid, wps_oui[4]={0x0,0x50,0xf2,0x04};
 	
 	if(ie_ptr == NULL) return match;
 	
 	eid = ie_ptr[0];
 	
-	if((eid==_WPA_IE_ID_)&&(_rtw_memcmp(&ie_ptr[2], wps_oui, 4)==_TRUE))
+	if((eid==_WPA_IE_ID_)&&(_rtw_memcmp(&ie_ptr[2], wps_oui, 4)==true))
 	{			
 		//DBG_8192C("==> found WPS_IE.....\n");
 		*wps_ielen = ie_ptr[1]+2;			
-		match=_TRUE;
+		match=true;
 	}	
 	return match;
 }
@@ -940,7 +940,7 @@ u8 *rtw_get_wps_ie(u8 *in_ie, uint in_len, u8 *wps_ie, uint *wps_ielen)
 			return NULL;
 		}
 
-		if (eid == WLAN_EID_VENDOR_SPECIFIC && _rtw_memcmp(&in_ie[cnt + 2], wps_oui, 4) == _TRUE) {
+		if (eid == WLAN_EID_VENDOR_SPECIFIC && _rtw_memcmp(&in_ie[cnt + 2], wps_oui, 4) == true) {
 			wpsie_ptr = in_ie + cnt;
 
 			if (wps_ie)
@@ -979,7 +979,7 @@ u8 *rtw_get_wps_attr(u8 *wps_ie, uint wps_ielen, u16 target_attr_id ,u8 *buf_att
 		*len_attr = 0;
 
 	if ( ( wps_ie[0] != _VENDOR_SPECIFIC_IE_ ) ||
-		( _rtw_memcmp( wps_ie + 2, wps_oui , 4 ) != _TRUE ) )
+		( _rtw_memcmp( wps_ie + 2, wps_oui , 4 ) != true ) )
 	{
 		return attr_ptr;
 	}
@@ -1346,8 +1346,8 @@ u8 convert_ip_addr(u8 hch, u8 mch, u8 lch)
  * check_local_bit: check locally bit or not.
  *
  * Output:
- * _TRUE: The mac address is invalid.
- * _FALSE: The mac address is valid.
+ * true: The mac address is invalid.
+ * false: The mac address is valid.
  *
  * Auther: Isaac.Li
  */
@@ -1355,26 +1355,26 @@ u8 rtw_check_invalid_mac_address(u8 *mac_addr, u8 check_local_bit)
 {
 	u8 null_mac_addr[ETH_ALEN] = {0, 0, 0, 0, 0, 0};
 	u8 multi_mac_addr[ETH_ALEN] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-	u8 res = _FALSE;
+	u8 res = false;
 
 	if (_rtw_memcmp(mac_addr, null_mac_addr, ETH_ALEN)) {
-		res = _TRUE;
+		res = true;
 		goto func_exit;
 	}
 
 	if (_rtw_memcmp(mac_addr, multi_mac_addr, ETH_ALEN)) {
-		res = _TRUE;
+		res = true;
 		goto func_exit;
 	}
 
 	if (mac_addr[0] & BIT0) {
-		res = _TRUE;
+		res = true;
 		goto func_exit;
 	}
 
-	if (check_local_bit == _TRUE) {
+	if (check_local_bit == true) {
 		if (mac_addr[0] & BIT1) {
-			res = _TRUE;
+			res = true;
 			goto func_exit;
 		}
 	}
@@ -1419,7 +1419,7 @@ void rtw_macaddr_cfg(struct device *dev, u8 *out, const u8 *hw_mac_addr)
 	}
 
 err_chk:
-	if (rtw_check_invalid_mac_address(mac, _TRUE) == _TRUE) {
+	if (rtw_check_invalid_mac_address(mac, true) == true) {
 		if (np &&
 		    (addr = of_get_property(np, "local-mac-address", &len)) &&
 		    len == ETH_ALEN) {
@@ -1606,7 +1606,7 @@ void rtw_bss_get_chbw(WLAN_BSSID_EX *bss, u8 *ch, u8 *bw, u8 *offset)
 bool rtw_is_chbw_grouped(u8 ch_a, u8 bw_a, u8 offset_a
 	, u8 ch_b, u8 bw_b, u8 offset_b)
 {
-	bool is_grouped = _FALSE;
+	bool is_grouped = false;
 
 	if (ch_a != ch_b) {
 		/* ch is different */
@@ -1618,7 +1618,7 @@ bool rtw_is_chbw_grouped(u8 ch_a, u8 bw_a, u8 offset_a
 			goto exit;
 	}
 
-	is_grouped = _TRUE;
+	is_grouped = true;
 
 exit:
 	return is_grouped;
@@ -1815,7 +1815,7 @@ u8 *rtw_get_p2p_ie(u8 *in_ie, int in_len, u8 *p2p_ie, uint *p2p_ielen)
 			return NULL;
 		}
 
-		if (eid == WLAN_EID_VENDOR_SPECIFIC && _rtw_memcmp(&in_ie[cnt + 2], p2p_oui, 4) == _TRUE) {
+		if (eid == WLAN_EID_VENDOR_SPECIFIC && _rtw_memcmp(&in_ie[cnt + 2], p2p_oui, 4) == true) {
 			p2p_ie_ptr = in_ie + cnt;
 
 			if (p2p_ie)
@@ -1856,7 +1856,7 @@ u8 *rtw_get_p2p_attr(u8 *p2p_ie, uint p2p_ielen, u8 target_attr_id ,u8 *buf_attr
 	if (!p2p_ie
 		|| p2p_ielen <= 6
 		|| (p2p_ie[0] != WLAN_EID_VENDOR_SPECIFIC)
-		|| (_rtw_memcmp(p2p_ie + 2, p2p_oui, 4) != _TRUE))
+		|| (_rtw_memcmp(p2p_ie + 2, p2p_oui, 4) != true))
 		return attr_ptr;
 
 	/* 6 = 1(Element ID) + 1(Length) + 3 (OUI) + 1(OUI Type) */
@@ -2162,7 +2162,7 @@ u8 *rtw_get_wfd_ie(u8 *in_ie, int in_len, u8 *wfd_ie, uint *wfd_ielen)
 			return NULL;
 		}
 
-		if (eid == WLAN_EID_VENDOR_SPECIFIC && _rtw_memcmp(&in_ie[cnt + 2], wfd_oui, 4) == _TRUE) {
+		if (eid == WLAN_EID_VENDOR_SPECIFIC && _rtw_memcmp(&in_ie[cnt + 2], wfd_oui, 4) == true) {
 			wfd_ie_ptr = in_ie + cnt;
 
 			if (wfd_ie)
@@ -2203,7 +2203,7 @@ u8 *rtw_get_wfd_attr(u8 *wfd_ie, uint wfd_ielen, u8 target_attr_id, u8 *buf_attr
 	if (!wfd_ie
 		|| wfd_ielen <= 6
 		|| (wfd_ie[0] != WLAN_EID_VENDOR_SPECIFIC)
-		|| (_rtw_memcmp(wfd_ie + 2, wfd_oui, 4) != _TRUE))
+		|| (_rtw_memcmp(wfd_ie + 2, wfd_oui, 4) != true))
 		return attr_ptr;
 
 	/* 6 = 1(Element ID) + 1(Length) + 3 (OUI) + 1(OUI Type) */
@@ -2666,7 +2666,7 @@ int rtw_action_frame_parse(const u8 *frame, u32 frame_len, u8* category, u8 *act
 		!= (RTW_IEEE80211_FTYPE_MGMT|RTW_IEEE80211_STYPE_ACTION)
 	)
 	{
-		return _FALSE;
+		return false;
 	}
 
 	c = frame_body[0];
@@ -2683,7 +2683,7 @@ int rtw_action_frame_parse(const u8 *frame, u32 frame_len, u8* category, u8 *act
 	if (action)
 		*action = a;
 
-	return _TRUE;
+	return true;
 }
 
 static const char *_action_public_str[] = {

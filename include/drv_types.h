@@ -949,22 +949,22 @@ struct _ADAPTER{
 
 static inline void rtw_set_surprise_removed(_adapter *padapter)
 {
-	ATOMIC_SET(&adapter_to_dvobj(padapter)->bSurpriseRemoved, _TRUE);
+	ATOMIC_SET(&adapter_to_dvobj(padapter)->bSurpriseRemoved, true);
 }
 static inline void rtw_clr_surprise_removed(_adapter *padapter)
 {
-	ATOMIC_SET(&adapter_to_dvobj(padapter)->bSurpriseRemoved, _FALSE);
+	ATOMIC_SET(&adapter_to_dvobj(padapter)->bSurpriseRemoved, false);
 }
 static inline void rtw_set_drv_stopped(_adapter *padapter)
 {
-	ATOMIC_SET(&adapter_to_dvobj(padapter)->bDriverStopped, _TRUE);
+	ATOMIC_SET(&adapter_to_dvobj(padapter)->bDriverStopped, true);
 }
 static inline void rtw_clr_drv_stopped(_adapter *padapter)
 {
-	ATOMIC_SET(&adapter_to_dvobj(padapter)->bDriverStopped, _FALSE);
+	ATOMIC_SET(&adapter_to_dvobj(padapter)->bDriverStopped, false);
 }
-#define rtw_is_surprise_removed(padapter)	(ATOMIC_READ(&adapter_to_dvobj(padapter)->bSurpriseRemoved) == _TRUE)
-#define rtw_is_drv_stopped(padapter)		(ATOMIC_READ(&adapter_to_dvobj(padapter)->bDriverStopped) == _TRUE)
+#define rtw_is_surprise_removed(padapter)	(ATOMIC_READ(&adapter_to_dvobj(padapter)->bSurpriseRemoved) == true)
+#define rtw_is_drv_stopped(padapter)		(ATOMIC_READ(&adapter_to_dvobj(padapter)->bDriverStopped) == true)
 
 //
 // Function disabled.

@@ -32,19 +32,19 @@ Phydm_CheckAdaptivity(
 	PADAPTIVITY_STATISTICS	Adaptivity = (PADAPTIVITY_STATISTICS)PhyDM_Get_Structure(pDM_Odm, PHYDM_ADAPTIVITY);
 	
 	if (pDM_Odm->SupportAbility & ODM_BB_ADAPTIVITY) {
-		if (Adaptivity->DynamicLinkAdaptivity == TRUE) {
-			if (pDM_Odm->bLinked && Adaptivity->bCheck == FALSE) {
+		if (Adaptivity->DynamicLinkAdaptivity == true) {
+			if (pDM_Odm->bLinked && Adaptivity->bCheck == false) {
 				Phydm_NHMCounterStatistics(pDM_Odm);
 				Phydm_CheckEnvironment(pDM_Odm);
 			} else if (!pDM_Odm->bLinked)
-				Adaptivity->bCheck = FALSE;
+				Adaptivity->bCheck = false;
 		} else {
-			pDM_Odm->Adaptivity_enable = TRUE;
-			pDM_Odm->adaptivity_flag = FALSE;
+			pDM_Odm->Adaptivity_enable = true;
+			pDM_Odm->adaptivity_flag = false;
 		}
 	} else {
-		pDM_Odm->Adaptivity_enable = FALSE;
-		pDM_Odm->adaptivity_flag = FALSE;
+		pDM_Odm->Adaptivity_enable = false;
+		pDM_Odm->adaptivity_flag = false;
 	}
 
 	
@@ -169,9 +169,9 @@ Phydm_CalNHMcnt(
 		pDM_Odm->NHM_cnt_1 = ((pDM_Odm->NHM_cnt_1) << 8) / Base;
 	}
 	if ((pDM_Odm->NHM_cnt_0 - pDM_Odm->NHM_cnt_1) >= 100)
-		return TRUE;			/*clean environment*/
+		return true;			/*clean environment*/
 	else
-		return FALSE;		/*noisy environment*/
+		return false;		/*noisy environment*/
 
 }
 
@@ -183,11 +183,11 @@ Phydm_CheckEnvironment(
 {
 	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	PADAPTIVITY_STATISTICS	Adaptivity = (PADAPTIVITY_STATISTICS)PhyDM_Get_Structure(pDM_Odm, PHYDM_ADAPTIVITY);
-	BOOLEAN 	isCleanEnvironment = FALSE;
+	BOOLEAN 	isCleanEnvironment = false;
 
 	if (Adaptivity->bFirstLink) {
-		pDM_Odm->adaptivity_flag = FALSE;
-		Adaptivity->bFirstLink = FALSE;
+		pDM_Odm->adaptivity_flag = false;
+		Adaptivity->bFirstLink = false;
 		return;
 	} else {
 		if (Adaptivity->NHMWait < 3) {		/*Start enter NHM after 4 NHMWait*/
@@ -201,18 +201,18 @@ Phydm_CheckEnvironment(
 				pDM_Odm->TH_L2H_ini = Adaptivity->TH_L2H_ini_backup;			/*adaptivity mode*/
 				pDM_Odm->TH_EDCCA_HL_diff = Adaptivity->TH_EDCCA_HL_diff_backup;
 
-				pDM_Odm->Adaptivity_enable = TRUE;
-				pDM_Odm->adaptivity_flag = FALSE;
+				pDM_Odm->Adaptivity_enable = true;
+				pDM_Odm->adaptivity_flag = false;
 			} else {
 				pDM_Odm->TH_L2H_ini = pDM_Odm->TH_L2H_ini_mode2;			/*mode2*/
 				pDM_Odm->TH_EDCCA_HL_diff = pDM_Odm->TH_EDCCA_HL_diff_mode2;
 
-				pDM_Odm->adaptivity_flag = FALSE;
-				pDM_Odm->Adaptivity_enable = FALSE;
+				pDM_Odm->adaptivity_flag = false;
+				pDM_Odm->Adaptivity_enable = false;
 			}
 			Adaptivity->NHMWait = 0;
-			Adaptivity->bFirstLink = TRUE;
-			Adaptivity->bCheck = TRUE;
+			Adaptivity->bFirstLink = true;
+			Adaptivity->bCheck = true;
 		}
 
 	}
@@ -230,7 +230,7 @@ Phydm_SearchPwdBLowerBound(
 	u4Byte			value32 = 0;
 	u1Byte			cnt, IGI = 0x45;		/*IGI = 0x50 for cal EDCCA lower bound*/
 	u1Byte			txEdcca1 = 0, txEdcca0 = 0;
-	BOOLEAN			bAdjust = TRUE;
+	BOOLEAN			bAdjust = true;
 	s1Byte 			TH_L2H_dmc, TH_H2L_dmc, IGI_target = 0x32;
 	s1Byte 			Diff;
 
@@ -264,7 +264,7 @@ Phydm_SearchPwdBLowerBound(
 
 			Phydm_SetEDCCAThreshold(pDM_Odm, TH_H2L_dmc, TH_L2H_dmc);
 			if (TH_L2H_dmc == 10) {
-				bAdjust = FALSE;
+				bAdjust = false;
 				Adaptivity->H2L_lb = TH_H2L_dmc;
 				Adaptivity->L2H_lb = TH_L2H_dmc;
 				pDM_Odm->Adaptivity_IGI_upper = IGI;
@@ -274,7 +274,7 @@ Phydm_SearchPwdBLowerBound(
 			txEdcca0 = 0;
 
 		} else {
-			bAdjust = FALSE;
+			bAdjust = false;
 			Adaptivity->H2L_lb = TH_H2L_dmc;
 			Adaptivity->L2H_lb = TH_L2H_dmc;
 			pDM_Odm->Adaptivity_IGI_upper = IGI;
@@ -301,11 +301,11 @@ Phydm_AdaptivityInit(
 	PADAPTIVITY_STATISTICS	Adaptivity = (PADAPTIVITY_STATISTICS)PhyDM_Get_Structure(pDM_Odm, PHYDM_ADAPTIVITY);
 	s1Byte	IGItarget = 0x32;
 	/*pDIG_T pDM_DigTable = &pDM_Odm->DM_DigTable;*/
-	pDM_Odm->Carrier_Sense_enable = (pDM_Odm->Adapter->registrypriv.adaptivity_mode != 0) ? TRUE : FALSE;
+	pDM_Odm->Carrier_Sense_enable = (pDM_Odm->Adapter->registrypriv.adaptivity_mode != 0) ? true : false;
 	pDM_Odm->DCbackoff = pDM_Odm->Adapter->registrypriv.adaptivity_dc_backoff;
-	Adaptivity->DynamicLinkAdaptivity = (pDM_Odm->Adapter->registrypriv.adaptivity_dml != 0) ? TRUE : FALSE;
+	Adaptivity->DynamicLinkAdaptivity = (pDM_Odm->Adapter->registrypriv.adaptivity_dml != 0) ? true : false;
 
-	if (pDM_Odm->Carrier_Sense_enable == FALSE) {
+	if (pDM_Odm->Carrier_Sense_enable == false) {
 		if (pDM_Odm->Adapter->registrypriv.adaptivity_th_l2h_ini != 0)
 			pDM_Odm->TH_L2H_ini = pDM_Odm->Adapter->registrypriv.adaptivity_th_l2h_ini;
 		else
@@ -322,12 +322,12 @@ Phydm_AdaptivityInit(
 	Adaptivity->TH_EDCCA_HL_diff_backup = pDM_Odm->TH_EDCCA_HL_diff;
 
 	pDM_Odm->Adaptivity_IGI_upper = 0;
-	pDM_Odm->Adaptivity_enable = FALSE;	/*use this flag to decide enable or disable*/
+	pDM_Odm->Adaptivity_enable = false;	/*use this flag to decide enable or disable*/
 
-	if (pDM_Odm->mp_mode == TRUE)
-		pDM_Odm->EDCCA_enable = FALSE;
+	if (pDM_Odm->mp_mode == true)
+		pDM_Odm->EDCCA_enable = false;
 	else	
-		pDM_Odm->EDCCA_enable = TRUE;		/*even no adaptivity, we still enable EDCCA*/
+		pDM_Odm->EDCCA_enable = true;		/*even no adaptivity, we still enable EDCCA*/
 
 	pDM_Odm->TH_L2H_ini_mode2 = 20;
 	pDM_Odm->TH_EDCCA_HL_diff_mode2 = 8;
@@ -337,8 +337,8 @@ Phydm_AdaptivityInit(
 	Adaptivity->H2L_lb = 0;
 	Adaptivity->L2H_lb = 0;
 	Adaptivity->NHMWait = 0;
-	Adaptivity->bCheck = FALSE;
-	Adaptivity->bFirstLink = TRUE;
+	Adaptivity->bCheck = false;
+	Adaptivity->bFirstLink = true;
 	Adaptivity->AdajustIGILevel = 0;
 
 	Phydm_MACEDCCAState(pDM_Odm, PhyDM_DONT_IGNORE_EDCCA);
@@ -371,7 +371,7 @@ Phydm_Adaptivity(
 	s1Byte			Diff = 0, IGI_target;
 	PADAPTIVITY_STATISTICS	Adaptivity = (PADAPTIVITY_STATISTICS)PhyDM_Get_Structure(pDM_Odm, PHYDM_ADAPTIVITY);
 
-	if ((pDM_Odm->EDCCA_enable == FALSE) || (pDM_Odm->bWIFITest == TRUE)) {
+	if ((pDM_Odm->EDCCA_enable == false) || (pDM_Odm->bWIFITest == true)) {
 		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_ADAPTIVITY, ODM_DBG_LOUD, ("Disable EDCCA!!!\n"));
 		return;
 	}
@@ -401,7 +401,7 @@ Phydm_Adaptivity(
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_ADAPTIVITY, ODM_DBG_LOUD, ("RSSI_min = %d, Adaptivity->AdajustIGILevel= 0x%x, adaptivity_flag = %d, Adaptivity_enable = %d\n",
 			 pDM_Odm->RSSI_Min, Adaptivity->AdajustIGILevel, pDM_Odm->adaptivity_flag, pDM_Odm->Adaptivity_enable));
 
-	if ((Adaptivity->DynamicLinkAdaptivity == TRUE) && (!pDM_Odm->bLinked) && (pDM_Odm->Adaptivity_enable == FALSE)) {
+	if ((Adaptivity->DynamicLinkAdaptivity == true) && (!pDM_Odm->bLinked) && (pDM_Odm->Adaptivity_enable == false)) {
 		Phydm_SetEDCCAThreshold(pDM_Odm, 0x7f, 0x7f);
 		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_ADAPTIVITY, ODM_DBG_LOUD, ("In DynamicLink mode(noisy) and No link, Turn off EDCCA!!\n"));
 		return;

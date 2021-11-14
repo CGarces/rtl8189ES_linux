@@ -126,7 +126,7 @@ odm_RSSIMonitorInit(
 {
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	pRA_T		pRA_Table = &pDM_Odm->DM_RA_Table;
-	pRA_Table->firstconnect = FALSE;
+	pRA_Table->firstconnect = false;
 
 }
 
@@ -171,7 +171,7 @@ s8 phydm_rssi_report(PDM_ODM_T pDM_Odm, u8 mac_id)
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(Adapter);
 	u8 H2C_Parameter[4] = {0};
 	u8 UL_DL_STATE = 0, STBC_TX = 0, TxBF_EN = 0;
-	u8 cmdlen = 4, first_connect = _FALSE;
+	u8 cmdlen = 4, first_connect = false;
 	u64	curTxOkCnt = 0, curRxOkCnt = 0;
 	PSTA_INFO_T pEntry = pDM_Odm->pODM_StaInfo[mac_id];
 	
@@ -217,10 +217,10 @@ s8 phydm_rssi_report(PDM_ODM_T pDM_Odm, u8 mac_id)
 	if (pDM_Odm->NoisyDecision)
 		H2C_Parameter[3] |= RAINFO_NOISY_STATE;
 		
-	if (pEntry->ra_rpt_linked == _FALSE) {
+	if (pEntry->ra_rpt_linked == false) {
 		H2C_Parameter[3] |= RAINFO_INIT_RSSI_RATE_STATE;
-		pEntry->ra_rpt_linked = _TRUE;
-		first_connect = _TRUE;
+		pEntry->ra_rpt_linked = true;
+		first_connect = true;
 	}
 		
 	if (first_connect) {
@@ -232,7 +232,7 @@ s8 phydm_rssi_report(PDM_ODM_T pDM_Odm, u8 mac_id)
 			(pDM_Odm->NoisyDecision) ? "True" : "False", (first_connect) ? "True" : "False");
 	}
 		
-	if (pHalData->fw_ractrl == _TRUE) {
+	if (pHalData->fw_ractrl == true) {
 		ODM_FillH2CCmd(pDM_Odm, ODM_H2C_RSSI_REPORT, cmdlen, H2C_Parameter);
 	}
 	return _SUCCESS;
@@ -250,7 +250,7 @@ void phydm_ra_rssi_rpt_wk_hdl(PVOID pContext)
 		if (IS_STA_VALID(pEntry)) {
 			if (IS_MCAST(pEntry->hwaddr))  /*if(psta->mac_id ==1)*/
 				continue;
-			if (pEntry->ra_rpt_linked == _FALSE) {
+			if (pEntry->ra_rpt_linked == false) {
 				mac_id = i;
 				break;
 			}
@@ -279,7 +279,7 @@ odm_RSSIMonitorCheckCE(
 	int	tmpEntryMaxPWDB = 0, tmpEntryMinPWDB = 0xff;
 	u8	sta_cnt = 0;
 	
-	if (pDM_Odm->bLinked != _TRUE)
+	if (pDM_Odm->bLinked != true)
 		return;	
 
 	for (i = 0; i < ODM_ASSOCIATE_ENTRY_NUM; i++) {
@@ -329,14 +329,14 @@ odm_RateAdaptiveMaskInit(
 
 	pOdmRA->Type = DM_Type_ByDriver;
 	if (pOdmRA->Type == DM_Type_ByDriver)
-		pDM_Odm->bUseRAMask = _TRUE;
+		pDM_Odm->bUseRAMask = true;
 	else
-		pDM_Odm->bUseRAMask = _FALSE;
+		pDM_Odm->bUseRAMask = false;
 
 	pOdmRA->RATRState = DM_RATR_STA_INIT;
 
 	pOdmRA->LdpcThres = 35;
-	pOdmRA->bUseLdpc = FALSE;
+	pOdmRA->bUseLdpc = false;
 
 	pOdmRA->HighRSSIThresh = 50;
 	pOdmRA->LowRSSIThresh = 20;
@@ -404,7 +404,7 @@ odm_RefreshRateAdaptiveMaskCE(
 			if (IS_MCAST(pstat->hwaddr))  //if(psta->mac_id ==1)
 				continue;
 
-			if (TRUE == ODM_RAStateCheck(pDM_Odm, pstat->rssi_stat.UndecoratedSmoothedPWDB, FALSE , &pstat->rssi_level)) {
+			if (true == ODM_RAStateCheck(pDM_Odm, pstat->rssi_stat.UndecoratedSmoothedPWDB, false , &pstat->rssi_level)) {
 				ODM_RT_TRACE(pDM_Odm, ODM_COMP_RA_MASK, ODM_DBG_LOUD, ("RSSI:%d, RSSI_LEVEL:%d\n", pstat->rssi_stat.UndecoratedSmoothedPWDB, pstat->rssi_level));
 				//printk("RSSI:%d, RSSI_LEVEL:%d\n", pstat->rssi_stat.UndecoratedSmoothedPWDB, pstat->rssi_level);
 				rtw_hal_update_ra_mask(pstat, pstat->rssi_level);
@@ -418,7 +418,7 @@ odm_RefreshRateAdaptiveMaskCE(
 }
 
 // Return Value: BOOLEAN
-// - TRUE: RATRState is changed.
+// - true: RATRState is changed.
 BOOLEAN
 ODM_RAStateCheck(
 	IN		PVOID			pDM_VOID,
@@ -454,7 +454,7 @@ ODM_RAStateCheck(
 		break;
 
 	default:
-		ODM_RT_ASSERT(pDM_Odm, FALSE, ("wrong rssi level setting %d !", *pRATRState));
+		ODM_RT_ASSERT(pDM_Odm, false, ("wrong rssi level setting %d !", *pRATRState));
 		break;
 	}
 
@@ -472,10 +472,10 @@ ODM_RAStateCheck(
 	if (*pRATRState != RATRState || bForceUpdate) {
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_RA_MASK, ODM_DBG_LOUD, ("[RSSI Level Update] %d -> %d\n", *pRATRState, RATRState));
 		*pRATRState = RATRState;
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 VOID
@@ -705,7 +705,7 @@ FindMinimumRSSI(
 
 	/*Determine the minimum RSSI*/
 
-	if ((pDM_Odm->bLinked != _TRUE) &&
+	if ((pDM_Odm->bLinked != true) &&
 		(pHalData->EntryMinUndecoratedSmoothedPWDB == 0)) {
 		pHalData->MinUndecoratedPWDBForDM = 0;
 		/*ODM_RT_TRACE(pDM_Odm,COMP_BB_POWERSAVING, DBG_LOUD, ("Not connected to any\n"));*/

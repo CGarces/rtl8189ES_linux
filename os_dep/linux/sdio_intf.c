@@ -396,7 +396,7 @@ static void rtw_sdio_if1_deinit(_adapter *if1)
 	struct mlme_priv *pmlmepriv= &if1->mlmepriv;
 
 	if(check_fwstate(pmlmepriv, _FW_LINKED))
-		rtw_disassoc_cmd(if1, 0, _FALSE);
+		rtw_disassoc_cmd(if1, 0, false);
 
 	free_mlme_ap_info(if1);
 
@@ -484,7 +484,7 @@ _func_enter_;
 
 	RT_TRACE(_module_hci_intfs_c_, _drv_notice_, ("+rtw_dev_remove\n"));
 
-	dvobj->processing_dev_remove = _TRUE;
+	dvobj->processing_dev_remove = true;
 
 	/* TODO: use rtw_os_ndevs_deinit instead at the first stage of driver's dev deinit function */
 	rtw_os_ndevs_unregister(dvobj);
@@ -506,7 +506,7 @@ _func_enter_;
 	rtw_unregister_early_suspend(pwrctl);
 #endif
 
-	if (padapter->bFWReady == _TRUE) {
+	if (padapter->bFWReady == true) {
 		rtw_ps_deny(padapter, PS_DENY_DRV_REMOVE);
 		rtw_pm_set_ips(padapter, IPS_NONE);
 		rtw_pm_set_lps(padapter, PS_MODE_ACTIVE);
@@ -542,11 +542,11 @@ static int rtw_sdio_suspend(struct device *dev)
 	padapter = psdpriv->padapters[IFACE_ID0];
 	pdbgpriv = &psdpriv->drv_dbg;
 	if (rtw_is_drv_stopped(padapter)) {
-		DBG_871X("%s bDriverStopped == _TRUE\n", __func__);
+		DBG_871X("%s bDriverStopped == true\n", __func__);
 		goto exit;
 	}
 
-	if (pwrpriv->bInSuspend == _TRUE)
+	if (pwrpriv->bInSuspend == true)
 	{
 		DBG_871X("%s bInSuspend = %d\n", __func__, pwrpriv->bInSuspend);
 		pdbgpriv->dbg_suspend_error_cnt++;
@@ -587,7 +587,7 @@ int rtw_resume_process(_adapter *padapter)
 	struct dvobj_priv *psdpriv = padapter->dvobj;
 	struct debug_priv *pdbgpriv = &psdpriv->drv_dbg;
 		
-	if (pwrpriv->bInSuspend == _FALSE)
+	if (pwrpriv->bInSuspend == false)
 	{
 		pdbgpriv->dbg_resume_error_cnt++;
 		DBG_871X("%s bInSuspend = %d\n", __FUNCTION__, pwrpriv->bInSuspend);
@@ -623,7 +623,7 @@ static int rtw_sdio_resume(struct device *dev)
 			if (rtw_is_earlysuspend_registered(pwrpriv))
 			{
 				/* jeff: bypass resume here, do in late_resume */
-				rtw_set_do_late_resume(pwrpriv, _TRUE);
+				rtw_set_do_late_resume(pwrpriv, true);
 			} else {
 				rtw_resume_lock_suspend();			
 				ret = rtw_resume_process(padapter);
@@ -647,7 +647,7 @@ static int rtw_drv_entry(void)
 	DBG_871X_LEVEL(_drv_always_, DRV_NAME" BT-Coex version = %s\n", BTCOEXVERSION);
 #endif // BTCOEXVERSION
 
-	sdio_drvpriv.drv_registered = _TRUE;
+	sdio_drvpriv.drv_registered = true;
 	rtw_suspend_lock_init();
 	rtw_drv_proc_init();
 	rtw_ndev_notifier_register();
@@ -655,7 +655,7 @@ static int rtw_drv_entry(void)
 	ret = sdio_register_driver(&sdio_drvpriv.r871xs_drv);
 	if (ret != 0)
 	{
-		sdio_drvpriv.drv_registered = _FALSE;
+		sdio_drvpriv.drv_registered = false;
 		rtw_suspend_lock_uninit();
 		rtw_drv_proc_deinit();
 		rtw_ndev_notifier_unregister();
@@ -676,7 +676,7 @@ static void rtw_drv_halt(void)
 {
 	DBG_871X_LEVEL(_drv_always_, "module exit start\n");
 
-	sdio_drvpriv.drv_registered = _FALSE;
+	sdio_drvpriv.drv_registered = false;
 
 	sdio_unregister_driver(&sdio_drvpriv.r871xs_drv);
 

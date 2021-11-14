@@ -35,9 +35,9 @@ static u8 CardEnable(PADAPTER padapter)
 	u8 bMacPwrCtrlOn;
 	u8 ret = _FAIL;
 
-	bMacPwrCtrlOn = _FALSE;
+	bMacPwrCtrlOn = false;
 	rtw_hal_get_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);
-	if (bMacPwrCtrlOn == _FALSE) {
+	if (bMacPwrCtrlOn == false) {
 		u8 hci_sus_state;
 
 		// RSV_CTRL 0x1C[7:0] = 0x00
@@ -48,7 +48,7 @@ static u8 CardEnable(PADAPTER padapter)
 		rtw_hal_set_hwreg(padapter, HW_VAR_HCI_SUS_STATE, &hci_sus_state);
 		ret = HalPwrSeqCmdParsing(padapter, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_SDIO_MSK, rtl8188F_card_enable_flow);
 		if (ret == _SUCCESS) {
-			bMacPwrCtrlOn = _TRUE;
+			bMacPwrCtrlOn = true;
 			rtw_hal_set_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);
 			hci_sus_state = HCI_SUS_LEAVE;
 			rtw_hal_set_hwreg(padapter, HW_VAR_HCI_SUS_STATE, &hci_sus_state);
@@ -169,7 +169,7 @@ _init_power_on:
 
 	// only cmd52 can be used before power on(card enable)
 	ret = CardEnable(padapter);
-	if (ret == _FALSE) {
+	if (ret == false) {
 		RT_TRACE(_module_hci_hal_init_c_, _drv_emerg_,
 				("%s: run power on flow fail\n", __FUNCTION__));
 		return _FAIL;
@@ -323,7 +323,7 @@ _InitNormalChipOneOutEpPriority(
 			value = QUEUE_NORMAL;
 			break;
 		default:
-			//RT_ASSERT(FALSE,("Shall not reach here!\n"));
+			//RT_ASSERT(false,("Shall not reach here!\n"));
 			break;
 	}
 
@@ -366,7 +366,7 @@ _InitNormalChipTwoOutEpPriority(
 			valueLow = QUEUE_NORMAL;
 			break;
 		default:
-			//RT_ASSERT(FALSE,("Shall not reach here!\n"));
+			//RT_ASSERT(false,("Shall not reach here!\n"));
 			break;
 	}
 
@@ -437,7 +437,7 @@ _InitNormalChipQueuePriority(
 			_InitNormalChipThreeOutEpPriority(Adapter);
 			break;
 		default:
-			//RT_ASSERT(FALSE,("Shall not reach here!\n"));
+			//RT_ASSERT(false,("Shall not reach here!\n"));
 			break;
 	}
 
@@ -648,7 +648,7 @@ static void _RXAggrSwitch(PADAPTER padapter, u8 enable)
 	valueDMA = rtw_read8(padapter, REG_TRXDMA_CTRL);
 	valueRxAggCtrl = rtw_read8(padapter, REG_RXDMA_MODE_CTRL_8188F);
 
-	if (_TRUE == enable)
+	if (true == enable)
 	{
 		valueDMA |= RXDMA_AGG_EN;
 		valueRxAggCtrl |= RXDMA_AGG_MODE_EN;
@@ -687,7 +687,7 @@ void _InitOperationMode(PADAPTER padapter)
 			regRRSR = RATE_ALL_CCK;
 			break;
 		case WIRELESS_MODE_A:
-//			RT_ASSERT(FALSE,("Error wireless a mode\n"));
+//			RT_ASSERT(false,("Error wireless a mode\n"));
 			break;
 		case WIRELESS_MODE_G:
 			regBwOpMode = BW_OPMODE_20MHZ;
@@ -707,7 +707,7 @@ void _InitOperationMode(PADAPTER padapter)
 			regRRSR = RATE_ALL_CCK | RATE_ALL_OFDM_AG;
 			break;
 		case WIRELESS_MODE_N_5G:
-//			RT_ASSERT(FALSE,("Error wireless mode"));
+//			RT_ASSERT(false,("Error wireless mode"));
 			break;
 
 		default: //for MacOSX compiler warning.
@@ -802,11 +802,11 @@ static BOOLEAN HalDetectPwrDownMode(PADAPTER Adapter)
 	// 2010/08/25 MH INF priority > PDN Efuse value.
 	if(tmpvalue & BIT4 && pwrctrlpriv->reg_pdnmode)
 	{
-		pHalData->pwrdown = _TRUE;
+		pHalData->pwrdown = true;
 	}
 	else
 	{
-		pHalData->pwrdown = _FALSE;
+		pHalData->pwrdown = false;
 	}
 
 	DBG_8192C("HalDetectPwrDownMode(): PDN=%d\n", pHalData->pwrdown);
@@ -872,22 +872,22 @@ static u32 rtl8188fs_hal_init(PADAPTER padapter)
 		|| padapter->registrypriv.mp_customer_str
 		#endif
 	) {
-		ret = rtl8188f_FirmwareDownload(padapter, _FALSE);
+		ret = rtl8188f_FirmwareDownload(padapter, false);
 		if (ret != _SUCCESS) {
 			RT_TRACE(_module_hci_hal_init_c_, _drv_err_, ("%s: Download Firmware failed!!\n", __FUNCTION__));
-			padapter->bFWReady = _FALSE;
-			pHalData->fw_ractrl = _FALSE;
+			padapter->bFWReady = false;
+			pHalData->fw_ractrl = false;
 			return ret;
 		} else {
 			RT_TRACE(_module_hci_hal_init_c_, _drv_notice_, ("rtl8188fs_hal_init(): Download Firmware Success!!\n"));
-			padapter->bFWReady = _TRUE;
-			pHalData->fw_ractrl = _TRUE;
+			padapter->bFWReady = true;
+			pHalData->fw_ractrl = true;
 		}
 	}
 
 //	SIC_Init(padapter);
 
-	if (pwrctrlpriv->reg_rfoff == _TRUE) {
+	if (pwrctrlpriv->reg_rfoff == true) {
 		pwrctrlpriv->rf_pwrstate = rf_off;
 	}
 
@@ -968,7 +968,7 @@ static u32 rtl8188fs_hal_init(PADAPTER padapter)
 	_initSdioAggregationSetting(padapter);
 	_InitOperationMode(padapter);
 	rtl8188f_InitBeaconParameters(padapter);
-	rtl8188f_InitBeaconMaxError(padapter, _TRUE);
+	rtl8188f_InitBeaconMaxError(padapter, true);
 	_InitInterrupt(padapter);
 	_InitBurstPktLen_8188FS(padapter);
 
@@ -1071,9 +1071,9 @@ static u32 rtl8188fs_hal_init(PADAPTER padapter)
 
 			PHY_LCCalibrate_8188F(&pHalData->odmpriv);
 
-			restore_iqk_rst = (pwrpriv->bips_processing==_TRUE)?_TRUE:_FALSE;
-			PHY_IQCalibrate_8188F(padapter, _FALSE, restore_iqk_rst);
-			pHalData->bIQKInitialized = _TRUE;
+			restore_iqk_rst = (pwrpriv->bips_processing==true)?true:false;
+			PHY_IQCalibrate_8188F(padapter, false, restore_iqk_rst);
+			pHalData->bIQKInitialized = true;
 
 			ODM_TXPowerTrackingCheck(&pHalData->odmpriv);
 		}
@@ -1133,13 +1133,13 @@ static void CardDisableRTL8188FSdio(PADAPTER padapter)
 
 	//	==== Reset digital sequence end ======
 	
-	bMacPwrCtrlOn = _FALSE;	// Disable CMD53 R/W
-	ret = _FALSE;
+	bMacPwrCtrlOn = false;	// Disable CMD53 R/W
+	ret = false;
 	rtw_hal_set_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);
 	hci_sus_state = HCI_SUS_ENTERING;
 	rtw_hal_set_hwreg(padapter, HW_VAR_HCI_SUS_STATE, &hci_sus_state);
 	ret = HalPwrSeqCmdParsing(padapter, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_SDIO_MSK, rtl8188F_card_disable_flow);
-	if (ret == _FALSE) {
+	if (ret == false) {
 		hci_sus_state = HCI_SUS_ERR;
 		rtw_hal_set_hwreg(padapter, HW_VAR_HCI_SUS_STATE, &hci_sus_state);
 		DBG_8192C(KERN_ERR "%s: run CARD DISABLE flow fail!\n", __func__);
@@ -1148,7 +1148,7 @@ static void CardDisableRTL8188FSdio(PADAPTER padapter)
 		rtw_hal_set_hwreg(padapter, HW_VAR_HCI_SUS_STATE, &hci_sus_state);
 	}
 
-	padapter->bFWReady = _FALSE;
+	padapter->bFWReady = false;
 }
 
 static u32 rtl8188fs_hal_deinit(PADAPTER padapter)
@@ -1315,8 +1315,8 @@ static void _ReadPROMContent(
 
 	eeValue = rtw_read8(padapter, REG_9346CR);
 	// To check system boot selection.
-	pHalData->EepromOrEfuse = (eeValue & BOOT_FROM_EEPROM) ? _TRUE : _FALSE;
-	pHalData->bautoload_fail_flag = (eeValue & EEPROM_EN) ? _FALSE : _TRUE;
+	pHalData->EepromOrEfuse = (eeValue & BOOT_FROM_EEPROM) ? true : false;
+	pHalData->bautoload_fail_flag = (eeValue & EEPROM_EN) ? false : true;
 
 	RT_TRACE(_module_hci_hal_init_c_, _drv_info_,
 		 ("%s: 9346CR=0x%02X, Boot from %s, Autoload %s\n",
@@ -1390,12 +1390,12 @@ _func_enter_;
 			if (val8 == 0)
 			{
 				// enable RXDMA aggregation
-				//_RXAggrSwitch(padapter, _TRUE);
+				//_RXAggrSwitch(padapter, true);
 			}
 			else
 			{
 				// disable RXDMA aggregation
-				//_RXAggrSwitch(padapter, _FALSE);
+				//_RXAggrSwitch(padapter, false);
 			}
 			break;
 		case HW_VAR_DM_IN_LPS:

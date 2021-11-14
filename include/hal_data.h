@@ -504,7 +504,7 @@ typedef struct hal_com_data HAL_DATA_TYPE, *PHAL_DATA_TYPE;
 #define get_hal_mac_addr(adapter) 				(GET_HAL_DATA(adapter)->EEPROMMACAddr)
 #define is_boot_from_eeprom(adapter) 			(GET_HAL_DATA(adapter)->EepromOrEfuse)
 #define rtw_get_hw_init_completed(adapter)		(GET_HAL_DATA(adapter)->hw_init_completed)
-#define rtw_is_hw_init_completed(adapter)		(GET_HAL_DATA(adapter)->hw_init_completed == _TRUE)
+#define rtw_is_hw_init_completed(adapter)		(GET_HAL_DATA(adapter)->hw_init_completed == true)
 
 #endif //__HAL_DATA_H__
 

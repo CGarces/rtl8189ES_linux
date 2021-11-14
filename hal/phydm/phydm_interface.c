@@ -311,7 +311,7 @@ phydm_c2H_content_parsing(
 {
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	u1Byte	Extend_c2hSubID = 0;
-	u1Byte	find_c2h_cmd = TRUE;
+	u1Byte	find_c2h_cmd = true;
 
 	switch (c2hCmdId) {
 	case PHYDM_C2H_DBG:
@@ -342,7 +342,7 @@ phydm_c2H_content_parsing(
 		break;
 
 	default:
-		find_c2h_cmd = FALSE;
+		find_c2h_cmd = false;
 		break;
 	}
 

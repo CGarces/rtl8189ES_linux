@@ -30,7 +30,7 @@
 
 static u8 _is_fw_read_cmd_down(_adapter *padapter, u8 msgbox_num)
 {
-	u8	read_down = _FALSE;
+	u8	read_down = false;
 	int 	retry_cnts = 100;
 
 	u8 valid;
@@ -40,7 +40,7 @@ static u8 _is_fw_read_cmd_down(_adapter *padapter, u8 msgbox_num)
 	do {
 		valid = rtw_read8(padapter, REG_HMETFR) & BIT(msgbox_num);
 		if (0 == valid)
-			read_down = _TRUE;
+			read_down = true;
 		else
 			rtw_msleep_os(1);
 	} while ((!read_down) && (retry_cnts--));
@@ -322,7 +322,7 @@ static void ConstructNullFunctionData(
 
 	SetSeqNum(pwlanhdr, 0);
 
-	if (bQoS == _TRUE) {
+	if (bQoS == true) {
 		struct rtw_ieee80211_hdr_3addr_qos *pwlanqoshdr;
 
 		SetFrameSubType(pframe, WIFI_QOS_DATA_NULL);
@@ -578,7 +578,7 @@ void rtl8188f_set_FwPwrMode_cmd(PADAPTER padapter, u8 psmode)
 	SET_8188F_H2CCMD_PWRMODE_PARM_PWR_STATE(u1H2CPwrModeParm, PowerState);
 	SET_8188F_H2CCMD_PWRMODE_PARM_BYTE5(u1H2CPwrModeParm, byte5);
 	if (psmode != PS_MODE_ACTIVE) {
-		if (pmlmeext->adaptive_tsf_done == _FALSE && pmlmeext->bcn_cnt > 0) {
+		if (pmlmeext->adaptive_tsf_done == false && pmlmeext->bcn_cnt > 0) {
 			u8 ratio_20_delay, ratio_80_delay;
 
 			/*byte 6 for adaptive_early_32k */
@@ -617,7 +617,7 @@ void rtl8188f_set_FwPwrMode_cmd(PADAPTER padapter, u8 psmode)
 			}
 
 			pmlmeext->bcn_cnt = 0;
-			pmlmeext ->adaptive_tsf_done = _TRUE;
+			pmlmeext ->adaptive_tsf_done = true;
 
 		} else {
 			/*DBG_871X("%s(): DrvBcnEarly = %d\n", __func__, pmlmeext->DrvBcnEarly); */
@@ -701,7 +701,7 @@ void rtl8188f_set_FwPwrModeInIPS_cmd(PADAPTER padapter, u8 cmd_param)
 static s32 rtl8188f_set_FwLowPwrLps_cmd(PADAPTER padapter, u8 enable)
 {
 	/*TODO */
-	return _FALSE;
+	return false;
 }
 
 
@@ -711,7 +711,7 @@ void rtl8188f_download_rsvd_page(PADAPTER padapter, u8 mstatus)
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
-	BOOLEAN		bcn_valid = _FALSE;
+	BOOLEAN		bcn_valid = false;
 	u8	DLBcnCount = 0;
 	u32 poll = 0;
 	u8 val8;
@@ -722,7 +722,7 @@ void rtl8188f_download_rsvd_page(PADAPTER padapter, u8 mstatus)
 			  FUNC_ADPT_ARG(padapter), get_iface_type(padapter), mstatus);
 
 	if (mstatus == RT_MEDIA_CONNECT) {
-		BOOLEAN bRecover = _FALSE;
+		BOOLEAN bRecover = false;
 		u8 v8;
 
 		/* We should set AID, correct TSF, HW seq enable before set JoinBssReport to Fw in 88/92C. */
@@ -744,7 +744,7 @@ void rtl8188f_download_rsvd_page(PADAPTER padapter, u8 mstatus)
 
 		/* Set FWHW_TXQ_CTRL 0x422[6]=0 to tell Hw the packet is not a real beacon frame. */
 		if (pHalData->RegFwHwTxQCtrl & BIT(6))
-			bRecover = _TRUE;
+			bRecover = true;
 
 		/* To tell Hw the packet is not a real beacon frame. */
 		rtw_write8(padapter, REG_FWHW_TXQ_CTRL + 2, pHalData->RegFwHwTxQCtrl & ~BIT(6));

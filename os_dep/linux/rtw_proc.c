@@ -909,7 +909,7 @@ static ssize_t proc_set_sec_cam(struct file *file, const char __user *buffer, si
 
 		if (strcmp("c", cmd) == 0) {
 			_clear_cam_entry(adapter, id);
-			adapter->securitypriv.hw_decrypted = _FALSE; /* temporarily set this for TX path to use SW enc */
+			adapter->securitypriv.hw_decrypted = false; /* temporarily set this for TX path to use SW enc */
 		} else if (strcmp("wfc", cmd) == 0) {
 			write_cam_from_cache(adapter, id);
 		}
@@ -1000,7 +1000,7 @@ static ssize_t proc_set_tx_bw_mode(struct file *file, const char __user *buffer,
 
 	if (buffer && !copy_from_user(tmp, buffer, count)) {
 
-		u8 update = _FALSE;
+		u8 update = false;
 		int num = sscanf(tmp, "%hhx", &bw_mode);
 
 		if (num < 1 || bw_mode == adapter->driver_tx_bw_mode)
@@ -1011,11 +1011,11 @@ static ssize_t proc_set_tx_bw_mode(struct file *file, const char __user *buffer,
 				|| (mlmeext->cur_channel >= 36 && BW_MODE_5G(bw_mode) != ADAPTER_TX_BW_5G(adapter)))
 		) {
 			/* RA mask update needed */
-			update = _TRUE;
+			update = true;
 		}
 		adapter->driver_tx_bw_mode = bw_mode;
 
-		if (update == _TRUE) {
+		if (update == true) {
 			struct sta_info *sta;
 			int i;
 
