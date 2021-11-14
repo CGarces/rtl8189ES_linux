@@ -339,10 +339,10 @@ odm_RxPhyStatus92CSeries_Parsing(
 		pDM_Odm->cck_lna_idx = LNA_idx;
 		pDM_Odm->cck_vga_idx = VGA_idx;
 		pPhyInfo->RxPWDBAll = PWDB_ALL;
-#if (DM_ODM_SUPPORT_TYPE &  (ODM_WIN|ODM_CE))
+
 		pPhyInfo->BTRxRSSIPercentage = PWDB_ALL;
 		pPhyInfo->RecvSignalPower = rx_pwr_all;
-#endif		
+
 		//
 		// (3) Get Signal Quality (EVM)
 		//
@@ -414,62 +414,47 @@ odm_RxPhyStatus92CSeries_Parsing(
 	
 		pPhyInfo->RxPWDBAll = PWDB_ALL;
 		//ODM_RT_TRACE(pDM_Odm,ODM_COMP_RSSI_MONITOR, ODM_DBG_LOUD, ("ODM OFDM RSSI=%d\n",pPhyInfo->RxPWDBAll));
-	#if (DM_ODM_SUPPORT_TYPE &  (ODM_WIN|ODM_CE))
+
 		pPhyInfo->BTRxRSSIPercentage = PWDB_ALL_BT;
 		pPhyInfo->RxPower = rx_pwr_all;
 		pPhyInfo->RecvSignalPower = rx_pwr_all;
-	#endif
-		
-		if((pDM_Odm->SupportPlatform == ODM_WIN) &&(pDM_Odm->PatchID==19)){
-			//do nothing	
-		}else if((pDM_Odm->SupportPlatform == ODM_WIN) &&(pDM_Odm->PatchID==25)){
-			//do nothing	
-		}
-		else{//pMgntInfo->CustomerID != RT_CID_819x_Lenovo
-			//
-			// (3)EVM of HT rate
-			//
-			if(pPktinfo->DataRate >=ODM_RATEMCS8 && pPktinfo->DataRate <=ODM_RATEMCS15)
-				Max_spatial_stream = 2; //both spatial stream make sense
-			else
-				Max_spatial_stream = 1; //only spatial stream 1 makes sense
 
-			for(i=0; i<Max_spatial_stream; i++)
-			{
-				// Do not use shift operation like "rx_evmX >>= 1" because the compilor of free build environment
-				// fill most significant bit to "zero" when doing shifting operation which may change a negative 
-				// value to positive one, then the dbm value (which is supposed to be negative)  is not correct anymore.			
-				EVM = odm_EVMdbToPercentage( (pPhyStaRpt->stream_rxevm[i] ));	//dbm
+		//pMgntInfo->CustomerID != RT_CID_819x_Lenovo
+		//
+		// (3)EVM of HT rate
+		//
+		if(pPktinfo->DataRate >=ODM_RATEMCS8 && pPktinfo->DataRate <=ODM_RATEMCS15)
+			Max_spatial_stream = 2; //both spatial stream make sense
+		else
+			Max_spatial_stream = 1; //only spatial stream 1 makes sense
 
-				//GET_RX_STATUS_DESC_RX_MCS(pDesc), pDrvInfo->rxevm[i], "%", EVM));
-				
-				//if(pPktinfo->bPacketMatchBSSID)
-				{
-					if(i==ODM_RF_PATH_A) // Fill value in RFD, Get the first spatial stream only
-					{						
-						pPhyInfo->SignalQuality = (u1Byte)(EVM & 0xff);
-					}					
-					pPhyInfo->RxMIMOSignalQuality[i] = (u1Byte)(EVM & 0xff);
-				}
-			}
+		for (i=0; i<Max_spatial_stream; i++) {
+			// Do not use shift operation like "rx_evmX >>= 1" because the compilor of free build environment
+			// fill most significant bit to "zero" when doing shifting operation which may change a negative 
+			// value to positive one, then the dbm value (which is supposed to be negative)  is not correct anymore.			
+			EVM = odm_EVMdbToPercentage( (pPhyStaRpt->stream_rxevm[i] ));	//dbm
+
+			//GET_RX_STATUS_DESC_RX_MCS(pDesc), pDrvInfo->rxevm[i], "%", EVM));
+			
+			if (i==ODM_RF_PATH_A) // Fill value in RFD, Get the first spatial stream only
+				pPhyInfo->SignalQuality = (u1Byte)(EVM & 0xff);
+			pPhyInfo->RxMIMOSignalQuality[i] = (u1Byte)(EVM & 0xff);
 		}
 
 		ODM_ParsingCFO(pDM_Odm, pPktinfo, pPhyStaRpt->path_cfotail);
 		
 	}
-#if (DM_ODM_SUPPORT_TYPE &  (ODM_WIN|ODM_CE))
+
 	//UI BSS List signal strength(in percentage), make it good looking, from 0~100.
 	//It is assigned to the BSS List in GetValueFromBeaconOrProbeRsp().
-	if(isCCKrate)
-	{		
+	if (isCCKrate)
 		pPhyInfo->SignalStrength = (u1Byte)PWDB_ALL;
-	} else {	
+	else {	
 		if (rf_rx_num != 0) {
 			total_rssi/=rf_rx_num;
 			pPhyInfo->SignalStrength = (u1Byte)total_rssi;
 		}
 	}
-#endif /*#if (DM_ODM_SUPPORT_TYPE &  (ODM_WIN|ODM_CE))*/
 
 	//DbgPrint("isCCKrate = %d, pPhyInfo->RxPWDBAll = %d, pPhyStaRpt->cck_agc_rpt_ofdm_cfosho_a = 0x%x\n", 
 		//isCCKrate, pPhyInfo->RxPWDBAll, pPhyStaRpt->cck_agc_rpt_ofdm_cfosho_a);
@@ -504,24 +489,15 @@ odm_Process_RSSIForDM(
 	if (pPktinfo->StationID >= ODM_ASSOCIATE_ENTRY_NUM)
 		return;
 
-	//
-	// 2012/05/30 MH/Luke.Lee Add some description 
-	// In windows driver: AP/IBSS mode STA
-	//
-	//if (pDM_Odm->SupportPlatform == ODM_WIN)
-	//{
-	//	pEntry = pDM_Odm->pODM_StaInfo[pDM_Odm->pAidMap[pPktinfo->StationID-1]];			
-	//}
-	//else
-		pEntry = pDM_Odm->pODM_StaInfo[pPktinfo->StationID];							
+	pEntry = pDM_Odm->pODM_StaInfo[pPktinfo->StationID];							
 
-	if(!IS_STA_VALID(pEntry))
+	if (!IS_STA_VALID(pEntry))
 		return;
 
 	if ((!pPktinfo->bPacketMatchBSSID))/*data frame only*/
 		return;
 
-	if(pPktinfo->bPacketBeacon)
+	if (pPktinfo->bPacketBeacon)
 		pDM_Odm->PhyDbgInfo.NumQryBeaconPkt++;
 	
 	isCCKrate = (pPktinfo->DataRate <= ODM_RATE11M )?TRUE :FALSE;
@@ -644,10 +620,10 @@ odm_Process_RSSIForDM(
 						UndecoratedSmoothedPWDB = 0;
 				}
 			}
-			#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
+
 			if (pEntry->rssi_stat.UndecoratedSmoothedPWDB == -1)
 				phydm_ra_rssi_rpt_wk(pDM_Odm);
-			#endif
+
 			pEntry->rssi_stat.UndecoratedSmoothedCCK = UndecoratedSmoothedCCK;
 			pEntry->rssi_stat.UndecoratedSmoothedOFDM = UndecoratedSmoothedOFDM;
 			pEntry->rssi_stat.UndecoratedSmoothedPWDB = UndecoratedSmoothedPWDB;

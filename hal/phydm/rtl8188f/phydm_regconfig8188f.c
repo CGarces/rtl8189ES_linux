@@ -200,10 +200,8 @@ odm_ConfigBB_TXPWR_LMT_8188F(
 	IN	pu1Byte		PowerLimit
 	)
 {	
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
 		PHY_SetTxPowerLimit(pDM_Odm, Regulation, Band,
 			Bandwidth, RateSection, RfPath, Channel, PowerLimit);
-#endif
 }
 
 #endif

@@ -29,13 +29,10 @@ typedef struct _EDCA_TURBO_
 	BOOLEAN bCurrentTurboEDCA;
 	BOOLEAN bIsCurRDLState;
 
-	#if(DM_ODM_SUPPORT_TYPE == ODM_CE	)
 	u4Byte	prv_traffic_idx; // edca turbo
-	#endif
 
 }EDCA_T,*pEDCA_T;
 
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))
 static u4Byte edca_setting_UL[HT_IOT_PEER_MAX] = 
 // UNKNOWN		REALTEK_90	REALTEK_92SE	BROADCOM		RALINK		ATHEROS		CISCO		MERU        MARVELL	92U_AP		SELF_AP(DownLink/Tx)
 { 0x5e4322, 		0xa44f, 		0x5e4322,		0x5ea32b,  		0x5ea422, 	0x5ea322,	0x3ea430,	0x5ea42b, 0x5ea44f,	0x5e4322,	0x5e4322};
@@ -48,10 +45,6 @@ static u4Byte edca_setting_DL[HT_IOT_PEER_MAX] =
 static u4Byte edca_setting_DL_GMode[HT_IOT_PEER_MAX] = 
 // UNKNOWN		REALTEK_90	REALTEK_92SE	BROADCOM		RALINK		ATHEROS		CISCO		MERU,       MARVELL	92U_AP		SELF_AP
 { 0x4322, 		0xa44f, 		0x5e4322,		0xa42b, 			0x5e4322, 	0x4322, 		0xa42b,		0x5ea42b, 0xa44f,		0x5e4322,	0x5ea42b};
-
-#endif
-
-
 
 VOID
 odm_EdcaTurboCheck(

@@ -2663,11 +2663,8 @@ ODM_ReadFirmware_MP_8188F_FW_NIC(
 	OUT  u4Byte       *pFirmwareSize
 )
 {
-#if (DM_ODM_SUPPORT_TYPE & (ODM_CE))
+
 	*((SIZE_PTR *)pFirmware) = (SIZE_PTR)Array_MP_8188F_FW_NIC;
-#else
-	ODM_MoveMemory(pDM_Odm, pFirmware, Array_MP_8188F_FW_NIC, ArrayLength_MP_8188F_FW_NIC);
-#endif
 	*pFirmwareSize = ArrayLength_MP_8188F_FW_NIC;
 }
 
@@ -5558,11 +5555,7 @@ ODM_ReadFirmware_MP_8188F_FW_WoWLAN(
 	OUT  u4Byte       *pFirmwareSize
 )
 {
-#if (DM_ODM_SUPPORT_TYPE & (ODM_CE))
 	*((SIZE_PTR *)pFirmware) = (SIZE_PTR)Array_MP_8188F_FW_WoWLAN;
-#else
-	ODM_MoveMemory(pDM_Odm, pFirmware, Array_MP_8188F_FW_WoWLAN, ArrayLength_MP_8188F_FW_WoWLAN);
-#endif
 	*pFirmwareSize = ArrayLength_MP_8188F_FW_WoWLAN;
 }
 
