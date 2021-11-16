@@ -103,8 +103,8 @@ odm_DynamicPrimaryCCA(
 	pPri_CCA_T		PrimaryCCA = &(pDM_Odm->DM_PriCCA);  
 	
 	BOOLEAN		Is40MHz;
-	BOOLEAN		Client_40MHz = FALSE, Client_tmp = FALSE;      // connected client BW  
-	BOOLEAN		bConnected = FALSE;		// connected or not
+	BOOLEAN		Client_40MHz = false, Client_tmp = false;      // connected client BW  
+	BOOLEAN		bConnected = false;		// connected or not
 	static u1Byte	Client_40MHz_pre = 0;
 	static u8Byte	lastTxOkCnt = 0;
 	static u8Byte	lastRxOkCnt = 0;
@@ -176,7 +176,7 @@ odm_DynamicPrimaryCCA(
 				
 				if(pEntry->bAssociated)
 				{
-					bConnected=TRUE;    // client is connected or not
+					bConnected=true;    // client is connected or not
 					break;
 				}
 			}
@@ -199,7 +199,7 @@ odm_DynamicPrimaryCCA(
 				if(Client_tmp>Client_40MHz)
 					Client_40MHz = Client_tmp;     // 40M/20M coexist => 40M priority is High
 				
-				bConnected = TRUE;
+				bConnected = true;
 			}
 		}
 #endif
@@ -473,7 +473,7 @@ ODM_DynamicPrimaryCCA_DupRTS(
 	IN		PDM_ODM_T		pDM_Odm
 	)
 {
-	return FALSE;
+	return false;
 }
 #endif //#if (RTL8188E_SUPPORT == 1)
 

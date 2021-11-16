@@ -389,7 +389,7 @@ int rtw_mp_start(struct net_device *dev,
 		padapter->mppriv.mode = MP_ON;
 		MPT_PwrCtlDM(padapter, 0);
 	}
-	padapter->mppriv.bmac_filter = _FALSE;
+	padapter->mppriv.bmac_filter = false;
 #ifdef CONFIG_RTL8723B
 #ifdef CONFIG_USB_HCI
 	rtw_write32(padapter, 0x765, 0x0000);
@@ -739,7 +739,7 @@ int rtw_mp_ctx(struct net_device *dev,
 
 	DBG_871X("%s: in=%s\n", __func__, extra);
 
-	countPkTx = strncmp(extra, "count=", 5); /* strncmp TRUE is 0*/
+	countPkTx = strncmp(extra, "count=", 5); /* strncmp true is 0*/
 	cotuTx = strncmp(extra, "background", 20);
 	CarrSprTx = strncmp(extra, "background,cs", 20);
 	scTx = strncmp(extra, "background,sc", 20);
@@ -833,7 +833,7 @@ int rtw_mp_disable_bt_coexist(struct net_device *dev,
 		DBG_871X("Set OID_RT_SET_DISABLE_BT_COEXIST: disable BT_COEXIST\n");
 #ifdef CONFIG_BT_COEXIST
 		rtw_btcoex_HaltNotify(padapter);
-		rtw_btcoex_SetManualControl(padapter, _TRUE);
+		rtw_btcoex_SetManualControl(padapter, true);
 		/* Force to switch Antenna to WiFi*/
 		rtw_write16(padapter, 0x870, 0x300);
 		rtw_write16(padapter, 0x860, 0x110);
@@ -843,7 +843,7 @@ int rtw_mp_disable_bt_coexist(struct net_device *dev,
 		RT_TRACE(_module_mp_, _drv_info_,
 				 ("Set OID_RT_SET_DISABLE_BT_COEXIST: enable BT_COEXIST\n"));
 #ifdef CONFIG_BT_COEXIST
-		rtw_btcoex_SetManualControl(padapter, _FALSE);
+		rtw_btcoex_SetManualControl(padapter, false);
 #endif
 	}
 
@@ -869,11 +869,11 @@ int rtw_mp_arx(struct net_device *dev,
 
 	DBG_871X("%s: %s\n", __func__, input);
 
-	bStartRx = (strncmp(input, "start", 5) == 0) ? 1 : 0; /* strncmp TRUE is 0*/
-	bStopRx = (strncmp(input, "stop", 5) == 0) ? 1 : 0; /* strncmp TRUE is 0*/
-	bQueryPhy = (strncmp(input, "phy", 3) == 0) ? 1 : 0; /* strncmp TRUE is 0*/
-	bQueryMac = (strncmp(input, "mac", 3) == 0) ? 1 : 0; /* strncmp TRUE is 0*/
-	bSetBssid = (strncmp(input, "setbssid=", 8) == 0) ? 1 : 0; /* strncmp TRUE is 0*/
+	bStartRx = (strncmp(input, "start", 5) == 0) ? 1 : 0; /* strncmp true is 0*/
+	bStopRx = (strncmp(input, "stop", 5) == 0) ? 1 : 0; /* strncmp true is 0*/
+	bQueryPhy = (strncmp(input, "phy", 3) == 0) ? 1 : 0; /* strncmp true is 0*/
+	bQueryMac = (strncmp(input, "mac", 3) == 0) ? 1 : 0; /* strncmp true is 0*/
+	bSetBssid = (strncmp(input, "setbssid=", 8) == 0) ? 1 : 0; /* strncmp true is 0*/
 	/*bfilter_init = (strncmp(input, "filter_init",11)==0)?1:0;*/
 	bmac_filter = (strncmp(input, "accept_mac", 10) == 0) ? 1 : 0;
 	bmon = (strncmp(input, "mon=", 4) == 0) ? 1 : 0;
@@ -900,7 +900,7 @@ int rtw_mp_arx(struct net_device *dev,
 		} else
 			return -EFAULT;
 			
-		pmppriv->bSetRxBssid = _TRUE;
+		pmppriv->bSetRxBssid = true;
 	}
 
 	if (bmac_filter) {
@@ -929,10 +929,10 @@ int rtw_mp_arx(struct net_device *dev,
 
 	if (bStartRx) {
 		sprintf(extra, "start");
-		SetPacketRx(padapter, bStartRx, _FALSE);
+		SetPacketRx(padapter, bStartRx, false);
 	} else if (bStopRx) {
-		SetPacketRx(padapter, bStartRx, _FALSE);
-		pmppriv->bmac_filter = _FALSE;
+		SetPacketRx(padapter, bStartRx, false);
+		pmppriv->bmac_filter = false;
 		sprintf(extra, "Received packet OK:%d CRC error:%d ,Filter out:%d", padapter->mppriv.rx_pktcount, padapter->mppriv.rx_crcerrpktcount, padapter->mppriv.rx_pktcount_filter_out);
 	} else if (bQueryPhy) {
 		_rtw_memset(&rx_counter, 0, sizeof(struct dbg_rx_counter));
@@ -955,10 +955,10 @@ int rtw_mp_arx(struct net_device *dev,
 		ret = sscanf(input, "mon=%d", &bmon);
 
 		if (bmon == 1) {
-			pmppriv->rx_bindicatePkt = _TRUE;
+			pmppriv->rx_bindicatePkt = true;
 			sprintf(extra, "Indicating Receive Packet to network start\n");
 		} else {
-			pmppriv->rx_bindicatePkt = _FALSE;
+			pmppriv->rx_bindicatePkt = false;
 			sprintf(extra, "Indicating Receive Packet to network Stop\n");
 		}
 	}
@@ -966,13 +966,13 @@ int rtw_mp_arx(struct net_device *dev,
 		ret = sscanf(input, "smpcfg=%d", &bSmpCfg);
 
 		if (bSmpCfg == 1) {
-			pmppriv->bRTWSmbCfg = _TRUE;
+			pmppriv->bRTWSmbCfg = true;
 			sprintf(extra , "Indicate By Simple Config Format\n");
-			SetPacketRx(padapter, _TRUE, _TRUE);
+			SetPacketRx(padapter, true, true);
 		} else {
-			pmppriv->bRTWSmbCfg = _FALSE;
+			pmppriv->bRTWSmbCfg = false;
 			sprintf(extra , "Indicate By Normal Format\n");
-			SetPacketRx(padapter, _TRUE, _FALSE);
+			SetPacketRx(padapter, true, false);
 		}
 	}
 
@@ -1097,13 +1097,13 @@ int rtw_mp_thermal(struct net_device *dev,
 	if (copy_from_user(extra, wrqu->pointer, wrqu->length))
 		return -EFAULT;
 
-	bwrite = strncmp(extra, "write", 6);/* strncmp TRUE is 0*/
+	bwrite = strncmp(extra, "write", 6);/* strncmp true is 0*/
 
 	GetThermalMeter(padapter, &val);
 
 	if (bwrite == 0) {
 		/*DBG_871X("to write val:%d",val);*/
-		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_AVAILABLE_EFUSE_BYTES_TOTAL, (PVOID)&max_available_size, _FALSE);
+		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_AVAILABLE_EFUSE_BYTES_TOTAL, (PVOID)&max_available_size, false);
 		if (2 > max_available_size) {
 			DBG_871X("no available efuse!\n");
 			return -EFAULT;
@@ -1211,15 +1211,15 @@ int rtw_mp_SetRFPath(struct net_device *dev,
 		return -EFAULT;
 	DBG_871X("%s:iwpriv in=%s\n", __func__, input);
 
-	bMain = strncmp(input, "1", 2); /* strncmp TRUE is 0*/
-	bTurnoff = strncmp(input, "0", 3); /* strncmp TRUE is 0*/
+	bMain = strncmp(input, "1", 2); /* strncmp true is 0*/
+	bTurnoff = strncmp(input, "0", 3); /* strncmp true is 0*/
 
 	if (bMain == 0) {
-		MP_PHY_SetRFPathSwitch(padapter, _TRUE);
-		DBG_871X("%s:PHY_SetRFPathSwitch=TRUE\n", __func__);
+		MP_PHY_SetRFPathSwitch(padapter, true);
+		DBG_871X("%s:PHY_SetRFPathSwitch=true\n", __func__);
 	} else if (bTurnoff == 0) {
-		MP_PHY_SetRFPathSwitch(padapter, _FALSE);
-		DBG_871X("%s:PHY_SetRFPathSwitch=FALSE\n", __func__);
+		MP_PHY_SetRFPathSwitch(padapter, false);
+		DBG_871X("%s:PHY_SetRFPathSwitch=false\n", __func__);
 	}
 
 	return 0;
@@ -1240,7 +1240,7 @@ int rtw_mp_QueryDrv(struct net_device *dev,
 		return -EFAULT;
 	DBG_871X("%s:iwpriv in=%s\n", __func__, input);
 
-	qAutoLoad = strncmp(input, "autoload", 8); /* strncmp TRUE is 0*/
+	qAutoLoad = strncmp(input, "autoload", 8); /* strncmp true is 0*/
 
 	if (qAutoLoad == 0) {
 		DBG_871X("%s:qAutoLoad\n", __func__);
@@ -1266,7 +1266,7 @@ int rtw_mp_PwrCtlDM(struct net_device *dev,
 	if (copy_from_user(input, wrqu->pointer, wrqu->length))
 		return -EFAULT;
 
-	bstart = strncmp(input, "start", 5); /* strncmp TRUE is 0*/
+	bstart = strncmp(input, "start", 5); /* strncmp true is 0*/
 	if (bstart == 0) {
 		sprintf(extra, "PwrCtlDM start\n");
 		MPT_PwrCtlDM(padapter, 1);
@@ -1321,26 +1321,26 @@ int rtw_mp_mon(struct net_device *dev,
 		DBG_871X("%s: initialize MP private data Fail!\n", __func__);
 	padapter->mppriv.channel = 6;
 
-	bstart = strncmp(extra, "start", 5); /* strncmp TRUE is 0*/
-	bstop = strncmp(extra, "stop", 4); /* strncmp TRUE is 0*/
+	bstart = strncmp(extra, "start", 5); /* strncmp true is 0*/
+	bstop = strncmp(extra, "stop", 4); /* strncmp true is 0*/
 	if (bstart == 0) {
 		mp_join(padapter, WIFI_FW_ADHOC_STATE);
-		SetPacketRx(padapter, _TRUE, _FALSE);
+		SetPacketRx(padapter, true, false);
 		SetChannel(padapter);
-		pmp_priv->rx_bindicatePkt = _TRUE;
-		pmp_priv->bRTWSmbCfg = _TRUE;
+		pmp_priv->rx_bindicatePkt = true;
+		pmp_priv->bRTWSmbCfg = true;
 		sprintf(extra, "monitor mode start\n");
 	} else if (bstop == 0) {
-		SetPacketRx(padapter, _FALSE, _FALSE);
-		pmp_priv->rx_bindicatePkt = _FALSE;
-		pmp_priv->bRTWSmbCfg = _FALSE;
+		SetPacketRx(padapter, false, false);
+		pmp_priv->rx_bindicatePkt = false;
+		pmp_priv->bRTWSmbCfg = false;
 		padapter->registrypriv.mp_mode = 1;
 		pHalFunc->hal_deinit(padapter);
 		padapter->registrypriv.mp_mode = 0;
 		pHalFunc->hal_init(padapter);
-		/*rtw_disassoc_cmd(padapter, 0, _TRUE);*/
-		if (check_fwstate(pmlmepriv, _FW_LINKED) == _TRUE) {
-			rtw_disassoc_cmd(padapter, 500, _TRUE);
+		/*rtw_disassoc_cmd(padapter, 0, true);*/
+		if (check_fwstate(pmlmepriv, _FW_LINKED) == true) {
+			rtw_disassoc_cmd(padapter, 500, true);
 			rtw_indicate_disconnect(padapter);
 			/*rtw_free_assoc_resources(padapter, 1);*/
 		}
@@ -1632,8 +1632,8 @@ int rtw_mp_rx(struct net_device *dev,
 
 	if (strncmp(extra, "stop", 4) == 0) {
 		_rtw_memset(extra, 0, wrqu->data.length);
-		SetPacketRx(padapter, bStartRx, _FALSE);
-		pmp_priv->bmac_filter = _FALSE;
+		SetPacketRx(padapter, bStartRx, false);
+		pmp_priv->bmac_filter = false;
 		sprintf(extra, "Received packet OK:%d CRC error:%d ,Filter out:%d", padapter->mppriv.rx_pktcount, padapter->mppriv.rx_crcerrpktcount, padapter->mppriv.rx_pktcount_filter_out);
 		wrqu->data.length = strlen(extra);
 		return 0;
@@ -1720,7 +1720,7 @@ int rtw_mp_rx(struct net_device *dev,
 		SetAntenna(padapter);
 
 		sprintf(extra, "%s\nstart Rx", extra);
-		SetPacketRx(padapter, bStartRx, _FALSE);
+		SetPacketRx(padapter, bStartRx, false);
 	}
 	wrqu->data.length = strlen(extra);
 	return 0;
@@ -1754,14 +1754,14 @@ int rtw_efuse_mask_file(struct net_device *dev,
 	}
 	rtw_efuse_mask_file_path = extra;
 
-	if (rtw_is_file_readable(rtw_efuse_mask_file_path) == _TRUE) {
+	if (rtw_is_file_readable(rtw_efuse_mask_file_path) == true) {
 		DBG_871X("%s do rtw_efuse_mask_file_read = %s! ,sizeof maskfileBuffer %zu\n", __func__, rtw_efuse_mask_file_path, sizeof(maskfileBuffer));
 		Status = rtw_efuse_file_read(padapter, rtw_efuse_mask_file_path, maskfileBuffer, sizeof(maskfileBuffer));
-		if (Status == _TRUE)
-			padapter->registrypriv.bFileMaskEfuse = _TRUE;
+		if (Status == true)
+			padapter->registrypriv.bFileMaskEfuse = true;
 		sprintf(extra, "efuse mask file read OK\n");
 	} else {
-		padapter->registrypriv.bFileMaskEfuse = _FALSE;
+		padapter->registrypriv.bFileMaskEfuse = false;
 		sprintf(extra, "efuse mask file readable FAIL\n");
 		DBG_871X("%s rtw_is_file_readable fail!\n", __func__);
 	}
@@ -1786,10 +1786,10 @@ int rtw_efuse_file_map(struct net_device *dev,
 
 	rtw_efuse_file_map_path = extra;
 
-	if (rtw_is_file_readable(rtw_efuse_file_map_path) == _TRUE) {
+	if (rtw_is_file_readable(rtw_efuse_file_map_path) == true) {
 		DBG_871X("%s do rtw_efuse_mask_file_read = %s!\n", __func__, rtw_efuse_file_map_path);
 		Status = rtw_efuse_file_read(padapter, rtw_efuse_file_map_path, pEfuseHal->fakeEfuseModifiedMap, sizeof(pEfuseHal->fakeEfuseModifiedMap));
-		if (Status == _TRUE)
+		if (Status == true)
 			sprintf(extra, "efuse file file_read OK\n");
 		else
 			sprintf(extra, "efuse file file_read FAIL\n");
@@ -1831,7 +1831,7 @@ int rtw_mp_SetBT(struct net_device *dev,
 
 	DBG_871X("%s:iwpriv in=%s\n", __func__, extra);
 	ready = strncmp(extra, "ready", 5);
-	testmode = strncmp(extra, "testmode", 8); /* strncmp TRUE is 0*/
+	testmode = strncmp(extra, "testmode", 8); /* strncmp true is 0*/
 	trxparam = strncmp(extra, "trxparam", 8);
 	setgen = strncmp(extra, "setgen", 6);
 	getgen = strncmp(extra, "getgen", 6);
@@ -1842,7 +1842,7 @@ int rtw_mp_SetBT(struct net_device *dev,
 
 	if (strncmp(extra, "dlbt", 4) == 0) {
 		pHalData->LastHMEBoxNum = 0;
-		padapter->bBTFWReady = _FALSE;
+		padapter->bBTFWReady = false;
 		rtw_write8(padapter, 0xa3, 0x05);
 		BTStatus = rtw_read8(padapter, 0xa0);
 		DBG_871X("%s: btwmap before read 0xa0 BT Status =0x%x\n", __func__, BTStatus);
@@ -1874,7 +1874,7 @@ int rtw_mp_SetBT(struct net_device *dev,
 		pBTFirmware = (PRT_MP_FIRMWARE)rtw_zmalloc(sizeof(RT_MP_FIRMWARE));
 		if (pBTFirmware == NULL)
 			goto exit;
-		padapter->bBTFWReady = _FALSE;
+		padapter->bBTFWReady = false;
 		FirmwareDownloadBT(padapter, pBTFirmware);
 		if (pBTFirmware)
 			rtw_mfree((u8 *)pBTFirmware, sizeof(RT_MP_FIRMWARE));
@@ -1891,7 +1891,7 @@ int rtw_mp_SetBT(struct net_device *dev,
 		DBG_8192C("FirmwareDownloadBT ready = 0x%x 0x%x", pMptCtx->mptOutBuf[4], pMptCtx->mptOutBuf[5]);
 		if ((pMptCtx->mptOutBuf[4] == 0x00) && (pMptCtx->mptOutBuf[5] == 0x00)) {
 
-			if (padapter->mppriv.bTxBufCkFail == _TRUE)
+			if (padapter->mppriv.bTxBufCkFail == true)
 				sprintf(extra, "check TxBuf Fail.\n");
 			else
 				sprintf(extra, "download FW Fail.\n");
@@ -1903,7 +1903,7 @@ int rtw_mp_SetBT(struct net_device *dev,
 	}
 	if (strncmp(extra, "dlfw", 4) == 0) {
 		pHalData->LastHMEBoxNum = 0;
-		padapter->bBTFWReady = _FALSE;
+		padapter->bBTFWReady = false;
 		rtw_write8(padapter, 0xa3, 0x05);
 		BTStatus = rtw_read8(padapter, 0xa0);
 		DBG_871X("%s: btwmap before read 0xa0 BT Status =0x%x\n", __func__, BTStatus);
@@ -1942,7 +1942,7 @@ int rtw_mp_SetBT(struct net_device *dev,
 		DBG_871X(" FirmwareDownload!\n");
 
 #if defined(CONFIG_RTL8723B)
-		status = rtl8723b_FirmwareDownload(padapter, _FALSE);
+		status = rtl8723b_FirmwareDownload(padapter, false);
 #endif
 		DBG_871X("Wait for FirmwareDownloadBT fw boot!\n");
 		rtw_msleep_os(1000);
@@ -1950,7 +1950,7 @@ int rtw_mp_SetBT(struct net_device *dev,
 		rtw_btcoex_HaltNotify(padapter);
 		DBG_871X("SetBT btcoex HaltNotify !\n");
 		/*hal_btcoex1ant_SetAntPath(padapter);*/
-		rtw_btcoex_SetManualControl(padapter, _TRUE);
+		rtw_btcoex_SetManualControl(padapter, true);
 #endif
 		_rtw_memset(extra, '\0', wrqu->data.length);
 		BtReq.opCodeVer = 1;
@@ -1961,7 +1961,7 @@ int rtw_mp_SetBT(struct net_device *dev,
 
 		DBG_8192C("FirmwareDownloadBT ready = 0x%x 0x%x", pMptCtx->mptOutBuf[4], pMptCtx->mptOutBuf[5]);
 		if ((pMptCtx->mptOutBuf[4] == 0x00) && (pMptCtx->mptOutBuf[5] == 0x00)) {
-			if (padapter->mppriv.bTxBufCkFail == _TRUE)
+			if (padapter->mppriv.bTxBufCkFail == true)
 				sprintf(extra, "check TxBuf Fail.\n");
 			else
 				sprintf(extra, "download FW Fail.\n");
@@ -1979,7 +1979,7 @@ int rtw_mp_SetBT(struct net_device *dev,
 	if (strncmp(extra, "down", 4) == 0) {
 		DBG_871X("SetBT down for to hal_init !\n");
 #ifdef CONFIG_BT_COEXIST
-		rtw_btcoex_SetManualControl(padapter, _FALSE);
+		rtw_btcoex_SetManualControl(padapter, false);
 		rtw_btcoex_Initialize(padapter);
 #endif
 		pHalFunc->read_adapter_info(padapter);
@@ -2011,7 +2011,7 @@ int rtw_mp_SetBT(struct net_device *dev,
 	}
 	if (strncmp(extra, "h2c", 3) == 0) {
 		DBG_871X("SetBT h2c !\n");
-		padapter->bBTFWReady = _TRUE;
+		padapter->bBTFWReady = true;
 		rtw_hal_fill_h2c_cmd(padapter, 0x63, 1, u1H2CBtMpOperParm);
 		goto exit;
 	}
@@ -2112,8 +2112,8 @@ int rtw_mp_SetBT(struct net_device *dev,
 todo:
 	_rtw_memset(extra, '\0', wrqu->data.length);
 
-	if (padapter->bBTFWReady == _FALSE) {
-		sprintf(extra, "BTFWReady = FALSE.\n");
+	if (padapter->bBTFWReady == false) {
+		sprintf(extra, "BTFWReady = false.\n");
 		goto exit;
 	}
 

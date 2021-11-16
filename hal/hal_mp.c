@@ -110,14 +110,14 @@ s32 hal_mpt_SetPowerTracking(PADAPTER padapter, u8 enable)
 		return _FAIL;
 	}
 
-	if (check_fwstate(&padapter->mlmepriv, WIFI_MP_STATE) == _FALSE) {
+	if (check_fwstate(&padapter->mlmepriv, WIFI_MP_STATE) == false) {
 		RT_TRACE(_module_mp_, _drv_warning_, ("SetPowerTracking! Fail: not in MP mode!\n"));
 		return _FAIL;
 	}
 	if (enable)
-		pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = _TRUE;	
+		pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = true;	
 	else
-		pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = _FALSE;
+		pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = false;
 
 	return _SUCCESS;
 }
@@ -147,9 +147,9 @@ void hal_mpt_CCKTxPowerAdjust(PADAPTER Adapter, BOOLEAN bInCH14)
 	DataRate = MptToMgntRate(ulRateIdx);
 	
 	if (u1Channel == 14 && IS_CCK_RATE(DataRate))
-		pHalData->bCCKinCH14 = TRUE;
+		pHalData->bCCKinCH14 = true;
 	else
-		pHalData->bCCKinCH14 = FALSE;	
+		pHalData->bCCKinCH14 = false;	
 
 	if (IS_HARDWARE_TYPE_8703B(Adapter)) {
 		if ((u1Channel == 12 || u1Channel == 13) && IS_CCK_RATE(DataRate)) {/* Channel 12, 13 in CCK, need to set 0xA22~0xA29, OxA9A~0xA9D, 0xAA0~0xAA3 for 8703B */
@@ -258,8 +258,8 @@ void hal_mpt_SetChannel(PADAPTER pAdapter)
 	
 	SelectChannel(pAdapter, channel);
 	
-	pHalData->bSwChnl = _TRUE;
-	pHalData->bSetChnlBW = _TRUE;
+	pHalData->bSwChnl = true;
+	pHalData->bSetChnlBW = true;
 	rtw_hal_set_chnl_bw(pAdapter, channel, bandwidth, 0, 0);
 
 	hal_mpt_CCKTxPowerAdjust(pAdapter, pHalData->bCCKinCH14);
@@ -279,8 +279,8 @@ void hal_mpt_SetBandwidth(PADAPTER pAdapter)
 	u8		bandwidth = pmp->bandwidth;
 	
 	SetBWMode(pAdapter, pmp->bandwidth, pmp->prime_channel_offset);
-	pHalData->bSwChnl = _TRUE;
-	pHalData->bSetChnlBW = _TRUE;
+	pHalData->bSwChnl = true;
+	pHalData->bSetChnlBW = true;
 	rtw_hal_set_chnl_bw(pAdapter, channel, bandwidth, 0, 0);
 	
 	hal_mpt_SwitchRfSetting(pAdapter);
@@ -822,8 +822,8 @@ mpt_SetSingleTone_8814A(
 			break;
 		}
 
-		if (bEnPMacTx == FALSE) {
-			hal_mpt_SetOFDMContinuousTx(pAdapter, _TRUE);
+		if (bEnPMacTx == false) {
+			hal_mpt_SetOFDMContinuousTx(pAdapter, true);
 			issue_nulldata(pAdapter, NULL, 1, 3, 500);
 		}
 
@@ -874,8 +874,8 @@ mpt_SetSingleTone_8814A(
 		
 		PHY_SetBBReg(pAdapter, rCCAonSec_Jaguar, BIT1, 0x0); /* Enable CCA*/
 
-		if (bEnPMacTx == FALSE)
-			hal_mpt_SetOFDMContinuousTx(pAdapter, _FALSE);
+		if (bEnPMacTx == false)
+			hal_mpt_SetOFDMContinuousTx(pAdapter, false);
 
 		PHY_SetBBReg(pAdapter, rA_TxScale_Jaguar, bMaskDWord, regIG0); /* 0xC1C[31:21]*/
 		PHY_SetBBReg(pAdapter, rB_TxScale_Jaguar, bMaskDWord, regIG1); /* 0xE1C[31:21]*/
@@ -1367,7 +1367,7 @@ s32 hal_mpt_SetThermalMeter(PADAPTER pAdapter, u8 target_ther)
 	}
 
 
-	if (check_fwstate(&pAdapter->mlmepriv, WIFI_MP_STATE) == _FALSE) {
+	if (check_fwstate(&pAdapter->mlmepriv, WIFI_MP_STATE) == false) {
 		RT_TRACE(_module_mp_, _drv_warning_, ("SetThermalMeter: Fail! not in MP mode!\n"));
 		return _FAIL;
 	}
@@ -1561,7 +1561,7 @@ void hal_mpt_SetSingleToneTx(PADAPTER pAdapter, u8 bStart)
 		}
 #ifdef CONFIG_RTL8814A 
 		else if (IS_HARDWARE_TYPE_8814A(pAdapter))
-			mpt_SetSingleTone_8814A(pAdapter, TRUE, FALSE);
+			mpt_SetSingleTone_8814A(pAdapter, true, false);
 #endif
 		else	/*/ Turn On SingleTone and turn off the other test modes.*/
 			PHY_SetBBReg(pAdapter, rOFDM1_LSTF, BIT30|BIT29|BIT28, OFDM_SingleTone);			
@@ -1624,7 +1624,7 @@ void hal_mpt_SetSingleToneTx(PADAPTER pAdapter, u8 bStart)
 		}
 #ifdef CONFIG_RTL8814A		
 		else if (IS_HARDWARE_TYPE_8814A(pAdapter))
-			mpt_SetSingleTone_8814A(pAdapter, FALSE, FALSE);
+			mpt_SetSingleTone_8814A(pAdapter, false, false);
 
 		 else/*/ Turn off all test modes.*/			
 			PHY_SetBBReg(pAdapter, rSingleTone_ContTx_Jaguar, BIT18|BIT17|BIT16, OFDM_ALL_OFF);				   
@@ -1741,7 +1741,7 @@ void hal_mpt_SetCCKContinuousTx(PADAPTER pAdapter, u8 bStart)
 	}
 
 	pAdapter->mppriv.MptCtx.bCckContTx = bStart;
-	pAdapter->mppriv.MptCtx.bOfdmContTx = _FALSE;
+	pAdapter->mppriv.MptCtx.bOfdmContTx = false;
 }
 
 void hal_mpt_SetOFDMContinuousTx(PADAPTER pAdapter, u8 bStart)
@@ -1795,7 +1795,7 @@ void hal_mpt_SetOFDMContinuousTx(PADAPTER pAdapter, u8 bStart)
 		write_bbreg(pAdapter, rFPGA0_XB_HSSIParameter1, bMaskDWord, 0x01000100);
 	}
 
-	pAdapter->mppriv.MptCtx.bCckContTx = _FALSE;
+	pAdapter->mppriv.MptCtx.bCckContTx = false;
 	pAdapter->mppriv.MptCtx.bOfdmContTx = bStart;
 }
 

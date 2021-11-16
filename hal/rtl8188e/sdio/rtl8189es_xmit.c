@@ -173,7 +173,7 @@ void rtl8188e_fill_fake_txdesc(
 		ptxdesc->txdw3 |= cpu_to_le32((8 <<28)); //set bit3 to 1. Suugested by TimChen. 2009.12.29.
 	}
 
-	if (_TRUE == IsBTQosNull)
+	if (true == IsBTQosNull)
 	{
 		ptxdesc->txdw2 |= cpu_to_le32(BIT(23)); // BT NULL
 	}
@@ -184,7 +184,7 @@ void rtl8188e_fill_fake_txdesc(
 	//
 	// Encrypt the data frame if under security mode excepct null data. Suggested by CCW.
 	//
-	if (_TRUE ==bDataFrame)
+	if (true ==bDataFrame)
 	{
 		u32 EncAlg;
 
@@ -250,7 +250,7 @@ void rtl8188es_fill_default_txdesc(
 	{
 		ptxdesc->macid = pattrib->mac_id; // CAM_ID(MAC_ID)
 
-		if (pattrib->ampdu_en == _TRUE){
+		if (pattrib->ampdu_en == true){
 			ptxdesc->agg_en = 1; // AGG EN
 			ptxdesc->ampdu_density = pattrib->ampdu_spacing; 
 		}
@@ -281,7 +281,7 @@ void rtl8188es_fill_default_txdesc(
 			ptxdesc->rts_ratefb_lmt = 0xF;
 
 #if (RATE_ADAPTIVE_SUPPORT == 1)
-			if(pHalData->fw_ractrl == _FALSE){
+			if(pHalData->fw_ractrl == false){
 				/* driver-based RA*/
 				ptxdesc->userate = 1; // driver uses rate	
 				if (pattrib->ht_en)
@@ -368,7 +368,7 @@ void rtl8188es_fill_default_txdesc(
 #endif //CONFIG_XMIT_ACK
 
 #ifdef CONFIG_INTEL_PROXIM
-		if((padapter->proximity.proxim_on==_TRUE)&&(pattrib->intel_proxim==_TRUE)){
+		if((padapter->proximity.proxim_on==true)&&(pattrib->intel_proxim==true)){
 			DBG_871X("\n %s pattrib->rate=%d\n",__FUNCTION__,pattrib->rate);
 			ptxdesc->datarate = pattrib->rate;
 		}
@@ -486,7 +486,7 @@ static u8 rtw_sdio_wait_enough_TxOQT_space(PADAPTER padapter, u8 agg_num)
 	{
 		if (RTW_CANNOT_RUN(padapter)) {
 			DBG_871X("%s: bSurpriseRemoved or bDriverStopped (wait TxOQT)\n", __func__);
-			return _FALSE;
+			return false;
 		}
 
 		HalQueryTxOQTBufferStatus8189ESdio(padapter);
@@ -506,7 +506,7 @@ static u8 rtw_sdio_wait_enough_TxOQT_space(PADAPTER padapter, u8 agg_num)
 	//if (n > 1)
 	//	++priv->pshare->nr_out_of_txoqt_space;
 
-	return _TRUE;
+	return true;
 }
 
 //todo: static 
@@ -519,18 +519,18 @@ s32 rtl8188es_dequeue_writeport(PADAPTER padapter)
 	u8	PageIdx = 0;
 	u32	deviceId;
 #ifdef CONFIG_SDIO_TX_ENABLE_AVAL_INT
-	u8	bUpdatePageNum = _FALSE;
+	u8	bUpdatePageNum = false;
 #else
 	u32	polling_num = 0;
 #endif
 
-	if (rtw_xmit_ac_blocked(padapter) == _TRUE)
+	if (rtw_xmit_ac_blocked(padapter) == true)
 		pxmitbuf = dequeue_pending_xmitbuf_under_survey(pxmitpriv);
 	else
 		pxmitbuf = dequeue_pending_xmitbuf(pxmitpriv);
 
 	if (pxmitbuf == NULL) {
-		return _TRUE;
+		return true;
 	}
 
 	deviceId = ffaddr2deviceId(pdvobjpriv, pxmitbuf->ff_hwaddr);
@@ -552,17 +552,17 @@ s32 rtl8188es_dequeue_writeport(PADAPTER padapter)
 
 query_free_page:
 	/* check if hardware tx fifo page is enough */
-	if (_FALSE == rtw_hal_sdio_query_tx_freepage(padapter, PageIdx, pxmitbuf->pg_num)) {
+	if (false == rtw_hal_sdio_query_tx_freepage(padapter, PageIdx, pxmitbuf->pg_num)) {
 #ifdef CONFIG_SDIO_TX_ENABLE_AVAL_INT
 		if (!bUpdatePageNum) {
 			// Total number of page is NOT available, so update current FIFO status
 			HalQueryTxBufferStatus8189ESdio(padapter);
-			bUpdatePageNum = _TRUE;
+			bUpdatePageNum = true;
 			goto query_free_page;
 		} else {
-			bUpdatePageNum = _FALSE;
+			bUpdatePageNum = false;
 			enqueue_pending_xmitbuf_to_head(pxmitpriv, pxmitbuf);
-			return _TRUE;
+			return true;
 		}
 #else //CONFIG_SDIO_TX_ENABLE_AVAL_INT
 		polling_num++;
@@ -584,7 +584,7 @@ query_free_page:
 		goto free_xmitbuf;
 	}
 
-	if (rtw_sdio_wait_enough_TxOQT_space(padapter, pxmitbuf->agg_num) == _FALSE) 
+	if (rtw_sdio_wait_enough_TxOQT_space(padapter, pxmitbuf->agg_num) == false) 
 	{
 		goto free_xmitbuf;
 	}
@@ -645,7 +645,7 @@ s32 rtl8188es_xmit_buf_handler(PADAPTER padapter)
 		queue_pending |= check_pending_xmitbuf(&padapter->pbuddy_adapter->xmitpriv);
 #endif
 
-	if(queue_pending == _FALSE)
+	if(queue_pending == false)
 		return _SUCCESS;
 
 #ifdef CONFIG_LPS_LCLK
@@ -863,8 +863,8 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 	u32	txlen = 0; //packet length, except TXDESC_SIZE and PKT_OFFSET
 	u32	total_len = 0, max_xmit_len = 0;
 	u8	ac_index = 0;
-	u8	bfirst = _TRUE;//first aggregation xmitframe
-	u8	bulkstart = _FALSE;
+	u8	bfirst = true;//first aggregation xmitframe
+	u8	bulkstart = false;
 #ifdef CONFIG_TX_EARLY_MODE
 	u8	pkt_index=0;
 #endif
@@ -880,7 +880,7 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 	#endif
 			_rtw_up_sema(&(pxmitpriv->xmit_sema));
 #endif
-		return _FALSE;
+		return false;
 	}
 
 	do {
@@ -891,7 +891,7 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 			if (pxmitframe == NULL) {
 				// no more xmit frame, release xmit buffer
 				rtw_free_xmitbuf(pxmitpriv, pxmitbuf);
-				return _FALSE;
+				return false;
 			}
 
 			pxmitframe->pxmitbuf = pxmitbuf;
@@ -913,7 +913,7 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 			// dequeue same priority packet from station tx queue
 			_enter_critical_bh(&pxmitpriv->lock, &irqL);
 
-			if (_rtw_queue_empty(&ptxservq->sta_pending) == _FALSE)
+			if (_rtw_queue_empty(&ptxservq->sta_pending) == false)
 			{
 				xmitframe_phead = get_list_head(&ptxservq->sta_pending);
 				xmitframe_plist = get_next(xmitframe_phead);
@@ -921,7 +921,7 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 				pxmitframe = LIST_CONTAINOR(xmitframe_plist, struct xmit_frame, list);
 
 				if(_FAIL == rtw_hal_busagg_qsel_check(padapter,pfirstframe->attrib.qsel,pxmitframe->attrib.qsel)){
-					bulkstart = _TRUE;
+					bulkstart = true;
 				}
 				else{
 					// check xmit_buf size enough or not
@@ -933,7 +933,7 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 
 					if ((pbuf + txlen) > max_xmit_len)
 					{
-						bulkstart = _TRUE;
+						bulkstart = true;
 					}
 					else
 					{
@@ -942,14 +942,14 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 						phwxmit[ac_index].accnt--;
 
 						//Remove sta node when there is no pending packets.
-						if (_rtw_queue_empty(&ptxservq->sta_pending) == _TRUE)
+						if (_rtw_queue_empty(&ptxservq->sta_pending) == true)
 							rtw_list_delete(&ptxservq->tx_pending);
 					}
 				}
 			}
 			else
 			{
-				bulkstart = _TRUE;
+				bulkstart = true;
 			}
 
 			_exit_critical_bh(&pxmitpriv->lock, &irqL);
@@ -994,7 +994,7 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 			pxmitbuf->pg_num = (txlen + 127)/128;
 			pbuf_tail = txlen;
 			pbuf = _RND8(pbuf_tail);
-			bfirst = _FALSE;
+			bfirst = false;
 		}
 		else
 		{
@@ -1041,12 +1041,12 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 
 	//rtw_yield_os();
 
-	return _TRUE;
+	return true;
 }
 
 void rtl8188es_xmit_tasklet(void *priv)
 {	
-	int ret = _FALSE;
+	int ret = false;
 	_adapter *padapter = (_adapter*)priv;
 	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
 
@@ -1059,7 +1059,7 @@ void rtl8188es_xmit_tasklet(void *priv)
 		}
 
 		ret = xmit_xmitframes(padapter, pxmitpriv);
-		if(ret==_FALSE)
+		if(ret==false)
 			break;
 		
 	}
@@ -1081,7 +1081,7 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 	s32 ret;
 	int inx[4];
 	u8 pre_qsel=0xFF,next_qsel=0xFF;
-	u8 single_sta_in_queue = _FALSE;
+	u8 single_sta_in_queue = false;
 	
 	err = 0;
 	hwxmits = pxmitpriv->hwxmits;
@@ -1103,7 +1103,7 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 	{
 		phwxmit = hwxmits + inx[idx];
 
-		if((check_pending_xmitbuf(pxmitpriv) == _TRUE) && (padapter->mlmepriv.LinkDetectInfo.bHigherBusyTxTraffic == _TRUE)) {
+		if((check_pending_xmitbuf(pxmitpriv) == true) && (padapter->mlmepriv.LinkDetectInfo.bHigherBusyTxTraffic == true)) {
 			if ((phwxmit->accnt > 0) && (phwxmit->accnt < 5)) {
 				err = -2;
 				break;
@@ -1120,7 +1120,7 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 
 		single_sta_in_queue = rtw_end_of_queue_search(sta_phead, get_next(sta_plist));
 
-		while (rtw_end_of_queue_search(sta_phead, sta_plist) == _FALSE)
+		while (rtw_end_of_queue_search(sta_phead, sta_plist) == false)
 		{
 			ptxservq = LIST_CONTAINOR(sta_plist, struct tx_servq, tx_pending);
 
@@ -1133,7 +1133,7 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 
 			frame_phead = get_list_head(pframe_queue);
 
-			while (rtw_is_list_empty(frame_phead) == _FALSE)
+			while (rtw_is_list_empty(frame_phead) == false)
 			{
 				frame_plist = get_next(frame_phead);
 				pxmitframe = LIST_CONTAINOR(frame_plist, struct xmit_frame, list);				
@@ -1171,7 +1171,7 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 							enqueue_pending_xmitbuf(pxmitpriv, pxmitbuf);
 
 							//rtw_yield_os();
-							if (single_sta_in_queue == _FALSE) {
+							if (single_sta_in_queue == false) {
 								/* break the loop in case there is more than one sta in this ac queue */
 								pxmitbuf = NULL;
 								err = -3;
@@ -1251,7 +1251,7 @@ static s32 xmit_xmitframes(PADAPTER padapter, struct xmit_priv *pxmitpriv)
 				pxmitframe = NULL;			
 			}
 
-			if (_rtw_queue_empty(pframe_queue) == _TRUE)
+			if (_rtw_queue_empty(pframe_queue) == true)
 				rtw_list_delete(&ptxservq->tx_pending);
 			else if (err == -3) {
 				/* Re-arrange the order of stations in this ac queue to balance the service for these stations */
@@ -1442,8 +1442,8 @@ s32 rtl8188es_mgnt_xmit(PADAPTER padapter, struct xmit_frame *pmgntframe)
  *	Handle xmitframe(packet) come from rtw_xmit()
  *
  * Return:
- *	_TRUE	dump packet directly ok
- *	_FALSE	enqueue, temporary can't transmit packets to hardware
+ *	true	dump packet directly ok
+ *	false	enqueue, temporary can't transmit packets to hardware
  */
 s32 rtl8188es_hal_xmit(PADAPTER padapter, struct xmit_frame *pxmitframe)
 {
@@ -1459,7 +1459,7 @@ s32 rtl8188es_hal_xmit(PADAPTER padapter, struct xmit_frame *pxmitframe)
 		(pxmitframe->attrib.ether_type != 0x888e) &&
 		(pxmitframe->attrib.dhcp_pkt != 1))
 	{
-		if (padapter->mlmepriv.LinkDetectInfo.bBusyTraffic == _TRUE)
+		if (padapter->mlmepriv.LinkDetectInfo.bBusyTraffic == true)
 			rtw_issue_addbareq_cmd(padapter, pxmitframe);
 	}
 #endif
@@ -1472,7 +1472,7 @@ s32 rtl8188es_hal_xmit(PADAPTER padapter, struct xmit_frame *pxmitframe)
 		rtw_free_xmitframe(pxmitpriv, pxmitframe);
 
 		pxmitpriv->tx_drop++;
-		return _TRUE;
+		return true;
 	}
 
 #ifdef CONFIG_SDIO_TX_TASKLET
@@ -1481,7 +1481,7 @@ s32 rtl8188es_hal_xmit(PADAPTER padapter, struct xmit_frame *pxmitframe)
 	_rtw_up_sema(&pxmitpriv->SdioXmitSema);
 #endif
 
-	return _FALSE;
+	return false;
 }
 
 s32	rtl8188es_hal_xmitframe_enqueue(_adapter *padapter, struct xmit_frame *pxmitframe)

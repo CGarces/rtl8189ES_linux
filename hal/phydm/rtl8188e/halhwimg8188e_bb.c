@@ -73,9 +73,9 @@ u4Byte    driver3 = 0;
 	/*QFN Type [15:12] and Cut Version [27:24] need to do value check*/
 	
 	if (((cond1 & 0x0000F000) != 0) && ((cond1 & 0x0000F000) != (driver1 & 0x0000F000)))
-		return FALSE;
+		return false;
 	if (((cond1 & 0x0F000000) != 0) && ((cond1 & 0x0F000000) != (driver1 & 0x0F000000)))
-		return FALSE;
+		return false;
 
 	/*=============== Bit Defined Check ================*/
 	/* We don't care [31:28] */
@@ -87,7 +87,7 @@ u4Byte    driver3 = 0;
 		u4Byte bitMask = 0;
 
 		if ((cond1 & 0x0F) == 0) /* BoardType is DONTCARE*/
-			return TRUE;
+			return true;
 
 		if ((cond1 & BIT0) != 0) /*GLNA*/
 			bitMask |= 0x000000FF;
@@ -99,11 +99,11 @@ u4Byte    driver3 = 0;
 			bitMask |= 0xFF000000;
 
 		if (((cond2 & bitMask) == (driver2 & bitMask)) && ((cond4 & bitMask) == (driver4 & bitMask)))  /* BoardType of each RF path is matched*/
-			return TRUE;
+			return true;
 		else
-			return FALSE;
+			return false;
 	} else
-		return FALSE;
+		return false;
 }
 static BOOLEAN
 CheckNegative(
@@ -112,7 +112,7 @@ CheckNegative(
 	IN  const u4Byte  Condition2
 )
 {
-	return TRUE;
+	return true;
 }
 
 /******************************************************************************
@@ -645,7 +645,7 @@ ODM_ReadAndConfig_MP_8188E_AGC_TAB(
 {
 	u4Byte     i         = 0;
 	u1Byte     cCond;
-	BOOLEAN bMatched = TRUE, bSkipped = FALSE;
+	BOOLEAN bMatched = true, bSkipped = false;
 	u4Byte     ArrayLen    = sizeof(Array_MP_8188E_AGC_TAB)/sizeof(u4Byte);
 	pu4Byte    Array       = Array_MP_8188E_AGC_TAB;
 	
@@ -661,11 +661,11 @@ ODM_ReadAndConfig_MP_8188E_AGC_TAB(
 			if (v1 & BIT31) {/* positive condition*/
 				cCond  = (u1Byte)((v1 & (BIT29|BIT28)) >> 28);
 				if (cCond == COND_ENDIF) {/*end*/
-					bMatched = TRUE;
-					bSkipped = FALSE;
+					bMatched = true;
+					bSkipped = false;
 					ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("ENDIF\n"));
 				} else if (cCond == COND_ELSE) { /*else*/
-					bMatched = bSkipped?FALSE:TRUE;
+					bMatched = bSkipped?false:true;
 					ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("ELSE\n"));
 				}
 				else {/*if , else if*/
@@ -674,16 +674,16 @@ ODM_ReadAndConfig_MP_8188E_AGC_TAB(
 					ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("IF or ELSE IF\n"));
 				}
 			} else if (v1 & BIT30) { /*negative condition*/
-				if (bSkipped == FALSE) {
+				if (bSkipped == false) {
 					if (CheckPositive(pDM_Odm, pre_v1, pre_v2, v1, v2)) {
-						bMatched = TRUE;
-						bSkipped = TRUE;
+						bMatched = true;
+						bSkipped = true;
 					} else {
-						bMatched = FALSE;
-						bSkipped = FALSE;
+						bMatched = false;
+						bSkipped = false;
 					}
 				} else
-					bMatched = FALSE;
+					bMatched = false;
 			}
 		} else {
 			if (bMatched)
@@ -982,7 +982,7 @@ ODM_ReadAndConfig_MP_8188E_PHY_REG(
 {
 	u4Byte     i         = 0;
 	u1Byte     cCond;
-	BOOLEAN bMatched = TRUE, bSkipped = FALSE;
+	BOOLEAN bMatched = true, bSkipped = false;
 	u4Byte     ArrayLen    = sizeof(Array_MP_8188E_PHY_REG)/sizeof(u4Byte);
 	pu4Byte    Array       = Array_MP_8188E_PHY_REG;
 	
@@ -998,11 +998,11 @@ ODM_ReadAndConfig_MP_8188E_PHY_REG(
 			if (v1 & BIT31) {/* positive condition*/
 				cCond  = (u1Byte)((v1 & (BIT29|BIT28)) >> 28);
 				if (cCond == COND_ENDIF) {/*end*/
-					bMatched = TRUE;
-					bSkipped = FALSE;
+					bMatched = true;
+					bSkipped = false;
 					ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("ENDIF\n"));
 				} else if (cCond == COND_ELSE) { /*else*/
-					bMatched = bSkipped?FALSE:TRUE;
+					bMatched = bSkipped?false:true;
 					ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("ELSE\n"));
 				}
 				else {/*if , else if*/
@@ -1011,16 +1011,16 @@ ODM_ReadAndConfig_MP_8188E_PHY_REG(
 					ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("IF or ELSE IF\n"));
 				}
 			} else if (v1 & BIT30) { /*negative condition*/
-				if (bSkipped == FALSE) {
+				if (bSkipped == false) {
 					if (CheckPositive(pDM_Odm, pre_v1, pre_v2, v1, v2)) {
-						bMatched = TRUE;
-						bSkipped = TRUE;
+						bMatched = true;
+						bSkipped = true;
 					} else {
-						bMatched = FALSE;
-						bSkipped = FALSE;
+						bMatched = false;
+						bSkipped = false;
 					}
 				} else
-					bMatched = FALSE;
+					bMatched = false;
 			}
 		} else {
 			if (bMatched)

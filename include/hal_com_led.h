@@ -181,10 +181,10 @@ typedef struct _LED_PCIE{
 	LED_PIN			LedPin;	// Identify how to implement this SW led.
 
 	LED_STATE		CurrLedState; // Current LED state.
-	BOOLEAN			bLedOn; // TRUE if LED is ON, FALSE if LED is OFF.
+	BOOLEAN			bLedOn; // true if LED is ON, false if LED is OFF.
 
-	BOOLEAN			bLedBlinkInProgress; // TRUE if it is blinking, FALSE o.w..
-	BOOLEAN			bLedWPSBlinkInProgress; // TRUE if it is blinking, FALSE o.w..
+	BOOLEAN			bLedBlinkInProgress; // true if it is blinking, false o.w..
+	BOOLEAN			bLedWPSBlinkInProgress; // true if it is blinking, false o.w..
 
 	BOOLEAN			bLedSlowBlinkInProgress;//added by vivi, for led new mode
 	u32				BlinkTimes; // Number of times to toggle led state for blinking.
@@ -246,11 +246,11 @@ typedef struct _LED_USB{
 	LED_PIN				LedPin;	// Identify how to implement this SW led.
 
 	LED_STATE			CurrLedState; // Current LED state.
-	BOOLEAN				bLedOn; // TRUE if LED is ON, FALSE if LED is OFF.
+	BOOLEAN				bLedOn; // true if LED is ON, false if LED is OFF.
 
 	BOOLEAN				bSWLedCtrl;
 
-	BOOLEAN				bLedBlinkInProgress; // TRUE if it is blinking, FALSE o.w..
+	BOOLEAN				bLedBlinkInProgress; // true if it is blinking, false o.w..
 	// ALPHA, added by chiyoko, 20090106
 	BOOLEAN				bLedNoLinkBlinkInProgress;
 	BOOLEAN				bLedLinkBlinkInProgress;
@@ -308,11 +308,11 @@ typedef struct _LED_SDIO{
 	LED_PIN				LedPin;	// Identify how to implement this SW led.
 
 	LED_STATE			CurrLedState; // Current LED state.
-	BOOLEAN				bLedOn; // TRUE if LED is ON, FALSE if LED is OFF.
+	BOOLEAN				bLedOn; // true if LED is ON, false if LED is OFF.
 
 	BOOLEAN				bSWLedCtrl;
 
-	BOOLEAN				bLedBlinkInProgress; // TRUE if it is blinking, FALSE o.w..
+	BOOLEAN				bLedBlinkInProgress; // true if it is blinking, false o.w..
 	// ALPHA, added by chiyoko, 20090106
 	BOOLEAN				bLedNoLinkBlinkInProgress;
 	BOOLEAN				bLedLinkBlinkInProgress;

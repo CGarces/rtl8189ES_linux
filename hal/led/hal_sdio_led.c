@@ -33,7 +33,7 @@ SwLedBlink(
 {
 	_adapter			*padapter = pLed->padapter;
 	struct mlme_priv	*pmlmepriv = &(padapter->mlmepriv);
-	u8				bStopBlinking = _FALSE;
+	u8				bStopBlinking = false;
 
 	// Change LED according to BlinkingLedState specified.
 	if( pLed->BlinkingLedState == RTW_LED_ON )
@@ -55,36 +55,36 @@ SwLedBlink(
 	case LED_BLINK_NORMAL:
 		if(pLed->BlinkTimes == 0)
 		{
-			bStopBlinking = _TRUE;
+			bStopBlinking = true;
 		}
 		break;
 
 	case LED_BLINK_StartToBlink:
 		if( check_fwstate(pmlmepriv, _FW_LINKED) && check_fwstate(pmlmepriv, WIFI_STATION_STATE) )
 		{
-			bStopBlinking = _TRUE;
+			bStopBlinking = true;
 		}
 		if( check_fwstate(pmlmepriv, _FW_LINKED) &&
 			(check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) || check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE)) )
 		{
-			bStopBlinking = _TRUE;
+			bStopBlinking = true;
 		}
 		else if(pLed->BlinkTimes == 0)
 		{
-			bStopBlinking = _TRUE;
+			bStopBlinking = true;
 		}
 		break;
 
 	case LED_BLINK_WPS:
 		if( pLed->BlinkTimes == 0 )
 		{
-			bStopBlinking = _TRUE;
+			bStopBlinking = true;
 		}
 		break;
 
 
 	default:
-		bStopBlinking = _TRUE;
+		bStopBlinking = true;
 		break;
 
 	}
@@ -95,17 +95,17 @@ SwLedBlink(
 		{
 			SwLedOff(padapter, pLed);
 		}
-		else if( (check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE) && (pLed->bLedOn == _FALSE))
+		else if( (check_fwstate(pmlmepriv, _FW_LINKED)== true) && (pLed->bLedOn == false))
 		{
 			SwLedOn(padapter, pLed);
 		}
-		else if( (check_fwstate(pmlmepriv, _FW_LINKED)== _FALSE) &&  pLed->bLedOn == _TRUE)
+		else if( (check_fwstate(pmlmepriv, _FW_LINKED)== false) &&  pLed->bLedOn == true)
 		{
 			SwLedOff(padapter, pLed);
 		}
 
 		pLed->BlinkTimes = 0;
-		pLed->bLedBlinkInProgress = _FALSE;
+		pLed->bLedBlinkInProgress = false;
 	}
 	else
 	{
@@ -153,7 +153,7 @@ SwLedBlink1(
 	struct led_priv		*ledpriv = &(padapter->ledpriv);
 	struct mlme_priv		*pmlmepriv = &(padapter->mlmepriv);
 	PLED_SDIO 			pLed1 = &(ledpriv->SwLed1);
-	u8					bStopBlinking = _FALSE;
+	u8					bStopBlinking = false;
 	
 	if(pHalData->CustomerID == RT_CID_819x_CAMEO)
 		pLed = &(ledpriv->SwLed1);
@@ -173,12 +173,12 @@ SwLedBlink1(
 
 	if(pHalData->CustomerID == RT_CID_DEFAULT)
 	{
-		if(check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE)
+		if(check_fwstate(pmlmepriv, _FW_LINKED)== true)
 		{
 			if(!pLed1->bSWLedCtrl)
 			{
 				SwLedOn(padapter, pLed1);
-				pLed1->bSWLedCtrl = _TRUE;
+				pLed1->bSWLedCtrl = true;
 			}
 			else if(!pLed1->bLedOn)
 				SwLedOn(padapter, pLed1);
@@ -189,7 +189,7 @@ SwLedBlink1(
 			if(!pLed1->bSWLedCtrl)
 			{
 				SwLedOff(padapter, pLed1);
-				pLed1->bSWLedCtrl = _TRUE;
+				pLed1->bSWLedCtrl = true;
 			}
 			else if(pLed1->bLedOn)
 				SwLedOff(padapter, pLed1);
@@ -219,7 +219,7 @@ SwLedBlink1(
 			pLed->BlinkTimes--;
 			if( pLed->BlinkTimes == 0 )
 			{
-				bStopBlinking = _TRUE;
+				bStopBlinking = true;
 			}
 
 			if(bStopBlinking)
@@ -228,9 +228,9 @@ SwLedBlink1(
 				{
 					SwLedOff(padapter, pLed);
 				}
-				else if(check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE)
+				else if(check_fwstate(pmlmepriv, _FW_LINKED)== true)
 				{
-					pLed->bLedLinkBlinkInProgress = _TRUE;
+					pLed->bLedLinkBlinkInProgress = true;
 					pLed->CurrLedState = LED_BLINK_NORMAL;
 					if( pLed->bLedOn )
 						pLed->BlinkingLedState = RTW_LED_OFF;
@@ -240,9 +240,9 @@ SwLedBlink1(
 					RT_TRACE(_module_rtl8712_led_c_,_drv_info_,("CurrLedState %d\n", pLed->CurrLedState));
 
 				}
-				else if(check_fwstate(pmlmepriv, _FW_LINKED)== _FALSE)
+				else if(check_fwstate(pmlmepriv, _FW_LINKED)== false)
 				{
-					pLed->bLedNoLinkBlinkInProgress = _TRUE;
+					pLed->bLedNoLinkBlinkInProgress = true;
 					pLed->CurrLedState = LED_BLINK_SLOWLY;
 					if( pLed->bLedOn )
 						pLed->BlinkingLedState = RTW_LED_OFF;
@@ -251,7 +251,7 @@ SwLedBlink1(
 					_set_timer(&(pLed->BlinkTimer), LED_BLINK_NO_LINK_INTERVAL_ALPHA);
 					RT_TRACE(_module_rtl8712_led_c_,_drv_info_,("CurrLedState %d\n", pLed->CurrLedState));
 				}
-				pLed->bLedScanBlinkInProgress = _FALSE;
+				pLed->bLedScanBlinkInProgress = false;
 			}
 			else
 			{
@@ -274,7 +274,7 @@ SwLedBlink1(
 			pLed->BlinkTimes--;
 			if( pLed->BlinkTimes == 0 )
 			{
-				bStopBlinking = _TRUE;
+				bStopBlinking = true;
 			}
 			if(bStopBlinking)
 			{
@@ -282,9 +282,9 @@ SwLedBlink1(
 				{
 					SwLedOff(padapter, pLed);
 				}
-				else if(check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE)
+				else if(check_fwstate(pmlmepriv, _FW_LINKED)== true)
 				{
-					pLed->bLedLinkBlinkInProgress = _TRUE;
+					pLed->bLedLinkBlinkInProgress = true;
 					pLed->CurrLedState = LED_BLINK_NORMAL;
 					if( pLed->bLedOn )
 						pLed->BlinkingLedState = RTW_LED_OFF;
@@ -293,9 +293,9 @@ SwLedBlink1(
 					_set_timer(&(pLed->BlinkTimer), LED_BLINK_LINK_INTERVAL_ALPHA);
 					RT_TRACE(_module_rtl8712_led_c_,_drv_info_,("CurrLedState %d\n", pLed->CurrLedState));
 				}
-				else if(check_fwstate(pmlmepriv, _FW_LINKED)== _FALSE)
+				else if(check_fwstate(pmlmepriv, _FW_LINKED)== false)
 				{
-					pLed->bLedNoLinkBlinkInProgress = _TRUE;
+					pLed->bLedNoLinkBlinkInProgress = true;
 					pLed->CurrLedState = LED_BLINK_SLOWLY;
 					if( pLed->bLedOn )
 						pLed->BlinkingLedState = RTW_LED_OFF;
@@ -305,7 +305,7 @@ SwLedBlink1(
 					RT_TRACE(_module_rtl8712_led_c_,_drv_info_,("CurrLedState %d\n", pLed->CurrLedState));
 				}
 				pLed->BlinkTimes = 0;
-				pLed->bLedBlinkInProgress = _FALSE;
+				pLed->bLedBlinkInProgress = false;
 			}
 			else
 			{
@@ -337,11 +337,11 @@ SwLedBlink1(
 			{
 				pLed->BlinkingLedState = RTW_LED_OFF;
 				_set_timer(&(pLed->BlinkTimer), LED_BLINK_WPS_SUCESS_INTERVAL_ALPHA);
-				bStopBlinking = _FALSE;
+				bStopBlinking = false;
 			}
 			else
 			{
-				bStopBlinking = _TRUE;
+				bStopBlinking = true;
 			}
 
 			if(bStopBlinking)
@@ -352,7 +352,7 @@ SwLedBlink1(
 				}
 				else
 				{
-					pLed->bLedLinkBlinkInProgress = _TRUE;
+					pLed->bLedLinkBlinkInProgress = true;
 					pLed->CurrLedState = LED_BLINK_NORMAL;
 					if( pLed->bLedOn )
 						pLed->BlinkingLedState = RTW_LED_OFF;
@@ -361,7 +361,7 @@ SwLedBlink1(
 					_set_timer(&(pLed->BlinkTimer), LED_BLINK_LINK_INTERVAL_ALPHA);
 					RT_TRACE(_module_rtl8712_led_c_,_drv_info_,("CurrLedState %d\n", pLed->CurrLedState));
 				}
-				pLed->bLedWPSBlinkInProgress = _FALSE;
+				pLed->bLedWPSBlinkInProgress = false;
 			}
 			break;
 
@@ -378,7 +378,7 @@ SwLedBlink2(
 {
 	_adapter				*padapter = pLed->padapter;
 	struct mlme_priv		*pmlmepriv = &(padapter->mlmepriv);
-	u8					bStopBlinking = _FALSE;
+	u8					bStopBlinking = false;
 
 	// Change LED according to BlinkingLedState specified.
 	if( pLed->BlinkingLedState == RTW_LED_ON)
@@ -398,7 +398,7 @@ SwLedBlink2(
 			pLed->BlinkTimes--;
 			if( pLed->BlinkTimes == 0 )
 			{
-				bStopBlinking = _TRUE;
+				bStopBlinking = true;
 			}
 
 			if(bStopBlinking)
@@ -407,7 +407,7 @@ SwLedBlink2(
 				{
 					SwLedOff(padapter, pLed);
 				}
-				else if(check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE)
+				else if(check_fwstate(pmlmepriv, _FW_LINKED)== true)
 				{
 					pLed->CurrLedState = RTW_LED_ON;
 					pLed->BlinkingLedState = RTW_LED_ON;
@@ -415,14 +415,14 @@ SwLedBlink2(
 					RT_TRACE(_module_rtl8712_led_c_,_drv_info_,("stop scan blink CurrLedState %d\n", pLed->CurrLedState));
 
 				}
-				else if(check_fwstate(pmlmepriv, _FW_LINKED)== _FALSE)
+				else if(check_fwstate(pmlmepriv, _FW_LINKED)== false)
 				{
 					pLed->CurrLedState = RTW_LED_OFF;
 					pLed->BlinkingLedState = RTW_LED_OFF;
 					SwLedOff(padapter, pLed);
 					RT_TRACE(_module_rtl8712_led_c_,_drv_info_,("stop scan blink CurrLedState %d\n", pLed->CurrLedState));
 				}
-				pLed->bLedScanBlinkInProgress = _FALSE;
+				pLed->bLedScanBlinkInProgress = false;
 			}
 			else
 			{
@@ -445,7 +445,7 @@ SwLedBlink2(
 			pLed->BlinkTimes--;
 			if( pLed->BlinkTimes == 0 )
 			{
-				bStopBlinking = _TRUE;
+				bStopBlinking = true;
 			}
 			if(bStopBlinking)
 			{
@@ -453,7 +453,7 @@ SwLedBlink2(
 				{
 					SwLedOff(padapter, pLed);
 				}
-				else if(check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE)
+				else if(check_fwstate(pmlmepriv, _FW_LINKED)== true)
 				{
 					pLed->CurrLedState = RTW_LED_ON;
 					pLed->BlinkingLedState = RTW_LED_ON;
@@ -461,14 +461,14 @@ SwLedBlink2(
 					RT_TRACE(_module_rtl8712_led_c_,_drv_info_,("stop CurrLedState %d\n", pLed->CurrLedState));
 
 				}
-				else if(check_fwstate(pmlmepriv, _FW_LINKED)== _FALSE)
+				else if(check_fwstate(pmlmepriv, _FW_LINKED)== false)
 				{
 					pLed->CurrLedState = RTW_LED_OFF;
 					pLed->BlinkingLedState = RTW_LED_OFF;
 					SwLedOff(padapter, pLed);
 					RT_TRACE(_module_rtl8712_led_c_,_drv_info_,("stop CurrLedState %d\n", pLed->CurrLedState));
 				}
-				pLed->bLedBlinkInProgress = _FALSE;
+				pLed->bLedBlinkInProgress = false;
 			}
 			else
 			{
@@ -500,7 +500,7 @@ SwLedBlink3(
 {
 	_adapter			*padapter = pLed->padapter;
 	struct mlme_priv	*pmlmepriv = &(padapter->mlmepriv);
-	u8				bStopBlinking = _FALSE;
+	u8				bStopBlinking = false;
 
 	// Change LED according to BlinkingLedState specified.
 	if( pLed->BlinkingLedState == RTW_LED_ON )
@@ -521,7 +521,7 @@ SwLedBlink3(
 			pLed->BlinkTimes--;
 			if( pLed->BlinkTimes == 0 )
 			{
-				bStopBlinking = _TRUE;
+				bStopBlinking = true;
 			}
 
 			if(bStopBlinking)
@@ -530,7 +530,7 @@ SwLedBlink3(
 				{
 					SwLedOff(padapter, pLed);
 				}
-				else if(check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE)
+				else if(check_fwstate(pmlmepriv, _FW_LINKED)== true)
 				{
 					pLed->CurrLedState = RTW_LED_ON;
 					pLed->BlinkingLedState = RTW_LED_ON;
@@ -539,7 +539,7 @@ SwLedBlink3(
 
 					RT_TRACE(_module_rtl8712_led_c_,_drv_info_,("CurrLedState %d\n", pLed->CurrLedState));
 				}
-				else if(check_fwstate(pmlmepriv, _FW_LINKED)== _FALSE)
+				else if(check_fwstate(pmlmepriv, _FW_LINKED)== false)
 				{
 					pLed->CurrLedState = RTW_LED_OFF;
 					pLed->BlinkingLedState = RTW_LED_OFF;
@@ -548,7 +548,7 @@ SwLedBlink3(
 
 					RT_TRACE(_module_rtl8712_led_c_,_drv_info_,("CurrLedState %d\n", pLed->CurrLedState));
 				}
-				pLed->bLedScanBlinkInProgress = _FALSE;
+				pLed->bLedScanBlinkInProgress = false;
 			}
 			else
 			{
@@ -571,7 +571,7 @@ SwLedBlink3(
 			pLed->BlinkTimes--;
 			if( pLed->BlinkTimes == 0 )
 			{
-				bStopBlinking = _TRUE;
+				bStopBlinking = true;
 			}
 			if(bStopBlinking)
 			{
@@ -579,7 +579,7 @@ SwLedBlink3(
 				{
 					SwLedOff(padapter, pLed);
 				}
-				else if(check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE)
+				else if(check_fwstate(pmlmepriv, _FW_LINKED)== true)
 				{
 					pLed->CurrLedState = RTW_LED_ON;
 					pLed->BlinkingLedState = RTW_LED_ON;
@@ -589,7 +589,7 @@ SwLedBlink3(
 
 					RT_TRACE(_module_rtl8712_led_c_,_drv_info_,("CurrLedState %d\n", pLed->CurrLedState));
 				}
-				else if(check_fwstate(pmlmepriv, _FW_LINKED)== _FALSE)
+				else if(check_fwstate(pmlmepriv, _FW_LINKED)== false)
 				{
 					pLed->CurrLedState = RTW_LED_OFF;
 					pLed->BlinkingLedState = RTW_LED_OFF;
@@ -600,7 +600,7 @@ SwLedBlink3(
 
 					RT_TRACE(_module_rtl8712_led_c_,_drv_info_,("CurrLedState %d\n", pLed->CurrLedState));
 				}
-				pLed->bLedBlinkInProgress = _FALSE;
+				pLed->bLedBlinkInProgress = false;
 			}
 			else
 			{
@@ -632,11 +632,11 @@ SwLedBlink3(
 			{
 				pLed->BlinkingLedState = RTW_LED_OFF;
 				_set_timer(&(pLed->BlinkTimer), LED_BLINK_WPS_SUCESS_INTERVAL_ALPHA);
-				bStopBlinking = _FALSE;
+				bStopBlinking = false;
 			}
 			else
 			{
-				bStopBlinking = _TRUE;
+				bStopBlinking = true;
 			}
 
 			if(bStopBlinking)
@@ -652,7 +652,7 @@ SwLedBlink3(
 					SwLedOn(padapter, pLed);
 					RT_TRACE(_module_rtl8712_led_c_,_drv_info_,("CurrLedState %d\n", pLed->CurrLedState));
 				}
-				pLed->bLedWPSBlinkInProgress = _FALSE;
+				pLed->bLedWPSBlinkInProgress = false;
 			}
 			break;
 
@@ -673,7 +673,7 @@ SwLedBlink4(
 	struct led_priv	*ledpriv = &(padapter->ledpriv);
 	struct mlme_priv	*pmlmepriv = &(padapter->mlmepriv);
 	PLED_SDIO 		pLed1 = &(ledpriv->SwLed1);
-	u8				bStopBlinking = _FALSE;
+	u8				bStopBlinking = false;
 
 	// Change LED according to BlinkingLedState specified.
 	if( pLed->BlinkingLedState == RTW_LED_ON )
@@ -721,7 +721,7 @@ SwLedBlink4(
 			pLed->BlinkTimes--;
 			if( pLed->BlinkTimes == 0 )
 			{
-				bStopBlinking = _FALSE;
+				bStopBlinking = false;
 			}
 
 			if(bStopBlinking)
@@ -732,7 +732,7 @@ SwLedBlink4(
 				}
 				else
 				{
-					pLed->bLedNoLinkBlinkInProgress = _FALSE;
+					pLed->bLedNoLinkBlinkInProgress = false;
 					pLed->CurrLedState = LED_BLINK_SLOWLY;
 					if( pLed->bLedOn )
 						pLed->BlinkingLedState = RTW_LED_OFF;
@@ -740,7 +740,7 @@ SwLedBlink4(
 						pLed->BlinkingLedState = RTW_LED_ON;
 					_set_timer(&(pLed->BlinkTimer), LED_BLINK_NO_LINK_INTERVAL_ALPHA);
 				}
-				pLed->bLedScanBlinkInProgress = _FALSE;
+				pLed->bLedScanBlinkInProgress = false;
 			}
 			else
 			{
@@ -763,7 +763,7 @@ SwLedBlink4(
 			pLed->BlinkTimes--;
 			if( pLed->BlinkTimes == 0 )
 			{
-				bStopBlinking = _TRUE;
+				bStopBlinking = true;
 			}
 			if(bStopBlinking)
 			{
@@ -773,7 +773,7 @@ SwLedBlink4(
 				}
 				else
 				{
-					pLed->bLedNoLinkBlinkInProgress = _TRUE;
+					pLed->bLedNoLinkBlinkInProgress = true;
 					pLed->CurrLedState = LED_BLINK_SLOWLY;
 					if( pLed->bLedOn )
 						pLed->BlinkingLedState = RTW_LED_OFF;
@@ -781,7 +781,7 @@ SwLedBlink4(
 						pLed->BlinkingLedState = RTW_LED_ON;
 					_set_timer(&(pLed->BlinkTimer), LED_BLINK_NO_LINK_INTERVAL_ALPHA);
 				}
-				pLed->bLedBlinkInProgress = _FALSE;
+				pLed->bLedBlinkInProgress = false;
 			}
 			else
 			{
@@ -832,7 +832,7 @@ SwLedBlink4(
 				}
 				else
 				{
-					bStopBlinking = _TRUE;
+					bStopBlinking = true;
 				}
 			}
 
@@ -869,7 +869,7 @@ SwLedBlink5(
 {
 	_adapter			*padapter = pLed->padapter;
 	struct mlme_priv	*pmlmepriv = &(padapter->mlmepriv);
-	u8				bStopBlinking = _FALSE;
+	u8				bStopBlinking = false;
 
 	// Change LED according to BlinkingLedState specified.
 	if( pLed->BlinkingLedState == RTW_LED_ON )
@@ -889,7 +889,7 @@ SwLedBlink5(
 			pLed->BlinkTimes--;
 			if( pLed->BlinkTimes == 0 )
 			{
-				bStopBlinking = _TRUE;
+				bStopBlinking = true;
 			}
 
 			if(bStopBlinking)
@@ -908,7 +908,7 @@ SwLedBlink5(
 							_set_timer(&(pLed->BlinkTimer), LED_BLINK_FASTER_INTERVAL_ALPHA);
 				}
 
-				pLed->bLedScanBlinkInProgress = _FALSE;
+				pLed->bLedScanBlinkInProgress = false;
 			}
 			else
 			{
@@ -932,7 +932,7 @@ SwLedBlink5(
 			pLed->BlinkTimes--;
 			if( pLed->BlinkTimes == 0 )
 			{
-				bStopBlinking = _TRUE;
+				bStopBlinking = true;
 			}
 
 			if(bStopBlinking)
@@ -952,7 +952,7 @@ SwLedBlink5(
 						_set_timer(&(pLed->BlinkTimer), LED_BLINK_FASTER_INTERVAL_ALPHA);
 				}
 
-				pLed->bLedBlinkInProgress = _FALSE;
+				pLed->bLedBlinkInProgress = false;
 			}
 			else
 			{
@@ -987,7 +987,7 @@ SwLedBlink6(
 {
 	_adapter			*padapter = pLed->padapter;
 	struct mlme_priv	*pmlmepriv = &(padapter->mlmepriv);
-	u8				bStopBlinking = _FALSE;
+	u8				bStopBlinking = false;
 
 	// Change LED according to BlinkingLedState specified.
 	if( pLed->BlinkingLedState == RTW_LED_ON )
@@ -1113,9 +1113,9 @@ SwLedControlMode0(
 	{
 	case LED_CTL_TX:
 	case LED_CTL_RX:
-		if( pLed->bLedBlinkInProgress == _FALSE )
+		if( pLed->bLedBlinkInProgress == false )
 		{
-			pLed->bLedBlinkInProgress = _TRUE;
+			pLed->bLedBlinkInProgress = true;
 
 			pLed->CurrLedState = LED_BLINK_NORMAL;
 			pLed->BlinkTimes = 2;
@@ -1129,9 +1129,9 @@ SwLedControlMode0(
 		break;
 
 	case LED_CTL_START_TO_LINK:
-		if( pLed->bLedBlinkInProgress == _FALSE )
+		if( pLed->bLedBlinkInProgress == false )
 		{
-			pLed->bLedBlinkInProgress = _TRUE;
+			pLed->bLedBlinkInProgress = true;
 
 			pLed->CurrLedState = LED_BLINK_StartToBlink;
 			pLed->BlinkTimes = 24;
@@ -1150,7 +1150,7 @@ SwLedControlMode0(
 
 	case LED_CTL_LINK:
 		pLed->CurrLedState = RTW_LED_ON;
-		if( pLed->bLedBlinkInProgress == _FALSE )
+		if( pLed->bLedBlinkInProgress == false )
 		{
 			pLed->BlinkingLedState = RTW_LED_ON;
 			_set_timer(&(pLed->BlinkTimer), 0);
@@ -1159,7 +1159,7 @@ SwLedControlMode0(
 
 	case LED_CTL_NO_LINK:
 		pLed->CurrLedState = RTW_LED_OFF;
-		if( pLed->bLedBlinkInProgress == _FALSE )
+		if( pLed->bLedBlinkInProgress == false )
 		{
 			pLed->BlinkingLedState = RTW_LED_OFF;
 			_set_timer(&(pLed->BlinkTimer), 0);
@@ -1171,15 +1171,15 @@ SwLedControlMode0(
 		if(pLed->bLedBlinkInProgress)
 		{
 			_cancel_timer_ex(&(pLed->BlinkTimer));
-			pLed->bLedBlinkInProgress = _FALSE;
+			pLed->bLedBlinkInProgress = false;
 		}
 		SwLedOff(padapter, pLed);
 		break;
 
 	case LED_CTL_START_WPS:
-		if( pLed->bLedBlinkInProgress == _FALSE || pLed->CurrLedState == RTW_LED_ON)
+		if( pLed->bLedBlinkInProgress == false || pLed->CurrLedState == RTW_LED_ON)
 		{
-			pLed->bLedBlinkInProgress = _TRUE;
+			pLed->bLedBlinkInProgress = true;
 
 			pLed->CurrLedState = LED_BLINK_WPS;
 			pLed->BlinkTimes = 20;
@@ -1202,7 +1202,7 @@ SwLedControlMode0(
 		{
 			pLed->CurrLedState = RTW_LED_OFF;
 			_cancel_timer_ex(&(pLed->BlinkTimer));
-			pLed->bLedBlinkInProgress = _FALSE;
+			pLed->bLedBlinkInProgress = false;
 		}
 		break;
 
@@ -1235,24 +1235,24 @@ SwLedControlMode1(
 		case LED_CTL_POWER_ON:
 		case LED_CTL_START_TO_LINK:
 		case LED_CTL_NO_LINK:
-			if( pLed->bLedNoLinkBlinkInProgress == _FALSE )
+			if( pLed->bLedNoLinkBlinkInProgress == false )
 			{
 				if(pLed->CurrLedState == LED_BLINK_SCAN || IS_LED_WPS_BLINKING(pLed))
 				{
 					return;
 				}
-				if( pLed->bLedLinkBlinkInProgress == _TRUE )
+				if( pLed->bLedLinkBlinkInProgress == true )
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedLinkBlinkInProgress = _FALSE;
+					pLed->bLedLinkBlinkInProgress = false;
 				}
-	 			if(pLed->bLedBlinkInProgress ==_TRUE)
+	 			if(pLed->bLedBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedBlinkInProgress = _FALSE;
+					pLed->bLedBlinkInProgress = false;
 	 			}
 
-				pLed->bLedNoLinkBlinkInProgress = _TRUE;
+				pLed->bLedNoLinkBlinkInProgress = true;
 				pLed->CurrLedState = LED_BLINK_SLOWLY;
 				if( pLed->bLedOn )
 					pLed->BlinkingLedState = RTW_LED_OFF;
@@ -1263,23 +1263,23 @@ SwLedControlMode1(
 			break;
 
 		case LED_CTL_LINK:
-			if( pLed->bLedLinkBlinkInProgress == _FALSE )
+			if( pLed->bLedLinkBlinkInProgress == false )
 			{
 				if(pLed->CurrLedState == LED_BLINK_SCAN || IS_LED_WPS_BLINKING(pLed))
 				{
 					return;
 				}
-				if(pLed->bLedNoLinkBlinkInProgress == _TRUE)
+				if(pLed->bLedNoLinkBlinkInProgress == true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedNoLinkBlinkInProgress = _FALSE;
+					pLed->bLedNoLinkBlinkInProgress = false;
 				}
-				if(pLed->bLedBlinkInProgress ==_TRUE)
+				if(pLed->bLedBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedBlinkInProgress = _FALSE;
+					pLed->bLedBlinkInProgress = false;
 	 			}
-				pLed->bLedLinkBlinkInProgress = _TRUE;
+				pLed->bLedLinkBlinkInProgress = true;
 				pLed->CurrLedState = LED_BLINK_NORMAL;
 				if( pLed->bLedOn )
 					pLed->BlinkingLedState = RTW_LED_OFF;
@@ -1290,29 +1290,29 @@ SwLedControlMode1(
 			break;
 
 		case LED_CTL_SITE_SURVEY:
-			 if((pmlmepriv->LinkDetectInfo.bBusyTraffic) && (check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE))
+			 if((pmlmepriv->LinkDetectInfo.bBusyTraffic) && (check_fwstate(pmlmepriv, _FW_LINKED)== true))
 			 	;
-			 else if(pLed->bLedScanBlinkInProgress ==_FALSE)
+			 else if(pLed->bLedScanBlinkInProgress ==false)
 			 {
 			 	if(IS_LED_WPS_BLINKING(pLed))
 					return;
 
-	  			if(pLed->bLedNoLinkBlinkInProgress == _TRUE)
+	  			if(pLed->bLedNoLinkBlinkInProgress == true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedNoLinkBlinkInProgress = _FALSE;
+					pLed->bLedNoLinkBlinkInProgress = false;
 				}
-				if( pLed->bLedLinkBlinkInProgress == _TRUE )
+				if( pLed->bLedLinkBlinkInProgress == true )
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					 pLed->bLedLinkBlinkInProgress = _FALSE;
+					 pLed->bLedLinkBlinkInProgress = false;
 				}
-	 			if(pLed->bLedBlinkInProgress ==_TRUE)
+	 			if(pLed->bLedBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedBlinkInProgress = _FALSE;
+					pLed->bLedBlinkInProgress = false;
 				}
-				pLed->bLedScanBlinkInProgress = _TRUE;
+				pLed->bLedScanBlinkInProgress = true;
 				pLed->CurrLedState = LED_BLINK_SCAN;
 				pLed->BlinkTimes = 24;
 				if( pLed->bLedOn )
@@ -1326,23 +1326,23 @@ SwLedControlMode1(
 
 		case LED_CTL_TX:
 		case LED_CTL_RX:
-			if(pLed->bLedBlinkInProgress ==_FALSE)
+			if(pLed->bLedBlinkInProgress ==false)
 			{
 				if(pLed->CurrLedState == LED_BLINK_SCAN || IS_LED_WPS_BLINKING(pLed))
 				{
 					return;
 				}
-				if(pLed->bLedNoLinkBlinkInProgress == _TRUE)
+				if(pLed->bLedNoLinkBlinkInProgress == true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedNoLinkBlinkInProgress = _FALSE;
+					pLed->bLedNoLinkBlinkInProgress = false;
 				}
-				if( pLed->bLedLinkBlinkInProgress == _TRUE )
+				if( pLed->bLedLinkBlinkInProgress == true )
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedLinkBlinkInProgress = _FALSE;
+					pLed->bLedLinkBlinkInProgress = false;
 				}
-				pLed->bLedBlinkInProgress = _TRUE;
+				pLed->bLedBlinkInProgress = true;
 				pLed->CurrLedState = LED_BLINK_TXRX;
 				pLed->BlinkTimes = 2;
 				if( pLed->bLedOn )
@@ -1355,29 +1355,29 @@ SwLedControlMode1(
 
 		case LED_CTL_START_WPS: //wait until xinpin finish
 		case LED_CTL_START_WPS_BOTTON:
-			 if(pLed->bLedWPSBlinkInProgress ==_FALSE)
+			 if(pLed->bLedWPSBlinkInProgress ==false)
 			 {
-				if(pLed->bLedNoLinkBlinkInProgress == _TRUE)
+				if(pLed->bLedNoLinkBlinkInProgress == true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedNoLinkBlinkInProgress = _FALSE;
+					pLed->bLedNoLinkBlinkInProgress = false;
 				}
-				if( pLed->bLedLinkBlinkInProgress == _TRUE )
+				if( pLed->bLedLinkBlinkInProgress == true )
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					 pLed->bLedLinkBlinkInProgress = _FALSE;
+					 pLed->bLedLinkBlinkInProgress = false;
 				}
-				if(pLed->bLedBlinkInProgress ==_TRUE)
+				if(pLed->bLedBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedBlinkInProgress = _FALSE;
+					pLed->bLedBlinkInProgress = false;
 				}
-				if(pLed->bLedScanBlinkInProgress ==_TRUE)
+				if(pLed->bLedScanBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedScanBlinkInProgress = _FALSE;
+					pLed->bLedScanBlinkInProgress = false;
 				}
-				pLed->bLedWPSBlinkInProgress = _TRUE;
+				pLed->bLedWPSBlinkInProgress = true;
 				pLed->CurrLedState = LED_BLINK_WPS;
 				if( pLed->bLedOn )
 					pLed->BlinkingLedState = RTW_LED_OFF;
@@ -1389,25 +1389,25 @@ SwLedControlMode1(
 
 
 		case LED_CTL_STOP_WPS:
-			if(pLed->bLedNoLinkBlinkInProgress == _TRUE)
+			if(pLed->bLedNoLinkBlinkInProgress == true)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedNoLinkBlinkInProgress = _FALSE;
+				pLed->bLedNoLinkBlinkInProgress = false;
 			}
-			if( pLed->bLedLinkBlinkInProgress == _TRUE )
+			if( pLed->bLedLinkBlinkInProgress == true )
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				 pLed->bLedLinkBlinkInProgress = _FALSE;
+				 pLed->bLedLinkBlinkInProgress = false;
 			}
-			if(pLed->bLedBlinkInProgress ==_TRUE)
+			if(pLed->bLedBlinkInProgress ==true)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedBlinkInProgress = _FALSE;
+				pLed->bLedBlinkInProgress = false;
 			}
-			if(pLed->bLedScanBlinkInProgress ==_TRUE)
+			if(pLed->bLedScanBlinkInProgress ==true)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedScanBlinkInProgress = _FALSE;
+				pLed->bLedScanBlinkInProgress = false;
 			}
 			if(pLed->bLedWPSBlinkInProgress)
 			{
@@ -1415,7 +1415,7 @@ SwLedControlMode1(
 			}
 			else
 			{
-				pLed->bLedWPSBlinkInProgress = _TRUE;
+				pLed->bLedWPSBlinkInProgress = true;
 			}
 
 			pLed->CurrLedState = LED_BLINK_WPS_STOP;
@@ -1435,10 +1435,10 @@ SwLedControlMode1(
 			if(pLed->bLedWPSBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedWPSBlinkInProgress = _FALSE;
+				pLed->bLedWPSBlinkInProgress = false;
 			}
 
-			pLed->bLedNoLinkBlinkInProgress = _TRUE;
+			pLed->bLedNoLinkBlinkInProgress = true;
 			pLed->CurrLedState = LED_BLINK_SLOWLY;
 			if( pLed->bLedOn )
 				pLed->BlinkingLedState = RTW_LED_OFF;
@@ -1453,27 +1453,27 @@ SwLedControlMode1(
 			if( pLed->bLedNoLinkBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedNoLinkBlinkInProgress = _FALSE;
+				pLed->bLedNoLinkBlinkInProgress = false;
 			}
 			if( pLed->bLedLinkBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedLinkBlinkInProgress = _FALSE;
+				pLed->bLedLinkBlinkInProgress = false;
 			}
 			if( pLed->bLedBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedBlinkInProgress = _FALSE;
+				pLed->bLedBlinkInProgress = false;
 			}
 			if( pLed->bLedWPSBlinkInProgress )
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedWPSBlinkInProgress = _FALSE;
+				pLed->bLedWPSBlinkInProgress = false;
 			}
 			if( pLed->bLedScanBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedScanBlinkInProgress = _FALSE;
+				pLed->bLedScanBlinkInProgress = false;
 			}
 
 			SwLedOff(padapter, pLed);
@@ -1503,17 +1503,17 @@ SwLedControlMode2(
 		case LED_CTL_SITE_SURVEY:
 			 if(pmlmepriv->LinkDetectInfo.bBusyTraffic)
 			 	;
-			 else if(pLed->bLedScanBlinkInProgress ==_FALSE)
+			 else if(pLed->bLedScanBlinkInProgress ==false)
 			 {
 			 	if(IS_LED_WPS_BLINKING(pLed))
 					return;
 
-	 			if(pLed->bLedBlinkInProgress ==_TRUE)
+	 			if(pLed->bLedBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedBlinkInProgress = _FALSE;
+					pLed->bLedBlinkInProgress = false;
 				}
-				pLed->bLedScanBlinkInProgress = _TRUE;
+				pLed->bLedScanBlinkInProgress = true;
 				pLed->CurrLedState = LED_BLINK_SCAN;
 				pLed->BlinkTimes = 24;
 				if( pLed->bLedOn )
@@ -1526,14 +1526,14 @@ SwLedControlMode2(
 
 		case LED_CTL_TX:
 		case LED_CTL_RX:
-	 		if((pLed->bLedBlinkInProgress ==_FALSE) && (check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE))
+	 		if((pLed->bLedBlinkInProgress ==false) && (check_fwstate(pmlmepriv, _FW_LINKED)== true))
 	  		{
 	  		  	if(pLed->CurrLedState == LED_BLINK_SCAN || IS_LED_WPS_BLINKING(pLed))
 				{
 					return;
 				}
 
-				pLed->bLedBlinkInProgress = _TRUE;
+				pLed->bLedBlinkInProgress = true;
 				pLed->CurrLedState = LED_BLINK_TXRX;
 				pLed->BlinkTimes = 2;
 				if( pLed->bLedOn )
@@ -1550,12 +1550,12 @@ SwLedControlMode2(
 			if( pLed->bLedBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedBlinkInProgress = _FALSE;
+				pLed->bLedBlinkInProgress = false;
 			}
 			if( pLed->bLedScanBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedScanBlinkInProgress = _FALSE;
+				pLed->bLedScanBlinkInProgress = false;
 			}
 
 			_set_timer(&(pLed->BlinkTimer), 0);
@@ -1563,19 +1563,19 @@ SwLedControlMode2(
 
 		case LED_CTL_START_WPS: //wait until xinpin finish
 		case LED_CTL_START_WPS_BOTTON:
-			if(pLed->bLedWPSBlinkInProgress ==_FALSE)
+			if(pLed->bLedWPSBlinkInProgress ==false)
 			{
-				if(pLed->bLedBlinkInProgress ==_TRUE)
+				if(pLed->bLedBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedBlinkInProgress = _FALSE;
+					pLed->bLedBlinkInProgress = false;
 				}
-				if(pLed->bLedScanBlinkInProgress ==_TRUE)
+				if(pLed->bLedScanBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedScanBlinkInProgress = _FALSE;
+					pLed->bLedScanBlinkInProgress = false;
 				}
-				pLed->bLedWPSBlinkInProgress = _TRUE;
+				pLed->bLedWPSBlinkInProgress = true;
 				pLed->CurrLedState = RTW_LED_ON;
 				pLed->BlinkingLedState = RTW_LED_ON;
 				_set_timer(&(pLed->BlinkTimer), 0);
@@ -1583,7 +1583,7 @@ SwLedControlMode2(
 			break;
 
 		case LED_CTL_STOP_WPS:
-			pLed->bLedWPSBlinkInProgress = _FALSE;
+			pLed->bLedWPSBlinkInProgress = false;
 			if(adapter_to_pwrctl(padapter)->rf_pwrstate != rf_on)
 			{
 				pLed->CurrLedState = RTW_LED_OFF;
@@ -1600,7 +1600,7 @@ SwLedControlMode2(
 			break;
 
 		case LED_CTL_STOP_WPS_FAIL:
-			pLed->bLedWPSBlinkInProgress = _FALSE;
+			pLed->bLedWPSBlinkInProgress = false;
 			pLed->CurrLedState = RTW_LED_OFF;
 			pLed->BlinkingLedState = RTW_LED_OFF;
 			_set_timer(&(pLed->BlinkTimer), 0);
@@ -1623,17 +1623,17 @@ SwLedControlMode2(
 			if( pLed->bLedBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedBlinkInProgress = _FALSE;
+				pLed->bLedBlinkInProgress = false;
 			}
 			if( pLed->bLedScanBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedScanBlinkInProgress = _FALSE;
+				pLed->bLedScanBlinkInProgress = false;
 			}
 			if( pLed->bLedWPSBlinkInProgress )
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedWPSBlinkInProgress = _FALSE;
+				pLed->bLedWPSBlinkInProgress = false;
 			}
 
 			SwLedOff(padapter, pLed);
@@ -1663,17 +1663,17 @@ SwLedControlMode2(
 		case LED_CTL_SITE_SURVEY:
 			if(pmlmepriv->LinkDetectInfo.bBusyTraffic)
 				;
-			else if(pLed->bLedScanBlinkInProgress ==_FALSE)
+			else if(pLed->bLedScanBlinkInProgress ==false)
 			{
 				if(IS_LED_WPS_BLINKING(pLed))
 					return;
 
-				if(pLed->bLedBlinkInProgress ==_TRUE)
+				if(pLed->bLedBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedBlinkInProgress = _FALSE;
+					pLed->bLedBlinkInProgress = false;
 				}
-				pLed->bLedScanBlinkInProgress = _TRUE;
+				pLed->bLedScanBlinkInProgress = true;
 				pLed->CurrLedState = LED_BLINK_SCAN;
 				pLed->BlinkTimes = 24;
 				if( pLed->bLedOn )
@@ -1686,14 +1686,14 @@ SwLedControlMode2(
 
 		case LED_CTL_TX:
 		case LED_CTL_RX:
-	 		if((pLed->bLedBlinkInProgress ==_FALSE) && (check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE))
+	 		if((pLed->bLedBlinkInProgress ==false) && (check_fwstate(pmlmepriv, _FW_LINKED)== true))
 	  		{
 	  		  	if(pLed->CurrLedState == LED_BLINK_SCAN || IS_LED_WPS_BLINKING(pLed))
 				{
 					return;
 				}
 
-				pLed->bLedBlinkInProgress = _TRUE;
+				pLed->bLedBlinkInProgress = true;
 				pLed->CurrLedState = LED_BLINK_TXRX;
 				pLed->BlinkTimes = 2;
 				if( pLed->bLedOn )
@@ -1713,12 +1713,12 @@ SwLedControlMode2(
 			if( pLed->bLedBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedBlinkInProgress = _FALSE;
+				pLed->bLedBlinkInProgress = false;
 			}
 			if( pLed->bLedScanBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedScanBlinkInProgress = _FALSE;
+				pLed->bLedScanBlinkInProgress = false;
 			}
 
 			_set_timer(&(pLed->BlinkTimer), 0);
@@ -1726,19 +1726,19 @@ SwLedControlMode2(
 
 		case LED_CTL_START_WPS: //wait until xinpin finish
 		case LED_CTL_START_WPS_BOTTON:
-			if(pLed->bLedWPSBlinkInProgress ==_FALSE)
+			if(pLed->bLedWPSBlinkInProgress ==false)
 			{
-				if(pLed->bLedBlinkInProgress ==_TRUE)
+				if(pLed->bLedBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedBlinkInProgress = _FALSE;
+					pLed->bLedBlinkInProgress = false;
 				}
-				if(pLed->bLedScanBlinkInProgress ==_TRUE)
+				if(pLed->bLedScanBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedScanBlinkInProgress = _FALSE;
+					pLed->bLedScanBlinkInProgress = false;
 				}
-				pLed->bLedWPSBlinkInProgress = _TRUE;
+				pLed->bLedWPSBlinkInProgress = true;
 				pLed->CurrLedState = LED_BLINK_WPS;
 				if( pLed->bLedOn )
 					pLed->BlinkingLedState = RTW_LED_OFF;
@@ -1752,11 +1752,11 @@ SwLedControlMode2(
 			if(pLed->bLedWPSBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedWPSBlinkInProgress = _FALSE;
+				pLed->bLedWPSBlinkInProgress = false;
 			}
 			else
 			{
-				pLed->bLedWPSBlinkInProgress = _TRUE;
+				pLed->bLedWPSBlinkInProgress = true;
 			}
 
 			pLed->CurrLedState = LED_BLINK_WPS_STOP;
@@ -1777,7 +1777,7 @@ SwLedControlMode2(
 			if(pLed->bLedWPSBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedWPSBlinkInProgress = _FALSE;
+				pLed->bLedWPSBlinkInProgress = false;
 			}
 
 			pLed->CurrLedState = RTW_LED_OFF;
@@ -1801,17 +1801,17 @@ SwLedControlMode2(
 			if( pLed->bLedBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedBlinkInProgress = _FALSE;
+				pLed->bLedBlinkInProgress = false;
 			}
 			if( pLed->bLedScanBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedScanBlinkInProgress = _FALSE;
+				pLed->bLedScanBlinkInProgress = false;
 			}
 			if( pLed->bLedWPSBlinkInProgress )
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedWPSBlinkInProgress = _FALSE;
+				pLed->bLedWPSBlinkInProgress = false;
 			}
 
 			SwLedOff(padapter, pLed);
@@ -1843,7 +1843,7 @@ SwLedControlMode4(
 		case LED_CTL_START_TO_LINK:
 			if(pLed1->bLedWPSBlinkInProgress)
 			{
-				pLed1->bLedWPSBlinkInProgress = _FALSE;
+				pLed1->bLedWPSBlinkInProgress = false;
 				_cancel_timer_ex(&(pLed1->BlinkTimer));
 
 				pLed1->BlinkingLedState = RTW_LED_OFF;
@@ -1853,24 +1853,24 @@ SwLedControlMode4(
 					_set_timer(&(pLed->BlinkTimer), 0);
 			}
 
-			if( pLed->bLedStartToLinkBlinkInProgress == _FALSE )
+			if( pLed->bLedStartToLinkBlinkInProgress == false )
 			{
 				if(pLed->CurrLedState == LED_BLINK_SCAN || IS_LED_WPS_BLINKING(pLed))
 				{
 					return;
 				}
-	 			if(pLed->bLedBlinkInProgress ==_TRUE)
+	 			if(pLed->bLedBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedBlinkInProgress = _FALSE;
+					pLed->bLedBlinkInProgress = false;
 	 			}
-	 			if(pLed->bLedNoLinkBlinkInProgress ==_TRUE)
+	 			if(pLed->bLedNoLinkBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedNoLinkBlinkInProgress = _FALSE;
+					pLed->bLedNoLinkBlinkInProgress = false;
 	 			}
 
-				pLed->bLedStartToLinkBlinkInProgress = _TRUE;
+				pLed->bLedStartToLinkBlinkInProgress = true;
 				pLed->CurrLedState = LED_BLINK_StartToBlink;
 				if( pLed->bLedOn )
 				{
@@ -1892,7 +1892,7 @@ SwLedControlMode4(
 			{
 				if(pLed1->bLedWPSBlinkInProgress)
 				{
-					pLed1->bLedWPSBlinkInProgress = _FALSE;
+					pLed1->bLedWPSBlinkInProgress = false;
 					_cancel_timer_ex(&(pLed1->BlinkTimer));
 
 					pLed1->BlinkingLedState = RTW_LED_OFF;
@@ -1903,19 +1903,19 @@ SwLedControlMode4(
 				}
 			}
 
-			if( pLed->bLedNoLinkBlinkInProgress == _FALSE )
+			if( pLed->bLedNoLinkBlinkInProgress == false )
 			{
 				if(pLed->CurrLedState == LED_BLINK_SCAN || IS_LED_WPS_BLINKING(pLed))
 				{
 					return;
 				}
-	 			if(pLed->bLedBlinkInProgress ==_TRUE)
+	 			if(pLed->bLedBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedBlinkInProgress = _FALSE;
+					pLed->bLedBlinkInProgress = false;
 	 			}
 
-				pLed->bLedNoLinkBlinkInProgress = _TRUE;
+				pLed->bLedNoLinkBlinkInProgress = true;
 				pLed->CurrLedState = LED_BLINK_SLOWLY;
 				if( pLed->bLedOn )
 					pLed->BlinkingLedState = RTW_LED_OFF;
@@ -1926,24 +1926,24 @@ SwLedControlMode4(
 			break;
 
 		case LED_CTL_SITE_SURVEY:
-			if((pmlmepriv->LinkDetectInfo.bBusyTraffic) && (check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE))
+			if((pmlmepriv->LinkDetectInfo.bBusyTraffic) && (check_fwstate(pmlmepriv, _FW_LINKED)== true))
 				;
-			else if(pLed->bLedScanBlinkInProgress ==_FALSE)
+			else if(pLed->bLedScanBlinkInProgress ==false)
 			{
 				if(IS_LED_WPS_BLINKING(pLed))
 					return;
 
-				if(pLed->bLedNoLinkBlinkInProgress == _TRUE)
+				if(pLed->bLedNoLinkBlinkInProgress == true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedNoLinkBlinkInProgress = _FALSE;
+					pLed->bLedNoLinkBlinkInProgress = false;
 				}
-				if(pLed->bLedBlinkInProgress ==_TRUE)
+				if(pLed->bLedBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedBlinkInProgress = _FALSE;
+					pLed->bLedBlinkInProgress = false;
 				}
-				pLed->bLedScanBlinkInProgress = _TRUE;
+				pLed->bLedScanBlinkInProgress = true;
 				pLed->CurrLedState = LED_BLINK_SCAN;
 				pLed->BlinkTimes = 24;
 				if( pLed->bLedOn )
@@ -1956,18 +1956,18 @@ SwLedControlMode4(
 
 		case LED_CTL_TX:
 		case LED_CTL_RX:
-	 		if(pLed->bLedBlinkInProgress ==_FALSE)
+	 		if(pLed->bLedBlinkInProgress ==false)
 	  		{
 	  		  	if(pLed->CurrLedState == LED_BLINK_SCAN || IS_LED_WPS_BLINKING(pLed))
 				{
 					return;
 				}
-	  		  	if(pLed->bLedNoLinkBlinkInProgress == _TRUE)
+	  		  	if(pLed->bLedNoLinkBlinkInProgress == true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedNoLinkBlinkInProgress = _FALSE;
+					pLed->bLedNoLinkBlinkInProgress = false;
 				}
-				pLed->bLedBlinkInProgress = _TRUE;
+				pLed->bLedBlinkInProgress = true;
 				pLed->CurrLedState = LED_BLINK_TXRX;
 				pLed->BlinkTimes = 2;
 				if( pLed->bLedOn )
@@ -1982,7 +1982,7 @@ SwLedControlMode4(
 		case LED_CTL_START_WPS_BOTTON:
 			if(pLed1->bLedWPSBlinkInProgress)
 			{
-				pLed1->bLedWPSBlinkInProgress = _FALSE;
+				pLed1->bLedWPSBlinkInProgress = false;
 				_cancel_timer_ex(&(pLed1->BlinkTimer));
 
 				pLed1->BlinkingLedState = RTW_LED_OFF;
@@ -1992,24 +1992,24 @@ SwLedControlMode4(
 					_set_timer(&(pLed->BlinkTimer), 0);
 			}
 
-			if(pLed->bLedWPSBlinkInProgress ==_FALSE)
+			if(pLed->bLedWPSBlinkInProgress ==false)
 			{
-				if(pLed->bLedNoLinkBlinkInProgress == _TRUE)
+				if(pLed->bLedNoLinkBlinkInProgress == true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedNoLinkBlinkInProgress = _FALSE;
+					pLed->bLedNoLinkBlinkInProgress = false;
 				}
-				if(pLed->bLedBlinkInProgress ==_TRUE)
+				if(pLed->bLedBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedBlinkInProgress = _FALSE;
+					pLed->bLedBlinkInProgress = false;
 				}
-				if(pLed->bLedScanBlinkInProgress ==_TRUE)
+				if(pLed->bLedScanBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedScanBlinkInProgress = _FALSE;
+					pLed->bLedScanBlinkInProgress = false;
 				}
-				pLed->bLedWPSBlinkInProgress = _TRUE;
+				pLed->bLedWPSBlinkInProgress = true;
 				pLed->CurrLedState = LED_BLINK_WPS;
 				if( pLed->bLedOn )
 				{
@@ -2028,10 +2028,10 @@ SwLedControlMode4(
 			if(pLed->bLedWPSBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedWPSBlinkInProgress = _FALSE;
+				pLed->bLedWPSBlinkInProgress = false;
 			}
 
-			pLed->bLedNoLinkBlinkInProgress = _TRUE;
+			pLed->bLedNoLinkBlinkInProgress = true;
 			pLed->CurrLedState = LED_BLINK_SLOWLY;
 			if( pLed->bLedOn )
 				pLed->BlinkingLedState = RTW_LED_OFF;
@@ -2045,10 +2045,10 @@ SwLedControlMode4(
 			if(pLed->bLedWPSBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedWPSBlinkInProgress = _FALSE;
+				pLed->bLedWPSBlinkInProgress = false;
 			}
 
-			pLed->bLedNoLinkBlinkInProgress = _TRUE;
+			pLed->bLedNoLinkBlinkInProgress = true;
 			pLed->CurrLedState = LED_BLINK_SLOWLY;
 			if( pLed->bLedOn )
 				pLed->BlinkingLedState = RTW_LED_OFF;
@@ -2060,7 +2060,7 @@ SwLedControlMode4(
 			if(pLed1->bLedWPSBlinkInProgress)
 				_cancel_timer_ex(&(pLed1->BlinkTimer));
 			else
-				pLed1->bLedWPSBlinkInProgress = _TRUE;
+				pLed1->bLedWPSBlinkInProgress = true;
 
 			pLed1->CurrLedState = LED_BLINK_WPS_STOP;
 			if( pLed1->bLedOn )
@@ -2075,10 +2075,10 @@ SwLedControlMode4(
 			if(pLed->bLedWPSBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedWPSBlinkInProgress = _FALSE;
+				pLed->bLedWPSBlinkInProgress = false;
 			}
 
-			pLed->bLedNoLinkBlinkInProgress = _TRUE;
+			pLed->bLedNoLinkBlinkInProgress = true;
 			pLed->CurrLedState = LED_BLINK_SLOWLY;
 			if( pLed->bLedOn )
 				pLed->BlinkingLedState = RTW_LED_OFF;
@@ -2090,7 +2090,7 @@ SwLedControlMode4(
 			if(pLed1->bLedWPSBlinkInProgress)
 				_cancel_timer_ex(&(pLed1->BlinkTimer));
 			else
-				pLed1->bLedWPSBlinkInProgress = _TRUE;
+				pLed1->bLedWPSBlinkInProgress = true;
 
 			pLed1->CurrLedState = LED_BLINK_WPS_STOP_OVERLAP;
 			pLed1->BlinkTimes = 10;
@@ -2109,38 +2109,38 @@ SwLedControlMode4(
 			if( pLed->bLedNoLinkBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedNoLinkBlinkInProgress = _FALSE;
+				pLed->bLedNoLinkBlinkInProgress = false;
 			}
 			if( pLed->bLedLinkBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedLinkBlinkInProgress = _FALSE;
+				pLed->bLedLinkBlinkInProgress = false;
 			}
 			if( pLed->bLedBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedBlinkInProgress = _FALSE;
+				pLed->bLedBlinkInProgress = false;
 			}
 			if( pLed->bLedWPSBlinkInProgress )
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedWPSBlinkInProgress = _FALSE;
+				pLed->bLedWPSBlinkInProgress = false;
 			}
 			if( pLed->bLedScanBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedScanBlinkInProgress = _FALSE;
+				pLed->bLedScanBlinkInProgress = false;
 			}
 			if( pLed->bLedStartToLinkBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedStartToLinkBlinkInProgress = _FALSE;
+				pLed->bLedStartToLinkBlinkInProgress = false;
 			}
 
 			if( pLed1->bLedWPSBlinkInProgress )
 			{
 				_cancel_timer_ex(&(pLed1->BlinkTimer));
-				pLed1->bLedWPSBlinkInProgress = _FALSE;
+				pLed1->bLedWPSBlinkInProgress = false;
 			}
 
 			pLed1->BlinkingLedState = LED_UNKNOWN;
@@ -2185,16 +2185,16 @@ SwLedControlMode5(
 			break;
 
 		case LED_CTL_SITE_SURVEY:
-			if((pmlmepriv->LinkDetectInfo.bBusyTraffic) && (check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE))
+			if((pmlmepriv->LinkDetectInfo.bBusyTraffic) && (check_fwstate(pmlmepriv, _FW_LINKED)== true))
 				;
-			else if(pLed->bLedScanBlinkInProgress ==_FALSE)
+			else if(pLed->bLedScanBlinkInProgress ==false)
 			{
-				if(pLed->bLedBlinkInProgress ==_TRUE)
+				if(pLed->bLedBlinkInProgress ==true)
 				{
 					_cancel_timer_ex(&(pLed->BlinkTimer));
-					pLed->bLedBlinkInProgress = _FALSE;
+					pLed->bLedBlinkInProgress = false;
 				}
-				pLed->bLedScanBlinkInProgress = _TRUE;
+				pLed->bLedScanBlinkInProgress = true;
 				pLed->CurrLedState = LED_BLINK_SCAN;
 				pLed->BlinkTimes = 24;
 				if( pLed->bLedOn )
@@ -2207,13 +2207,13 @@ SwLedControlMode5(
 
 		case LED_CTL_TX:
 		case LED_CTL_RX:
-	 		if(pLed->bLedBlinkInProgress ==_FALSE)
+	 		if(pLed->bLedBlinkInProgress ==false)
 	  		{
 	  		  	if(pLed->CurrLedState == LED_BLINK_SCAN)
 				{
 					return;
 				}
-				pLed->bLedBlinkInProgress = _TRUE;
+				pLed->bLedBlinkInProgress = true;
 				pLed->CurrLedState = LED_BLINK_TXRX;
 				pLed->BlinkTimes = 2;
 				if( pLed->bLedOn )
@@ -2231,7 +2231,7 @@ SwLedControlMode5(
 			if( pLed->bLedBlinkInProgress)
 			{
 				_cancel_timer_ex(&(pLed->BlinkTimer));
-				pLed->bLedBlinkInProgress = _FALSE;
+				pLed->bLedBlinkInProgress = false;
 			}
 
 			SwLedOff(padapter, pLed);
@@ -2299,7 +2299,7 @@ LedControlSDIO(
 		return;
 	}
 
-	if( ledpriv->bRegUseLed == _FALSE)
+	if( ledpriv->bRegUseLed == false)
 		return;
 
 	//if(priv->bInHctTest)
@@ -2365,18 +2365,18 @@ LedControlSDIO(
 void ResetLedStatus(PLED_SDIO pLed) {
 
 	pLed->CurrLedState = RTW_LED_OFF; // Current LED state.
-	pLed->bLedOn = _FALSE; // true if LED is ON, false if LED is OFF.
+	pLed->bLedOn = false; // true if LED is ON, false if LED is OFF.
 
-	pLed->bLedBlinkInProgress = _FALSE; // true if it is blinking, false o.w..
-	pLed->bLedWPSBlinkInProgress = _FALSE;
+	pLed->bLedBlinkInProgress = false; // true if it is blinking, false o.w..
+	pLed->bLedWPSBlinkInProgress = false;
 	
 	pLed->BlinkTimes = 0; // Number of times to toggle led state for blinking.
 	pLed->BlinkingLedState = LED_UNKNOWN; // Next state for blinking, either RTW_LED_ON or RTW_LED_OFF are.
 
-	pLed->bLedNoLinkBlinkInProgress = _FALSE;
-	pLed->bLedLinkBlinkInProgress = _FALSE;
-	pLed->bLedStartToLinkBlinkInProgress = _FALSE;
-	pLed->bLedScanBlinkInProgress = _FALSE;
+	pLed->bLedNoLinkBlinkInProgress = false;
+	pLed->bLedLinkBlinkInProgress = false;
+	pLed->bLedStartToLinkBlinkInProgress = false;
+	pLed->bLedScanBlinkInProgress = false;
 }
 
  //

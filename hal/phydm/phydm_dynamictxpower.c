@@ -39,15 +39,15 @@ odm_DynamicTxPowerInit(
 	if(RT_GetInterfaceSelection(Adapter) == INTF_SEL1_USB_High_Power)
 	{
 		odm_DynamicTxPowerSavePowerIndex(pDM_Odm);
-		pMgntInfo->bDynamicTxPowerEnable = TRUE;
+		pMgntInfo->bDynamicTxPowerEnable = true;
 	}		
 	else	
 	#else
 	//so 92c pci do not need dynamic tx power? vivi check it later
 	if(IS_HARDWARE_TYPE_8192D(Adapter))
-		pMgntInfo->bDynamicTxPowerEnable = TRUE;
+		pMgntInfo->bDynamicTxPowerEnable = true;
 	else
-		pMgntInfo->bDynamicTxPowerEnable = FALSE;
+		pMgntInfo->bDynamicTxPowerEnable = false;
 	#endif
 	
 
@@ -295,7 +295,7 @@ odm_DynamicTxPower_92C(
 	s4Byte				UndecoratedSmoothedPWDB;
 
 	// 2012/01/12 MH According to Luke's suggestion, only high power will support the feature.
-	if (pDM_Odm->ExtPA == FALSE)
+	if (pDM_Odm->ExtPA == false)
 		return;
 
 	// STA not connected and AP not connected
@@ -346,7 +346,7 @@ odm_DynamicTxPower_92C(
 	else
 #endif		
 	{ 
-		if(	(pMgntInfo->bDynamicTxPowerEnable != TRUE) ||
+		if(	(pMgntInfo->bDynamicTxPowerEnable != true) ||
 			pMgntInfo->IOTAction & HT_IOT_ACT_DISABLE_HIGH_POWER)
 		{
 			pHalData->DynamicTxHighPowerLvl = TxHighPwrLevel_Normal;
@@ -430,11 +430,11 @@ odm_DynamicTxPower_92D(
 	u1Byte		HighPowerLvlBackForMac0 = TxHighPwrLevel_Level1;
 
 	// 2012/01/12 MH According to Luke's suggestion, only high power will support the feature.
-	if (pDM_Odm->ExtPA == FALSE)
+	if (pDM_Odm->ExtPA == false)
 		return;
 
 	// If dynamic high power is disabled.
-	if( (pMgntInfo->bDynamicTxPowerEnable != TRUE) ||
+	if( (pMgntInfo->bDynamicTxPowerEnable != true) ||
 		pMgntInfo->IOTAction & HT_IOT_ACT_DISABLE_HIGH_POWER)
 	{
 		pHalData->DynamicTxHighPowerLvl = TxHighPwrLevel_Normal;
@@ -526,14 +526,14 @@ odm_DynamicTxPower_92D(
 			pHalData->DynamicTxHighPowerLvl = Adapter->DualMacDMSPControl.CurTxHighLvlForAnotherMacOfDMSP;
 			PHY_SetTxPowerLevel8192C(Adapter, pHalData->CurrentChannel);
 			pHalData->DynamicTxHighPowerLvl = HighPowerLvlBackForMac0;
-			Adapter->DualMacDMSPControl.bChangeTxHighPowerLvlForAnotherMacOfDMSP = FALSE;
+			Adapter->DualMacDMSPControl.bChangeTxHighPowerLvlForAnotherMacOfDMSP = false;
 		}						
 	}
 
 	if( (pHalData->DynamicTxHighPowerLvl != pHalData->LastDTPLvl) )
 	{
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_DYNAMIC_TXPWR, DBG_LOUD, ("PHY_SetTxPowerLevel8192S() Channel = %d \n" , pHalData->CurrentChannel));
-			if(Adapter->DualMacSmartConcurrent == TRUE)
+			if(Adapter->DualMacSmartConcurrent == true)
 			{
 				if(BuddyAdapter == NULL)
 				{
@@ -551,7 +551,7 @@ odm_DynamicTxPower_92D(
 						if(Adapter->bSlaveOfDMSP)
 						{
 							ODM_RT_TRACE(pDM_Odm,ODM_COMP_DYNAMIC_TXPWR,DBG_LOUD,("dm_DynamicTxPower() bslave case  \n"));
-							BuddyAdapter->DualMacDMSPControl.bChangeTxHighPowerLvlForAnotherMacOfDMSP = TRUE;
+							BuddyAdapter->DualMacDMSPControl.bChangeTxHighPowerLvlForAnotherMacOfDMSP = true;
 							BuddyAdapter->DualMacDMSPControl.CurTxHighLvlForAnotherMacOfDMSP = pHalData->DynamicTxHighPowerLvl;
 						}
 						else

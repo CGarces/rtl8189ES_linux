@@ -90,19 +90,19 @@ ODM_SingleDualAntennaDefaultSetting(
 	// Set default antenna A and B status
 	if(btAntNum == 2)
 	{
-		pDM_SWAT_Table->ANTA_ON=TRUE;
-		pDM_SWAT_Table->ANTB_ON=TRUE;
+		pDM_SWAT_Table->ANTA_ON=true;
+		pDM_SWAT_Table->ANTB_ON=true;
 	
 	}
 	else if(btAntNum == 1)
 	{// Set antenna A as default
-		pDM_SWAT_Table->ANTA_ON=TRUE;
-		pDM_SWAT_Table->ANTB_ON=FALSE;
+		pDM_SWAT_Table->ANTA_ON=true;
+		pDM_SWAT_Table->ANTB_ON=false;
 	
 	}
 	else
 	{
-		RT_ASSERT(FALSE, ("Incorrect antenna number!!\n"));
+		RT_ASSERT(false, ("Incorrect antenna number!!\n"));
 	}
 }
 
@@ -130,7 +130,7 @@ ODM_SingleDualAntennaDetection(
 	u1Byte		initial_gain = 0x5a;
 	u4Byte		PSD_report_tmp;
 	u4Byte		AntA_report = 0x0, AntB_report = 0x0, AntO_report = 0x0;
-	BOOLEAN		bResult = TRUE;
+	BOOLEAN		bResult = true;
 	u4Byte		AFE_Backup[16];
 	u4Byte		AFE_REG_8723A[16] = {
 					rRx_Wait_CCA, 	rTx_CCK_RFON, 
@@ -354,20 +354,20 @@ ODM_SingleDualAntennaDetection(
 			{
 				if(AntB_report > (AntA_report+1))
 				{
-					pDM_SWAT_Table->ANTB_ON=FALSE;
+					pDM_SWAT_Table->ANTB_ON=false;
 							ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("ODM_SingleDualAntennaDetection(): Single Antenna A\n"));		
 				}	
 				else
 				{
-					pDM_SWAT_Table->ANTB_ON=TRUE;
+					pDM_SWAT_Table->ANTB_ON=true;
 							ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("ODM_SingleDualAntennaDetection(): Dual Antenna is A and B\n"));	
 				}	
 			}
 			else
 			{
 							ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("ODM_SingleDualAntennaDetection(): Need to check again\n"));
-				pDM_SWAT_Table->ANTB_ON=FALSE; // Set Antenna B off as default 
-				bResult = FALSE;
+				pDM_SWAT_Table->ANTB_ON=false; // Set Antenna B off as default 
+				bResult = false;
 			}
 		}	
 		//2 Test Ant A and B based on DPDT Open
@@ -377,23 +377,23 @@ ODM_SingleDualAntennaDetection(
 			{
 				if(AntA_report > (AntO_report+1))
 				{
-					pDM_SWAT_Table->ANTA_ON=FALSE;
+					pDM_SWAT_Table->ANTA_ON=false;
 					ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD,("Ant A is OFF\n"));
 				}	
 				else
 				{
-					pDM_SWAT_Table->ANTA_ON=TRUE;
+					pDM_SWAT_Table->ANTA_ON=true;
 					ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD,("Ant A is ON\n"));
 				}
 
 				if(AntB_report > (AntO_report+2))
 				{
-					pDM_SWAT_Table->ANTB_ON=FALSE;
+					pDM_SWAT_Table->ANTB_ON=false;
 					ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD,("Ant B is OFF\n"));
 				}	
 				else
 				{
-					pDM_SWAT_Table->ANTB_ON=TRUE;
+					pDM_SWAT_Table->ANTB_ON=true;
 					ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD,("Ant B is ON\n"));
 				}
 				
@@ -401,7 +401,7 @@ ODM_SingleDualAntennaDetection(
 				ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("psd_report_B[%d]= %d \n", 2416, AntB_report));	
 				ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("psd_report_O[%d]= %d \n", 2416, AntO_report));
 				
-				pDM_Odm->AntDetectedInfo.bAntDetected= TRUE;
+				pDM_Odm->AntDetectedInfo.bAntDetected= true;
 				pDM_Odm->AntDetectedInfo.dBForAntA = AntA_report;
 				pDM_Odm->AntDetectedInfo.dBForAntB = AntB_report;
 				pDM_Odm->AntDetectedInfo.dBForAntO = AntO_report;
@@ -409,8 +409,8 @@ ODM_SingleDualAntennaDetection(
 				}
 			else
 				{
-				ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD,("return FALSE!!\n"));
-				bResult = FALSE;
+				ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD,("return false!!\n"));
+				bResult = false;
 			}
 		}
 	}
@@ -420,30 +420,30 @@ ODM_SingleDualAntennaDetection(
 		{
 			if(AntB_report > (AntA_report+2))
 			{
-				pDM_SWAT_Table->ANTA_ON=FALSE;
-				pDM_SWAT_Table->ANTB_ON=TRUE;
+				pDM_SWAT_Table->ANTA_ON=false;
+				pDM_SWAT_Table->ANTB_ON=true;
 				ODM_SetBBReg(pDM_Odm,  rFPGA0_XA_RFInterfaceOE, 0x300, Antenna_B);
 				ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("ODM_SingleDualAntennaDetection(): Single Antenna B\n"));		
 			}	
 			else if(AntA_report > (AntB_report+2))
 			{
-				pDM_SWAT_Table->ANTA_ON=TRUE;
-				pDM_SWAT_Table->ANTB_ON=FALSE;
+				pDM_SWAT_Table->ANTA_ON=true;
+				pDM_SWAT_Table->ANTB_ON=false;
 				ODM_SetBBReg(pDM_Odm,  rFPGA0_XA_RFInterfaceOE, 0x300, Antenna_A);
 				ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("ODM_SingleDualAntennaDetection(): Single Antenna A\n"));
 			}	
 			else
 			{
-				pDM_SWAT_Table->ANTA_ON=TRUE;
-				pDM_SWAT_Table->ANTB_ON=TRUE;
+				pDM_SWAT_Table->ANTA_ON=true;
+				pDM_SWAT_Table->ANTB_ON=true;
 			}
 		}
 		else
 		{
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("ODM_SingleDualAntennaDetection(): Need to check again\n"));
-			pDM_SWAT_Table->ANTA_ON=TRUE; // Set Antenna A on as default 
-			pDM_SWAT_Table->ANTB_ON=FALSE; // Set Antenna B off as default 
-			bResult = FALSE;
+			pDM_SWAT_Table->ANTA_ON=true; // Set Antenna A on as default 
+			pDM_SWAT_Table->ANTB_ON=false; // Set Antenna B off as default 
+			bResult = false;
 		}
 	}
 	else if(pDM_Odm->SupportICType == ODM_RTL8723B)
@@ -458,25 +458,25 @@ ODM_SingleDualAntennaDetection(
 		
 			if((AntA_report - AntB_report < TH1) || (AntB_report - AntA_report < TH1))
 			{
-				pDM_SWAT_Table->ANTA_ON=TRUE;
-				pDM_SWAT_Table->ANTB_ON=TRUE;
+				pDM_SWAT_Table->ANTA_ON=true;
+				pDM_SWAT_Table->ANTB_ON=true;
 				ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD,("ODM_SingleDualAntennaDetection(): Dual Antenna\n"));
 			}
 			else if(((AntA_report - AntB_report >= TH1) && (AntA_report - AntB_report <= TH2)) || 
 				((AntB_report - AntA_report >= TH1) && (AntB_report - AntA_report <= TH2)))
 			{
-				pDM_SWAT_Table->ANTA_ON=FALSE;
-				pDM_SWAT_Table->ANTB_ON=FALSE;
-				bResult = FALSE;
+				pDM_SWAT_Table->ANTA_ON=false;
+				pDM_SWAT_Table->ANTB_ON=false;
+				bResult = false;
 				ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("ODM_SingleDualAntennaDetection(): Need to check again\n"));
 			}
 			else
 			{
-				pDM_SWAT_Table->ANTA_ON = TRUE;
-				pDM_SWAT_Table->ANTB_ON=FALSE;
+				pDM_SWAT_Table->ANTA_ON = true;
+				pDM_SWAT_Table->ANTB_ON=false;
 				ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD,("ODM_SingleDualAntennaDetection(): Single Antenna\n"));
 			}
-			pDM_Odm->AntDetectedInfo.bAntDetected= TRUE;
+			pDM_Odm->AntDetectedInfo.bAntDetected= true;
 			pDM_Odm->AntDetectedInfo.dBForAntA = AntA_report;
 			pDM_Odm->AntDetectedInfo.dBForAntB = AntB_report;
 			pDM_Odm->AntDetectedInfo.dBForAntO = AntO_report;
@@ -484,8 +484,8 @@ ODM_SingleDualAntennaDetection(
 		}
 		else
 		{
-			ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD,("return FALSE!!\n"));
-			bResult = FALSE;
+			ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD,("return false!!\n"));
+			bResult = false;
 		}
 	}
 	return bResult;
@@ -526,10 +526,10 @@ ODM_SwAntDivCheckBeforeLink(
 
 	//if(HP id)
 	{
-		if(pDM_Odm->DM_SWAT_Table.RSSI_AntDect_bResult==TRUE && pDM_Odm->SupportICType == ODM_RTL8723B)
+		if(pDM_Odm->DM_SWAT_Table.RSSI_AntDect_bResult==true && pDM_Odm->SupportICType == ODM_RTL8723B)
 		{
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("8723B RSSI-based Antenna Detection is done\n"));
-			return FALSE;
+			return false;
 		}
 		
 		if(pDM_Odm->SupportICType == ODM_RTL8723B)
@@ -541,13 +541,13 @@ ODM_SwAntDivCheckBeforeLink(
 
 	if (pDM_Odm->Adapter == NULL)  //For BSOD when plug/unplug fast.  //By YJ,120413
 	{	// The ODM structure is not initialized.
-		return FALSE;
+		return false;
 	}
 
 	// Retrieve antenna detection registry info, added by Roger, 2012.11.27.
 	if(!IS_ANT_DETECT_SUPPORT_RSSI(Adapter))
 	{
-		return FALSE;
+		return false;
 	}
 	else
 	{
@@ -566,7 +566,7 @@ ODM_SwAntDivCheckBeforeLink(
 	
 		pDM_SWAT_Table->SWAS_NoLink_State = 0;
 		
-		return FALSE;
+		return false;
 	}
 	else
 	{
@@ -588,7 +588,7 @@ ODM_SwAntDivCheckBeforeLink(
 		// Go back to scan function again.
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("ODM_SwAntDivCheckBeforeLink: Scan one more time\n"));
 		pMgntInfo->ScanStep=0;
-		pMgntInfo->bScanAntDetect = TRUE;
+		pMgntInfo->bScanAntDetect = true;
 		ScanChannel = odm_SwAntDivSelectScanChnl(Adapter);
 
 		
@@ -613,7 +613,7 @@ ODM_SwAntDivCheckBeforeLink(
 					pDM_SWAT_Table->Ant2G = pDM_FatTable->RxIdleAnt;
 					ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("pDM_SWAT_Table->Ant2G=%s\n", (pDM_FatTable->RxIdleAnt==MAIN_ANT)?"MAIN_ANT":"AUX_ANT"));
 				}
-				return FALSE;
+				return false;
 			}
 
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, 
@@ -645,7 +645,7 @@ ODM_SwAntDivCheckBeforeLink(
 				else
 				{
 					ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD,("Reg[948]= (( %x )) was in wrong state\n", tmp_SWAS_NoLink_BK_Reg948 ));
-					return FALSE;
+					return false;
 				}
 				ODM_StallExecution(10);
 		
@@ -656,7 +656,7 @@ ODM_SwAntDivCheckBeforeLink(
 		odm_SwAntDivConstructScanChnl(Adapter, ScanChannel);
 		PlatformSetTimer(Adapter, &pMgntInfo->ScanTimer, 5);
 
-		return TRUE;
+		return true;
 	}
 	else //pDM_SWAT_Table->SWAS_NoLink_State == 1
 	{
@@ -802,22 +802,22 @@ ODM_SwAntDivCheckBeforeLink(
 		{
 			if(counter == 0)
 			{	
-				if(pDM_Odm->DM_SWAT_Table.Pre_Aux_FailDetec == FALSE)
+				if(pDM_Odm->DM_SWAT_Table.Pre_Aux_FailDetec == false)
 				{
-					pDM_Odm->DM_SWAT_Table.Pre_Aux_FailDetec = TRUE;
-					pDM_Odm->DM_SWAT_Table.RSSI_AntDect_bResult=FALSE;
+					pDM_Odm->DM_SWAT_Table.Pre_Aux_FailDetec = true;
+					pDM_Odm->DM_SWAT_Table.RSSI_AntDect_bResult=false;
 					ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("Counter=(( 0 )) , [[ Cannot find any AP with Aux-ant ]] ->  Scan Target-channel again  \n"));	
 
                                         //3 [ Scan again ]
 					odm_SwAntDivConstructScanChnl(Adapter, ScanChannel);
 					PlatformSetTimer(Adapter, &pMgntInfo->ScanTimer, 5);
-					return TRUE;
+					return true;
 				}
-				else// Pre_Aux_FailDetec == TRUE
+				else// Pre_Aux_FailDetec == true
 				{
 					//2 [ Single Antenna ]
-					pDM_Odm->DM_SWAT_Table.Pre_Aux_FailDetec = FALSE;
-					pDM_Odm->DM_SWAT_Table.RSSI_AntDect_bResult=TRUE;
+					pDM_Odm->DM_SWAT_Table.Pre_Aux_FailDetec = false;
+					pDM_Odm->DM_SWAT_Table.RSSI_AntDect_bResult=true;
 					ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("Counter=(( 0 )) , [[  Still cannot find any AP ]] \n"));
 					ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("ODM_SwAntDivCheckBeforeLink(): Single antenna\n"));	
 				}
@@ -825,7 +825,7 @@ ODM_SwAntDivCheckBeforeLink(
 			}
 			else
 			{
-				pDM_Odm->DM_SWAT_Table.Pre_Aux_FailDetec = FALSE;
+				pDM_Odm->DM_SWAT_Table.Pre_Aux_FailDetec = false;
 				
 				if(counter==3)
 				{
@@ -853,17 +853,17 @@ ODM_SwAntDivCheckBeforeLink(
 					
 					if(pDM_Odm->DM_SWAT_Table.Retry_Counter<=3)
 					{
-						pDM_Odm->DM_SWAT_Table.RSSI_AntDect_bResult=FALSE;
+						pDM_Odm->DM_SWAT_Table.RSSI_AntDect_bResult=false;
 						ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("[[ Low confidence result ]] avg_power_diff= (( %d ))  ->  Scan Target-channel again ]] \n", avg_power_diff));	
 
 					         //3 [ Scan again ]
 						odm_SwAntDivConstructScanChnl(Adapter, ScanChannel);
 						PlatformSetTimer(Adapter, &pMgntInfo->ScanTimer, 5);
-						return TRUE;					         
+						return true;					         
 					}
 					else
 			{
-						pDM_Odm->DM_SWAT_Table.RSSI_AntDect_bResult=TRUE;
+						pDM_Odm->DM_SWAT_Table.RSSI_AntDect_bResult=true;
 						ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("[[ Still Low confidence result ]]  (( Retry_Counter > 3 )) \n"));
 						ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("ODM_SwAntDivCheckBeforeLink(): Single antenna\n"));
 					}
@@ -872,11 +872,11 @@ ODM_SwAntDivCheckBeforeLink(
 				//2 [ Dual Antenna ]
 				else if( (pMgntInfo->NumBssDesc != 0) && (avg_power_diff < power_target_L)   ) 
 				{
-					pDM_Odm->DM_SWAT_Table.RSSI_AntDect_bResult=TRUE;
-					if(pDM_Odm->DM_SWAT_Table.ANTB_ON == FALSE)
+					pDM_Odm->DM_SWAT_Table.RSSI_AntDect_bResult=true;
+					if(pDM_Odm->DM_SWAT_Table.ANTB_ON == false)
 					{
-						pDM_Odm->DM_SWAT_Table.ANTA_ON = TRUE;
-						pDM_Odm->DM_SWAT_Table.ANTB_ON = TRUE;
+						pDM_Odm->DM_SWAT_Table.ANTA_ON = true;
+						pDM_Odm->DM_SWAT_Table.ANTB_ON = true;
 					}
 					ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD,("ODM_SwAntDivCheckBeforeLink(): Dual antenna\n"));
 					pDM_Odm->DM_SWAT_Table.Dual_Ant_Counter++;
@@ -891,11 +891,11 @@ ODM_SwAntDivCheckBeforeLink(
 				//2 [ Single Antenna ]
 				else if(avg_power_diff > power_target_H)
 				{
-					pDM_Odm->DM_SWAT_Table.RSSI_AntDect_bResult=TRUE;
-					if(pDM_Odm->DM_SWAT_Table.ANTB_ON == TRUE)
+					pDM_Odm->DM_SWAT_Table.RSSI_AntDect_bResult=true;
+					if(pDM_Odm->DM_SWAT_Table.ANTB_ON == true)
 					{
-						pDM_Odm->DM_SWAT_Table.ANTA_ON = TRUE;
-						pDM_Odm->DM_SWAT_Table.ANTB_ON = FALSE;
+						pDM_Odm->DM_SWAT_Table.ANTA_ON = true;
+						pDM_Odm->DM_SWAT_Table.ANTB_ON = false;
 						//BT_SetBtCoexAntNum(Adapter, BT_COEX_ANT_TYPE_DETECTED, 1);
 					}
 					ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("ODM_SwAntDivCheckBeforeLink(): Single antenna\n"));
@@ -908,7 +908,7 @@ ODM_SwAntDivCheckBeforeLink(
 
 			//2 recover the antenna setting
 
-			if(pDM_Odm->DM_SWAT_Table.ANTB_ON == FALSE)
+			if(pDM_Odm->DM_SWAT_Table.ANTB_ON == false)
 				ODM_SetBBReg(pDM_Odm, rS0S1_PathSwitch, 0xfff, (pDM_SWAT_Table->SWAS_NoLink_BK_Reg948));
 			
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD,("bResult=(( %d )), Recover  Reg[948]= (( %x )) \n\n",pDM_Odm->DM_SWAT_Table.RSSI_AntDect_bResult, pDM_SWAT_Table->SWAS_NoLink_BK_Reg948 ));
@@ -939,16 +939,16 @@ ODM_SwAntDivCheckBeforeLink(
 		
 		// Check state reset to default and wait for next time.
 		pDM_SWAT_Table->SWAS_NoLink_State = 0;
-		pMgntInfo->bScanAntDetect = FALSE;
+		pMgntInfo->bScanAntDetect = false;
 
-		return FALSE;
+		return false;
 	}
 
 #else
-		return	FALSE;
+		return	false;
 #endif
 
-return FALSE;
+return false;
 }
 
 
@@ -1151,10 +1151,10 @@ ODM_SingleDualAntennaDetection_PSD(
 	//3 [ Dual Antenna ]
 	 if(Aux_psd_result >= PSD_power_threshold   ) 
 	{
-		if(pDM_Odm->DM_SWAT_Table.ANTB_ON == FALSE)
+		if(pDM_Odm->DM_SWAT_Table.ANTB_ON == false)
 		{
-			pDM_Odm->DM_SWAT_Table.ANTA_ON = TRUE;
-			pDM_Odm->DM_SWAT_Table.ANTB_ON = TRUE;
+			pDM_Odm->DM_SWAT_Table.ANTA_ON = true;
+			pDM_Odm->DM_SWAT_Table.ANTB_ON = true;
 		}
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD,("ODM_SwAntDivCheckBeforeLink(): Dual antenna\n"));
 		
@@ -1168,10 +1168,10 @@ ODM_SingleDualAntennaDetection_PSD(
 	//3 [ Single Antenna ]
 	else
 	{
-		if(pDM_Odm->DM_SWAT_Table.ANTB_ON == TRUE)
+		if(pDM_Odm->DM_SWAT_Table.ANTB_ON == true)
 		{
-			pDM_Odm->DM_SWAT_Table.ANTA_ON = TRUE;
-			pDM_Odm->DM_SWAT_Table.ANTB_ON = FALSE;
+			pDM_Odm->DM_SWAT_Table.ANTA_ON = true;
+			pDM_Odm->DM_SWAT_Table.ANTB_ON = false;
 		}
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_ANT_DIV, ODM_DBG_LOUD, ("ODM_SwAntDivCheckBeforeLink(): Single antenna\n"));
 	}
@@ -1208,7 +1208,7 @@ odm_SwAntDetectInit(
 	//pDM_SWAT_Table->PreAntenna = MAIN_ANT;
 	//pDM_SWAT_Table->CurAntenna = MAIN_ANT;
 	pDM_SWAT_Table->SWAS_NoLink_State = 0;
-	pDM_SWAT_Table->Pre_Aux_FailDetec = FALSE;
+	pDM_SWAT_Table->Pre_Aux_FailDetec = false;
 	pDM_SWAT_Table->SWAS_NoLink_BK_Reg948 = 0xff;
 #endif
 }

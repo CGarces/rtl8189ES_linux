@@ -62,14 +62,14 @@ Efuse_Read1ByteFromFakeContent(
 {
 	if(Offset >= EFUSE_MAX_HW_SIZE)
 	{
-		return _FALSE;
+		return false;
 	}
 	//DbgPrint("Read fake content, offset = %d\n", Offset);
 	if(fakeEfuseBank == 0)
 		*Value = fakeEfuseContent[Offset];
 	else
 		*Value = fakeBTEfuseContent[fakeEfuseBank-1][Offset];
-	return _TRUE;
+	return true;
 }
 
 BOOLEAN
@@ -85,7 +85,7 @@ Efuse_Write1ByteToFakeContent(
 {
 	if(Offset >= EFUSE_MAX_HW_SIZE)
 	{
-		return _FALSE;
+		return false;
 	}
 	if(fakeEfuseBank == 0)
 		fakeEfuseContent[Offset] = Value;
@@ -93,7 +93,7 @@ Efuse_Write1ByteToFakeContent(
 	{
 		fakeBTEfuseContent[fakeEfuseBank-1][Offset] = Value;
 	}
-	return _TRUE;
+	return true;
 }
 
 /*-----------------------------------------------------------------------------
@@ -318,7 +318,7 @@ EFUSE_Read1Byte(
 	u32	k=0;
 	u16	contentLen=0;
 
-	EFUSE_GetEfuseDefinition(Adapter, EFUSE_WIFI , TYPE_EFUSE_REAL_CONTENT_LEN, (PVOID)&contentLen, _FALSE);
+	EFUSE_GetEfuseDefinition(Adapter, EFUSE_WIFI , TYPE_EFUSE_REAL_CONTENT_LEN, (PVOID)&contentLen, false);
 
 	if (Address < contentLen)	//E-fuse 512Byte
 	{
@@ -389,7 +389,7 @@ EFUSE_Write1Byte(
 	u16	contentLen=0;
 
 	//RT_TRACE(COMP_EFUSE, DBG_LOUD, ("Addr=%x Data =%x\n", Address, Value));
-	EFUSE_GetEfuseDefinition(Adapter, EFUSE_WIFI , TYPE_EFUSE_REAL_CONTENT_LEN, (PVOID)&contentLen, _FALSE);
+	EFUSE_GetEfuseDefinition(Adapter, EFUSE_WIFI , TYPE_EFUSE_REAL_CONTENT_LEN, (PVOID)&contentLen, false);
 
 	if( Address < contentLen)	//E-fuse 512Byte
 	{
@@ -477,12 +477,12 @@ efuse_OneByteRead(
 	if(tmpidx<100)
 	{			
 		*data=rtw_read8(pAdapter, EFUSE_CTRL);		
-		bResult = _TRUE;
+		bResult = true;
 	}
 	else
 	{
 		*data = 0xff;	
-		bResult = _FALSE;
+		bResult = false;
 		DBG_871X("%s: [ERROR] addr=0x%x bResult=%d time out 1s !!!\n", __FUNCTION__, addr, bResult);
 		DBG_871X("%s: [ERROR] EFUSE_CTRL =0x%08x !!!\n", __FUNCTION__, rtw_read32(pAdapter, EFUSE_CTRL));
 	}
@@ -499,7 +499,7 @@ efuse_OneByteWrite(
 	IN	BOOLEAN		bPseudoTest)
 {
 	u8	tmpidx = 0;
-	u8	bResult=_FALSE;
+	u8	bResult=false;
 	u32 efuseValue = 0;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
 	
@@ -545,11 +545,11 @@ efuse_OneByteWrite(
 
 	if(tmpidx<100)
 	{
-		bResult = _TRUE;
+		bResult = true;
 	}
 	else
 	{
-		bResult = _FALSE;
+		bResult = false;
 		DBG_871X("%s: [ERROR] addr=0x%x ,efuseValue=0x%x ,bResult=%d time out 1s !!! \n",
 					__FUNCTION__, addr, efuseValue, bResult);
 		DBG_871X("%s: [ERROR] EFUSE_CTRL =0x%08x !!!\n", __FUNCTION__, rtw_read32(pAdapter, EFUSE_CTRL));
@@ -669,12 +669,12 @@ Efuse_WordEnableDataWrite(	IN	PADAPTER	pAdapter,
 
 static u8 efuse_read8(PADAPTER padapter, u16 address, u8 *value)
 {
-	return efuse_OneByteRead(padapter,address, value, _FALSE);
+	return efuse_OneByteRead(padapter,address, value, false);
 }
 
 static u8 efuse_write8(PADAPTER padapter, u16 address, u8 *value)
 {
-	return efuse_OneByteWrite(padapter,address, *value, _FALSE);
+	return efuse_OneByteWrite(padapter,address, *value, false);
 }
 
 /*
@@ -687,20 +687,20 @@ u8 rtw_efuse_access(PADAPTER padapter, u8 bWrite, u16 start_addr, u16 cnts, u8 *
 	u8 res = _FAIL ;
 	u8 (*rw8)(PADAPTER, u16, u8*);
 
-	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_REAL_CONTENT_LEN, (PVOID)&real_content_len, _FALSE);
-	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_AVAILABLE_EFUSE_BYTES_TOTAL, (PVOID)&max_available_size, _FALSE);
+	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_REAL_CONTENT_LEN, (PVOID)&real_content_len, false);
+	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_AVAILABLE_EFUSE_BYTES_TOTAL, (PVOID)&max_available_size, false);
 
 	if (start_addr > real_content_len)
 		return _FAIL;
 
-	if (_TRUE == bWrite) {
+	if (true == bWrite) {
 		if ((start_addr + cnts) > max_available_size)
 			return _FAIL;
 		rw8 = &efuse_write8;
 	} else
 		rw8 = &efuse_read8;
 
-	Efuse_PowerSwitch(padapter, bWrite, _TRUE);
+	Efuse_PowerSwitch(padapter, bWrite, true);
 
 	// e-fuse one byte read / write
 	for (i = 0; i < cnts; i++) {
@@ -713,7 +713,7 @@ u8 rtw_efuse_access(PADAPTER padapter, u8 bWrite, u16 start_addr, u16 cnts, u8 *
 		if (_FAIL == res) break;
 	}
 
-	Efuse_PowerSwitch(padapter, bWrite, _FALSE);
+	Efuse_PowerSwitch(padapter, bWrite, false);
 
 	return res;
 }
@@ -723,15 +723,15 @@ u16 efuse_GetMaxSize(PADAPTER padapter)
 	u16	max_size;
 
 	max_size = 0;
-	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI , TYPE_AVAILABLE_EFUSE_BYTES_TOTAL, (PVOID)&max_size, _FALSE);
+	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI , TYPE_AVAILABLE_EFUSE_BYTES_TOTAL, (PVOID)&max_size, false);
 	return max_size;
 }
 //------------------------------------------------------------------------------
 u8 efuse_GetCurrentSize(PADAPTER padapter, u16 *size)
 {
-	Efuse_PowerSwitch(padapter, _FALSE, _TRUE);
-	*size = Efuse_GetCurrentSize(padapter, EFUSE_WIFI, _FALSE);
-	Efuse_PowerSwitch(padapter, _FALSE, _FALSE);
+	Efuse_PowerSwitch(padapter, false, true);
+	*size = Efuse_GetCurrentSize(padapter, EFUSE_WIFI, false);
+	Efuse_PowerSwitch(padapter, false, false);
 
 	return _SUCCESS;
 }
@@ -740,16 +740,16 @@ u8 rtw_efuse_map_read(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 {
 	u16	mapLen=0;
 
-	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (PVOID)&mapLen, _FALSE);
+	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (PVOID)&mapLen, false);
 
 	if ((addr + cnts) > mapLen)
 		return _FAIL;
 
-	Efuse_PowerSwitch(padapter, _FALSE, _TRUE);
+	Efuse_PowerSwitch(padapter, false, true);
 
-	efuse_ReadEFuse(padapter, EFUSE_WIFI, addr, cnts, data, _FALSE);
+	efuse_ReadEFuse(padapter, EFUSE_WIFI, addr, cnts, data, false);
 
-	Efuse_PowerSwitch(padapter, _FALSE, _FALSE);
+	Efuse_PowerSwitch(padapter, false, false);
 
 	return _SUCCESS;
 }
@@ -758,16 +758,16 @@ u8 rtw_BT_efuse_map_read(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 {
 	u16	mapLen=0;
 
-	EFUSE_GetEfuseDefinition(padapter, EFUSE_BT, TYPE_EFUSE_MAP_LEN, (PVOID)&mapLen, _FALSE);
+	EFUSE_GetEfuseDefinition(padapter, EFUSE_BT, TYPE_EFUSE_MAP_LEN, (PVOID)&mapLen, false);
 
 	if ((addr + cnts) > mapLen)
 		return _FAIL;
 
-	Efuse_PowerSwitch(padapter, _FALSE, _TRUE);
+	Efuse_PowerSwitch(padapter, false, true);
 
-	efuse_ReadEFuse(padapter, EFUSE_BT, addr, cnts, data, _FALSE);
+	efuse_ReadEFuse(padapter, EFUSE_BT, addr, cnts, data, false);
 
-	Efuse_PowerSwitch(padapter, _FALSE, _FALSE);
+	Efuse_PowerSwitch(padapter, false, false);
 
 	return _SUCCESS;
 }
@@ -782,7 +782,7 @@ BOOLEAN rtw_file_efuse_IsMasked(
 	int result = 0;
 	
 	if(pAdapter->registrypriv.boffefusemask)
-		return FALSE;
+		return false;
 
 	//DBG_871X(" %s ,Offset=%x r= %d , c=%d , maskfileBuffer[r]= %x \n",__func__,Offset,r,c,maskfileBuffer[r]);
 	if (c < 4) // Upper double word
@@ -805,7 +805,7 @@ u8 rtw_efuse_file_read(PADAPTER padapter,u8 *filepatch,u8 *buf,u32 len)
 	ptmpbuf = rtw_zmalloc(2048);
 
 	if (ptmpbuf == NULL)
-		return _FALSE;
+		return false;
 
 	_rtw_memset(ptmpbuf,'\0',2048);
 	
@@ -832,11 +832,11 @@ u8 rtw_efuse_file_read(PADAPTER padapter,u8 *filepatch,u8 *buf,u32 len)
 
 	} else {
 		DBG_871X(" %s ,filepatch %s , FAIL %d\n", __func__, filepatch, rtStatus);
-		return _FALSE;
+		return false;
 	}
 	rtw_mfree(ptmpbuf, 2048);
 	DBG_871X(" %s ,filepatch %s , done %d\n", __func__, filepatch, rtStatus);
-	return _TRUE;
+	return true;
 }
 
 
@@ -851,79 +851,79 @@ efuse_IsMasked(
 
 	//if (bEfuseMaskOFF(pAdapter))
 	if(pAdapter->registrypriv.boffefusemask)
-		return FALSE;
+		return false;
 		
 #if DEV_BUS_TYPE == RT_USB_INTERFACE
 #if defined(CONFIG_RTL8188E)
 	if (IS_HARDWARE_TYPE_8188E(pAdapter))  
-		return (IS_MASKED(8188E,_MUSB,Offset)) ? TRUE : FALSE;
+		return (IS_MASKED(8188E,_MUSB,Offset)) ? true : false;
 #endif
 #if defined(CONFIG_RTL8812A)
 	if (IS_HARDWARE_TYPE_8812(pAdapter))  
-		return (IS_MASKED(8812A,_MUSB,Offset)) ? TRUE : FALSE;
+		return (IS_MASKED(8812A,_MUSB,Offset)) ? true : false;
 #endif
 #if defined(CONFIG_RTL8821A)
 	//if (IS_HARDWARE_TYPE_8811AU(pAdapter))  
-	//	return (IS_MASKED(8811A,_MUSB,Offset)) ? TRUE : FALSE;
+	//	return (IS_MASKED(8811A,_MUSB,Offset)) ? true : false;
 	if (IS_HARDWARE_TYPE_8821(pAdapter))  
-		return (IS_MASKED(8821A,_MUSB,Offset)) ? TRUE : FALSE;		
+		return (IS_MASKED(8821A,_MUSB,Offset)) ? true : false;		
 #endif		
 #if defined(CONFIG_RTL8192E)
 	if (IS_HARDWARE_TYPE_8192E(pAdapter))  
-		return (IS_MASKED(8192E,_MUSB,Offset)) ? TRUE : FALSE;
+		return (IS_MASKED(8192E,_MUSB,Offset)) ? true : false;
 #endif
 #if defined(CONFIG_RTL8723B)
 	if (IS_HARDWARE_TYPE_8723B(pAdapter))  
-		return (IS_MASKED(8723B,_MUSB,Offset)) ? TRUE : FALSE;
+		return (IS_MASKED(8723B,_MUSB,Offset)) ? true : false;
 #endif
 #if defined(CONFIG_RTL8814A)
 	if (IS_HARDWARE_TYPE_8814A(pAdapter))
-		return (IS_MASKED(8814A, _MUSB, Offset)) ? TRUE : FALSE;
+		return (IS_MASKED(8814A, _MUSB, Offset)) ? true : false;
 #endif
 #if defined(CONFIG_RTL8188F)
 	if (IS_HARDWARE_TYPE_8188F(pAdapter))
-		return (IS_MASKED(8188F, _MUSB, Offset)) ? TRUE : FALSE;
+		return (IS_MASKED(8188F, _MUSB, Offset)) ? true : false;
 #endif
 #elif DEV_BUS_TYPE == RT_PCI_INTERFACE
 #if defined(CONFIG_RTL8188E)
 	if (IS_HARDWARE_TYPE_8188E(pAdapter))  
-		return (IS_MASKED(8188E,_MPCIE,Offset)) ? TRUE : FALSE;
+		return (IS_MASKED(8188E,_MPCIE,Offset)) ? true : false;
 #endif
 #if defined(CONFIG_RTL8192E)
    	if (IS_HARDWARE_TYPE_8192E(pAdapter))	
-		return (IS_MASKED(8192E,_MPCIE,Offset)) ? TRUE : FALSE;
+		return (IS_MASKED(8192E,_MPCIE,Offset)) ? true : false;
 #endif	
 #if defined(CONFIG_RTL8812A)
 	if (IS_HARDWARE_TYPE_8812(pAdapter))  
-		return (IS_MASKED(8812A,_MPCIE,Offset)) ? TRUE : FALSE;
+		return (IS_MASKED(8812A,_MPCIE,Offset)) ? true : false;
 #endif	
 #if defined(CONFIG_RTL8821A)
 	if (IS_HARDWARE_TYPE_8821(pAdapter))  
-		return (IS_MASKED(8821A,_MPCIE,Offset)) ? TRUE : FALSE;
+		return (IS_MASKED(8821A,_MPCIE,Offset)) ? true : false;
 #endif
 #if defined(CONFIG_RTL8723B)
 	if (IS_HARDWARE_TYPE_8723B(pAdapter))  
-		return (IS_MASKED(8723B,_MPCIE,Offset)) ? TRUE : FALSE; 
+		return (IS_MASKED(8723B,_MPCIE,Offset)) ? true : false; 
 #endif
 #if defined(CONFIG_RTL8814A)
 	if (IS_HARDWARE_TYPE_8814A(pAdapter))
-		return (IS_MASKED(8814A, _MPCIE, Offset)) ? TRUE : FALSE;
+		return (IS_MASKED(8814A, _MPCIE, Offset)) ? true : false;
 #endif
 	//else if (IS_HARDWARE_TYPE_8821B(pAdapter))  
-	//	return (IS_MASKED(8821B,_MPCIE,Offset)) ? TRUE : FALSE; 
+	//	return (IS_MASKED(8821B,_MPCIE,Offset)) ? true : false; 
 
 #elif DEV_BUS_TYPE == RT_SDIO_INTERFACE
 #ifdef CONFIG_RTL8188E_SDIO
 	if (IS_HARDWARE_TYPE_8188E(pAdapter))  
-		return (IS_MASKED(8188E,_MSDIO,Offset)) ? TRUE : FALSE;
+		return (IS_MASKED(8188E,_MSDIO,Offset)) ? true : false;
 #endif
 #ifdef CONFIG_RTL8188F_SDIO
 	if (IS_HARDWARE_TYPE_8188F(pAdapter))  
-		return (IS_MASKED(8188F, _MSDIO, Offset)) ? TRUE : FALSE;
+		return (IS_MASKED(8188F, _MSDIO, Offset)) ? true : false;
 #endif
 #endif
 
-	return FALSE;	
+	return false;	
 }
 
 //------------------------------------------------------------------------------
@@ -944,7 +944,7 @@ u8 rtw_efuse_map_write(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 	u16	mapLen=0;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 
-	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (PVOID)&mapLen, _FALSE);
+	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (PVOID)&mapLen, false);
 
 	if ((addr + cnts) > mapLen)
 		return _FAIL;
@@ -966,7 +966,7 @@ u8 rtw_efuse_map_write(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 	{
 		for (i =0; i < cnts; i++)
 		{ 
-			if(padapter->registrypriv.bFileMaskEfuse==_TRUE)
+			if(padapter->registrypriv.bFileMaskEfuse==true)
 			{
 				if (rtw_file_efuse_IsMasked(padapter, addr+i))	/*use file efuse mask. */
 						data[i] = map[addr+i];
@@ -979,7 +979,7 @@ u8 rtw_efuse_map_write(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 			DBG_8192C("%s , data[%d] = %x, map[addr+i]= %x\n", __func__, i, data[i], map[addr+i]);
 		}
 	}
-	Efuse_PowerSwitch(padapter, _TRUE, _TRUE);
+	Efuse_PowerSwitch(padapter, true, true);
 
 	idx = 0;
 	offset = (addr >> 3);
@@ -1011,7 +1011,7 @@ u8 rtw_efuse_map_write(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 		}
 
 		if (word_en != 0xF) {
-			ret = Efuse_PgPacketWrite(padapter, offset, word_en, newdata, _FALSE);
+			ret = Efuse_PgPacketWrite(padapter, offset, word_en, newdata, false);
 			DBG_871X("offset=%x \n",offset);
 			DBG_871X("word_en=%x \n",word_en);
 
@@ -1025,7 +1025,7 @@ u8 rtw_efuse_map_write(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 		offset++;
 	}
 
-	Efuse_PowerSwitch(padapter, _TRUE, _FALSE);
+	Efuse_PowerSwitch(padapter, true, false);
 
 exit:
 
@@ -1039,14 +1039,14 @@ u8 rtw_efuse_mask_map_read(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 	u8	ret = _SUCCESS;
 	u16	mapLen = 0, i = 0;
 	
-	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (PVOID)&mapLen, _FALSE);
+	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (PVOID)&mapLen, false);
 	
 	ret = rtw_efuse_map_read(padapter, addr, cnts , data);
 
 	if (padapter->registrypriv.boffefusemask == 0) {
 
 			for (i = 0; i < cnts; i++) { 
-				if (padapter->registrypriv.bFileMaskEfuse == _TRUE) {
+				if (padapter->registrypriv.bFileMaskEfuse == true) {
 					if (rtw_file_efuse_IsMasked(padapter, addr+i)) /*use file efuse mask.*/ 
 							data[i] = 0xff;
 				} else {
@@ -1079,7 +1079,7 @@ u8 rtw_BT_efuse_map_write(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 	u8	ret = _SUCCESS;
 	u16	mapLen=0;
 
-	EFUSE_GetEfuseDefinition(padapter, EFUSE_BT, TYPE_EFUSE_MAP_LEN, (PVOID)&mapLen, _FALSE);
+	EFUSE_GetEfuseDefinition(padapter, EFUSE_BT, TYPE_EFUSE_MAP_LEN, (PVOID)&mapLen, false);
 
 	if ((addr + cnts) > mapLen)
 		return _FAIL;
@@ -1108,7 +1108,7 @@ u8 rtw_BT_efuse_map_write(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 			DBG_871X("\n");
 	}
 	DBG_871X("\n");
-	Efuse_PowerSwitch(padapter, _TRUE, _TRUE);
+	Efuse_PowerSwitch(padapter, true, true);
 
 	idx = 0;
 	offset = (addr >> 3);
@@ -1135,14 +1135,14 @@ u8 rtw_BT_efuse_map_write(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 				DBG_871X("0x%02X ", newdata[i]);
 			}
 			DBG_871X("\n");
-			ret = Efuse_PgPacketWrite_BT(padapter, offset, word_en, newdata, _FALSE);
+			ret = Efuse_PgPacketWrite_BT(padapter, offset, word_en, newdata, false);
 			if (ret == _FAIL) break;
 		}
 
 		offset++;
 	}
 
-	Efuse_PowerSwitch(padapter, _TRUE, _FALSE);
+	Efuse_PowerSwitch(padapter, true, false);
 
 exit:
 
@@ -1182,13 +1182,13 @@ Efuse_ReadAllMap(
 {
 	u16	mapLen=0;
 
-	Efuse_PowerSwitch(pAdapter,_FALSE, _TRUE);
+	Efuse_PowerSwitch(pAdapter,false, true);
 
 	EFUSE_GetEfuseDefinition(pAdapter, efuseType, TYPE_EFUSE_MAP_LEN, (PVOID)&mapLen, bPseudoTest);
 
 	efuse_ReadEFuse(pAdapter, efuseType, 0, mapLen, Efuse, bPseudoTest);
 
-	Efuse_PowerSwitch(pAdapter,_FALSE, _FALSE);
+	Efuse_PowerSwitch(pAdapter,false, false);
 }
 
 /*-----------------------------------------------------------------------------
@@ -1347,7 +1347,7 @@ void EFUSE_ShadowMapUpdate(
 
 	EFUSE_GetEfuseDefinition(pAdapter, efuseType, TYPE_EFUSE_MAP_LEN, (PVOID)&mapLen, bPseudoTest);
 
-	if (pHalData->bautoload_fail_flag == _TRUE)
+	if (pHalData->bautoload_fail_flag == true)
 	{
 		_rtw_memset(pHalData->efuse_eeprom_data, 0xFF, mapLen);
 	}
@@ -1483,7 +1483,7 @@ Efuse_InitSomeVar(
 
  int isAdaptorInfoFileValid(void)
 {
-	return _TRUE;
+	return true;
 }
 
 int storeAdaptorInfoFile(char *path, u8* efuse_data)

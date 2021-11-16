@@ -42,15 +42,15 @@ ODM_EdcaTurboInit(
 	Adapter=pDM_Odm->Adapter;
 	pHalData=GET_HAL_DATA(Adapter);
 
-	pDM_Odm->DM_EDCA_Table.bCurrentTurboEDCA = FALSE;	
-	pDM_Odm->DM_EDCA_Table.bIsCurRDLState = FALSE;
-	pHalData->bIsAnyNonBEPkts = FALSE;
+	pDM_Odm->DM_EDCA_Table.bCurrentTurboEDCA = false;	
+	pDM_Odm->DM_EDCA_Table.bIsCurRDLState = false;
+	pHalData->bIsAnyNonBEPkts = false;
 	
 #elif(DM_ODM_SUPPORT_TYPE==ODM_CE)
 	PADAPTER	Adapter = pDM_Odm->Adapter;	
-	pDM_Odm->DM_EDCA_Table.bCurrentTurboEDCA = FALSE;	
-	pDM_Odm->DM_EDCA_Table.bIsCurRDLState = FALSE;
-	Adapter->recvpriv.bIsAnyNonBEPkts =FALSE;
+	pDM_Odm->DM_EDCA_Table.bCurrentTurboEDCA = false;	
+	pDM_Odm->DM_EDCA_Table.bIsCurRDLState = false;
+	Adapter->recvpriv.bIsAnyNonBEPkts =false;
 
 #endif	
 	ODM_RT_TRACE(pDM_Odm,ODM_COMP_EDCA_TURBO,ODM_DBG_LOUD,("Orginial VO PARAM: 0x%x\n",ODM_Read4Byte(pDM_Odm,ODM_EDCA_VO_PARAM)));
@@ -120,8 +120,8 @@ odm_EdcaTurboCheckCE(
 	u32	edca_param;
 	u64	cur_tx_bytes = 0;
 	u64	cur_rx_bytes = 0;
-	u8	bbtchange = _FALSE;
-	u8	bBiasOnRx = _FALSE;
+	u8	bbtchange = false;
+	u8	bBiasOnRx = false;
 	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);
 	struct dvobj_priv		*pdvobjpriv = adapter_to_dvobj(Adapter);
 	struct xmit_priv		*pxmitpriv = &(Adapter->xmitpriv);
@@ -130,15 +130,15 @@ odm_EdcaTurboCheckCE(
 	struct mlme_ext_priv	*pmlmeext = &(Adapter->mlmeextpriv);
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 
-	if(pDM_Odm->bLinked != _TRUE)
+	if(pDM_Odm->bLinked != true)
 	{
-		precvpriv->bIsAnyNonBEPkts = _FALSE;
+		precvpriv->bIsAnyNonBEPkts = false;
 		return;
 	}
 
 	if ((pregpriv->wifi_spec == 1) )//|| (pmlmeinfo->HT_enable == 0))
 	{
-		precvpriv->bIsAnyNonBEPkts = _FALSE;
+		precvpriv->bIsAnyNonBEPkts = false;
 		return;
 	}
 
@@ -149,7 +149,7 @@ odm_EdcaTurboCheckCE(
 
 	if (IOTPeer >=  HT_IOT_PEER_MAX)
 	{
-		precvpriv->bIsAnyNonBEPkts = _FALSE;
+		precvpriv->bIsAnyNonBEPkts = false;
 		return;
 	}
 
@@ -158,7 +158,7 @@ odm_EdcaTurboCheckCE(
 		(pDM_Odm->SupportICType == ODM_RTL8188E))
 	{
 		if((IOTPeer == HT_IOT_PEER_RALINK)||(IOTPeer == HT_IOT_PEER_ATHEROS))
-			bBiasOnRx = _TRUE;
+			bBiasOnRx = true;
 	}
 
 	// Check if the status needs to be changed.
@@ -260,7 +260,7 @@ odm_EdcaTurboCheckCE(
 			pDM_Odm->DM_EDCA_Table.prv_traffic_idx = trafficIndex;
 		}
 		
-		pDM_Odm->DM_EDCA_Table.bCurrentTurboEDCA = _TRUE;
+		pDM_Odm->DM_EDCA_Table.bCurrentTurboEDCA = true;
 	}
 	else
 	{
@@ -271,7 +271,7 @@ odm_EdcaTurboCheckCE(
 		 if(pDM_Odm->DM_EDCA_Table.bCurrentTurboEDCA)
 		{
 			rtw_write32(Adapter, REG_EDCA_BE_PARAM, pHalData->AcParam_BE);
-			pDM_Odm->DM_EDCA_Table.bCurrentTurboEDCA = _FALSE;
+			pDM_Odm->DM_EDCA_Table.bCurrentTurboEDCA = false;
 		}
 	}
 
@@ -307,9 +307,9 @@ odm_EdcaTurboCheckMP(
 	u4Byte                         EDCA_BE = 0x5ea42b;
 	u1Byte                         IOTPeer=0;
 	BOOLEAN                      *pbIsCurRDLState=NULL;
-	BOOLEAN                      bLastIsCurRDLState=FALSE;
-	BOOLEAN				 bBiasOnRx=FALSE;
-	BOOLEAN				bEdcaTurboOn=FALSE;
+	BOOLEAN                      bLastIsCurRDLState=false;
+	BOOLEAN				 bBiasOnRx=false;
+	BOOLEAN				bEdcaTurboOn=false;
 	u1Byte				TxRate = 0xFF;
 	u8Byte				value64;	
 
@@ -324,7 +324,7 @@ odm_EdcaTurboCheckMP(
 
 	//2012/09/14 MH Add 
 	if (pMgntInfo->NumNonBePkt > pMgntInfo->RegEdcaThresh && !Adapter->MgntInfo.bWiFiConfg)
-		pHalData->bIsAnyNonBEPkts = TRUE;
+		pHalData->bIsAnyNonBEPkts = true;
 
 	pMgntInfo->NumNonBePkt = 0;
 
@@ -350,8 +350,8 @@ odm_EdcaTurboCheckMP(
 	}
 	//
 	IOTPeer=pMgntInfo->IOTPeer;
-	bBiasOnRx=(pMgntInfo->IOTAction & HT_IOT_ACT_EDCA_BIAS_ON_RX)?TRUE:FALSE;
-	bEdcaTurboOn=((!pHalData->bIsAnyNonBEPkts))?TRUE:FALSE;
+	bBiasOnRx=(pMgntInfo->IOTAction & HT_IOT_ACT_EDCA_BIAS_ON_RX)?true:false;
+	bEdcaTurboOn=((!pHalData->bIsAnyNonBEPkts))?true:false;
 	ODM_RT_TRACE(pDM_Odm,ODM_COMP_EDCA_TURBO,ODM_DBG_LOUD,("bIsAnyNonBEPkts : 0x%lx  \n",pHalData->bIsAnyNonBEPkts));
 
 
@@ -360,7 +360,7 @@ odm_EdcaTurboCheckMP(
 ////===============================
 	if(odm_IsEdcaTurboDisable(pDM_Odm))
 	{
-		pHalData->bIsAnyNonBEPkts = FALSE;
+		pHalData->bIsAnyNonBEPkts = false;
 		pMgntInfo->lastTxOkCnt = Adapter->TxStats.NumTxBytesUnicast;
 		pMgntInfo->lastRxOkCnt = Adapter->RxStats.NumRxBytesUnicast;
 		pMgntInfo->Ext_lastTxOkCnt = pExtAdapter->TxStats.NumTxBytesUnicast;
@@ -383,12 +383,12 @@ odm_EdcaTurboCheckMP(
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_EDCA_TURBO,ODM_DBG_LOUD,("curTxOkCnt : 0x%lx \n",curTxOkCnt));
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_EDCA_TURBO,ODM_DBG_LOUD,("curRxOkCnt : 0x%lx \n",curRxOkCnt));
 		if(bBiasOnRx)
-			odm_EdcaChooseTrafficIdx(pDM_Odm,curTxOkCnt, curRxOkCnt,   TRUE,  pbIsCurRDLState);
+			odm_EdcaChooseTrafficIdx(pDM_Odm,curTxOkCnt, curRxOkCnt,   true,  pbIsCurRDLState);
 		else
-			odm_EdcaChooseTrafficIdx(pDM_Odm,curTxOkCnt, curRxOkCnt,   FALSE,  pbIsCurRDLState);
+			odm_EdcaChooseTrafficIdx(pDM_Odm,curTxOkCnt, curRxOkCnt,   false,  pbIsCurRDLState);
 
 //modify by Guo.Mingzhi 2011-12-29
-			EDCA_BE=((*pbIsCurRDLState)==TRUE)?EDCA_BE_DL:EDCA_BE_UL;
+			EDCA_BE=((*pbIsCurRDLState)==true)?EDCA_BE_DL:EDCA_BE_UL;
 			if(IS_HARDWARE_TYPE_8821U(Adapter))
 			{
 				if(pMgntInfo->RegTxDutyEnable)
@@ -563,7 +563,7 @@ odm_EdcaTurboCheckMP(
 
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_EDCA_TURBO,ODM_DBG_LOUD,("EDCA Turbo on: EDCA_BE:0x%lx\n",EDCA_BE));
 
-		pDM_Odm->DM_EDCA_Table.bCurrentTurboEDCA = TRUE;
+		pDM_Odm->DM_EDCA_Table.bCurrentTurboEDCA = true;
 		
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_EDCA_TURBO,ODM_DBG_LOUD,("EDCA_BE_DL : 0x%lx  EDCA_BE_UL : 0x%lx  EDCA_BE : 0x%lx  \n",EDCA_BE_DL,EDCA_BE_UL,EDCA_BE));
 
@@ -576,7 +576,7 @@ odm_EdcaTurboCheckMP(
 		{
 			Adapter->HalFunc.SetHwRegHandler(Adapter, HW_VAR_AC_PARAM, GET_WMM_PARAM_ELE_SINGLE_AC_PARAM(pStaQos->WMMParamEle, AC0_BE) );
 
-			pDM_Odm->DM_EDCA_Table.bCurrentTurboEDCA = FALSE;
+			pDM_Odm->DM_EDCA_Table.bCurrentTurboEDCA = false;
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_EDCA_TURBO,ODM_DBG_LOUD,("Restore EDCA BE: 0x%lx  \n",pDM_Odm->WMMEDCA_BE));
 
 		}
@@ -599,7 +599,7 @@ odm_IsEdcaTurboDisable(
 	if(pDM_Odm->bBtDisableEdcaTurbo)
 	{
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_EDCA_TURBO,ODM_DBG_LOUD, ("EdcaTurboDisable for BT!!\n"));
-		return TRUE;
+		return true;
 	}
 
 	if((!(pDM_Odm->SupportAbility& ODM_MAC_EDCA_TURBO ))||
@@ -607,7 +607,7 @@ odm_IsEdcaTurboDisable(
 		(IOTPeer>= HT_IOT_PEER_MAX))
 	{
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_EDCA_TURBO,ODM_DBG_LOUD, ("EdcaTurboDisable\n"));
-		return TRUE;
+		return true;
 	}
 
 
@@ -615,10 +615,10 @@ odm_IsEdcaTurboDisable(
 	// 2. User may disable EDCA Turbo mode with OID settings.
 	if(pMgntInfo->IOTAction & HT_IOT_ACT_DISABLE_EDCA_TURBO){
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_EDCA_TURBO,ODM_DBG_LOUD, ("IOTAction:EdcaTurboDisable\n"));
-		return	TRUE;
+		return	true;
 		}
 		
-	return	FALSE;
+	return	false;
 	
 
 }
@@ -697,7 +697,7 @@ ODM_EdcaParaSelByIot(
 	}
      
 	#if (INTEL_PROXIMITY_SUPPORT == 1)
-	if(pMgntInfo->IntelClassModeInfo.bEnableCA == TRUE)
+	if(pMgntInfo->IntelClassModeInfo.bEnableCA == true)
 	{
 		(*EDCA_BE_UL) = (*EDCA_BE_DL) = 0xa44f;
 	}
@@ -801,13 +801,13 @@ odm_EdcaChooseTrafficIdx(
 	  
 		if(cur_tx_bytes>(cur_rx_bytes*4))
 		{
-			*pbIsCurRDLState=FALSE;
+			*pbIsCurRDLState=false;
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_EDCA_TURBO,ODM_DBG_LOUD,("Uplink Traffic\n "));
 
 		}
 		else
 		{
-			*pbIsCurRDLState=TRUE;
+			*pbIsCurRDLState=true;
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_EDCA_TURBO,ODM_DBG_LOUD,("Balance Traffic\n"));
 
 		}
@@ -816,13 +816,13 @@ odm_EdcaChooseTrafficIdx(
 	{
 		if(cur_rx_bytes>(cur_tx_bytes*4))
 		{
-			*pbIsCurRDLState=TRUE;
+			*pbIsCurRDLState=true;
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_EDCA_TURBO,ODM_DBG_LOUD,("Downlink	Traffic\n"));
 
 		}
 		else
 		{
-			*pbIsCurRDLState=FALSE;
+			*pbIsCurRDLState=false;
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_EDCA_TURBO,ODM_DBG_LOUD,("Balance Traffic\n"));
 		}
 	}

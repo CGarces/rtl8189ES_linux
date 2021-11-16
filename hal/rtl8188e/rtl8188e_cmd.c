@@ -32,7 +32,7 @@
 
 static u8 _is_fw_read_cmd_down(_adapter* padapter, u8 msgbox_num)
 {
-	u8	read_down = _FALSE;
+	u8	read_down = false;
 	int	retry_cnts = 100;
 
 	u8 valid;
@@ -42,7 +42,7 @@ static u8 _is_fw_read_cmd_down(_adapter* padapter, u8 msgbox_num)
 	do{
 		valid = rtw_read8(padapter,REG_HMETFR) & BIT(msgbox_num);
 		if(0 == valid ){
-			read_down = _TRUE;
+			read_down = true;
 		}
 		else
 			rtw_msleep_os(1);
@@ -80,7 +80,7 @@ _func_enter_;
 	padapter = GET_PRIMARY_ADAPTER(padapter);		
 	pHalData = GET_HAL_DATA(padapter);
 
-	if(padapter->bFWReady == _FALSE)
+	if(padapter->bFWReady == false)
 	{
 		DBG_8192C("FillH2CCmd_88E(): return H2C cmd because fw is not ready\n");
 		return ret;
@@ -184,7 +184,7 @@ u8 rtl8192c_set_FwSelectSuspend_cmd(_adapter *padapter ,u8 bfwpoll, u16 period)
 	struct H2C_SS_RFOFF_PARAM param;
 	DBG_8192C("==>%s bfwpoll(%x)\n",__FUNCTION__,bfwpoll);
 	param.gpio_period = period;//Polling GPIO_11 period time
-	param.ROFOn = (_TRUE == bfwpoll)?1:0;
+	param.ROFOn = (true == bfwpoll)?1:0;
 	FillH2CCmd_88E(padapter, SELECTIVE_SUSPEND_ROF_CMD, sizeof(param), (u8*)(&param));		
 	return res;
 }
@@ -196,7 +196,7 @@ u8 rtl8188e_set_rssi_cmd(_adapter*padapter, u8 *param)
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 _func_enter_;
 
-	if(pHalData->fw_ractrl == _FALSE){		
+	if(pHalData->fw_ractrl == false){		
 		DBG_8192C("==>%s fw dont support RA \n",__FUNCTION__);
 		return _FAIL;
 	}
@@ -216,10 +216,10 @@ u8 rtl8188e_set_raid_cmd(_adapter*padapter, u32 bitmap, u8* arg)
 	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	struct sta_info	*psta ;	
-	u8 macid, init_rate, raid, shortGIrate=_FALSE;	
+	u8 macid, init_rate, raid, shortGIrate=false;	
 	u8 H2CCommand[7]={0};
 		
-	if(pHalData->fw_ractrl == _FALSE){		
+	if(pHalData->fw_ractrl == false){		
 		DBG_8192C("==>%s fw dont support RA \n",__FUNCTION__);
 		return _FAIL;
 	}
@@ -240,8 +240,8 @@ u8 rtl8188e_set_raid_cmd(_adapter*padapter, u32 bitmap, u8* arg)
 	H2CCommand[2] = psta->bw_mode & 0x03; //BW; 
 
 #ifdef CONFIG_INTEL_PROXIM
-	if(padapter->proximity.proxim_on ==_TRUE)
-		pHalData->bDisableTXPowerTraining = _FALSE;
+	if(padapter->proximity.proxim_on ==true)
+		pHalData->bDisableTXPowerTraining = false;
 #endif
 
 	//DisableTXPowerTraining
@@ -281,7 +281,7 @@ u8 rtl8188e_set_raid_cmd(_adapter*padapter, u32 bitmap, u8* arg)
 void rtl8188e_Add_RateATid(PADAPTER pAdapter, u64 rate_bitmap, u8 *arg, u8 rssi_level)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
-	u8 macid, init_rate, raid, shortGIrate=_FALSE;
+	u8 macid, init_rate, raid, shortGIrate=false;
 	u32 bitmap = (u32) rate_bitmap;
 
 	macid = arg[0];
@@ -294,7 +294,7 @@ void rtl8188e_Add_RateATid(PADAPTER pAdapter, u64 rate_bitmap, u8 *arg, u8 rssi_
 	if(rssi_level != DM_RATR_STA_INIT)
 		bitmap = ODM_Get_Rate_Bitmap(&pHalData->odmpriv, macid, bitmap, rssi_level);		
 
-	if (shortGIrate==_TRUE)
+	if (shortGIrate==true)
 		init_rate |= BIT(6);
 
 	bitmap &= 0x0fffffff;
@@ -596,7 +596,7 @@ void ConstructNullFunctionData(
 
 	SetSeqNum(pwlanhdr, 0);
 
-	if (bQoS == _TRUE) {
+	if (bQoS == true) {
 		struct rtw_ieee80211_hdr_3addr_qos *pwlanqoshdr;
 
 		SetFrameSubType(pframe, WIFI_QOS_DATA_NULL);
@@ -728,8 +728,8 @@ void rtl8188e_set_FwJoinBssReport_cmd(PADAPTER padapter, u8 mstatus)
 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
 	struct sta_info *psta = NULL;
 #endif
-	BOOLEAN		bSendBeacon=_FALSE;
-	BOOLEAN		bcn_valid = _FALSE;
+	BOOLEAN		bSendBeacon=false;
+	BOOLEAN		bcn_valid = false;
 	u8	DLBcnCount=0;
 	u32 poll = 0;
 
@@ -763,7 +763,7 @@ _func_enter_;
 		if(pHalData->RegFwHwTxQCtrl&BIT6)
 		{
 			DBG_871X("HalDownloadRSVDPage(): There is an Adapter is sending beacon.\n");
-			bSendBeacon = _TRUE;
+			bSendBeacon = true;
 		}
 
 		// Set FWHW_TXQ_CTRL 0x422[6]=0 to tell Hw the packet is not a real beacon frame.
@@ -777,7 +777,7 @@ _func_enter_;
 		do
 		{
 			/* download rsvd page.*/
-			rtw_hal_set_fw_rsvd_page(padapter, _FALSE);
+			rtw_hal_set_fw_rsvd_page(padapter, false);
 			DLBcnCount++;
 			do
 			{
@@ -975,7 +975,7 @@ int reset_tsf(PADAPTER Adapter, u8 reset_port )
 		reset_cnt_after = rtw_read8(Adapter, reg_reset_tsf_cnt);
 	}
 
-	return(loop_cnt >= 10) ? _FAIL : _TRUE;
+	return(loop_cnt >= 10) ? _FAIL : true;
 }
 
 

@@ -423,23 +423,23 @@ odm_TXPowerTrackingThermalMeterInit(
 	PADAPTER		Adapter = pDM_Odm->Adapter;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 
-	if(pDM_Odm->mp_mode == FALSE)
-		pHalData->TxPowerTrackControl = TRUE;
+	if(pDM_Odm->mp_mode == false)
+		pHalData->TxPowerTrackControl = true;
 #elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PADAPTER		Adapter = pDM_Odm->Adapter;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 
-	pRFCalibrateInfo->bTXPowerTracking = _TRUE;
+	pRFCalibrateInfo->bTXPowerTracking = true;
 	pRFCalibrateInfo->TXPowercount = 0;
-	pRFCalibrateInfo->bTXPowerTrackingInit = _FALSE;
+	pRFCalibrateInfo->bTXPowerTrackingInit = false;
 
-	if(pDM_Odm->mp_mode == FALSE)
-		pRFCalibrateInfo->TxPowerTrackControl = _TRUE;
+	if(pDM_Odm->mp_mode == false)
+		pRFCalibrateInfo->TxPowerTrackControl = true;
 	else
-		pRFCalibrateInfo->TxPowerTrackControl = _FALSE;	
+		pRFCalibrateInfo->TxPowerTrackControl = false;	
 
-	if(pDM_Odm->mp_mode == FALSE)
-		pRFCalibrateInfo->TxPowerTrackControl = _TRUE;
+	if(pDM_Odm->mp_mode == false)
+		pRFCalibrateInfo->TxPowerTrackControl = true;
 
 
 	MSG_8192C("pDM_Odm TxPowerTrackControl = %d\n", pRFCalibrateInfo->TxPowerTrackControl);
@@ -447,15 +447,15 @@ odm_TXPowerTrackingThermalMeterInit(
 #elif (DM_ODM_SUPPORT_TYPE & (ODM_AP|ODM_ADSL))
 	#ifdef RTL8188E_SUPPORT
 	{
-		pRFCalibrateInfo->bTXPowerTracking = _TRUE;
+		pRFCalibrateInfo->bTXPowerTracking = true;
 		pRFCalibrateInfo->TXPowercount = 0;
-		pRFCalibrateInfo->bTXPowerTrackingInit = _FALSE;
-		pRFCalibrateInfo->TxPowerTrackControl = _TRUE;
+		pRFCalibrateInfo->bTXPowerTrackingInit = false;
+		pRFCalibrateInfo->TxPowerTrackControl = true;
 	}
 	#endif
 #endif
 
-	//pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = TRUE;
+	//pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = true;
 	pRFCalibrateInfo->ThermalValue = pHalData->EEPROMThermalMeter;
 	pRFCalibrateInfo->ThermalValue_IQK = pHalData->EEPROMThermalMeter;
 	pRFCalibrateInfo->ThermalValue_LCK = pHalData->EEPROMThermalMeter;	
@@ -579,19 +579,19 @@ odm_TXPowerTrackingCheckMP(
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	PADAPTER	Adapter = pDM_Odm->Adapter;
 
-	if (ODM_CheckPowerStatus(Adapter) == FALSE) 
+	if (ODM_CheckPowerStatus(Adapter) == false) 
 	{
-		RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD, ("===>ODM_CheckPowerStatus() return FALSE\n"));
+		RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD, ("===>ODM_CheckPowerStatus() return false\n"));
 		return;
 	}
 
 	if(IS_HARDWARE_TYPE_8723A(Adapter))
 		return;
 
-	if(!Adapter->bSlaveOfDMSP || Adapter->DualMacSmartConcurrent == FALSE)
+	if(!Adapter->bSlaveOfDMSP || Adapter->DualMacSmartConcurrent == false)
 		odm_TXPowerTrackingThermalMeterCheck(Adapter);
 	else {
-		RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD, ("!Adapter->bSlaveOfDMSP || Adapter->DualMacSmartConcurrent == FALSE\n"));
+		RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD, ("!Adapter->bSlaveOfDMSP || Adapter->DualMacSmartConcurrent == false\n"));
 	}
 #endif
 	
@@ -635,7 +635,7 @@ odm_TXPowerTrackingThermalMeterCheck(
 	if(!(GET_HAL_DATA(Adapter)->DM_OutSrc.SupportAbility & ODM_RF_TX_PWR_TRACK))
 	{
 		RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD,
-			("===>odm_TXPowerTrackingThermalMeterCheck(),pMgntInfo->bTXPowerTracking is FALSE, return!!\n"));
+			("===>odm_TXPowerTrackingThermalMeterCheck(),pMgntInfo->bTXPowerTracking is false, return!!\n"));
 		return;
 	}
 

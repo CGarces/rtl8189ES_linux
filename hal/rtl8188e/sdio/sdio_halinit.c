@@ -170,7 +170,7 @@ void _InitClockTo26MHz(
 		MSG_8192C("D cut version\n");
 	}
 
-	EnableGpio5ClockReq(Adapter, _FALSE, 1);
+	EnableGpio5ClockReq(Adapter, false, 1);
 
 	//0x2c[3:0] = 5 will set clock to 26MHz
 	u1temp = rtw_read8(Adapter, REG_APE_PLL_CTRL_EXT);
@@ -230,7 +230,7 @@ static u8 _CardEnable(PADAPTER padapter)
 	DBG_871X("=>%s\n", __FUNCTION__);
 
 	rtw_hal_get_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);
-	if (bMacPwrCtrlOn == _FALSE)
+	if (bMacPwrCtrlOn == false)
 	{
 #ifdef CONFIG_PLATFORM_SPRD
 		u8 val8;
@@ -252,7 +252,7 @@ static u8 _CardEnable(PADAPTER padapter)
 
 		ret = HalPwrSeqCmdParsing(padapter, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_SDIO_MSK, Rtl8188E_NIC_ENABLE_FLOW);
 		if (ret == _SUCCESS) {
-			u8 bMacPwrCtrlOn = _TRUE;
+			u8 bMacPwrCtrlOn = true;
 			rtw_hal_set_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);
 		}
 		else
@@ -265,7 +265,7 @@ static u8 _CardEnable(PADAPTER padapter)
 	else
 	{
 		
-		DBG_871X("=>%s bMacPwrCtrlOn == _TRUE do nothing !!\n", __FUNCTION__);	
+		DBG_871X("=>%s bMacPwrCtrlOn == true do nothing !!\n", __FUNCTION__);	
 		ret = _SUCCESS;
 	}
 
@@ -314,7 +314,7 @@ static u32 _InitPowerOn_8188ES(PADAPTER padapter)
 	rtw_write16(padapter, REG_CR, value16);
 
 	// Enable CMD53 R/W Operation
-//	bMacPwrCtrlOn = TRUE;
+//	bMacPwrCtrlOn = true;
 //	rtw_hal_set_hwreg(padapter, HW_VAR_APFM_ON_MAC, (pu8)(&bMacPwrCtrlOn));
 
 	DBG_871X("<=%s\n", __FUNCTION__);
@@ -328,7 +328,7 @@ static void hal_poweroff_8188es(PADAPTER padapter)
 	u8		u1bTmp;
 	u16		u2bTmp;
 	u32		u4bTmp;
-	u8		bMacPwrCtrlOn = _FALSE;
+	u8		bMacPwrCtrlOn = false;
 	u8		ret;
 
 #ifdef CONFIG_PLATFORM_SPRD
@@ -336,9 +336,9 @@ static void hal_poweroff_8188es(PADAPTER padapter)
 #endif //CONFIG_PLATFORM_SPRD	
 
 	rtw_hal_get_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);
-	if(bMacPwrCtrlOn == _FALSE)
+	if(bMacPwrCtrlOn == false)
 	{
-		DBG_871X("=>%s bMacPwrCtrlOn == _FALSE return !!\n", __FUNCTION__);	
+		DBG_871X("=>%s bMacPwrCtrlOn == false return !!\n", __FUNCTION__);	
 		return;
 	}
 	DBG_871X("=>%s\n", __FUNCTION__);
@@ -353,7 +353,7 @@ static void hal_poweroff_8188es(PADAPTER padapter)
 
 
 #ifdef CONFIG_EXT_CLK //for sprd For Power Consumption.
-	EnableGpio5ClockReq(padapter, _FALSE, 0);	
+	EnableGpio5ClockReq(padapter, false, 0);	
 #endif //CONFIG_EXT_CLK
 
 #if 1
@@ -371,7 +371,7 @@ static void hal_poweroff_8188es(PADAPTER padapter)
 
 	// Run LPS WL RFOFF flow	
 	ret = HalPwrSeqCmdParsing(padapter, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_SDIO_MSK, Rtl8188E_NIC_LPS_ENTER_FLOW);
-	if (ret == _FALSE) {
+	if (ret == false) {
 		DBG_871X("%s: run RF OFF flow fail!\n", __func__);
 	}
 
@@ -399,7 +399,7 @@ static void hal_poweroff_8188es(PADAPTER padapter)
 	//==== Reset digital sequence end ======
 	
 
-	bMacPwrCtrlOn = _FALSE;	// Disable CMD53 R/W
+	bMacPwrCtrlOn = false;	// Disable CMD53 R/W
 	rtw_hal_set_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);
 
 
@@ -418,7 +418,7 @@ static void hal_poweroff_8188es(PADAPTER padapter)
 		ret = HalPwrSeqCmdParsing(padapter, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_SDIO_MSK, Rtl8188E_NIC_DISABLE_FLOW);
 
 		 
-		if (ret == _FALSE) {
+		if (ret == false) {
 			DBG_871X("%s: run CARD DISABLE flow fail!\n", __func__);
 		}
 	}
@@ -439,8 +439,8 @@ static void hal_poweroff_8188es(PADAPTER padapter)
 	// lock ISO/CLK/Power control register
 	rtw_write8(padapter, REG_RSV_CTRL, 0x0E);
 
-	padapter->bFWReady = _FALSE;
-	bMacPwrCtrlOn = _FALSE;
+	padapter->bFWReady = false;
+	bMacPwrCtrlOn = false;
 	rtw_hal_set_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);
 	
 	DBG_871X("<=%s\n", __FUNCTION__);
@@ -589,7 +589,7 @@ _InitNormalChipOneOutEpPriority(
 			value = QUEUE_NORMAL;
 			break;
 		default:
-			//RT_ASSERT(FALSE,("Shall not reach here!\n"));
+			//RT_ASSERT(false,("Shall not reach here!\n"));
 			break;
 	}
 
@@ -632,7 +632,7 @@ _InitNormalChipTwoOutEpPriority(
 			valueLow = QUEUE_NORMAL;
 			break;
 		default:
-			//RT_ASSERT(FALSE,("Shall not reach here!\n"));
+			//RT_ASSERT(false,("Shall not reach here!\n"));
 			break;
 	}
 
@@ -703,7 +703,7 @@ _InitNormalChipQueuePriority(
 			_InitNormalChipThreeOutEpPriority(Adapter);
 			break;
 		default:
-			//RT_ASSERT(FALSE,("Shall not reach here!\n"));
+			//RT_ASSERT(false,("Shall not reach here!\n"));
 			break;
 	}
 
@@ -946,7 +946,7 @@ void _InitOperationMode(PADAPTER padapter)
 			regRRSR = RATE_ALL_CCK;
 			break;
 		case WIRELESS_MODE_A:
-//			RT_ASSERT(FALSE,("Error wireless a mode\n"));
+//			RT_ASSERT(false,("Error wireless a mode\n"));
 #if 0
 			regBwOpMode = BW_OPMODE_5G |BW_OPMODE_20MHZ;
 			regRATR = RATE_ALL_OFDM_AG;
@@ -982,7 +982,7 @@ void _InitOperationMode(PADAPTER padapter)
 			regRRSR = RATE_ALL_CCK | RATE_ALL_OFDM_AG;
 			break;
 		case WIRELESS_MODE_N_5G:
-//			RT_ASSERT(FALSE,("Error wireless mode"));
+//			RT_ASSERT(false,("Error wireless mode"));
 #if 0
 			regBwOpMode = BW_OPMODE_5G;
 			regRATR = RATE_ALL_OFDM_AG | RATE_ALL_OFDM_1SS | RATE_ALL_OFDM_2SS;
@@ -1335,24 +1335,24 @@ HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_DOWNLOAD_FW);
 #endif //MP_DRIVER == 1
 	{	
 #if 0
-	padapter->bFWReady = _FALSE; //because no fw for test chip	
-	pHalData->fw_ractrl = _FALSE;
+	padapter->bFWReady = false; //because no fw for test chip	
+	pHalData->fw_ractrl = false;
 #else
 
-	ret = rtl8188e_FirmwareDownload(padapter, _FALSE);
+	ret = rtl8188e_FirmwareDownload(padapter, false);
 
 	if (ret != _SUCCESS) {
 		DBG_871X("%s: Download Firmware failed!!\n", __FUNCTION__);
-		padapter->bFWReady = _FALSE;
-		pHalData->fw_ractrl = _FALSE;
+		padapter->bFWReady = false;
+		pHalData->fw_ractrl = false;
 		goto exit;
 	} else {
 		RT_TRACE(_module_hci_hal_init_c_, _drv_info_, ("Initializepadapter8192CSdio(): Download Firmware Success!!\n"));
-		padapter->bFWReady = _TRUE;
+		padapter->bFWReady = true;
 		#ifdef CONFIG_SFW_SUPPORTED
-		pHalData->fw_ractrl = IS_VENDOR_8188E_I_CUT_SERIES(padapter)?_TRUE:_FALSE;
+		pHalData->fw_ractrl = IS_VENDOR_8188E_I_CUT_SERIES(padapter)?true:false;
 		#else
-		pHalData->fw_ractrl = _FALSE;
+		pHalData->fw_ractrl = false;
 		#endif
 	}
 #endif
@@ -1462,7 +1462,7 @@ HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_INIT_LLTT);
 #endif
 
 
-	if (pwrctrlpriv->reg_rfoff == _TRUE) {
+	if (pwrctrlpriv->reg_rfoff == true) {
 		pwrctrlpriv->rf_pwrstate = rf_off;
 	}
 
@@ -1493,7 +1493,7 @@ HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_MISC02);
 	_initSdioAggregationSetting(padapter);
 	_InitOperationMode(padapter);
 	_InitBeaconParameters(padapter);
-	_InitBeaconMaxError(padapter, _TRUE);
+	_InitBeaconMaxError(padapter, true);
 	_InitInterrupt(padapter);
 	
 	// Enable MACTXEN/MACRXEN block
@@ -1599,8 +1599,8 @@ HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_INIT_HAL_DM);
 
 	// 20100326 Joseph: Copy from GPIOChangeRFWorkItemCallBack() function to check HW radio on/off.
 	// 20100329 Joseph: Revise and integrate the HW/SW radio off code in initialization.
-//	pHalData->bHwRadioOff = _FALSE;
-	pwrctrlpriv->b_hw_radio_off = _FALSE;
+//	pHalData->bHwRadioOff = false;
+	pwrctrlpriv->b_hw_radio_off = false;
 	eRfPowerStateToSet = rf_on;
 
 	// 2010/-8/09 MH For power down module, we need to enable register block contrl reg at 0x1c.
@@ -1627,14 +1627,14 @@ HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_INIT_HAL_DM);
 	
 HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_IQK);
 		if(pHalData->bIQKInitialized){
-//			PHY_IQCalibrate(padapter, _TRUE);
-			PHY_IQCalibrate_8188E(padapter,_TRUE);
+//			PHY_IQCalibrate(padapter, true);
+			PHY_IQCalibrate_8188E(padapter,true);
 		}
 		else
 		{
-//			PHY_IQCalibrate(padapter, _FALSE);
-			PHY_IQCalibrate_8188E(padapter,_FALSE);
-			pHalData->bIQKInitialized = _TRUE;
+//			PHY_IQCalibrate(padapter, false);
+			PHY_IQCalibrate_8188E(padapter,false);
+			pHalData->bIQKInitialized = true;
 		}
 
 //		dm_CheckTXPowerTracking(padapter);
@@ -1673,7 +1673,7 @@ HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_MISC31);
 
 	// 2010/08/23 MH According to Alfred's suggestion, we need to to prevent HW enter
 	// suspend mode automatically.
-	//HwSuspendModeEnable92Cu(padapter, FALSE);
+	//HwSuspendModeEnable92Cu(padapter, false);
 
 	// 2010/12/17 MH For TX power level OID modification from UI.
 //	padapter->HalFunc.GetTxPowerLevelHandler( padapter, &pHalData->DefaultTxPwrDbm );
@@ -1799,14 +1799,14 @@ static void rtl8188es_init_default_value(PADAPTER padapter)
 	rtl8188e_init_default_value(padapter);
 
 	//init default value
-	pHalData->fw_ractrl = _FALSE;		
+	pHalData->fw_ractrl = false;		
 	if(!pwrctrlpriv->bkeepfwalive)
 		pHalData->LastHMEBoxNum = 0;	
 
 	//init dm default value
-	pHalData->bIQKInitialized = _FALSE;
+	pHalData->bIQKInitialized = false;
 	pHalData->odmpriv.RFCalibrateInfo.TM_Trigger = 0;//for IQK
-	//pdmpriv->binitialized = _FALSE;
+	//pdmpriv->binitialized = false;
 //	pdmpriv->prv_traffic_idx = 3;
 //	pdmpriv->initialize = 0;
 	pHalData->pwrGroupCnt = 0;
@@ -1923,8 +1923,8 @@ static void _ReadPROMContent(
 
 	/* check system boot selection */
 	eeValue = rtw_read8(padapter, REG_9346CR);
-	pHalData->EepromOrEfuse = (eeValue & BOOT_FROM_EEPROM) ? _TRUE : _FALSE;
-	pHalData->bautoload_fail_flag = (eeValue & EEPROM_EN) ? _FALSE : _TRUE;
+	pHalData->EepromOrEfuse = (eeValue & BOOT_FROM_EEPROM) ? true : false;
+	pHalData->bautoload_fail_flag = (eeValue & EEPROM_EN) ? false : true;
 
 	DBG_871X("%s: 9346CR=0x%02X, Boot from %s, Autoload %s\n",
 		  __FUNCTION__, eeValue,
@@ -1948,9 +1948,9 @@ _InitOtherVariable(
 
 
 	//if(Adapter->bInHctTest){
-	//	pMgntInfo->PowerSaveControl.bInactivePs = FALSE;
-	//	pMgntInfo->PowerSaveControl.bIPSModeBackup = FALSE;
-	//	pMgntInfo->PowerSaveControl.bLeisurePs = FALSE;
+	//	pMgntInfo->PowerSaveControl.bInactivePs = false;
+	//	pMgntInfo->PowerSaveControl.bIPSModeBackup = false;
+	//	pMgntInfo->PowerSaveControl.bLeisurePs = false;
 	//	pMgntInfo->keepAliveLevel = 0;
 	//}
 
@@ -2033,7 +2033,7 @@ _func_enter_;
 				{
 					//enable ext clock req before leave LPS-32K
 					//DBG_871X("enable ext clock req before leaving LPS-32K\n");					
-					EnableGpio5ClockReq(Adapter, _FALSE, 1);
+					EnableGpio5ClockReq(Adapter, false, 1);
 				}
 #endif //CONFIG_EXT_CLK
 
@@ -2090,7 +2090,7 @@ GetHalDefVar8188ESDIO(
 
 		case HAL_DEF_TX_LDPC:
 		case HAL_DEF_RX_LDPC:
-			*((u8 *)pValue) = _FALSE;
+			*((u8 *)pValue) = false;
 			break;
 		case HAL_DEF_TX_STBC:
 			*((u8 *)pValue) = 0;
@@ -2121,7 +2121,7 @@ SetHalDefVar8188ESDIO(
 	)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	u8			bResult = _TRUE;
+	u8			bResult = true;
 
 	switch(eVariable)
 	{
@@ -2203,13 +2203,13 @@ void SetBeaconRelatedRegisters8188ESdio(PADAPTER padapter)
 	// TODO: Modify later (Find the right parameters)
 	// NOTE: Fix test chip's bug (about contention windows's randomness)
 //	if (OpMode == RT_OP_MODE_IBSS || OpMode == RT_OP_MODE_AP)
-	if (check_fwstate(&padapter->mlmepriv, WIFI_ADHOC_STATE|WIFI_AP_STATE) == _TRUE)
+	if (check_fwstate(&padapter->mlmepriv, WIFI_ADHOC_STATE|WIFI_AP_STATE) == true)
 	{
 		rtw_write8(padapter, REG_RXTSF_OFFSET_CCK, 0x50);
 		rtw_write8(padapter, REG_RXTSF_OFFSET_OFDM, 0x50);
 	}
 
-	_BeaconFunctionEnable(padapter, _TRUE, _TRUE);
+	_BeaconFunctionEnable(padapter, true, true);
 
 	ResumeTxBeacon(padapter);
 	rtw_write8(padapter, bcn_ctrl_reg, rtw_read8(padapter, bcn_ctrl_reg)|BIT(1));

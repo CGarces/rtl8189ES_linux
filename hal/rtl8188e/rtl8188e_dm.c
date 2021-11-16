@@ -53,12 +53,12 @@ dm_CheckProtection(
 
 	if(Adapter->TxStats.CurrentInitTxRate <= RateThreshold)
 	{
-		pMgntInfo->bDmDisableProtect = TRUE;
+		pMgntInfo->bDmDisableProtect = true;
 		DbgPrint("Forced disable protect: %x\n", Adapter->TxStats.CurrentInitTxRate);
 	}
 	else
 	{
-		pMgntInfo->bDmDisableProtect = FALSE;
+		pMgntInfo->bDmDisableProtect = false;
 		DbgPrint("Enable protect: %x\n", Adapter->TxStats.CurrentInitTxRate);
 	}
 #endif
@@ -89,7 +89,7 @@ dm_CheckStatistics(
 static void dm_CheckPbcGPIO(_adapter *padapter)
 {
 	u8	tmp1byte;
-	u8	bPbcPressed = _FALSE;
+	u8	bPbcPressed = false;
 
 	if(!padapter->registrypriv.hw_wps_pbc)
 		return;
@@ -113,7 +113,7 @@ static void dm_CheckPbcGPIO(_adapter *padapter)
 
 	if (tmp1byte&HAL_8188E_HW_GPIO_WPS_BIT)
 	{
-		bPbcPressed = _TRUE;
+		bPbcPressed = true;
 	}
 #else
 	tmp1byte = rtw_read8(padapter, GPIO_IN);
@@ -124,11 +124,11 @@ static void dm_CheckPbcGPIO(_adapter *padapter)
 
 	if((tmp1byte&HAL_8188E_HW_GPIO_WPS_BIT)==0)
 	{
-		bPbcPressed = _TRUE;
+		bPbcPressed = true;
 	}
 #endif
 
-	if( _TRUE == bPbcPressed)
+	if( true == bPbcPressed)
 	{
 		// Here we only set bPbcPressed to true
 		// After trigger PBC, the variable will be set to false
@@ -156,8 +156,8 @@ dm_InterruptMigration(
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	struct mlme_priv	*pmlmepriv = &(Adapter->mlmepriv);
 	BOOLEAN			bCurrentIntMt, bCurrentACIntDisable;
-	BOOLEAN			IntMtToSet = _FALSE;
-	BOOLEAN			ACIntToSet = _FALSE;
+	BOOLEAN			IntMtToSet = false;
+	BOOLEAN			ACIntToSet = false;
 
 
 	// Retrieve current interrupt migration and Tx four ACs IMR settings first.
@@ -169,14 +169,14 @@ dm_InterruptMigration(
 	// when interrupt migration is set before. 2010.03.05.
 	//
 	if(!Adapter->registrypriv.wifi_spec &&
-		(check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE) &&
+		(check_fwstate(pmlmepriv, _FW_LINKED)== true) &&
 		pmlmepriv->LinkDetectInfo.bHigherBusyTraffic)
 	{
-		IntMtToSet = _TRUE;
+		IntMtToSet = true;
 
 		// To check whether we should disable Tx interrupt or not.
 		if(pmlmepriv->LinkDetectInfo.bHigherBusyRxTraffic )
-			ACIntToSet = _TRUE;
+			ACIntToSet = true;
 	}
 
 	//Update current settings.
@@ -303,7 +303,7 @@ static void Update_ODM_ComInfo_88E(PADAPTER	Adapter)
 //		| ODM_BB_PWR_TRAIN
 		;
 
-	if (rtw_odm_adaptivity_needed(Adapter) == _TRUE)
+	if (rtw_odm_adaptivity_needed(Adapter) == true)
 		SupportAbility |= ODM_BB_ADAPTIVITY;
 
 	if (!Adapter->registrypriv.qos_opt_enable) {
@@ -356,8 +356,8 @@ rtl8188e_HalDmWatchDog(
 	IN	PADAPTER	Adapter
 	)
 {
-	BOOLEAN		bFwCurrentInPSMode = _FALSE;
-	BOOLEAN		bFwPSAwake = _TRUE;
+	BOOLEAN		bFwCurrentInPSMode = false;
+	BOOLEAN		bFwPSAwake = true;
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
 	PDM_ODM_T		pDM_Odm = &(pHalData->odmpriv);
 #ifdef CONFIG_CONCURRENT_MODE
@@ -378,7 +378,7 @@ rtl8188e_HalDmWatchDog(
 	// Fw is under p2p powersaving mode, driver should stop dynamic mechanism.
 	// modifed by thomas. 2011.06.11.
 	if(Adapter->wdinfo.p2p_ps_mode)
-		bFwPSAwake = _FALSE;
+		bFwPSAwake = false;
 #endif //CONFIG_P2P_PS
 
 	if ((rtw_is_hw_init_completed(Adapter))
@@ -408,23 +408,23 @@ rtl8188e_HalDmWatchDog(
 
 	//ODM
 	if (rtw_is_hw_init_completed(Adapter)) {
-		u8	bLinked=_FALSE;
-		u8	bsta_state=_FALSE;
+		u8	bLinked=false;
+		u8	bsta_state=false;
 		#ifdef CONFIG_DISABLE_ODM
 		pHalData->odmpriv.SupportAbility = 0;
 		#endif
 
 		if(rtw_linked_check(Adapter)){			
-			bLinked = _TRUE;
+			bLinked = true;
 			if (check_fwstate(&Adapter->mlmepriv, WIFI_STATION_STATE))
-				bsta_state = _TRUE;
+				bsta_state = true;
 		}
 		
 #ifdef CONFIG_CONCURRENT_MODE
 		if(pbuddy_adapter && rtw_linked_check(pbuddy_adapter)){
-			bLinked = _TRUE;
+			bLinked = true;
 			if(pbuddy_adapter && check_fwstate(&pbuddy_adapter->mlmepriv, WIFI_STATION_STATE))
-				bsta_state = _TRUE;
+				bsta_state = true;
 		}
 #endif //CONFIG_CONCURRENT_MODE
 
@@ -500,12 +500,12 @@ u8 AntDivBeforeLink8188E(PADAPTER Adapter )
 	if(pHalData->AntDivCfg==0)
 	{
 		//DBG_8192C("odm_AntDivBeforeLink8192C(): No AntDiv Mechanism.\n");
-		return _FALSE;
+		return false;
 	}
 
-	if(check_fwstate(pmlmepriv, _FW_LINKED) == _TRUE)	
+	if(check_fwstate(pmlmepriv, _FW_LINKED) == true)	
 	{		
-		return _FALSE;
+		return false;
 	}
 
 
@@ -515,14 +515,14 @@ u8 AntDivBeforeLink8188E(PADAPTER Adapter )
 		pDM_SWAT_Table->CurAntenna = (pDM_SWAT_Table->CurAntenna==MAIN_ANT)?AUX_ANT:MAIN_ANT;
 
 		//PHY_SetBBReg(Adapter, rFPGA0_XA_RFInterfaceOE, 0x300, pDM_SWAT_Table->CurAntenna);
-		rtw_antenna_select_cmd(Adapter, pDM_SWAT_Table->CurAntenna, _FALSE);
+		rtw_antenna_select_cmd(Adapter, pDM_SWAT_Table->CurAntenna, false);
 		//DBG_8192C("%s change antenna to ANT_( %s ).....\n",__FUNCTION__, (pDM_SWAT_Table->CurAntenna==MAIN_ANT)?"MAIN":"AUX");
-		return _TRUE;
+		return true;
 	}
 	else
 	{
 		pDM_SWAT_Table->SWAS_NoLink_State = 0;
-		return _FALSE;
+		return false;
 	}	
 
 }

@@ -677,14 +677,14 @@ odm_RxPhyStatus92CSeries_Parsing(
 	s1Byte				rx_pwr[4], rx_pwr_all=0;
 	u1Byte				EVM, PWDB_ALL = 0, PWDB_ALL_BT;
 	u1Byte				RSSI, total_rssi=0;
-	BOOLEAN				isCCKrate=FALSE;	
+	BOOLEAN				isCCKrate=false;	
 	u1Byte				rf_rx_num = 0;
 	u1Byte				cck_highpwr = 0;
 	u1Byte				LNA_idx = 0;
 	u1Byte				VGA_idx = 0;
 	PPHY_STATUS_RPT_8192CD_T pPhyStaRpt = (PPHY_STATUS_RPT_8192CD_T)pPhyStatus;
 
-	isCCKrate = (pPktinfo->DataRate <= ODM_RATE11M) ? TRUE : FALSE;
+	isCCKrate = (pPktinfo->DataRate <= ODM_RATE11M) ? true : false;
 	pPhyInfo->RxMIMOSignalQuality[ODM_RF_PATH_A] = -1;
 	pPhyInfo->RxMIMOSignalQuality[ODM_RF_PATH_B] = -1;
 
@@ -703,7 +703,7 @@ odm_RxPhyStatus92CSeries_Parsing(
 		//if(pHalData->eRFPowerState == eRfOn)
 			cck_highpwr = pDM_Odm->bCckHighPower;
 		//else
-		//	cck_highpwr = FALSE;
+		//	cck_highpwr = false;
 
 		cck_agc_rpt =  pPhyStaRpt->cck_agc_rpt_ofdm_cfosho_a ;
 		
@@ -819,7 +819,7 @@ odm_RxPhyStatus92CSeries_Parsing(
 						rx_pwr_all += 8;
 					
 					PWDB_ALL = odm_QueryRxPwrPercentage(rx_pwr_all);
-					if(cck_highpwr == FALSE)
+					if(cck_highpwr == false)
 					{
 						if(PWDB_ALL >= 80)
 							PWDB_ALL = ((PWDB_ALL-80)<<1)+((PWDB_ALL-80)>>1)+80;
@@ -1109,7 +1109,7 @@ odm_RxPhyStatus92CSeries_Parsing(
 	{		
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 		// 2012/01/12 MH Use customeris signal strength from HalComRxdDesc.c/	
-		pPhyInfo->SignalStrength = SignalScaleProc(pDM_Odm->Adapter, PWDB_ALL, TRUE, TRUE);
+		pPhyInfo->SignalStrength = SignalScaleProc(pDM_Odm->Adapter, PWDB_ALL, true, true);
 #else
 	#ifdef CONFIG_SIGNAL_SCALE_MAPPING
 		pPhyInfo->SignalStrength = (u1Byte)(odm_SignalScaleMapping(pDM_Odm, PWDB_ALL));//PWDB_ALL;
@@ -1124,7 +1124,7 @@ odm_RxPhyStatus92CSeries_Parsing(
 		{			
 		#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 			// 2012/01/12 MH Use customeris signal strength from HalComRxdDesc.c/	
-			pPhyInfo->SignalStrength = SignalScaleProc(pDM_Odm->Adapter, (total_rssi/=rf_rx_num), TRUE, FALSE);
+			pPhyInfo->SignalStrength = SignalScaleProc(pDM_Odm->Adapter, (total_rssi/=rf_rx_num), true, false);
 		#else
 			#ifdef CONFIG_SIGNAL_SCALE_MAPPING
 			pPhyInfo->SignalStrength = (u1Byte)(odm_SignalScaleMapping(pDM_Odm, total_rssi/=rf_rx_num));
@@ -1209,9 +1209,9 @@ odm_RxPhyStatusJaguarSeries_Parsing(
 	odm_RxPhyBWJaguarSeries_Parsing(pPhyInfo, pPktinfo, pPhyStaRpt);
 
 	if (pPktinfo->DataRate <= ODM_RATE11M)
-		isCCKrate = TRUE;
+		isCCKrate = true;
 	else
-		isCCKrate = FALSE;
+		isCCKrate = false;
 
 	pPhyInfo->RxMIMOSignalQuality[ODM_RF_PATH_A] = -1;
 	pPhyInfo->RxMIMOSignalQuality[ODM_RF_PATH_B] = -1;
@@ -1228,7 +1228,7 @@ odm_RxPhyStatusJaguarSeries_Parsing(
 		/*if(pHalData->eRFPowerState == eRfOn)*/
 		cck_highpwr = pDM_Odm->bCckHighPower;
 		/*else*/
-		/*cck_highpwr = FALSE;*/
+		/*cck_highpwr = false;*/
 
 		cck_agc_rpt =  pPhyStaRpt->cfosho[0] ;
 		LNA_idx = ((cck_agc_rpt & 0xE0) >> 5);
@@ -1274,7 +1274,7 @@ odm_RxPhyStatusJaguarSeries_Parsing(
 			rx_pwr_all += 6;
 			PWDB_ALL = odm_QueryRxPwrPercentage(rx_pwr_all);
 
-			if (cck_highpwr == FALSE) {
+			if (cck_highpwr == false) {
 				if (PWDB_ALL >= 80)
 					PWDB_ALL = ((PWDB_ALL - 80) << 1) + ((PWDB_ALL - 80) >> 1) + 80;
 				else if ((PWDB_ALL <= 78) && (PWDB_ALL >= 20))
@@ -1548,7 +1548,7 @@ odm_RxPhyStatusJaguarSeries_Parsing(
 	if (isCCKrate) {
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 		/*2012/01/12 MH Use customeris signal strength from HalComRxdDesc.c/*/
-		pPhyInfo->SignalStrength = SignalScaleProc(pDM_Odm->Adapter, PWDB_ALL, FALSE, TRUE);
+		pPhyInfo->SignalStrength = SignalScaleProc(pDM_Odm->Adapter, PWDB_ALL, false, true);
 #else
 		pPhyInfo->SignalStrength = (u1Byte)(odm_SignalScaleMapping(pDM_Odm, PWDB_ALL));/*PWDB_ALL;*/
 #endif
@@ -1561,7 +1561,7 @@ odm_RxPhyStatusJaguarSeries_Parsing(
 				avg_rssi = (best_rssi + second_rssi)/2;
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 			/* 2012/01/12 MH Use customeris signal strength from HalComRxdDesc.c/*/	
-			pPhyInfo->SignalStrength = SignalScaleProc(pDM_Odm->Adapter, avg_rssi, FALSE, FALSE);
+			pPhyInfo->SignalStrength = SignalScaleProc(pDM_Odm->Adapter, avg_rssi, false, false);
 #else
 			pPhyInfo->SignalStrength = (u1Byte)(odm_SignalScaleMapping(pDM_Odm, avg_rssi));
 #endif
@@ -1678,7 +1678,7 @@ odm_Process_RSSIForDM(
 	if(pPktinfo->bPacketBeacon)
 		pDM_Odm->PhyDbgInfo.NumQryBeaconPkt++;
 	
-	isCCKrate = (pPktinfo->DataRate <= ODM_RATE11M )?TRUE :FALSE;
+	isCCKrate = (pPktinfo->DataRate <= ODM_RATE11M )?true :false;
 	pDM_Odm->RxRate = pPktinfo->DataRate;
 
 	//--------------Statistic for antenna/path diversity------------------
@@ -1897,7 +1897,7 @@ ODM_PhyStatusQuery_92CSeries(
 							pPhyStatus,
 							pPktinfo);
 
-	if( pDM_Odm->RSSI_test == TRUE)
+	if( pDM_Odm->RSSI_test == true)
 	{
 		// Select the packets to do RSSI checking for antenna switching.
 		if(pPktinfo->bPacketToSelf || pPktinfo->bPacketBeacon )
@@ -1906,7 +1906,7 @@ ODM_PhyStatusQuery_92CSeries(
 			#if 0//(DM_ODM_SUPPORT_TYPE == ODM_WIN)
 			dm_SWAW_RSSI_Check(
 				Adapter, 
-				(tmppAdapter!=NULL)?(tmppAdapter==Adapter):TRUE,
+				(tmppAdapter!=NULL)?(tmppAdapter==Adapter):true,
 				bPacketMatchBSSID,
 				pEntry,
 				pRfd);
@@ -1976,7 +1976,8 @@ ODM_PhyStatusQuery(
 }
 	
 // For future use.
-VOIDODM_MacStatusQuery(
+VOID
+ODM_MacStatusQuery(
 	IN OUT	PDM_ODM_T					pDM_Odm,
 	IN 		pu1Byte						pMacStatus,
 	IN		u1Byte						MacID,	
@@ -2971,9 +2972,9 @@ phydm_GetRxPhyStatusType0(
 	/* Update CCK packet counter */
 	pDM_Odm->PhyDbgInfo.NumQryPhyStatusCCK++;
 
-	/* Update Common information */
-	phydm_SetCommonPhyInfo((pPhyStaRpt->pwdb - 110), pPhyStaRpt->channel, FALSE, 
-		FALSE, ODM_BW20M, SQ, pPhyStaRpt->rxsc, pPhyInfo);
+	/* Update Common information */false
+	pfalseSetCommonPhyInfo((pPhyStaRpt->pwdb - 110), pPhyStaRpt->channel, false, 
+		false, ODM_BW20M, SQ, pPhyStaRpt->rxsc, pPhyInfo);
 
 	/* Update CCK pwdb */
 	phydm_SetPerPathPhyInfo(ODM_RF_PATH_A, (pPhyStaRpt->pwdb - 110), 0, 0, 0, pPhyInfo);					/* Update per-path information */
@@ -3038,10 +3039,10 @@ phydm_GetRxPhyStatusType1(
 	
 	/* Check if MU packet or not */
 	if ((pPhyStaRpt->gid != 0) && (pPhyStaRpt->gid != 63)) {
-		bMU = TRUE;
+		bMU = true;
 		pDM_Odm->PhyDbgInfo.NumQryMuPkt++;
-	} else
-		bMU = FALSE;
+	} elsefalse
+		bMU = false;
 
 	/* Count BF packet */
 	pDM_Odm->PhyDbgInfo.NumQryBfPkt = pDM_Odm->PhyDbgInfo.NumQryBfPkt + pPhyStaRpt->beamformed;
@@ -3140,8 +3141,8 @@ phydm_GetRxPhyStatusType2(
 		bw = ODM_BW20M;
 
 	/* Update packet information */
-	phydm_SetCommonPhyInfo(rx_pwr_db, pPhyStaRpt->channel, (BOOLEAN)pPhyStaRpt->beamformed,
-		FALSE, bw, 0, rxsc, pPhyInfo);
+	pfalseSetCommonPhyInfo(rx_pwr_db, pPhyStaRpt->channel, (BOOLEAN)pPhyStaRpt->beamformed,
+		false, bw, 0, rxsc, pPhyInfo);
 
 /*
 	if (pPktinfo->bPacketMatchBSSID)

@@ -177,10 +177,10 @@ ODM_ClearTxPowerTrackingState(
 		pRFCalibrateInfo->KfreeOffset[p] = 0;
 	}
 	
-	pRFCalibrateInfo->Modify_TxAGC_Flag_PathA = FALSE;       /*Initial at Modify Tx Scaling Mode*/
-	pRFCalibrateInfo->Modify_TxAGC_Flag_PathB = FALSE;       /*Initial at Modify Tx Scaling Mode*/
-	pRFCalibrateInfo->Modify_TxAGC_Flag_PathC = FALSE;       /*Initial at Modify Tx Scaling Mode*/
-	pRFCalibrateInfo->Modify_TxAGC_Flag_PathD = FALSE;       /*Initial at Modify Tx Scaling Mode*/
+	pRFCalibrateInfo->Modify_TxAGC_Flag_PathA = false;       /*Initial at Modify Tx Scaling Mode*/
+	pRFCalibrateInfo->Modify_TxAGC_Flag_PathB = false;       /*Initial at Modify Tx Scaling Mode*/
+	pRFCalibrateInfo->Modify_TxAGC_Flag_PathC = false;       /*Initial at Modify Tx Scaling Mode*/
+	pRFCalibrateInfo->Modify_TxAGC_Flag_PathD = false;       /*Initial at Modify Tx Scaling Mode*/
 	pRFCalibrateInfo->Remnant_CCKSwingIdx = 0;
 	pRFCalibrateInfo->ThermalValue = pHalData->EEPROMThermalMeter;
 	pRFCalibrateInfo->ThermalValue_IQK = pHalData->EEPROMThermalMeter;
@@ -214,7 +214,7 @@ ODM_TXPowerTrackingCallback_ThermalMeter(
 
 	u1Byte			OFDM_min_index = 0;  // OFDM BB Swing should be less than +3.0dB, which is required by Arthur
 	u1Byte			Indexforchannel = 0; // GetRightChnlPlaceforIQK(pHalData->CurrentChannel)
-	BOOLEAN			bTSSIenable = FALSE;
+	BOOLEAN			bTSSIenable = false;
 
 	TXPWRTRACK_CFG 	c;
 
@@ -242,7 +242,7 @@ ODM_TXPowerTrackingCallback_ThermalMeter(
 	
 	
 	pDM_Odm->RFCalibrateInfo.TXPowerTrackingCallbackCnt++; //cosa add for debug
-	pDM_Odm->RFCalibrateInfo.bTXPowerTrackingInit = TRUE;
+	pDM_Odm->RFCalibrateInfo.bTXPowerTrackingInit = true;
     
 #if (MP_DRIVER == 1)
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
@@ -250,7 +250,7 @@ ODM_TXPowerTrackingCallback_ThermalMeter(
 #endif
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
-	if (pDM_Odm->mp_mode == TRUE)
+	if (pDM_Odm->mp_mode == true)
 #endif
 		// <Kordan> RFCalibrateInfo.RegA24 will be initialized when ODM HW configuring, but MP configures with para files.
 		pDM_Odm->RFCalibrateInfo.RegA24 = 0x090e1317;
@@ -520,7 +520,7 @@ ODM_TXPowerTrackingCallback_ThermalMeter(
 	{
 		//4 7.2 Configure the Swing Table to adjust Tx Power.
 		
-		pDM_Odm->RFCalibrateInfo.bTxPowerChanged = TRUE; // Always TRUE after Tx Power is adjusted by power tracking.			
+		pDM_Odm->RFCalibrateInfo.bTxPowerChanged = true; // Always true after Tx Power is adjusted by power tracking.			
 		//
 		// 2012/04/23 MH According to Luke's suggestion, we can not write BB digital
 		// to increase TX power. Otherwise, EVM will be bad.
@@ -686,7 +686,7 @@ ODM_ResetIQKResult(
 				pDM_Odm->RFCalibrateInfo.IQKMatrixRegSetting[i].Value[0][5] = 
 				pDM_Odm->RFCalibrateInfo.IQKMatrixRegSetting[i].Value[0][7] = 0x0;
 
-			pDM_Odm->RFCalibrateInfo.IQKMatrixRegSetting[i].bIQKDone = FALSE;
+			pDM_Odm->RFCalibrateInfo.IQKMatrixRegSetting[i].bIQKDone = false;
 
 		}
 	}
@@ -750,11 +750,11 @@ odm_IQCalibrate(
 			/*Mark out IQK flow to prevent tx stuck. by Maddest 20130306*/
 			/*Open it verified by James 20130715*/
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
-			PHY_IQCalibrate_8821A(pDM_Odm, FALSE);
+			PHY_IQCalibrate_8821A(pDM_Odm, false);
 #elif (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-			PHY_IQCalibrate(Adapter, FALSE);
+			PHY_IQCalibrate(Adapter, false);
 #else
-			PHY_IQCalibrate_8821A(Adapter, FALSE);
+			PHY_IQCalibrate_8821A(Adapter, false);
 #endif
 		}
 	} else

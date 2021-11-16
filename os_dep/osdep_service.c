@@ -529,10 +529,10 @@ bool match_mstat_sniff_rules(const enum mstat_f flags, const size_t size)
 		if (mstat_sniff_rules[i].flags == flags
 				&& mstat_sniff_rules[i].lb <= size
 				&& mstat_sniff_rules[i].hb >= size)
-			return _TRUE;
+			return true;
 	}
 
-	return _FALSE;
+	return false;
 }
 
 inline u8* dbg_rtw_vmalloc(u32 sz, const enum mstat_f flags, const char *func, const int line)
@@ -828,9 +828,9 @@ int	_rtw_memcmp(void *dst, void *src, u32 sz)
 //under Linux/GNU/GLibc, the return value of memcmp for two same mem. chunk is 0
 
 	if (!(memcmp(dst, src, sz)))
-		return _TRUE;
+		return true;
 	else
-		return _FALSE;
+		return false;
 #endif
 
 
@@ -838,9 +838,9 @@ int	_rtw_memcmp(void *dst, void *src, u32 sz)
 //under Windows, the return value of NdisEqualMemory for two same mem. chunk is 1
 	
 	if (NdisEqualMemory (dst, src, sz))
-		return _TRUE;
+		return true;
 	else
-		return _FALSE;
+		return false;
 
 #endif	
 	
@@ -912,17 +912,17 @@ u32	rtw_is_list_empty(_list *phead)
 #ifdef PLATFORM_LINUX
 
 	if (list_empty(phead))
-		return _TRUE;
+		return true;
 	else
-		return _FALSE;
+		return false;
 
 #endif
 #ifdef PLATFORM_FREEBSD
 
 	if (phead->next == phead)
-		return _TRUE;
+		return true;
 	else
-		return _FALSE;
+		return false;
 
 #endif
 
@@ -930,9 +930,9 @@ u32	rtw_is_list_empty(_list *phead)
 #ifdef PLATFORM_WINDOWS
 
 	if (IsListEmpty(phead))
-		return _TRUE;
+		return true;
 	else
-		return _FALSE;
+		return false;
 
 #endif
 
@@ -1046,7 +1046,7 @@ void _rtw_up_sema(_sema	*sema)
 #endif
 #ifdef PLATFORM_OS_XP
 
-	KeReleaseSemaphore(sema, IO_NETWORK_INCREMENT, 1,  FALSE );
+	KeReleaseSemaphore(sema, IO_NETWORK_INCREMENT, 1,  false );
 
 #endif
 
@@ -1072,7 +1072,7 @@ u32 _rtw_down_sema(_sema *sema)
 #endif
 #ifdef PLATFORM_OS_XP
 
-	if(STATUS_SUCCESS == KeWaitForSingleObject(sema, Executive, KernelMode, TRUE, NULL))
+	if(STATUS_SUCCESS == KeWaitForSingleObject(sema, Executive, KernelMode, true, NULL))
 		return  _SUCCESS;
 	else
 		return _FAIL;
@@ -1109,7 +1109,7 @@ void	_rtw_mutex_init(_mutex *pmutex)
 #endif
 
 #ifdef PLATFORM_OS_CE
-	*pmutex =  CreateMutex( NULL, _FALSE, NULL);
+	*pmutex =  CreateMutex( NULL, false, NULL);
 #endif
 }
 
@@ -1288,9 +1288,9 @@ u32	  _rtw_queue_empty(_queue	*pqueue)
 u32 rtw_end_of_queue_search(_list *head, _list *plist)
 {
 	if (head == plist)
-		return _TRUE;
+		return true;
 	else
-		return _FALSE;
+		return false;
 }
 
 
@@ -2054,18 +2054,18 @@ static int storeToFile(char *path, u8* buf, u32 sz)
 /*
 * Test if the specifi @param path is a file and readable
 * @param path the path of the file to test
-* @return _TRUE or _FALSE
+* @return true or false
 */
 int rtw_is_file_readable(char *path)
 {
 #ifdef PLATFORM_LINUX
 	if(isFileReadable(path) == 0)
-		return _TRUE;
+		return true;
 	else
-		return _FALSE;
+		return false;
 #else
 	//Todo...
-	return _FALSE;
+	return false;
 #endif
 }
 
@@ -2411,22 +2411,22 @@ keep_ori:
  * rtw_cbuf_full - test if cbuf is full
  * @cbuf: pointer of struct rtw_cbuf
  *
- * Returns: _TRUE if cbuf is full
+ * Returns: true if cbuf is full
  */
 inline bool rtw_cbuf_full(struct rtw_cbuf *cbuf)
 {
-	return (cbuf->write == cbuf->read-1)? _TRUE : _FALSE;
+	return (cbuf->write == cbuf->read-1)? true : false;
 }
 
 /**
  * rtw_cbuf_empty - test if cbuf is empty
  * @cbuf: pointer of struct rtw_cbuf
  *
- * Returns: _TRUE if cbuf is empty
+ * Returns: true if cbuf is empty
  */
 inline bool rtw_cbuf_empty(struct rtw_cbuf *cbuf)
 {
-	return (cbuf->write == cbuf->read)? _TRUE : _FALSE;
+	return (cbuf->write == cbuf->read)? true : false;
 }
 
 /**
@@ -2435,7 +2435,7 @@ inline bool rtw_cbuf_empty(struct rtw_cbuf *cbuf)
  * @buf: pointer to push in
  *
  * Lock free operation, be careful of the use scheme
- * Returns: _TRUE push success
+ * Returns: true push success
  */
 bool rtw_cbuf_push(struct rtw_cbuf *cbuf, void *buf)
 {

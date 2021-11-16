@@ -45,11 +45,11 @@ ODM_ChangeDynamicInitGainThresh(
 	}
 	else if (DM_Type == DIG_TYPE_ENABLE)
 	{
-		pDM_DigTable->Dig_Enable_Flag	= TRUE;
+		pDM_DigTable->Dig_Enable_Flag	= true;
 	}	
 	else if (DM_Type == DIG_TYPE_DISABLE)
 	{
-		pDM_DigTable->Dig_Enable_Flag = FALSE;
+		pDM_DigTable->Dig_Enable_Flag = false;
 	}	
 	else if (DM_Type == DIG_TYPE_BACKOFF)
 	{
@@ -242,7 +242,7 @@ odm_InbandNoiseCalculate (
 	PDM_ODM_T			pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	pDIG_T				pDM_DigTable = &pDM_Odm->DM_DigTable;
 	u1Byte				IGIBackup, TimeCnt = 0, ValidCnt = 0;
-	BOOLEAN				bTimeout = TRUE;
+	BOOLEAN				bTimeout = true;
 	s1Byte				sNoise_A, sNoise_B;
 	s4Byte				NoiseRpt_A = 0,NoiseRpt_B = 0;
 	u4Byte				tmp = 0;
@@ -292,7 +292,7 @@ odm_InbandNoiseCalculate (
 		}
 
 		TimeCnt++;
-		bTimeout = (TimeCnt >= 150)?TRUE:FALSE;
+		bTimeout = (TimeCnt >= 150)?true:false;
 		
 		if(ValidCnt == 20 || bTimeout)
 			break;
@@ -326,14 +326,14 @@ odm_InbandNoiseCalculate (
 		if(failCnt == 3)
 		{
 			failCnt = 0;
-			pDM_DigTable->bNoiseEst = FALSE;
+			pDM_DigTable->bNoiseEst = false;
 		}
 	}
 	else
 	{
 		NoiseRpt_A = -110 + 0x24 + NoiseRpt_A -6;
 		NoiseRpt_B = -110 + 0x24 + NoiseRpt_B -6;
-		pDM_DigTable->bNoiseEst = FALSE;
+		pDM_DigTable->bNoiseEst = false;
 		failCnt = 0;
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_DIG, ODM_DBG_LOUD, ("NoiseRpt_A = %d, NoiseRpt_B = %d\n", NoiseRpt_A, NoiseRpt_B));
 	}
@@ -421,7 +421,7 @@ ODM_Write_DIG(
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_DIG, ODM_DBG_TRACE, ("CurrentIGI(0x%02x) is larger than upper bound !!\n",CurrentIGI));
 			CurrentIGI = pDM_DigTable->rx_gain_range_max;
 		}
-		if(pDM_Odm->SupportAbility & ODM_BB_ADAPTIVITY && pDM_Odm->adaptivity_flag == TRUE)
+		if(pDM_Odm->SupportAbility & ODM_BB_ADAPTIVITY && pDM_Odm->adaptivity_flag == true)
 		{
 			if(CurrentIGI > pDM_Odm->Adaptivity_IGI_upper)
 				CurrentIGI = pDM_Odm->Adaptivity_IGI_upper;
@@ -519,7 +519,7 @@ odm_PauseDIG(
 			if(!pDM_DigTable->bPauseDIG)
 			{
 				pDM_DigTable->IGIBackup = pDM_DigTable->CurIGValue;
-				pDM_DigTable->bPauseDIG = TRUE;
+				pDM_DigTable->bPauseDIG = true;
 			}
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_PauseDIG(): Backup IGI  = 0x%x\n", pDM_DigTable->IGIBackup));
 
@@ -534,8 +534,8 @@ odm_PauseDIG(
 			{
 				//2 Write backup IGI value
 				ODM_Write_DIG(pDM_Odm, pDM_DigTable->IGIBackup);
-				pDM_DigTable->bPauseDIG = FALSE;
-				pDM_DigTable->bIgnoreDIG = TRUE;
+				pDM_DigTable->bPauseDIG = false;
+				pDM_DigTable->bIgnoreDIG = true;
 				ODM_RT_TRACE(pDM_Odm,ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_PauseDIG(): Write original IGI = 0x%x\n", pDM_DigTable->IGIBackup));
 
 				//2 Enable DIG
@@ -569,35 +569,35 @@ odm_DigAbort(
 	if(!(pDM_Odm->SupportAbility & ODM_BB_FA_CNT))
 	{
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Return: SupportAbility ODM_BB_FA_CNT is disabled\n"));
-		return	TRUE;
+		return	true;
 	}
 
 	//SupportAbility
 	if(!(pDM_Odm->SupportAbility & ODM_BB_DIG))
 	{	
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Return: SupportAbility ODM_BB_DIG is disabled\n"));
-		return	TRUE;
+		return	true;
 	}
 
 	//ScanInProcess
 	if(*(pDM_Odm->pbScanInProcess))
 	{
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Return: In Scan Progress \n"));
-	    	return	TRUE;
+	    	return	true;
 	}
 
 	if(pDM_DigTable->bIgnoreDIG)
 	{
-		pDM_DigTable->bIgnoreDIG = FALSE;
+		pDM_DigTable->bIgnoreDIG = false;
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Return: Ignore DIG \n"));
-	    	return	TRUE;
+	    	return	true;
 	}
 
 	//add by Neil Chen to avoid PSD is processing
-	if(pDM_Odm->bDMInitialGainEnable == FALSE)
+	if(pDM_Odm->bDMInitialGainEnable == false)
 	{
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Return: PSD is Processing \n"));
-		return	TRUE;
+		return	true;
 	}
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
@@ -605,7 +605,7 @@ odm_DigAbort(
 	if(IsAPModeExist( pAdapter) && pAdapter->bInHctTest)
 	{
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Return: Is AP mode or In HCT Test \n"));
-	    	return	TRUE;
+	    	return	true;
 	}
 	#endif
 
@@ -619,7 +619,7 @@ odm_DigAbort(
 		if(pRX_HP_Table->RXHP_flag == 1)
 		{
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Return: In RXHP Operation \n"));
-			return	TRUE;	
+			return	true;	
 		}
 	}
 #elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
@@ -628,18 +628,18 @@ odm_DigAbort(
 	{	
 		printk("pDM_Odm->RSSI_Min=%d \n",pDM_Odm->RSSI_Min);
 		ODM_Write_DIG(pDM_Odm,pDM_Odm->Adapter->registrypriv.force_igi);
-		return	TRUE;
+		return	true;
 	}
 	#endif
 #else
 	if (!(priv->up_time > 5))
 	{
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Return: Not In DIG Operation Period \n"));
-		return	TRUE;
+		return	true;
 	}
 #endif
 
-	return	FALSE;
+	return	false;
 }
 
 VOID
@@ -653,10 +653,10 @@ odm_DIGInit(
 	PFALSE_ALARM_STATISTICS 	FalseAlmCnt = (PFALSE_ALARM_STATISTICS)PhyDM_Get_Structure( pDM_Odm, PHYDM_FALSEALMCNT);
 #endif
 
-	pDM_DigTable->bStopDIG = FALSE;
-	pDM_DigTable->bPauseDIG = FALSE;
-	pDM_DigTable->bIgnoreDIG = FALSE;
-	pDM_DigTable->bPSDInProgress = FALSE;
+	pDM_DigTable->bStopDIG = false;
+	pDM_DigTable->bPauseDIG = false;
+	pDM_DigTable->bIgnoreDIG = false;
+	pDM_DigTable->bPSDInProgress = false;
 	pDM_DigTable->CurIGValue = (u1Byte) ODM_GetBBReg(pDM_Odm, ODM_REG(IGI_A,pDM_Odm), ODM_BIT(IGI,pDM_Odm));
 	pDM_DigTable->RssiLowThresh 	= DM_DIG_THRESH_LOW;
 	pDM_DigTable->RssiHighThresh 	= DM_DIG_THRESH_HIGH;
@@ -670,19 +670,19 @@ odm_DIGInit(
 	pDM_DigTable->ForbiddenIGI = DM_DIG_MIN_NIC;
 	pDM_DigTable->LargeFAHit = 0;
 	pDM_DigTable->Recover_cnt = 0;
-	pDM_DigTable->bMediaConnect_0 = FALSE;
-	pDM_DigTable->bMediaConnect_1 = FALSE;
+	pDM_DigTable->bMediaConnect_0 = false;
+	pDM_DigTable->bMediaConnect_1 = false;
 
-	//To Initialize pDM_Odm->bDMInitialGainEnable == FALSE to avoid DIG error
-	pDM_Odm->bDMInitialGainEnable = TRUE;
+	//To Initialize pDM_Odm->bDMInitialGainEnable == false to avoid DIG error
+	pDM_Odm->bDMInitialGainEnable = true;
 
 #if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
 	pDM_DigTable->DIG_Dynamic_MIN_0 = 0x25;
 	pDM_DigTable->DIG_Dynamic_MIN_1 = 0x25;
 
 	// For AP\ ADSL modified DIG
-	pDM_DigTable->bTpTarget = FALSE;
-	pDM_DigTable->bNoiseEst = TRUE;
+	pDM_DigTable->bTpTarget = false;
+	pDM_DigTable->bNoiseEst = true;
 	pDM_DigTable->IGIOffset_A = 0;
 	pDM_DigTable->IGIOffset_B = 0;
 	pDM_DigTable->TpTrainTH_min = 0;
@@ -741,15 +741,15 @@ odm_DIG(
 	u1Byte						offset;
 	u4Byte						dm_FA_thres[3];
 	u4Byte						TxTp = 0, RxTp = 0;
-	BOOLEAN						bDFSBand = FALSE;
-	BOOLEAN						bPerformance = TRUE, bFirstTpTarget = FALSE, bFirstCoverage = FALSE;
+	BOOLEAN						bDFSBand = false;
+	BOOLEAN						bPerformance = true, bFirstTpTarget = false, bFirstCoverage = false;
 #if (DM_ODM_SUPPORT_TYPE & (ODM_AP|ODM_ADSL))
 	u4Byte						TpTrainTH_MIN = DM_DIG_TP_Target_TH0;
 	static		u1Byte			TimeCnt = 0;
 	u1Byte						i;
 #endif
 
-	if(odm_DigAbort(pDM_Odm) == TRUE)
+	if(odm_DigAbort(pDM_Odm) == true)
 		return;
 
 	ODM_RT_TRACE(pDM_Odm,ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG()===========================>\n\n"));
@@ -764,14 +764,14 @@ odm_DIG(
 			if(*(pDM_Odm->pbMasterOfDMSP))
 			{
 				DIG_Dynamic_MIN = pDM_DigTable->DIG_Dynamic_MIN_0;
-				FirstConnect = (pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == FALSE);
-				FirstDisConnect = (!pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == TRUE);
+				FirstConnect = (pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == false);
+				FirstDisConnect = (!pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == true);
 			}
 			else
 			{
 				DIG_Dynamic_MIN = pDM_DigTable->DIG_Dynamic_MIN_1;
-				FirstConnect = (pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_1 == FALSE);
-				FirstDisConnect = (!pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_1 == TRUE);
+				FirstConnect = (pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_1 == false);
+				FirstDisConnect = (!pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_1 == true);
 			}
 		}
 		else
@@ -779,14 +779,14 @@ odm_DIG(
 			if(*(pDM_Odm->pBandType) == ODM_BAND_5G)
 			{
 				DIG_Dynamic_MIN = pDM_DigTable->DIG_Dynamic_MIN_0;
-				FirstConnect = (pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == FALSE);
-				FirstDisConnect = (!pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == TRUE);
+				FirstConnect = (pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == false);
+				FirstDisConnect = (!pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == true);
 			}
 			else
 			{
 				DIG_Dynamic_MIN = pDM_DigTable->DIG_Dynamic_MIN_1;
-				FirstConnect = (pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_1 == FALSE);
-				FirstDisConnect = (!pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_1 == TRUE);
+				FirstConnect = (pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_1 == false);
+				FirstDisConnect = (!pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_1 == true);
 			}
 		}
 	}
@@ -794,13 +794,13 @@ odm_DIG(
 #endif
 	{	
 		DIG_Dynamic_MIN = pDM_DigTable->DIG_Dynamic_MIN_0;
-		FirstConnect = (pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == FALSE);
-		FirstDisConnect = (!pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == TRUE);
+		FirstConnect = (pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == false);
+		FirstDisConnect = (!pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == true);
 	}
 
 #if (DM_ODM_SUPPORT_TYPE & (ODM_AP|ODM_ADSL))
 	//1 Noise Floor Estimate
-	//pDM_DigTable->bNoiseEst = (FirstConnect)?TRUE:pDM_DigTable->bNoiseEst;
+	//pDM_DigTable->bNoiseEst = (FirstConnect)?true:pDM_DigTable->bNoiseEst;
 	//odm_InbandNoiseCalculate (pDM_Odm);
 	
 	//1 Mode decision
@@ -823,12 +823,12 @@ odm_DIG(
 	{
 		case 0:
 		{
-			bPerformance = TRUE;
+			bPerformance = true;
 			break;
 		}
 		case 1:
 		{
-			bPerformance = FALSE;
+			bPerformance = false;
 			break;
 		}
 		case 2:
@@ -846,25 +846,25 @@ odm_DIG(
 				//2 Decide DIG mode by total TP
 				if((TxTp + RxTp) > DM_DIG_TP_Target_TH1)			// change to performance mode
 				{
-					bFirstTpTarget = (!pDM_DigTable->bTpTarget)?TRUE:FALSE;
-					pDM_DigTable->bTpTarget = TRUE;
-					bPerformance = TRUE;
+					bFirstTpTarget = (!pDM_DigTable->bTpTarget)?true:false;
+					pDM_DigTable->bTpTarget = true;
+					bPerformance = true;
 				}
 				else if((TxTp + RxTp) < TpTrainTH_MIN)	// change to coverage mode
 				{
-					bFirstCoverage = (pDM_DigTable->bTpTarget)?TRUE:FALSE;
+					bFirstCoverage = (pDM_DigTable->bTpTarget)?true:false;
 					
 					if(TimeCnt < DM_DIG_TP_Training_Period)
 					{
-						pDM_DigTable->bTpTarget = FALSE;
-						bPerformance = FALSE;
+						pDM_DigTable->bTpTarget = false;
+						bPerformance = false;
 						TimeCnt++;
 					}
 					else
 					{
-						pDM_DigTable->bTpTarget = TRUE;
-						bPerformance = TRUE;
-						bFirstTpTarget = TRUE;
+						pDM_DigTable->bTpTarget = true;
+						bPerformance = true;
+						bFirstTpTarget = true;
 						TimeCnt = 0;
 					}
 				}
@@ -878,9 +878,9 @@ odm_DIG(
 							TimeCnt++;
 						else
 						{
-							pDM_DigTable->bTpTarget = TRUE;
-							bPerformance = TRUE;
-							bFirstTpTarget = TRUE;
+							pDM_DigTable->bTpTarget = true;
+							bPerformance = true;
+							bFirstTpTarget = true;
 							TimeCnt = 0;
 						}
 					}
@@ -892,13 +892,13 @@ odm_DIG(
 			}
 			else
 			{
-				bPerformance = FALSE;
+				bPerformance = false;
 				pDM_DigTable->TpTrainTH_min = 0;
 			}
 			break;
 		}
 		default:
-			bPerformance = TRUE;
+			bPerformance = true;
 	}
 
 	ODM_RT_TRACE(pDM_Odm,ODM_COMP_DIG, ODM_DBG_LOUD, ("====== DIG mode = %d  ======\n", pDM_Odm->priv->pshare->rf_ft_var.dig_cov_enable));
@@ -944,7 +944,7 @@ odm_DIG(
 		if (((*pDM_Odm->pChannel>= 52) &&(*pDM_Odm->pChannel <= 64)) ||
 			((*pDM_Odm->pChannel >= 100) &&	(*pDM_Odm->pChannel <= 140)))
 		{
-			bDFSBand = TRUE;
+			bDFSBand = true;
 			if (*pDM_Odm->pBandWidth == ODM_BW20M){
 				dm_dig_min = DM_DIG_MIN_AP_DFS+2;
 			}
@@ -1337,7 +1337,7 @@ odm_DIGbyRSSI_LPS(
 	u1Byte	RSSI_Lower=DM_DIG_MIN_NIC;   //0x1E or 0x1C
 	u1Byte	CurrentIGI=pDM_Odm->RSSI_Min;
 
-	if(odm_DigAbort(pDM_Odm) == TRUE)
+	if(odm_DigAbort(pDM_Odm) == true)
 		return;
 
 	CurrentIGI=CurrentIGI+RSSI_OFFSET_DIG;
@@ -1607,7 +1607,7 @@ odm_PauseCCKPacketDetection(
 {
 	PDM_ODM_T			pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	pDIG_T				pDM_DigTable = &pDM_Odm->DM_DigTable;
-	static	BOOLEAN		bPaused = FALSE;
+	static	BOOLEAN		bPaused = false;
 
 	ODM_RT_TRACE(pDM_Odm,ODM_COMP_CCK_PD, ODM_DBG_LOUD, ("odm_PauseCCKPacketDetection()=========>\n"));
 
@@ -1637,7 +1637,7 @@ odm_PauseCCKPacketDetection(
 			if(!bPaused)
 			{
 				pDM_DigTable->CCKPDBackup = pDM_DigTable->CurCCK_CCAThres;
-				bPaused = TRUE;
+				bPaused = true;
 			}
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_CCK_PD, ODM_DBG_LOUD, ("Backup CCK packet detection tgreshold  = %d\n", pDM_DigTable->CCKPDBackup));
 
@@ -1652,7 +1652,7 @@ odm_PauseCCKPacketDetection(
 			{
 				//2 Write backup CCK Packet Detection Threshold value
 				ODM_Write_CCK_CCA_Thres(pDM_Odm, pDM_DigTable->CCKPDBackup);
-				bPaused = FALSE;
+				bPaused = false;
 				ODM_RT_TRACE(pDM_Odm,ODM_COMP_CCK_PD, ODM_DBG_LOUD, ("Write original CCK packet detection tgreshold = %d\n", pDM_DigTable->CCKPDBackup));
 
 				//2 Enable CCK Packet Detection Threshold
@@ -1681,8 +1681,8 @@ odm_CCKPacketDetectionThresh(
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 //modify by Guo.Mingzhi 2011-12-29
-	if (pDM_Odm->bDualMacSmartConcurrent == TRUE)
-//	if (pDM_Odm->bDualMacSmartConcurrent == FALSE)
+	if (pDM_Odm->bDualMacSmartConcurrent == true)
+//	if (pDM_Odm->bDualMacSmartConcurrent == false)
 		return;
 	if(pDM_Odm->bBtHsOperation)
 	{
@@ -1921,7 +1921,7 @@ ODM_MPT_DIG(
 		pDM_Odm->PhyDbgInfo.NumQryPhyStatusCCK = 0;
 		pDM_Odm->PhyDbgInfo.NumQryPhyStatusOFDM = 0;
 		pDM_Odm->RxPWDBAve = 0;
-		pDM_Odm->MPDIG_2G = FALSE;
+		pDM_Odm->MPDIG_2G = false;
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 		pDM_Odm->Times_2G = 0;
@@ -1965,7 +1965,7 @@ ODM_MPT_DIG(
 	}
 	else
 	{
-		if(pDM_Odm->MPDIG_2G == FALSE)
+		if(pDM_Odm->MPDIG_2G == false)
 		{
 			if((pDM_Odm->SupportPlatform & ODM_WIN) && !(pDM_Odm->SupportICType & (ODM_RTL8814A|ODM_RTL8822B)))
 			{
@@ -1984,7 +1984,7 @@ ODM_MPT_DIG(
 		if (pDM_Odm->Times_2G == 3)
 #endif
 		{
-			pDM_Odm->MPDIG_2G = TRUE;
+			pDM_Odm->MPDIG_2G = true;
 		}
 	}
 

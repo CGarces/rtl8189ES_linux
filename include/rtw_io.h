@@ -459,7 +459,7 @@ int dbg_rtw_sd_iwrite32(_adapter *adapter, u32 addr, u32 val, const char *caller
 #endif /* CONFIG_SDIO_HCI */
 
 #else /* DBG_IO */
-#define match_write_sniff_ranges(addr, len) _FALSE
+#define match_write_sniff_ranges(addr, len) false
 #define rtw_read8(adapter, addr) _rtw_read8((adapter), (addr))
 #define rtw_read16(adapter, addr) _rtw_read16((adapter), (addr))
 #define rtw_read32(adapter, addr) _rtw_read32((adapter), (addr))

@@ -517,8 +517,8 @@ void rtw_chset_update_non_ocp(RT_CHANNEL_INFO *ch_set, u8 ch, u8 bw, u8 offset);
 void rtw_chset_update_non_ocp_ms(RT_CHANNEL_INFO *ch_set, u8 ch, u8 bw, u8 offset, int ms);
 #else
 #define CH_IS_NON_OCP(rt_ch_info) 0
-#define rtw_chset_is_ch_non_ocp(ch_set, ch, bw, offset) _FALSE
-#define rtw_rfctl_is_tx_blocked_by_cac(rfctl) _FALSE
+#define rtw_chset_is_ch_non_ocp(ch_set, ch, bw, offset) false
+#define rtw_rfctl_is_tx_blocked_by_cac(rfctl) false
 #endif
 
 enum {

@@ -230,7 +230,7 @@ static s32 pre_recv_entry(union recv_frame *precvframe, struct recv_buf	*precvbu
 
 	paddr1 = GetAddr1Ptr(precvframe->u.hdr.rx_data);
 
-	if(IS_MCAST(paddr1) == _FALSE)//unicast packets
+	if(IS_MCAST(paddr1) == false)//unicast packets
 	{
 		secondary_myid = adapter_mac_addr(secondary_padapter);
 
@@ -396,7 +396,7 @@ static void rtl8188es_recv_tasklet(void *priv)
 			#ifdef CONFIG_MP_INCLUDED
 				if (padapter->registrypriv.mp_mode == 1)
 				{
-					if ((check_fwstate(&padapter->mlmepriv, WIFI_MP_STATE) == _TRUE))//&&(padapter->mppriv.check_mp_pkt == 0))
+					if ((check_fwstate(&padapter->mlmepriv, WIFI_MP_STATE) == true))//&&(padapter->mppriv.check_mp_pkt == 0))
 					{
 						if (pattrib->crc_err == 1)
 							padapter->mppriv.rx_crcerrpktcount++;
@@ -580,7 +580,7 @@ static s32 pre_recv_entry(union recv_frame *precvframe, struct recv_buf	*precvbu
 
 	paddr1 = GetAddr1Ptr(pbuf);
 
-	if(IS_MCAST(paddr1) == _FALSE)//unicast packets
+	if(IS_MCAST(paddr1) == false)//unicast packets
 	{
 		secondary_myid = adapter_mac_addr(secondary_padapter);
 
@@ -752,7 +752,7 @@ static void rtl8188es_recv_tasklet(void *priv)
 			#ifdef CONFIG_MP_INCLUDED
 				if (padapter->registrypriv.mp_mode == 1)
 				{
-					if ((check_fwstate(&padapter->mlmepriv, WIFI_MP_STATE) == _TRUE))//&&(padapter->mppriv.check_mp_pkt == 0))
+					if ((check_fwstate(&padapter->mlmepriv, WIFI_MP_STATE) == true))//&&(padapter->mppriv.check_mp_pkt == 0))
 					{
 						if (pattrib->crc_err == 1)
 							padapter->mppriv.rx_crcerrpktcount++;

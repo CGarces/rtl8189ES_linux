@@ -366,7 +366,7 @@ typedef enum _ODM_Common_Info_Definition
 	ODM_CMNINFO_RFE_TYPE, 
 	ODM_CMNINFO_BOARD_TYPE,				// ODM_BOARD_TYPE_E
 	ODM_CMNINFO_PACKAGE_TYPE,
-	ODM_CMNINFO_EXT_LNA,					// TRUE
+	ODM_CMNINFO_EXT_LNA,					// true
 	ODM_CMNINFO_5G_EXT_LNA,	
 	ODM_CMNINFO_EXT_PA,
 	ODM_CMNINFO_5G_EXT_PA,
@@ -1342,10 +1342,10 @@ PhyDM_Get_Structure(
 /* The following is for compile only*/
 /*===========================================================*/
 
-#define	IS_HARDWARE_TYPE_8723A(_Adapter)			FALSE
-#define IS_HARDWARE_TYPE_8723AE(_Adapter)			FALSE
-#define	IS_HARDWARE_TYPE_8192C(_Adapter)			FALSE
-#define	IS_HARDWARE_TYPE_8192D(_Adapter)			FALSE
+#define	IS_HARDWARE_TYPE_8723A(_Adapter)			false
+#define IS_HARDWARE_TYPE_8723AE(_Adapter)			false
+#define	IS_HARDWARE_TYPE_8192C(_Adapter)			false
+#define	IS_HARDWARE_TYPE_8192D(_Adapter)			false
 #define	RF_T_METER_92D					0x42
 
 

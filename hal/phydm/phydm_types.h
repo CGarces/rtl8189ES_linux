@@ -209,9 +209,6 @@ typedef enum _RT_SPINLOCK_TYPE{
 	#define DEV_BUS_TYPE		RT_PCI_INTERFACE
 #endif
 
-	#define _TRUE				1
-	#define _FALSE				0
-
 	#if (defined(TESTCHIP_SUPPORT))
 		#define	PHYDM_TESTCHIP_SUPPORT 1
 	#else
@@ -289,8 +286,8 @@ typedef enum _RT_SPINLOCK_TYPE{
 		
 
 
-	#define TRUE 	_TRUE	
-	#define FALSE	_FALSE
+	#define true 	true	
+	#define false	false
 
 
 	#define SET_TX_DESC_ANTSEL_A_88E(__pTxDesc, __Value) SET_BITS_TO_LE_4BYTE(__pTxDesc+8, 24, 1, __Value)

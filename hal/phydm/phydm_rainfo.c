@@ -244,7 +244,7 @@ odm_RA_debug(
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	pRA_T			pRA_Table = &pDM_Odm->DM_RA_Table;
 
-	pRA_Table->is_ra_dbg_init = FALSE;
+	pRA_Table->is_ra_dbg_init = false;
 
 	if (dm_value[0] == 100) { /*1 Print RA Parameters*/
 		u1Byte	default_pointer_value;
@@ -321,7 +321,7 @@ odm_RA_ParaAdjust_init(
 	*/
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_RA_DBG, ODM_DBG_LOUD, ("odm_RA_ParaAdjust_init \n"));
 
-	pRA_Table->is_ra_dbg_init = TRUE;
+	pRA_Table->is_ra_dbg_init = true;
 	for (i = 0; i < 3; i++) {
 		pRA_Table->RA_Para_feedback_req = 1;
 		pRA_Table->para_idx	=	ra_para_pool_u8[i];
@@ -672,10 +672,10 @@ odm_RSSIMonitorInit(
 #if(DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	pRA_T		pRA_Table = &pDM_Odm->DM_RA_Table;
-	pRA_Table->firstconnect = FALSE;
+	pRA_Table->firstconnect = false;
 
 #if(DM_ODM_SUPPORT_TYPE & (ODM_WIN))
-	pRA_Table->PT_collision_pre = TRUE;   //used in ODM_DynamicARFBSelect(WIN only)
+	pRA_Table->PT_collision_pre = true;   //used in ODM_DynamicARFBSelect(WIN only)
 #endif
 #endif
 }
@@ -752,10 +752,10 @@ IN OUT	BOOLEAN	*pbLink_temp
 		(act_as_ap && (pHalData->EntryMinUndecoratedSmoothedPWDB == 0))) {/* We should check AP mode and Entry info.into consideration, revised by Roger, 2013.10.18*/
 	
 		pHalData->MinUndecoratedPWDBForDM = 0;
-		*pbLink_temp = FALSE;
+		*pbLink_temp = false;
 
 	} else
-		*pbLink_temp = TRUE; 
+		*pbLink_temp = true; 
 	
 
 	if (pMgntInfo->bMediaConnect) {	/* Default port*/
@@ -786,7 +786,7 @@ odm_RSSIMonitorCheckMP(
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	u1Byte			H2C_Parameter[4] = {0};
 	u4Byte			i;
-	BOOLEAN			bExtRAInfo = FALSE;
+	BOOLEAN			bExtRAInfo = false;
 	u1Byte			cmdlen = 3;
 	u1Byte			TxBF_EN = 0, stbc_en = 0;
 
@@ -808,11 +808,11 @@ odm_RSSIMonitorCheckMP(
 	PADAPTER	pLoopAdapter = GetDefaultAdapter(Adapter);
 
 	if (pDM_Odm->SupportICType & EXT_RA_INFO_SUPPORT_IC) {
-		bExtRAInfo = TRUE;
+		bExtRAInfo = true;
 		cmdlen = 4;
 	}
 
-	//FirstConnect = (pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == FALSE);
+	//FirstConnect = (pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == false);
 	//pRA_Table->firstconnect = pHalData->bLinked;
 
 
@@ -994,7 +994,7 @@ odm_RSSIMonitorCheckMP(
 		PADAPTER pLoopAdapter = GetDefaultAdapter(Adapter);
 		BOOLEAN		default_pointer_value, *pbLink_temp = &default_pointer_value;
 		s4Byte	GlobalRSSI_min = 0xFF, LocalRSSI_Min;
-		BOOLEAN		bLink = FALSE;
+		BOOLEAN		bLink = false;
 
 		while (pLoopAdapter) {
 			LocalRSSI_Min = phydm_FindMinimumRSSI(pDM_Odm, pLoopAdapter, pbLink_temp);
@@ -1003,7 +1003,7 @@ odm_RSSIMonitorCheckMP(
 				GlobalRSSI_min = LocalRSSI_Min;
 
 			if (*pbLink_temp)
-				bLink = TRUE;
+				bLink = true;
 
 			pLoopAdapter = GetNextExtAdapter(pLoopAdapter);
 		}
@@ -1036,10 +1036,10 @@ odm_RSSIMonitorCheckCE(
 	u8 	sta_cnt = 0;
 	u32	UL_DL_STATE = 0, STBC_TX = 0, TxBF_EN = 0 ,NoiseState = 0;
 	u32	PWDB_rssi[NUM_STA] = {0}; //[0~15]:MACID, [16~31]:PWDB_rssi
-	BOOLEAN			FirstConnect = FALSE;
+	BOOLEAN			FirstConnect = false;
 	pRA_T			pRA_Table = &pDM_Odm->DM_RA_Table;
 
-	if (pDM_Odm->bLinked != _TRUE)
+	if (pDM_Odm->bLinked != true)
 		return;
 
 #if((RTL8812A_SUPPORT==1)||(RTL8821A_SUPPORT==1))
@@ -1054,7 +1054,7 @@ odm_RSSIMonitorCheckCE(
 	}
 #endif
 
-	FirstConnect = (pDM_Odm->bLinked) && (pRA_Table->firstconnect == FALSE);
+	FirstConnect = (pDM_Odm->bLinked) && (pRA_Table->firstconnect == false);
 	pRA_Table->firstconnect = pDM_Odm->bLinked;
 
 	if ( pDM_Odm->NoisyDecision ){
@@ -1065,7 +1065,7 @@ odm_RSSIMonitorCheckCE(
 		NoiseState = 0;
 	
 
-	//if(check_fwstate(&Adapter->mlmepriv, WIFI_AP_STATE|WIFI_ADHOC_STATE|WIFI_ADHOC_MASTER_STATE) == _TRUE)
+	//if(check_fwstate(&Adapter->mlmepriv, WIFI_AP_STATE|WIFI_ADHOC_STATE|WIFI_ADHOC_MASTER_STATE) == true)
 	{
 		struct sta_info *psta;
 
@@ -1129,7 +1129,7 @@ odm_RSSIMonitorCheckCE(
 
 		for (i = 0; i < sta_cnt; i++) {
 			if (PWDB_rssi[i] != (0)) {
-				if (pHalData->fw_ractrl == _TRUE) { // Report every sta's RSSI to FW
+				if (pHalData->fw_ractrl == true) { // Report every sta's RSSI to FW
 #if((RTL8812A_SUPPORT==1)||(RTL8821A_SUPPORT==1))
 					if ((pDM_Odm->SupportICType == ODM_RTL8812) || (pDM_Odm->SupportICType == ODM_RTL8821)) {
 						PWDB_rssi[i] |= (UL_DL_STATE << 24);
@@ -1202,13 +1202,13 @@ odm_RSSIMonitorCheckAP(
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	u1Byte 			H2C_Parameter[4] = {0};
 	u4Byte			 i;
-	BOOLEAN			bExtRAInfo = FALSE;
+	BOOLEAN			bExtRAInfo = false;
 	u1Byte			cmdlen = 3 ;
 	u1Byte			TxBF_EN = 0, stbc_en = 0;
 
 	prtl8192cd_priv	priv		= pDM_Odm->priv;
 	PSTA_INFO_T 		pstat;
-	BOOLEAN			act_bfer = FALSE;
+	BOOLEAN			act_bfer = false;
 
 #ifdef BEAMFORMING_SUPPORT
 #if (defined(CONFIG_HW_ANTENNA_DIVERSITY))
@@ -1225,7 +1225,7 @@ odm_RSSIMonitorCheckAP(
 		return;
 
 	if (pDM_Odm->SupportICType & EXT_RA_INFO_SUPPORT_IC) {
-		bExtRAInfo = TRUE;
+		bExtRAInfo = true;
 		cmdlen = 4;
 	}
 
@@ -1244,12 +1244,12 @@ odm_RSSIMonitorCheckAP(
 				Beamform_cap == (BEAMFORMER_CAP_HT_EXPLICIT | BEAMFORMEE_CAP_HT_EXPLICIT) ||
 				Beamform_cap == (BEAMFORMER_CAP_VHT_SU | BEAMFORMEE_CAP_VHT_SU)) {
 				TxBF_EN = 1;
-				act_bfer = TRUE;
+				act_bfer = true;
 			}
 
 #if (defined(CONFIG_HW_ANTENNA_DIVERSITY)) //BDC
 
-			if (act_bfer == TRUE) {
+			if (act_bfer == true) {
 				pDM_BdcTable->w_BFee_Client[i] = 1; //AP act as BFer
 				pDM_BdcTable->num_Txbfee_Client++;
 			} else {
@@ -1337,16 +1337,16 @@ odm_RateAdaptiveMaskInit(
 	pMgntInfo->Ratr_State = DM_RATR_STA_INIT;
 
 	if (pMgntInfo->DM_Type == DM_Type_ByDriver)
-		pHalData->bUseRAMask = TRUE;
+		pHalData->bUseRAMask = true;
 	else
-		pHalData->bUseRAMask = FALSE;
+		pHalData->bUseRAMask = false;
 
 #elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	pOdmRA->Type = DM_Type_ByDriver;
 	if (pOdmRA->Type == DM_Type_ByDriver)
-		pDM_Odm->bUseRAMask = _TRUE;
+		pDM_Odm->bUseRAMask = true;
 	else
-		pDM_Odm->bUseRAMask = _FALSE;
+		pDM_Odm->bUseRAMask = false;
 #endif
 
 	pOdmRA->RATRState = DM_RATR_STA_INIT;
@@ -1361,7 +1361,7 @@ odm_RateAdaptiveMaskInit(
 
 #elif(DM_ODM_SUPPORT_TYPE & ODM_CE)
 	pOdmRA->LdpcThres = 35;
-	pOdmRA->bUseLdpc = FALSE;
+	pOdmRA->bUseLdpc = false;
 
 #else
 	pOdmRA->UltraLowRSSIThresh = 9;
@@ -1491,7 +1491,7 @@ odm_RefreshRateAdaptiveMaskMP(
 	}
 
 	if (pMgntInfo->bSetTXPowerTrainingByOid)
-		pMgntInfo->bSetTXPowerTrainingByOid = FALSE;
+		pMgntInfo->bSetTXPowerTrainingByOid = false;
 #endif	// #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 }
 
@@ -1530,22 +1530,22 @@ odm_RefreshRateAdaptiveMaskCE(
 #if((RTL8812A_SUPPORT==1)||(RTL8821A_SUPPORT==1))
 			if ((pDM_Odm->SupportICType == ODM_RTL8812) || (pDM_Odm->SupportICType == ODM_RTL8821)) {
 				if (pstat->rssi_stat.UndecoratedSmoothedPWDB < pRA->LdpcThres) {
-					pRA->bUseLdpc = TRUE;
-					pRA->bLowerRtsRate = TRUE;
+					pRA->bUseLdpc = true;
+					pRA->bLowerRtsRate = true;
 					if ((pDM_Odm->SupportICType == ODM_RTL8821) && (pDM_Odm->CutVersion == ODM_CUT_A))
-						Set_RA_LDPC_8812(pstat, TRUE);
-					//DbgPrint("RSSI=%d, bUseLdpc = TRUE\n", pHalData->UndecoratedSmoothedPWDB);
+						Set_RA_LDPC_8812(pstat, true);
+					//DbgPrint("RSSI=%d, bUseLdpc = true\n", pHalData->UndecoratedSmoothedPWDB);
 				} else if (pstat->rssi_stat.UndecoratedSmoothedPWDB > (pRA->LdpcThres - 5)) {
-					pRA->bUseLdpc = FALSE;
-					pRA->bLowerRtsRate = FALSE;
+					pRA->bUseLdpc = false;
+					pRA->bLowerRtsRate = false;
 					if ((pDM_Odm->SupportICType == ODM_RTL8821) && (pDM_Odm->CutVersion == ODM_CUT_A))
-						Set_RA_LDPC_8812(pstat, FALSE);
-					//DbgPrint("RSSI=%d, bUseLdpc = FALSE\n", pHalData->UndecoratedSmoothedPWDB);
+						Set_RA_LDPC_8812(pstat, false);
+					//DbgPrint("RSSI=%d, bUseLdpc = false\n", pHalData->UndecoratedSmoothedPWDB);
 				}
 			}
 #endif
 
-			if (TRUE == ODM_RAStateCheck(pDM_Odm, pstat->rssi_stat.UndecoratedSmoothedPWDB, FALSE , &pstat->rssi_level)) {
+			if (true == ODM_RAStateCheck(pDM_Odm, pstat->rssi_stat.UndecoratedSmoothedPWDB, false , &pstat->rssi_level)) {
 				ODM_RT_TRACE(pDM_Odm, ODM_COMP_RA_MASK, ODM_DBG_LOUD, ("RSSI:%d, RSSI_LEVEL:%d\n", pstat->rssi_stat.UndecoratedSmoothedPWDB, pstat->rssi_level));
 				//printk("RSSI:%d, RSSI_LEVEL:%d\n", pstat->rssi_stat.UndecoratedSmoothedPWDB, pstat->rssi_level);
 				rtw_hal_update_ra_mask(pstat, pstat->rssi_level);
@@ -1587,7 +1587,7 @@ odm_RefreshRateAdaptiveMaskAPADSL(
 			if (!priv->pmib->dot11StationConfigEntry.autoRate)
 				continue;
 
-			if (ODM_RAStateCheck(pDM_Odm, (s4Byte)pstat->rssi, FALSE, &pstat->rssi_level)) {
+			if (ODM_RAStateCheck(pDM_Odm, (s4Byte)pstat->rssi, false, &pstat->rssi_level)) {
 				ODM_PRINT_ADDR(pDM_Odm, ODM_COMP_RA_MASK, ODM_DBG_LOUD, ("Target STA addr : "), pstat->hwaddr);
 				ODM_RT_TRACE(pDM_Odm, ODM_COMP_RA_MASK, ODM_DBG_LOUD, ("RSSI:%d, RSSI_LEVEL:%d\n", pstat->rssi, pstat->rssi_level));
 
@@ -1628,7 +1628,7 @@ odm_RefreshRateAdaptiveMaskAPADSL(
 
 
 // Return Value: BOOLEAN
-// - TRUE: RATRState is changed.
+// - true: RATRState is changed.
 BOOLEAN
 ODM_RAStateCheck(
 	IN		PVOID			pDM_VOID,
@@ -1677,7 +1677,7 @@ ODM_RAStateCheck(
 #endif
 
 	default:
-		ODM_RT_ASSERT(pDM_Odm, FALSE, ("wrong rssi level setting %d !", *pRATRState));
+		ODM_RT_ASSERT(pDM_Odm, false, ("wrong rssi level setting %d !", *pRATRState));
 		break;
 	}
 
@@ -1702,10 +1702,10 @@ ODM_RAStateCheck(
 	if (*pRATRState != RATRState || bForceUpdate) {
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_RA_MASK, ODM_DBG_LOUD, ("[RSSI Level Update] %d -> %d\n", *pRATRState, RATRState));
 		*pRATRState = RATRState;
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 VOID
@@ -1725,7 +1725,7 @@ odm_RefreshBasicRateMask(
 	if (pDM_Odm->SupportICType != ODM_RTL8812 && pDM_Odm->SupportICType != ODM_RTL8821)
 		return;
 
-	if (pDM_Odm->bLinked == FALSE)	// unlink Default port information
+	if (pDM_Odm->bLinked == false)	// unlink Default port information
 		CurStage = 0;
 	else if (pDM_Odm->RSSI_Min < 40)	// link RSSI  < 40%
 		CurStage = 1;
@@ -1737,7 +1737,7 @@ odm_RefreshBasicRateMask(
 	if (CurStage != Stage) {
 		if (CurStage == 1) {
 			FillOctetString(osRateSet, RateSet, 5);
-			FilterSupportRate(pMgntInfo->mBrates, &osRateSet, FALSE);
+			FilterSupportRate(pMgntInfo->mBrates, &osRateSet, false);
 			Adapter->HalFunc.SetHwRegHandler(Adapter, HW_VAR_BASIC_RATE, (pu1Byte)&osRateSet);
 		} else if (CurStage == 3 && (Stage == 1 || Stage == 2))
 			Adapter->HalFunc.SetHwRegHandler(Adapter, HW_VAR_BASIC_RATE, (pu1Byte)(&pMgntInfo->mBrates));
@@ -2071,7 +2071,7 @@ odm_RefreshLdpcRtsMP(
 	IN	s4Byte				UndecoratedSmoothedPWDB
 )
 {
-	BOOLEAN					bCtlLdpc = FALSE;
+	BOOLEAN					bCtlLdpc = false;
 	PMGNT_INFO				pMgntInfo = GetDefaultMgntInfo(pAdapter);
 	PODM_RATE_ADAPTIVE		pRA = &pDM_Odm->RateAdaptive;
 
@@ -2079,22 +2079,22 @@ odm_RefreshLdpcRtsMP(
 		return;
 
 	if ((pDM_Odm->SupportICType == ODM_RTL8821) && (pDM_Odm->CutVersion == ODM_CUT_A))
-		bCtlLdpc = TRUE;
+		bCtlLdpc = true;
 	else if (pDM_Odm->SupportICType == ODM_RTL8812 &&
 			 IOTPeer == HT_IOT_PEER_REALTEK_JAGUAR_CCUTAP)
-		bCtlLdpc = TRUE;
+		bCtlLdpc = true;
 
 	if (bCtlLdpc) {
 		if (UndecoratedSmoothedPWDB < (pRA->LdpcThres - 5))
-			MgntSet_TX_LDPC(pAdapter, mMacId, TRUE);
+			MgntSet_TX_LDPC(pAdapter, mMacId, true);
 		else if (UndecoratedSmoothedPWDB > pRA->LdpcThres)
-			MgntSet_TX_LDPC(pAdapter, mMacId, FALSE);
+			MgntSet_TX_LDPC(pAdapter, mMacId, false);
 	}
 
 	if (UndecoratedSmoothedPWDB < (pRA->RtsThres - 5))
-		pRA->bLowerRtsRate = TRUE;
+		pRA->bLowerRtsRate = true;
 	else if (UndecoratedSmoothedPWDB > pRA->RtsThres)
-		pRA->bLowerRtsRate = FALSE;
+		pRA->bLowerRtsRate = false;
 }
 
 VOID
@@ -2225,7 +2225,7 @@ FindMinimumRSSI(
 
 	/*Determine the minimum RSSI*/
 
-	if ((pDM_Odm->bLinked != _TRUE) &&
+	if ((pDM_Odm->bLinked != true) &&
 		(pHalData->EntryMinUndecoratedSmoothedPWDB == 0)) {
 		pHalData->MinUndecoratedPWDBForDM = 0;
 		/*ODM_RT_TRACE(pDM_Odm,COMP_BB_POWERSAVING, DBG_LOUD, ("Not connected to any\n"));*/

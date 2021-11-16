@@ -373,7 +373,7 @@ __inline static void rtw_dump_stack(void)
 
 __inline static int rtw_bug_check(void *parg1, void *parg2, void *parg3, void *parg4)
 {
-	int ret = _TRUE;
+	int ret = true;
 
 #ifdef PLATFORM_WINDOWS
 	if ( ((uint)parg1) <= 0x7fffffff || 
@@ -381,7 +381,7 @@ __inline static int rtw_bug_check(void *parg1, void *parg2, void *parg3, void *p
 	 	((uint)parg3) <= 0x7fffffff ||
 	 	((uint)parg4) <= 0x7fffffff)
 	{
-		ret = _FALSE;
+		ret = false;
 		KeBugCheckEx(0x87110000, (ULONG_PTR)parg1, (ULONG_PTR)parg2, (ULONG_PTR)parg3, (ULONG_PTR)parg4);		
 	}
 #endif

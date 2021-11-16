@@ -261,12 +261,12 @@ phydm_find_default_path(
 
 		if( (rssi_avg_a + ANT_DECT_RSSI_TH) > rssi_avg_bcd  )
 		{
-			pDM_PathDiv->is_pathA_exist=TRUE;
+			pDM_PathDiv->is_pathA_exist=true;
 			pDM_PathDiv->default_path=PATH_A;
 		}
 		else
 		{
-			pDM_PathDiv->is_pathA_exist=FALSE;
+			pDM_PathDiv->is_pathA_exist=false;
 		}
 	}
 	else
@@ -409,7 +409,7 @@ phydm_dynamic_tx_path(
 	{
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_PATH_DIV, ODM_DBG_LOUD, ("DTP_8814 [No Link!!!]\n"));
 		
-		if(pDM_PathDiv->bBecomeLinked == TRUE)
+		if(pDM_PathDiv->bBecomeLinked == true)
 		{
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_PATH_DIV, ODM_DBG_LOUD, (" [Be disconnected]----->\n"));
 			pDM_PathDiv->bBecomeLinked = pDM_Odm->bLinked;
@@ -418,7 +418,7 @@ phydm_dynamic_tx_path(
 	}	
 	else
 	{
-		if(pDM_PathDiv->bBecomeLinked ==FALSE)
+		if(pDM_PathDiv->bBecomeLinked ==false)
 		{
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_PATH_DIV, ODM_DBG_LOUD, (" [Be Linked !!!]----->\n"));
 			pDM_PathDiv->bBecomeLinked = pDM_Odm->bLinked;
@@ -733,7 +733,7 @@ odm_PathDiversityInit(
 
 	/*pDM_Odm->SupportAbility |= ODM_BB_PATH_DIV;*/
 	
-	if(pDM_Odm->mp_mode == TRUE)
+	if(pDM_Odm->mp_mode == true)
 		return;
 
 	if(!(pDM_Odm->SupportAbility & ODM_BB_PATH_DIV))
@@ -772,11 +772,11 @@ odm_IsConnected_92C(
 	PRT_WLAN_STA	pEntry;
 	PMGNT_INFO		pMgntInfo = &(Adapter->MgntInfo);
 	u4Byte		i;
-	BOOLEAN		bConnected=FALSE;
+	BOOLEAN		bConnected=false;
 	
 	if(pMgntInfo->mAssoc)
 	{
-		bConnected = TRUE;
+		bConnected = true;
 	}
 	else
 	{
@@ -791,7 +791,7 @@ odm_IsConnected_92C(
 			{
 				if(pEntry->bAssociated)
 				{
-					bConnected = TRUE;
+					bConnected = true;
 					break;
 				}
 			}
@@ -826,7 +826,7 @@ ODM_PathDiversityBeforeLink92C(
 
 	if (pDM_Odm->Adapter == NULL)  //For BSOD when plug/unplug fast.  //By YJ,120413
 	{	// The ODM structure is not initialized.
-		return FALSE;
+		return false;
 	}
 	pHalData = GET_HAL_DATA(Adapter);
 	pMgntInfo = &Adapter->MgntInfo;
@@ -837,7 +837,7 @@ ODM_PathDiversityBeforeLink92C(
 	{
 		RT_TRACE(COMP_INIT, DBG_LOUD, 
 				("ODM_PathDiversityBeforeLink92C(): No PathDiv Mechanism before link.\n"));
-		return FALSE;
+		return false;
 	}
 
 	// Since driver is going to set BB register, it shall check if there is another thread controlling BB/RF.
@@ -854,7 +854,7 @@ ODM_PathDiversityBeforeLink92C(
 		//pDM_SWAT_Table->SWAS_NoLink_State = 0;
 		pDM_PDTable->PathDiv_NoLink_State = 0;
 		
-		return FALSE;
+		return false;
 	}
 	else
 	{
@@ -909,7 +909,7 @@ ODM_PathDiversityBeforeLink92C(
 		odm_SwAntDivConstructScanChnl(Adapter, target_chnl);
 		PlatformSetTimer(Adapter, &pMgntInfo->ScanTimer, 5);
 
-		return TRUE;
+		return true;
 	}
 	else
 	{
@@ -984,10 +984,10 @@ ODM_PathDiversityBeforeLink92C(
 		//pDM_SWAT_Table->SWAS_NoLink_State = 0;
 		pDM_PDTable->PathDiv_NoLink_State = 0;
 
-		return FALSE;
+		return false;
 	}
 #else
-		return	FALSE;
+		return	false;
 #endif
 	
 }
@@ -1028,7 +1028,7 @@ odm_PathDiversityAfterLink_92C(
 		RT_TRACE(	COMP_INIT, DBG_LOUD, ("ODM_TXPathDiversity() ==>\n"));
 		odm_OFDMTXPathDiversity_92C(Adapter);
 
-		if((pDM_PDTable->CCKPathDivEnable == TRUE) && (pDM_PDTable->OFDM_Pkt_Cnt < 100))
+		if((pDM_PDTable->CCKPathDivEnable == true) && (pDM_PDTable->OFDM_Pkt_Cnt < 100))
 		{
 			//RT_TRACE(	COMP_INIT, DBG_LOUD, ("odm_CCKTXPathDiversity_92C: TrainingState=0\n"));
 			
@@ -1042,7 +1042,7 @@ odm_PathDiversityAfterLink_92C(
 
 			PHY_SetBBReg(Adapter, rCCK0_AFESetting  , 0x0F000000, 0x00); // RX path = PathA
 			pDM_PDTable->TrainingState = 1;
-			pHalData->RSSI_test = TRUE;
+			pHalData->RSSI_test = true;
 			ODM_SetTimer( pDM_Odm, &pDM_Odm->CCKPathDiversityTimer, pDM_PDTable->Timer); //ms
 		}
 		else
@@ -1199,7 +1199,7 @@ odm_CCKTXPathDiversity_92C(
 	PRT_WLAN_STA	pEntry;
 	s4Byte	MinRSSI = 0xFF;
 	u1Byte	i, DefaultRespPath = 0;
-//	BOOLEAN	bBModePathDiv = FALSE;
+//	BOOLEAN	bBModePathDiv = false;
 	pPD_T	pDM_PDTable = &Adapter->DM_PDTable;
 
 	//1 Default Port
@@ -1348,13 +1348,13 @@ odm_ResetPathDiversity_92C(
 	PRT_WLAN_STA	pEntry;
 	u4Byte	i,j;
 
-	pHalData->RSSI_test = FALSE;
+	pHalData->RSSI_test = false;
 	pDM_PDTable->CCK_Pkt_Cnt = 0;
 	pDM_PDTable->OFDM_Pkt_Cnt = 0;
 	pHalData->CCK_Pkt_Cnt =0;
 	pHalData->OFDM_Pkt_Cnt =0;
 	
-	if(pDM_PDTable->CCKPathDivEnable == TRUE)	
+	if(pDM_PDTable->CCKPathDivEnable == true)	
 		PHY_SetBBReg(Adapter, rCCK0_AFESetting  , 0x0F000000, 0x01); //RX path = PathAB
 
 	for(i=0; i<2; i++)
@@ -1762,7 +1762,7 @@ odm_PathDivChkAntSwitch(
 			}
 			
 			pDM_SWAT_Table->try_flag = 0;
-			pHalData->RSSI_test = FALSE;
+			pHalData->RSSI_test = false;
 			pHalData->RSSI_sum_A = 0;
 			pHalData->RSSI_cnt_A = 0;
 			pHalData->RSSI_sum_B = 0;
@@ -1798,7 +1798,7 @@ odm_PathDivChkAntSwitch(
 			//Prepare To Try Antenna		
 				nextAntenna = (pDM_SWAT_Table->CurAntenna == MAIN_ANT)? AUX_ANT : MAIN_ANT;
 				pDM_SWAT_Table->try_flag = 1;
-				pHalData->RSSI_test = TRUE;
+				pHalData->RSSI_test = true;
 			if((curRxOkCnt+curTxOkCnt) > 1000)
 			{
 #if DEV_BUS_TYPE==RT_PCI_INTERFACE
@@ -1947,7 +1947,7 @@ ODM_CCKPathDiversityChkPerPktRssi(
 	)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	BOOLEAN			bCount = FALSE;
+	BOOLEAN			bCount = false;
 	pPD_T	pDM_PDTable = &Adapter->DM_PDTable;
 	//BOOLEAN	isCCKrate = RX_HAL_IS_CCK_RATE_92C(pDesc);
 #if DEV_BUS_TYPE != RT_SDIO_INTERFACE
@@ -1956,13 +1956,13 @@ ODM_CCKPathDiversityChkPerPktRssi(
 	BOOLEAN	isCCKrate = IS_HARDWARE_TYPE_8188E(Adapter) ? RX_HAL_IS_CCK_RATE_88E(pDesc) : RX_HAL_IS_CCK_RATE_92C(pDesc);
 #endif
 
-	if((pHalData->PathDivCfg != 1) || (pHalData->RSSI_test == FALSE))
+	if((pHalData->PathDivCfg != 1) || (pHalData->RSSI_test == false))
 		return;
 		
 	if(pHalData->RSSI_target==NULL && bIsDefPort && bMatchBSSID)
-		bCount = TRUE;
+		bCount = true;
 	else if(pHalData->RSSI_target!=NULL && pEntry!=NULL && pHalData->RSSI_target==pEntry)
-		bCount = TRUE;
+		bCount = true;
 
 	if(bCount && isCCKrate)
 	{
@@ -2046,14 +2046,14 @@ ODM_PathDivChkPerPktRssi(
 	)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);	
-	BOOLEAN			bCount = FALSE;
+	BOOLEAN			bCount = false;
 	PDM_ODM_T		pDM_Odm = &pHalData->DM_OutSrc;
 	pSWAT_T			pDM_SWAT_Table = &pDM_Odm->DM_SWAT_Table;
 
 	if(pHalData->RSSI_target==NULL && bIsDefPort && bMatchBSSID)
-		bCount = TRUE;
+		bCount = true;
 	else if(pHalData->RSSI_target!=NULL && pEntry!=NULL && pHalData->RSSI_target==pEntry)
-		bCount = TRUE;
+		bCount = true;
 
 	if(bCount)
 	{
@@ -2088,7 +2088,7 @@ ODM_PathDivRestAfterLink(
 
 	pHalData->RSSI_cnt_A = 0;
 	pHalData->RSSI_cnt_B = 0;
-	pHalData->RSSI_test = FALSE;
+	pHalData->RSSI_test = false;
 	pDM_SWAT_Table->try_flag = 0x0;       // NOT 0xff
 	pDM_SWAT_Table->RSSI_Trying = 0;
 	pDM_SWAT_Table->SelectAntennaMap=0xAA;
@@ -2252,7 +2252,7 @@ odm_SwAntDivConstructScanChnl(
 		//	under the NORMAL scanning process. It will not affect MGNT_INFO.CustomizedScanRequest.
 		CUSTOMIZED_SCAN_REQUEST CustomScanReq;
 
-		CustomScanReq.bEnabled = TRUE;
+		CustomScanReq.bEnabled = true;
 		CustomScanReq.Channels[0] = ScanChnl;
 		CustomScanReq.Channels[1] = pMgntInfo->dot11CurrentChannelNumber;
 		CustomScanReq.nChannels = 2;

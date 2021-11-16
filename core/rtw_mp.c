@@ -138,8 +138,8 @@ static void _init_mp_priv_(struct mp_priv *pmp_priv)
 	pmp_priv->network_macaddr[4] = 0x66;
 	pmp_priv->network_macaddr[5] = 0x55;
 
-	pmp_priv->bSetRxBssid = _FALSE;
-	pmp_priv->bRTWSmbCfg = _FALSE;
+	pmp_priv->bSetRxBssid = false;
+	pmp_priv->bRTWSmbCfg = false;
 
 	pnetwork = &pmp_priv->mp_network.network;
 	_rtw_memcpy(pnetwork->MacAddress, pmp_priv->network_macaddr, ETH_ALEN);
@@ -184,7 +184,7 @@ void mp_wi_callback(
 	}
 
 	NdisAcquireSpinLock(&(pmp_wi_cntx->mp_wi_lock));
-	pmp_wi_cntx->bmp_wi_progress= _FALSE;
+	pmp_wi_cntx->bmp_wi_progress= false;
 	NdisReleaseSpinLock(&(pmp_wi_cntx->mp_wi_lock));
 
 	if (pmp_wi_cntx->bmpdrv_unload)
@@ -209,8 +209,8 @@ static int init_mp_priv_by_os(struct mp_priv *pmp_priv)
 	pmp_priv->tx_testcnt1 = 0;
 
 	pmp_wi_cntx = &pmp_priv->wi_cntx
-	pmp_wi_cntx->bmpdrv_unload = _FALSE;
-	pmp_wi_cntx->bmp_wi_progress = _FALSE;
+	pmp_wi_cntx->bmpdrv_unload = false;
+	pmp_wi_cntx->bmp_wi_progress = false;
 	pmp_wi_cntx->curractfunc = NULL;
 
 	return _SUCCESS;
@@ -289,8 +289,8 @@ static void mp_init_xmit_attrib(struct mp_tx *pmptx, PADAPTER padapter)
 //	do_queue_select(padapter, pattrib);
 	pattrib->nr_frags = 1;
 	pattrib->encrypt = 0;
-	pattrib->bswenc = _FALSE;
-	pattrib->qos_en = _FALSE;
+	pattrib->bswenc = false;
+	pattrib->qos_en = false;
 
 	pattrib->pktlen = 1500;
 	
@@ -318,7 +318,7 @@ s32 init_mp_priv(PADAPTER padapter)
 	pmppriv->mp_dm =0;
 	pmppriv->tx.stop = 1;
 	pmppriv->bSetTxPower=0;		//for  manually set tx power
-	pmppriv->bTxBufCkFail=_FALSE;
+	pmppriv->bTxBufCkFail=false;
 	pmppriv->pktInterval=0;
 	
 	mp_init_xmit_attrib(&pmppriv->tx, padapter);
@@ -485,9 +485,9 @@ static void PHY_IQCalibrate(PADAPTER padapter, u8 bReCovery)
 	u8 RF_Path;	//0:S1, 1:S0
 
 	pHalData = GET_HAL_DATA(padapter);
-	b2ant = pHalData->EEPROMBluetoothAntNum==Ant_x2?_TRUE:_FALSE;
+	b2ant = pHalData->EEPROMBluetoothAntNum==Ant_x2?true:false;
 
-	PHY_IQCalibrate_8723B(padapter, bReCovery, _FALSE, b2ant, pHalData->ant_path);
+	PHY_IQCalibrate_8723B(padapter, bReCovery, false, b2ant, pHalData->ant_path);
 }
 
 
@@ -509,7 +509,7 @@ static void PHY_IQCalibrate(PADAPTER padapter, u8 bReCovery)
 #ifdef CONFIG_RTL8188F
 static void PHY_IQCalibrate(PADAPTER padapter, u8 bReCovery)
 {
-	PHY_IQCalibrate_8188F(padapter, bReCovery, _FALSE);
+	PHY_IQCalibrate_8188F(padapter, bReCovery, false);
 }
 
 
@@ -529,15 +529,15 @@ MPT_InitializeAdapter(
 	u32		ledsetting;
 	struct mlme_priv *pmlmepriv = &pAdapter->mlmepriv;
 
-	pMptCtx->bMptDrvUnload = _FALSE;
-	pMptCtx->bMassProdTest = _FALSE;
-	pMptCtx->bMptIndexEven = _TRUE;	//default gain index is -6.0db
+	pMptCtx->bMptDrvUnload = false;
+	pMptCtx->bMassProdTest = false;
+	pMptCtx->bMptIndexEven = true;	//default gain index is -6.0db
 	pMptCtx->h2cReqNum = 0x0;
 	//init for BT MP
 #if defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8821A)
-	pMptCtx->bMPh2c_timeout = _FALSE;
-	pMptCtx->MptH2cRspEvent = _FALSE;
-	pMptCtx->MptBtC2hEvent = _FALSE;
+	pMptCtx->bMPh2c_timeout = false;
+	pMptCtx->MptH2cRspEvent = false;
+	pMptCtx->MptBtC2hEvent = false;
 	_rtw_init_sema(&pMptCtx->MPh2c_Sema, 0);
 	_init_timer( &pMptCtx->MPh2c_timeout_timer, pAdapter->pnetdev, MPh2c_timeout_handle, pAdapter );
 #endif
@@ -563,7 +563,7 @@ MPT_InitializeAdapter(
 	rtw_write16(pAdapter, 0x860, 0x110);
 #endif
 
-	pMptCtx->bMptWorkItemInProgress = _FALSE;
+	pMptCtx->bMptWorkItemInProgress = false;
 	pMptCtx->CurrMptAct = NULL;
 	pMptCtx->MptRfPath = ODM_RF_PATH_A;
 	//-------------------------------------------------------------------------
@@ -578,7 +578,7 @@ MPT_InitializeAdapter(
 	
 	
 	PHY_LCCalibrate(pAdapter);
-	PHY_IQCalibrate(pAdapter, _FALSE);
+	PHY_IQCalibrate(pAdapter, false);
 	//dm_CheckTXPowerTracking(&pHalData->odmpriv);	//trigger thermal meter
 	
 	PHY_SetRFPathSwitch(pAdapter, 1/*pHalData->bDefaultAntenna*/); //default use Main
@@ -619,7 +619,7 @@ MPT_DeInitAdapter(
 {
 	PMPT_CONTEXT		pMptCtx = &pAdapter->mppriv.MptCtx;
 
-	pMptCtx->bMptDrvUnload = _TRUE;
+	pMptCtx->bMptDrvUnload = true;
 	#if defined(CONFIG_RTL8723B)
 	_rtw_free_sema(&(pMptCtx->MPh2c_Sema));
 	_cancel_timer_ex( &pMptCtx->MPh2c_timeout_timer);
@@ -645,13 +645,13 @@ static u8 mpt_ProStartTest(PADAPTER padapter)
 {
 	PMPT_CONTEXT pMptCtx = &padapter->mppriv.MptCtx;
 
-	pMptCtx->bMassProdTest = _TRUE;
-	pMptCtx->bStartContTx = _FALSE;
-	pMptCtx->bCckContTx = _FALSE;
-	pMptCtx->bOfdmContTx = _FALSE;
-	pMptCtx->bSingleCarrier = _FALSE;
-	pMptCtx->bCarrierSuppression = _FALSE;
-	pMptCtx->bSingleTone = _FALSE;
+	pMptCtx->bMassProdTest = true;
+	pMptCtx->bStartContTx = false;
+	pMptCtx->bCckContTx = false;
+	pMptCtx->bOfdmContTx = false;
+	pMptCtx->bSingleCarrier = false;
+	pMptCtx->bCarrierSuppression = false;
+	pMptCtx->bSingleTone = false;
 
 	return _SUCCESS;
 }
@@ -687,7 +687,7 @@ static void disable_dm(PADAPTER padapter)
 	rtw_phydm_func_disable_all(padapter);
 
 	// enable APK, LCK and IQK but disable power tracking
-	pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = _FALSE;
+	pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = false;
 	rtw_phydm_func_set(padapter, ODM_RF_CALIBRATION);
 
 //#ifdef CONFIG_BT_COEXIST
@@ -705,13 +705,13 @@ void MPT_PwrCtlDM(PADAPTER padapter, u32 bstart)
 		DBG_871X("in MPT_PwrCtlDM start\n");
 		rtw_phydm_func_set(padapter, ODM_RF_TX_PWR_TRACK | ODM_RF_CALIBRATION);
 
-		pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = _TRUE;
+		pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = true;
 		padapter->mppriv.mp_dm =1;
 		
 	}else{
 		DBG_871X("in MPT_PwrCtlDM stop \n");
 		disable_dm(padapter);
-		pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = _FALSE;
+		pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = false;
 		padapter->mppriv.mp_dm = 0;
 		{
 			TXPWRTRACK_CFG	c;
@@ -778,12 +778,12 @@ u32 mp_join(PADAPTER padapter,u8 mode)
 
 	_enter_critical_bh(&pmlmepriv->lock, &irqL);
 
-	if (check_fwstate(pmlmepriv, WIFI_MP_STATE) == _TRUE)
+	if (check_fwstate(pmlmepriv, WIFI_MP_STATE) == true)
 		goto end_of_mp_start_test;
 
 	//init mp_start_test status
-	if (check_fwstate(pmlmepriv, _FW_LINKED) == _TRUE) {
-		rtw_disassoc_cmd(padapter, 500, _TRUE);
+	if (check_fwstate(pmlmepriv, _FW_LINKED) == true) {
+		rtw_disassoc_cmd(padapter, 500, true);
 		rtw_indicate_disconnect(padapter);
 		rtw_free_assoc_resources(padapter, 1);
 	}
@@ -919,7 +919,7 @@ void mp_stop_test(PADAPTER padapter)
 	{
 	pmppriv->bSetTxPower=0;
 	_enter_critical_bh(&pmlmepriv->lock, &irqL);	
-	if (check_fwstate(pmlmepriv, WIFI_MP_STATE) == _FALSE)
+	if (check_fwstate(pmlmepriv, WIFI_MP_STATE) == false)
 		goto end_of_mp_stop_test;
 
 	//3 1. disconnect psudo AdHoc
@@ -1072,7 +1072,7 @@ int SetTxPower(PADAPTER pAdapter)
 {
 
 	hal_mpt_SetTxPower(pAdapter);
-	return _TRUE;
+	return true;
 }
 
 void SetTxAGCOffset(PADAPTER pAdapter, u32 ulTxAGCOffset)
@@ -1779,7 +1779,7 @@ void SetPacketRx(PADAPTER pAdapter, u8 bStartRx, u8 bAB)
 		PHY_SetMacReg(pAdapter, 0xe70, BIT23|BIT22, 0x3);// Power on adc  (in RX_WAIT_CCA state)
 		write_bbreg(pAdapter, 0xa01, BIT0, bDisable);// improve Rx performance by jerry	
 #endif
-		if(	pmppriv->bSetRxBssid == _TRUE ){
+		if(	pmppriv->bSetRxBssid == true ){
 			//pHalData->ReceiveConfig = RCR_APM | RCR_AM | RCR_AB |RCR_CBSSID_DATA| RCR_CBSSID_BCN| RCR_APP_ICV | RCR_AMF | RCR_HTC_LOC_CTRL | RCR_APP_MIC | RCR_APP_PHYST_RXFF;	 
 			pHalData->ReceiveConfig = RCR_AAP | RCR_APM | RCR_AM | RCR_AB |RCR_AMF | RCR_APP_ICV | RCR_AMF | RCR_HTC_LOC_CTRL | RCR_APP_MIC | RCR_APP_PHYST_RXFF  ;
 			pHalData->ReceiveConfig |= ACRC32; 
@@ -1917,7 +1917,7 @@ u32 mp_query_psd(PADAPTER pAdapter, u8 *data)
 	}
 #endif
 
-	if (check_fwstate(&pAdapter->mlmepriv, WIFI_MP_STATE) == _FALSE) {
+	if (check_fwstate(&pAdapter->mlmepriv, WIFI_MP_STATE) == false) {
 		RT_TRACE(_module_mp_, _drv_warning_, ("mp_query_psd: Fail! not in MP mode!\n"));
 		return 0;
 	}
@@ -1978,7 +1978,7 @@ void _rtw_mp_xmit_priv (struct xmit_priv *pxmitpriv)
 	pxmitbuf = (struct xmit_buf *)pxmitpriv->pxmit_extbuf;
 	for(i=0; i<num_xmit_extbuf; i++)
 	{
-		rtw_os_xmit_resource_free(padapter, pxmitbuf,(max_xmit_extbuf_size + XMITBUF_ALIGN_SZ), _FALSE);
+		rtw_os_xmit_resource_free(padapter, pxmitbuf,(max_xmit_extbuf_size + XMITBUF_ALIGN_SZ), false);
 		
 		pxmitbuf++;
 	}
@@ -2021,7 +2021,7 @@ void _rtw_mp_xmit_priv (struct xmit_priv *pxmitpriv)
 		pxmitbuf->padapter = padapter;
 		pxmitbuf->buf_tag = XMITBUF_MGNT;
 
-		if((res=rtw_os_xmit_resource_alloc(padapter, pxmitbuf,max_xmit_extbuf_size + XMITBUF_ALIGN_SZ, _TRUE)) == _FAIL) {
+		if((res=rtw_os_xmit_resource_alloc(padapter, pxmitbuf,max_xmit_extbuf_size + XMITBUF_ALIGN_SZ, true)) == _FAIL) {
 			res= _FAIL;
 			goto exit;
 		}
@@ -2263,7 +2263,7 @@ mpt_ProQueryCalTxPower_8188E(
 	u1Byte				rf_path=(RfPath), rfPath;
 	u1Byte				limit = 0, rate = 0;
 
-	if(HAL_IsLegalChannel(pAdapter, CurrChannel) == FALSE)
+	if(HAL_IsLegalChannel(pAdapter, CurrChannel) == false)
 	{
 		CurrChannel = 1;
 	}	

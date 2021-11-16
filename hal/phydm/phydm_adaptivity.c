@@ -42,30 +42,30 @@ Phydm_CheckAdaptivity(
 	if (pDM_Odm->SupportAbility & ODM_BB_ADAPTIVITY) {
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 		if (pDM_Odm->APTotalNum > Adaptivity->APNumTH) {
-			pDM_Odm->Adaptivity_enable = FALSE;
-			pDM_Odm->adaptivity_flag = FALSE;
+			pDM_Odm->Adaptivity_enable = false;
+			pDM_Odm->adaptivity_flag = false;
 			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_ADAPTIVITY, ODM_DBG_LOUD, ("AP total num > %d!!, disable adaptivity\n", Adaptivity->APNumTH));
 		} else
 #endif
 		{
-			if (Adaptivity->DynamicLinkAdaptivity == TRUE) {
-				if (pDM_Odm->bLinked && Adaptivity->bCheck == FALSE) {
+			if (Adaptivity->DynamicLinkAdaptivity == true) {
+				if (pDM_Odm->bLinked && Adaptivity->bCheck == false) {
 					Phydm_NHMCounterStatistics(pDM_Odm);
 					Phydm_CheckEnvironment(pDM_Odm);
 				} else if (!pDM_Odm->bLinked)
-					Adaptivity->bCheck = FALSE;
+					Adaptivity->bCheck = false;
 			} else {
-				pDM_Odm->Adaptivity_enable = TRUE;
+				pDM_Odm->Adaptivity_enable = true;
 
 				if (pDM_Odm->SupportICType & (ODM_IC_11AC_GAIN_IDX_EDCCA | ODM_IC_11N_GAIN_IDX_EDCCA))
-					pDM_Odm->adaptivity_flag = FALSE;
+					pDM_Odm->adaptivity_flag = false;
 				else
-					pDM_Odm->adaptivity_flag = TRUE;
+					pDM_Odm->adaptivity_flag = true;
 			}
 		}
 	} else {
-		pDM_Odm->Adaptivity_enable = FALSE;
-		pDM_Odm->adaptivity_flag = FALSE;
+		pDM_Odm->Adaptivity_enable = false;
+		pDM_Odm->adaptivity_flag = false;
 	}
 
 	
@@ -84,52 +84,52 @@ Phydm_CheckChannelPlan(
 	PMGNT_INFO		pMgntInfo = &(pAdapter->MgntInfo);
 	
 	if (pMgntInfo->RegEnableAdaptivity == 2) {
-		if (pDM_Odm->Carrier_Sense_enable == FALSE) {		/*check domain Code for Adaptivity or CarrierSense*/
+		if (pDM_Odm->Carrier_Sense_enable == false) {		/*check domain Code for Adaptivity or CarrierSense*/
 			if ((*pDM_Odm->pBandType == ODM_BAND_5G) &&
 			    !(pDM_Odm->odm_Regulation5G == REGULATION_ETSI || pDM_Odm->odm_Regulation5G == REGULATION_WW)) {
 				ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_ADAPTIVITY, ODM_DBG_LOUD, ("Adaptivity skip 5G domain code : %d\n", pDM_Odm->odm_Regulation5G));
-				pDM_Odm->Adaptivity_enable = FALSE;
-				pDM_Odm->adaptivity_flag = FALSE;
-				return TRUE;
+				pDM_Odm->Adaptivity_enable = false;
+				pDM_Odm->adaptivity_flag = false;
+				return true;
 			} else if ((*pDM_Odm->pBandType == ODM_BAND_2_4G) &&
 				   !(pDM_Odm->odm_Regulation2_4G == REGULATION_ETSI || pDM_Odm->odm_Regulation2_4G == REGULATION_WW)) {
 				ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_ADAPTIVITY, ODM_DBG_LOUD, ("Adaptivity skip 2.4G domain code : %d\n", pDM_Odm->odm_Regulation2_4G));
-				pDM_Odm->Adaptivity_enable = FALSE;
-				pDM_Odm->adaptivity_flag = FALSE;
-				return TRUE;
+				pDM_Odm->Adaptivity_enable = false;
+				pDM_Odm->adaptivity_flag = false;
+				return true;
 
 			} else if ((*pDM_Odm->pBandType != ODM_BAND_2_4G) && (*pDM_Odm->pBandType != ODM_BAND_5G)) {
 				ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_ADAPTIVITY, ODM_DBG_LOUD, ("Adaptivity neither 2G nor 5G band, return\n"));
-				pDM_Odm->Adaptivity_enable = FALSE;
-				pDM_Odm->adaptivity_flag = FALSE;
-				return TRUE;
+				pDM_Odm->Adaptivity_enable = false;
+				pDM_Odm->adaptivity_flag = false;
+				return true;
 			}
 		} else {
 			if ((*pDM_Odm->pBandType == ODM_BAND_5G) &&
 			    !(pDM_Odm->odm_Regulation5G == REGULATION_MKK || pDM_Odm->odm_Regulation5G == REGULATION_WW)) {
 				ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_ADAPTIVITY, ODM_DBG_LOUD, ("CarrierSense skip 5G domain code : %d\n", pDM_Odm->odm_Regulation5G));
-				pDM_Odm->Adaptivity_enable = FALSE;
-				pDM_Odm->adaptivity_flag = FALSE;
-				return TRUE;
+				pDM_Odm->Adaptivity_enable = false;
+				pDM_Odm->adaptivity_flag = false;
+				return true;
 			}
 
 			else if ((*pDM_Odm->pBandType == ODM_BAND_2_4G) &&
 				   !(pDM_Odm->odm_Regulation2_4G == REGULATION_MKK  || pDM_Odm->odm_Regulation2_4G == REGULATION_WW)) {
 				ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_ADAPTIVITY, ODM_DBG_LOUD, ("CarrierSense skip 2.4G domain code : %d\n", pDM_Odm->odm_Regulation2_4G));
-				pDM_Odm->Adaptivity_enable = FALSE;
-				pDM_Odm->adaptivity_flag = FALSE;
-				return TRUE;
+				pDM_Odm->Adaptivity_enable = false;
+				pDM_Odm->adaptivity_flag = false;
+				return true;
 
 			} else if ((*pDM_Odm->pBandType != ODM_BAND_2_4G) && (*pDM_Odm->pBandType != ODM_BAND_5G)) {
 				ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_ADAPTIVITY, ODM_DBG_LOUD, ("CarrierSense neither 2G nor 5G band, return\n"));
-				pDM_Odm->Adaptivity_enable = FALSE;
-				pDM_Odm->adaptivity_flag = FALSE;
-				return TRUE;
+				pDM_Odm->Adaptivity_enable = false;
+				pDM_Odm->adaptivity_flag = false;
+				return true;
 			}
 		}
 	}
 
-	return FALSE;
+	return false;
 
 }
 #endif
@@ -308,9 +308,9 @@ Phydm_CalNHMcnt(
 		pDM_Odm->NHM_cnt_1 = ((pDM_Odm->NHM_cnt_1) << 8) / Base;
 	}
 	if ((pDM_Odm->NHM_cnt_0 - pDM_Odm->NHM_cnt_1) >= 100)
-		return TRUE;			/*clean environment*/
+		return true;			/*clean environment*/
 	else
-		return FALSE;		/*noisy environment*/
+		return false;		/*noisy environment*/
 
 }
 
@@ -322,15 +322,15 @@ Phydm_CheckEnvironment(
 {
 	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	PADAPTIVITY_STATISTICS	Adaptivity = (PADAPTIVITY_STATISTICS)PhyDM_Get_Structure(pDM_Odm, PHYDM_ADAPTIVITY);
-	BOOLEAN 	isCleanEnvironment = FALSE;
+	BOOLEAN 	isCleanEnvironment = false;
 
-	if (Adaptivity->bFirstLink == TRUE) {
+	if (Adaptivity->bFirstLink == true) {
 		if (pDM_Odm->SupportICType & (ODM_IC_11AC_GAIN_IDX_EDCCA | ODM_IC_11N_GAIN_IDX_EDCCA))
-			pDM_Odm->adaptivity_flag = FALSE;
+			pDM_Odm->adaptivity_flag = false;
 		else
-			pDM_Odm->adaptivity_flag = TRUE;
+			pDM_Odm->adaptivity_flag = true;
 
-		Adaptivity->bFirstLink = FALSE;
+		Adaptivity->bFirstLink = false;
 		return;
 	} else {
 		if (Adaptivity->NHMWait < 3) {		/*Start enter NHM after 4 NHMWait*/
@@ -340,26 +340,26 @@ Phydm_CheckEnvironment(
 		} else {
 			Phydm_NHMCounterStatistics(pDM_Odm);
 			isCleanEnvironment = Phydm_CalNHMcnt(pDM_Odm);
-			if (isCleanEnvironment == TRUE) {
+			if (isCleanEnvironment == true) {
 				pDM_Odm->TH_L2H_ini = Adaptivity->TH_L2H_ini_backup;			/*adaptivity mode*/
 				pDM_Odm->TH_EDCCA_HL_diff = Adaptivity->TH_EDCCA_HL_diff_backup;
 
-				pDM_Odm->Adaptivity_enable = TRUE;
+				pDM_Odm->Adaptivity_enable = true;
 
 				if (pDM_Odm->SupportICType & (ODM_IC_11AC_GAIN_IDX_EDCCA | ODM_IC_11N_GAIN_IDX_EDCCA))
-					pDM_Odm->adaptivity_flag = FALSE;
+					pDM_Odm->adaptivity_flag = false;
 				else
-					pDM_Odm->adaptivity_flag = TRUE;
+					pDM_Odm->adaptivity_flag = true;
 			} else {
 				pDM_Odm->TH_L2H_ini = pDM_Odm->TH_L2H_ini_mode2;			/*mode2*/
 				pDM_Odm->TH_EDCCA_HL_diff = pDM_Odm->TH_EDCCA_HL_diff_mode2;
 
-				pDM_Odm->adaptivity_flag = FALSE;
-				pDM_Odm->Adaptivity_enable = FALSE;
+				pDM_Odm->adaptivity_flag = false;
+				pDM_Odm->Adaptivity_enable = false;
 			}
 			Adaptivity->NHMWait = 0;
-			Adaptivity->bFirstLink = TRUE;
-			Adaptivity->bCheck = TRUE;
+			Adaptivity->bFirstLink = true;
+			Adaptivity->bCheck = true;
 		}
 
 	}
@@ -377,7 +377,7 @@ Phydm_SearchPwdBLowerBound(
 	u4Byte			value32 = 0;
 	u1Byte			cnt, IGI_Pause = 0x7f, IGI_Resume = 0x20, IGI = 0x45;		/*IGI = 0x50 for cal EDCCA lower bound*/
 	u1Byte			txEdcca1 = 0, txEdcca0 = 0;
-	BOOLEAN			bAdjust = TRUE;
+	BOOLEAN			bAdjust = true;
 	s1Byte 			TH_L2H_dmc, TH_H2L_dmc, IGI_target = 0x32;
 	s1Byte 			Diff;
 
@@ -418,7 +418,7 @@ Phydm_SearchPwdBLowerBound(
 
 			Phydm_SetEDCCAThreshold(pDM_Odm, TH_H2L_dmc, TH_L2H_dmc);
 			if (TH_L2H_dmc == 10) {
-				bAdjust = FALSE;
+				bAdjust = false;
 				Adaptivity->H2L_lb = TH_H2L_dmc;
 				Adaptivity->L2H_lb = TH_L2H_dmc;
 				pDM_Odm->Adaptivity_IGI_upper = IGI;
@@ -428,7 +428,7 @@ Phydm_SearchPwdBLowerBound(
 			txEdcca0 = 0;
 
 		} else {
-			bAdjust = FALSE;
+			bAdjust = false;
 			Adaptivity->H2L_lb = TH_H2L_dmc;
 			Adaptivity->L2H_lb = TH_L2H_dmc;
 			pDM_Odm->Adaptivity_IGI_upper = IGI;
@@ -461,14 +461,14 @@ Phydm_AdaptivityInit(
 	Adaptivity->DynamicLinkAdaptivity = (BOOLEAN)pMgntInfo->RegDmLinkAdaptivity;
 	Adaptivity->APNumTH = (u1Byte)pMgntInfo->RegAPNumTH;
 #elif(DM_ODM_SUPPORT_TYPE == ODM_CE)
-	pDM_Odm->Carrier_Sense_enable = (pDM_Odm->Adapter->registrypriv.adaptivity_mode != 0) ? TRUE : FALSE;
+	pDM_Odm->Carrier_Sense_enable = (pDM_Odm->Adapter->registrypriv.adaptivity_mode != 0) ? true : false;
 	pDM_Odm->DCbackoff = pDM_Odm->Adapter->registrypriv.adaptivity_dc_backoff;
-	Adaptivity->DynamicLinkAdaptivity = (pDM_Odm->Adapter->registrypriv.adaptivity_dml != 0) ? TRUE : FALSE;
+	Adaptivity->DynamicLinkAdaptivity = (pDM_Odm->Adapter->registrypriv.adaptivity_dml != 0) ? true : false;
 #endif
 
 #if(DM_ODM_SUPPORT_TYPE & (ODM_CE|ODM_WIN))
 
-	if (pDM_Odm->Carrier_Sense_enable == FALSE) {
+	if (pDM_Odm->Carrier_Sense_enable == false) {
 #if(DM_ODM_SUPPORT_TYPE == ODM_WIN)
 		if (pMgntInfo->RegL2HForAdaptivity != 0)
 			pDM_Odm->TH_L2H_ini = pMgntInfo->RegL2HForAdaptivity;
@@ -501,16 +501,16 @@ Phydm_AdaptivityInit(
 
 	Adaptivity->TH_EDCCA_HL_diff_backup = pDM_Odm->TH_EDCCA_HL_diff;
 	if (priv->pshare->rf_ft_var.adaptivity_enable == 2)
-		Adaptivity->DynamicLinkAdaptivity = TRUE;
+		Adaptivity->DynamicLinkAdaptivity = true;
 	else
-		Adaptivity->DynamicLinkAdaptivity = FALSE;
+		Adaptivity->DynamicLinkAdaptivity = false;
 
 #endif
 
 	pDM_Odm->Adaptivity_IGI_upper = 0;
-	pDM_Odm->Adaptivity_enable = FALSE;	/*use this flag to decide enable or disable*/
+	pDM_Odm->Adaptivity_enable = false;	/*use this flag to decide enable or disable*/
 
-	pDM_Odm->EDCCA_enable = TRUE;		/*even no adaptivity, we still enable EDCCA*/
+	pDM_Odm->EDCCA_enable = true;		/*even no adaptivity, we still enable EDCCA*/
 
 	pDM_Odm->TH_L2H_ini_mode2 = 20;
 	pDM_Odm->TH_EDCCA_HL_diff_mode2 = 8;
@@ -520,8 +520,8 @@ Phydm_AdaptivityInit(
 	Adaptivity->H2L_lb = 0;
 	Adaptivity->L2H_lb = 0;
 	Adaptivity->NHMWait = 0;
-	Adaptivity->bCheck = FALSE;
-	Adaptivity->bFirstLink = TRUE;
+	Adaptivity->bCheck = false;
+	Adaptivity->bFirstLink = true;
 
 	Phydm_MACEDCCAState(pDM_Odm, PhyDM_DONT_IGNORE_EDCCA);
 
@@ -564,7 +564,7 @@ Phydm_Adaptivity(
 	PADAPTIVITY_STATISTICS	Adaptivity = (PADAPTIVITY_STATISTICS)PhyDM_Get_Structure(pDM_Odm, PHYDM_ADAPTIVITY);
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	PADAPTER		pAdapter	= pDM_Odm->Adapter;
-	BOOLEAN			bFwCurrentInPSMode = FALSE;
+	BOOLEAN			bFwCurrentInPSMode = false;
 	PMGNT_INFO		pMgntInfo = &(pAdapter->MgntInfo);
 
 	pAdapter->HalFunc.GetHwRegHandler(pAdapter, HW_VAR_FW_PSMODE_STATUS, (pu1Byte)(&bFwCurrentInPSMode));
@@ -574,7 +574,7 @@ Phydm_Adaptivity(
 		return;
 #endif
 
-	if (pDM_Odm->EDCCA_enable == FALSE) {
+	if (pDM_Odm->EDCCA_enable == false) {
 		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_ADAPTIVITY, ODM_DBG_LOUD, ("Disable EDCCA!!!\n"));
 		return;
 	}
@@ -620,7 +620,7 @@ Phydm_Adaptivity(
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_ADAPTIVITY, ODM_DBG_LOUD, ("RSSI_min = %d, AdapIGIUpper= 0x%x, adaptivity_flag = %d, Adaptivity_enable = %d\n",
 			 pDM_Odm->RSSI_Min, pDM_Odm->Adaptivity_IGI_upper, pDM_Odm->adaptivity_flag, pDM_Odm->Adaptivity_enable));
 
-	if ((Adaptivity->DynamicLinkAdaptivity == TRUE) && (!pDM_Odm->bLinked) && (pDM_Odm->Adaptivity_enable == FALSE)) {
+	if ((Adaptivity->DynamicLinkAdaptivity == true) && (!pDM_Odm->bLinked) && (pDM_Odm->Adaptivity_enable == false)) {
 		Phydm_SetEDCCAThreshold(pDM_Odm, 0x7f, 0x7f);
 		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_ADAPTIVITY, ODM_DBG_LOUD, ("In DynamicLink mode(noisy) and No link, Turn off EDCCA!!\n"));
 		return;
@@ -680,7 +680,7 @@ Phydm_AdaptivityBSOD(
 	RT_TRACE(COMP_MLME, DBG_WARNING, ("MAC id drop packet!!!!!\n"));
 
 	pAdapter->dropPktByMacIdCnt++;
-	pMgntInfo->bDropPktInProgress = TRUE;
+	pMgntInfo->bDropPktInProgress = true;
 
 	pAdapter->HalFunc.GetHwRegHandler(pAdapter, HW_VAR_MAX_Q_PAGE_NUM, (pu1Byte)(&u4Value));
 	RT_TRACE(COMP_INIT, DBG_LOUD, ("Queue Reserved Page Number = 0x%08x\n", u4Value));
@@ -758,7 +758,7 @@ Phydm_AdaptivityBSOD(
 	pAdapter->HalFunc.GetHwRegHandler(pAdapter, HW_VAR_AVBL_Q_PAGE_NUM, (pu1Byte)(&u4Value));
 	RT_TRACE(COMP_INIT, DBG_LOUD, ("Available Queue Page Number = 0x%08x\n", u4Value));
 
-	pMgntInfo->bDropPktInProgress = FALSE;
+	pMgntInfo->bDropPktInProgress = false;
 	RT_TRACE(COMP_MLME, DBG_WARNING, ("End of MAC id drop packet, spent %dms\n", count * 10));
 
 }

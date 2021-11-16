@@ -54,7 +54,7 @@ sic_IsSICReady(
 	IN	PADAPTER	Adapter
 	)
 {
-	BOOLEAN		bRet=_FALSE;
+	BOOLEAN		bRet=false;
 	u32		retryCnt=0;
 	u8		sic_cmd=0xff;
 
@@ -62,12 +62,12 @@ sic_IsSICReady(
 	{		
 		if(retryCnt++ >= SIC_MAX_POLL_CNT)
 		{
-			//RTPRINT(FPHY, (PHY_SICR|PHY_SICW), ("[SIC], sic_IsSICReady() return FALSE\n"));
-			return _FALSE;
+			//RTPRINT(FPHY, (PHY_SICR|PHY_SICW), ("[SIC], sic_IsSICReady() return false\n"));
+			return false;
 		}
 
 		//if(RT_SDIO_CANNOT_IO(Adapter))
-		//	return _FALSE;
+		//	return false;
 
 		sic_cmd = rtw_read8(Adapter, SIC_CMD_REG);
 		//sic_cmd = PlatformEFIORead1Byte(Adapter, SIC_CMD_REG);
@@ -76,7 +76,7 @@ sic_IsSICReady(
 #endif
 		//RTPRINT(FPHY, (PHY_SICR|PHY_SICW), ("[SIC], sic_IsSICReady(), readback 0x%x=0x%x\n", SIC_CMD_REG, sic_cmd));
 		if(sic_cmd == SIC_CMD_READY)
-			return _TRUE;
+			return true;
 		else
 		{
 			rtw_msleep_os(1);
@@ -218,13 +218,13 @@ SIC_SetBBReg(
 
 	//RTPRINT(FPHY, PHY_SICW, ("[SIC], SIC_SetBBReg() start\n"));
 /*
-	while(PlatformAtomicExchange(&pHalData->bChangeBBInProgress, _TRUE) == _TRUE)
+	while(PlatformAtomicExchange(&pHalData->bChangeBBInProgress, true) == true)
 	{
 		BBWaitCounter ++;
 		delay_ms(10); // 1 ms
 
 		if((BBWaitCounter > 100) || RT_CANNOT_IO(Adapter))
-		{// Wait too long, return FALSE to avoid to be stuck here.
+		{// Wait too long, return false to avoid to be stuck here.
 			RTPRINT(FPHY, PHY_SICW, ("[SIC], SIC_SetBBReg(), Fail to set BB offset(%#x)!!, WaitCnt(%d)\n", RegAddr, BBWaitCounter));
 			return;
 		}		
@@ -245,7 +245,7 @@ SIC_SetBBReg(
 
 	sic_Write4Byte(Adapter, RegAddr, Data);
 
-	//PlatformAtomicExchange(&pHalData->bChangeBBInProgress, _FALSE);
+	//PlatformAtomicExchange(&pHalData->bChangeBBInProgress, false);
 	//RTPRINT(FPHY, PHY_SICW, ("[SIC], SIC_SetBBReg() end\n"));
 }
 
@@ -263,13 +263,13 @@ SIC_QueryBBReg(
 	//RTPRINT(FPHY, PHY_SICR, ("[SIC], SIC_QueryBBReg() start\n"));
 
 /*
-	while(PlatformAtomicExchange(&pHalData->bChangeBBInProgress, _TRUE) == _TRUE)
+	while(PlatformAtomicExchange(&pHalData->bChangeBBInProgress, true) == true)
 	{
 		BBWaitCounter ++;
 		delay_ms(10); // 10 ms
 
 		if((BBWaitCounter > 100) || RT_CANNOT_IO(Adapter))
-		{// Wait too long, return FALSE to avoid to be stuck here.
+		{// Wait too long, return false to avoid to be stuck here.
 			RTPRINT(FPHY, PHY_SICW, ("[SIC], SIC_QueryBBReg(), Fail to query BB offset(%#x)!!, WaitCnt(%d)\n", RegAddr, BBWaitCounter));
 			return ReturnValue;
 		}		
@@ -283,7 +283,7 @@ SIC_QueryBBReg(
 	//RTPRINT(FPHY, PHY_SICR, ("[SIC], SIC_QueryBBReg(), 0x%x=0x%x\n", RegAddr, OriginalValue));
 	//RTPRINT(FPHY, PHY_SICR, ("[SIC], SIC_QueryBBReg() end\n"));
 
-	//PlatformAtomicExchange(&pHalData->bChangeBBInProgress, _FALSE);	
+	//PlatformAtomicExchange(&pHalData->bChangeBBInProgress, false);	
 	return (ReturnValue);
 }
 
@@ -320,7 +320,7 @@ SIC_LedOff(
 {
 	// When SIC is enabled, led pin will be used as debug pin,
 	// so don't execute led function when SIC is enabled.
-	return _TRUE;
+	return true;
 }
 #endif
 
@@ -1031,7 +1031,7 @@ phy_BB8190_Config_HardCode(
 	IN	PADAPTER	Adapter
 	)
 {
-	//RT_ASSERT(FALSE, ("This function is not implement yet!! \n"));
+	//RT_ASSERT(false, ("This function is not implement yet!! \n"));
 	return _SUCCESS;
 }
 
@@ -1546,7 +1546,7 @@ PHY_GetTxPowerIndex_8188E(
 	u8 base_index = 0;
 	s8 by_rate_diff = 0, txPower = 0, limit = 0, track_diff = 0, extra_bias = 0;
 	u8 txNum = phy_GetCurrentTxNum_8188E(pAdapter, Rate);
-	BOOLEAN bIn24G = _FALSE;
+	BOOLEAN bIn24G = false;
 
 	base_index = PHY_GetTxPowerIndexBase(pAdapter,RFPath, Rate, BandWidth, Channel, &bIn24G);
 
@@ -1584,7 +1584,7 @@ PHY_UpdateTxPowerDbm8188E(
 	IN	int		powerInDbm
 	)
 {
-	return _TRUE;
+	return true;
 }
 
 VOID
@@ -1675,7 +1675,7 @@ _PHY_SetBWMode88E(
 
 	if(pHalData->rf_chip == RF_PSEUDO_11N)
 	{
-		//pHalData->SetBWModeInProgress= _FALSE;
+		//pHalData->SetBWModeInProgress= false;
 		return;
 	}
 
@@ -1793,11 +1793,11 @@ _PHY_SetBWMode88E(
 			break;
 
 		default:
-			//RT_ASSERT(FALSE, ("Unknown RFChipID: %d\n", pHalData->RFChipID));
+			//RT_ASSERT(false, ("Unknown RFChipID: %d\n", pHalData->RFChipID));
 			break;
 	}
 
-	//pHalData->SetBWModeInProgress= FALSE;
+	//pHalData->SetBWModeInProgress= false;
 
 	//RT_TRACE(COMP_SCAN, DBG_LOUD, ("<==PHY_SetBWModeCallback8192C() \n" ));
 }
@@ -1851,7 +1851,7 @@ PHY_SetBWMode8188E(
 	//if(pHalData->SetBWModeInProgress)
 	//	return;
 
-	//pHalData->SetBWModeInProgress= TRUE;
+	//pHalData->SetBWModeInProgress= true;
 
 	pHalData->CurrentChannelBW = Bandwidth;
 
@@ -1879,8 +1879,8 @@ PHY_SetBWMode8188E(
 	}
 	else
 	{
-		//RT_TRACE(COMP_SCAN, DBG_LOUD, ("PHY_SetBWMode8192C() SetBWModeInProgress FALSE driver sleep or unload\n"));
-		//pHalData->SetBWModeInProgress= FALSE;
+		//RT_TRACE(COMP_SCAN, DBG_LOUD, ("PHY_SetBWMode8192C() SetBWModeInProgress false driver sleep or unload\n"));
+		//pHalData->SetBWModeInProgress= false;
 		pHalData->CurrentChannelBW = tmpBW;
 	}
 	
@@ -1920,14 +1920,14 @@ PHY_SwChnl8188E(	// Call after initialization
 	IN	u8		channel
 	)
 {
-	//PADAPTER Adapter =  ADJUST_TO_ADAPTIVE_ADAPTER(pAdapter, _TRUE);
+	//PADAPTER Adapter =  ADJUST_TO_ADAPTIVE_ADAPTER(pAdapter, true);
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	u8	tmpchannel = pHalData->CurrentChannel;
-	BOOLEAN  bResult = _TRUE;
+	BOOLEAN  bResult = true;
 
 	if(pHalData->rf_chip == RF_PSEUDO_11N)
 	{
-		//pHalData->SwChnlInProgress=FALSE;
+		//pHalData->SwChnlInProgress=false;
 		return; 								//return immediately if it is peudo-phy
 	}
 
@@ -1960,12 +1960,12 @@ PHY_SwChnl8188E(	// Call after initialization
 			break;
 
 		default:
-			//RT_ASSERT(FALSE, ("Invalid WirelessMode(%#x)!!\n", pHalData->CurrentWirelessMode));
+			//RT_ASSERT(false, ("Invalid WirelessMode(%#x)!!\n", pHalData->CurrentWirelessMode));
 			break;
 	}
 	//--------------------------------------------
 
-	//pHalData->SwChnlInProgress = TRUE;
+	//pHalData->SwChnlInProgress = true;
 	if(channel == 0)
 		channel = 1;
 
@@ -1990,14 +1990,14 @@ PHY_SwChnl8188E(	// Call after initialization
 
 		if(bResult)
 		{
-			//RT_TRACE(COMP_SCAN, DBG_LOUD, ("PHY_SwChnl8192C SwChnlInProgress TRUE schdule workitem done\n"));
+			//RT_TRACE(COMP_SCAN, DBG_LOUD, ("PHY_SwChnl8192C SwChnlInProgress true schdule workitem done\n"));
 		}
 		else
 		{
-			//RT_TRACE(COMP_SCAN, DBG_LOUD, ("PHY_SwChnl8192C SwChnlInProgress FALSE schdule workitem error\n"));
+			//RT_TRACE(COMP_SCAN, DBG_LOUD, ("PHY_SwChnl8192C SwChnlInProgress false schdule workitem error\n"));
 			//if(IS_HARDWARE_TYPE_8192SU(Adapter))
 			//{
-			//	pHalData->SwChnlInProgress = FALSE;
+			//	pHalData->SwChnlInProgress = false;
 				pHalData->CurrentChannel = tmpchannel;
 			//}
 		}
@@ -2005,10 +2005,10 @@ PHY_SwChnl8188E(	// Call after initialization
 	}
 	else
 	{
-		//RT_TRACE(COMP_SCAN, DBG_LOUD, ("PHY_SwChnl8192C SwChnlInProgress FALSE driver sleep or unload\n"));
+		//RT_TRACE(COMP_SCAN, DBG_LOUD, ("PHY_SwChnl8192C SwChnlInProgress false driver sleep or unload\n"));
 		//if(IS_HARDWARE_TYPE_8192SU(Adapter))
 		//{
-		//	pHalData->SwChnlInProgress = FALSE;
+		//	pHalData->SwChnlInProgress = false;
 			pHalData->CurrentChannel = tmpchannel;
 		//}
 	}
@@ -2046,25 +2046,25 @@ PHY_SetMonitorMode8192C(
 {
 #if 0
 	HAL_DATA_TYPE		*pHalData	= GET_HAL_DATA(pAdapter);
-	BOOLEAN				bFilterOutNonAssociatedBSSID = FALSE;
+	BOOLEAN				bFilterOutNonAssociatedBSSID = false;
 
 	//2 Note: we may need to stop antenna diversity.
 	if(bEnableMonitorMode)
 	{
-		bFilterOutNonAssociatedBSSID = FALSE;
+		bFilterOutNonAssociatedBSSID = false;
 		RT_TRACE(COMP_RM, DBG_LOUD, ("PHY_SetMonitorMode8192S(): enable monitor mode\n"));
 
-		pHalData->bInMonitorMode = TRUE;
-		pAdapter->HalFunc.AllowAllDestAddrHandler(pAdapter, TRUE, TRUE);
+		pHalData->bInMonitorMode = true;
+		pAdapter->HalFunc.AllowAllDestAddrHandler(pAdapter, true, true);
 		rtw_hal_set_hwreg(pAdapter, HW_VAR_CHECK_BSSID, (pu1Byte)&bFilterOutNonAssociatedBSSID);
 	}
 	else
 	{
-		bFilterOutNonAssociatedBSSID = TRUE;
+		bFilterOutNonAssociatedBSSID = true;
 		RT_TRACE(COMP_RM, DBG_LOUD, ("PHY_SetMonitorMode8192S(): disable monitor mode\n"));
 
-		pAdapter->HalFunc.AllowAllDestAddrHandler(pAdapter, FALSE, TRUE);
-		pHalData->bInMonitorMode = FALSE;
+		pAdapter->HalFunc.AllowAllDestAddrHandler(pAdapter, false, true);
+		pHalData->bInMonitorMode = false;
 		rtw_hal_set_hwreg(pAdapter, HW_VAR_CHECK_BSSID, (pu1Byte)&bFilterOutNonAssociatedBSSID);
 	}
 #endif
@@ -2094,13 +2094,13 @@ PHY_CheckIsLegalRfPath8192C(
 	IN	u32	eRFPath)
 {
 //	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
-	BOOLEAN				rtValue = _TRUE;
+	BOOLEAN				rtValue = true;
 
 	// NOt check RF Path now.!
 #if 0
 	if (pHalData->RF_Type == RF_1T2R && eRFPath != RF_PATH_A)
 	{
-		rtValue = FALSE;
+		rtValue = false;
 	}
 	if (pHalData->RF_Type == RF_1T2R && eRFPath != RF_PATH_A)
 	{
@@ -2144,7 +2144,7 @@ static VOID _PHY_SetRFPathSwitch(
 
 }
 
-//return value TRUE => Main; FALSE => Aux
+//return value true => Main; false => Aux
 
 static BOOLEAN _PHY_QueryRFPathSwitch(
 	IN	PADAPTER	pAdapter,
@@ -2152,7 +2152,7 @@ static BOOLEAN _PHY_QueryRFPathSwitch(
 	)
 {
 //	if(is2T)
-//		return _TRUE;
+//		return true;
 
 	if (!rtw_is_hw_init_completed(pAdapter)) {
 		PHY_SetBBReg(pAdapter, REG_LEDCFG0, BIT23, 0x01);
@@ -2162,16 +2162,16 @@ static BOOLEAN _PHY_QueryRFPathSwitch(
 	if(is2T)
 	{
 		if(PHY_QueryBBReg(pAdapter, rFPGA0_XB_RFInterfaceOE, BIT5|BIT6) == 0x01)
-			return _TRUE;
+			return true;
 		else
-			return _FALSE;
+			return false;
 	}
 	else
 	{
 		if(PHY_QueryBBReg(pAdapter, rFPGA0_XA_RFInterfaceOE, 0x300) == 0x02)
-			return _TRUE;
+			return true;
 		else
-			return _FALSE;
+			return false;
 	}
 }
 

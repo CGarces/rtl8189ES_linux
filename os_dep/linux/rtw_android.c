@@ -164,7 +164,7 @@ typedef struct compat_android_wifi_priv_cmd {
  * time (only) in dhd_open, subsequential wifi on will be handled by
  * wl_android_wifi_on
  */
-static int g_wifi_on = _TRUE;
+static int g_wifi_on = true;
 
 unsigned int oob_irq = 0;
 unsigned int oob_gpio = 0;
@@ -361,7 +361,7 @@ int rtw_android_get_rssi(struct net_device *net, char *command, int total_len)
 	struct	wlan_network	*pcur_network = &pmlmepriv->cur_network;
 	int bytes_written = 0;
 
-	if(check_fwstate(pmlmepriv, _FW_LINKED) == _TRUE) {	
+	if(check_fwstate(pmlmepriv, _FW_LINKED) == true) {	
 		bytes_written += snprintf(&command[bytes_written], total_len, "%s rssi %d", 
 			pcur_network->network.Ssid.Ssid, padapter->recvpriv.rssi);
 	}
@@ -420,7 +420,7 @@ int rtw_android_set_block_scan(struct net_device *net, char *command, int total_
 	char *block_value = command + strlen(android_wifi_cmd_str[ANDROID_WIFI_CMD_BLOCK_SCAN]) + 1;
 
 	#ifdef CONFIG_IOCTL_CFG80211
-	adapter_wdev_data(adapter)->block_scan = (*block_value == '0')?_FALSE:_TRUE;
+	adapter_wdev_data(adapter)->block_scan = (*block_value == '0')?false:true;
 	#endif
 
 	return 0;
@@ -432,7 +432,7 @@ int rtw_android_set_block(struct net_device *net, char *command, int total_len)
 	char *block_value = command + strlen(android_wifi_cmd_str[ANDROID_WIFI_CMD_BLOCK]) + 1;
 
 	#ifdef CONFIG_IOCTL_CFG80211
-	adapter_wdev_data(adapter)->block = (*block_value=='0')?_FALSE:_TRUE;
+	adapter_wdev_data(adapter)->block = (*block_value=='0')?false:true;
 	#endif
 	
 	return 0;
@@ -536,7 +536,7 @@ int rtw_gtk_offload(struct net_device *net, u8 *cmd_ptr)
 			printk(" %02x ", psta->kck[i]);
 		*/
 		_rtw_memcpy(psta->replay_ctr, cmd_ptr, RTW_REPLAY_CTR_LEN);
-		psecuritypriv->binstallKCK_KEK = _TRUE;
+		psecuritypriv->binstallKCK_KEK = true;
 		
 		//printk("\nREPLAY_CTR: ");
 		//for(i=0;i<RTW_REPLAY_CTR_LEN; i++)
@@ -652,7 +652,7 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 		//rtw_set_scan_mode((_adapter *)rtw_netdev_priv(net), SCAN_ACTIVE);
 #ifdef CONFIG_PLATFORM_MSTAR
 #ifdef CONFIG_IOCTL_CFG80211
-		adapter_wdev_data((_adapter *)rtw_netdev_priv(net))->bandroid_scan = _TRUE;
+		adapter_wdev_data((_adapter *)rtw_netdev_priv(net))->bandroid_scan = true;
 #endif //CONFIG_IOCTL_CFG80211
 #endif //CONFIG_PLATFORM_MSTAR
 		break;
@@ -687,11 +687,11 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 		break;
 	case ANDROID_WIFI_CMD_RXFILTER_ADD:
 		//int filter_num = *(command + strlen(CMD_RXFILTER_ADD) + 1) - '0';
-		//bytes_written = net_os_rxfilter_add_remove(net, TRUE, filter_num);
+		//bytes_written = net_os_rxfilter_add_remove(net, true, filter_num);
 		break;
 	case ANDROID_WIFI_CMD_RXFILTER_REMOVE:
 		//int filter_num = *(command + strlen(CMD_RXFILTER_REMOVE) + 1) - '0';
-		//bytes_written = net_os_rxfilter_add_remove(net, FALSE, filter_num);
+		//bytes_written = net_os_rxfilter_add_remove(net, false, filter_num);
 		break;
 		
 	case ANDROID_WIFI_CMD_BTCOEXSCAN_START:
@@ -781,7 +781,7 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 
 		pwfd_info = &padapter->wfd_info;
 		if( padapter->wdinfo.driver_interface == DRIVER_CFG80211 )
-			pwfd_info->wfd_enable = _TRUE;
+			pwfd_info->wfd_enable = true;
 		break;
 	}
 
@@ -793,7 +793,7 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 
 		pwfd_info = &padapter->wfd_info;
 		if( padapter->wdinfo.driver_interface == DRIVER_CFG80211 )
-			pwfd_info->wfd_enable = _FALSE;
+			pwfd_info->wfd_enable = false;
 		break;
 	}
 	case ANDROID_WIFI_CMD_WFD_SET_TCPPORT:

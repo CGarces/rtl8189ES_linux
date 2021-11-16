@@ -149,7 +149,7 @@ void rtw_hal_init_opmode(_adapter *padapter)
 	else
 		return;
 
-	rtw_setopmode_cmd(padapter, networkType, _FALSE); 
+	rtw_setopmode_cmd(padapter, networkType, false); 
 }
 
 uint	 rtw_hal_init(_adapter *padapter) 
@@ -162,7 +162,7 @@ uint	 rtw_hal_init(_adapter *padapter)
 	status = padapter->HalFunc.hal_init(padapter);
 	
 	if (status == _SUCCESS) {
-		pHalData->hw_init_completed = _TRUE;
+		pHalData->hw_init_completed = true;
 			
 		if (padapter->registrypriv.notch_filter == 1)
 			rtw_hal_notch_filter(padapter, 1);
@@ -181,7 +181,7 @@ uint	 rtw_hal_init(_adapter *padapter)
 #endif //CONFIG_RF_GAIN_OFFSET
 
 	} else {
-		pHalData->hw_init_completed = _FALSE;
+		pHalData->hw_init_completed = false;
 		DBG_871X("rtw_hal_init: hal__init fail\n");
 	}
 
@@ -203,7 +203,7 @@ _func_enter_;
 
 	if(status == _SUCCESS){
 		rtw_led_control(padapter, LED_CTL_POWER_OFF);
-		pHalData->hw_init_completed = _FALSE;
+		pHalData->hw_init_completed = false;
 	}
 	else
 	{
@@ -270,7 +270,7 @@ void rtw_hal_disable_interrupt(_adapter *padapter)
 
 u8 rtw_hal_check_ips_status(_adapter *padapter)
 {
-	u8 val = _FALSE;
+	u8 val = false;
 	if (padapter->HalFunc.check_ips_status)
 		val = padapter->HalFunc.check_ips_status(padapter);
 	else 
@@ -354,19 +354,19 @@ s32	rtw_hal_mgnt_xmit(_adapter *padapter, struct xmit_frame *pmgntframe)
 	//_rtw_memcpy(pmgntframe->attrib.ra, pwlanhdr->addr1, ETH_ALEN);
 
 #ifdef CONFIG_IEEE80211W
-	if (padapter->securitypriv.binstallBIPkey == _TRUE && (subtype == WIFI_DEAUTH || subtype == WIFI_DISASSOC ||
+	if (padapter->securitypriv.binstallBIPkey == true && (subtype == WIFI_DEAUTH || subtype == WIFI_DISASSOC ||
 			subtype == WIFI_ACTION))
 	{
 		if (IS_MCAST(pmgntframe->attrib.ra) && pmgntframe->attrib.key_type != IEEE80211W_NO_KEY) {
 			pmgntframe->attrib.encrypt = _BIP_;
-			/* pmgntframe->attrib.bswenc = _TRUE; */
+			/* pmgntframe->attrib.bswenc = true; */
 		} else if (pmgntframe->attrib.key_type != IEEE80211W_NO_KEY) {
 			psta = rtw_get_stainfo(pstapriv, pmgntframe->attrib.ra);
-			if (psta && psta->bpairwise_key_installed == _TRUE) {
+			if (psta && psta->bpairwise_key_installed == true) {
 				pmgntframe->attrib.encrypt = _AES_;
-				pmgntframe->attrib.bswenc = _TRUE;
+				pmgntframe->attrib.bswenc = true;
 			} else {
-				DBG_871X("%s, %d, bpairwise_key_installed is FALSE\n", __func__, __LINE__);
+				DBG_871X("%s, %d, bpairwise_key_installed is false\n", __func__, __LINE__);
 				goto no_mgmt_coalesce;
 			}
 		}
@@ -409,7 +409,7 @@ void rtw_hal_update_ra_mask(struct sta_info *psta, u8 rssi_level)
 
 	pmlmepriv = &(padapter->mlmepriv);
 	
-	if(check_fwstate(pmlmepriv, WIFI_AP_STATE) == _TRUE)
+	if(check_fwstate(pmlmepriv, WIFI_AP_STATE) == true)
 	{
 		add_RATid(padapter, psta, rssi_level);
 	}
@@ -491,7 +491,7 @@ void	rtw_hal_set_bwmode(_adapter *padapter, CHANNEL_WIDTH Bandwidth, u8 Offset)
 	PDM_ODM_T		pDM_Odm = &(pHalData->odmpriv);
 	
 	ODM_AcquireSpinLock( pDM_Odm, RT_IQK_SPINLOCK);
-	if(pDM_Odm->RFCalibrateInfo.bIQKInProgress == _TRUE)
+	if(pDM_Odm->RFCalibrateInfo.bIQKInProgress == true)
 		DBG_871X_LEVEL(_drv_err_, "%s, %d, IQK may race condition\n", __func__,__LINE__);
 	ODM_ReleaseSpinLock( pDM_Odm, RT_IQK_SPINLOCK);
 	padapter->HalFunc.set_bwmode_handler(padapter, Bandwidth, Offset);
@@ -504,7 +504,7 @@ void	rtw_hal_set_chan(_adapter *padapter, u8 channel)
 	PDM_ODM_T		pDM_Odm = &(pHalData->odmpriv);
 	
 	ODM_AcquireSpinLock( pDM_Odm, RT_IQK_SPINLOCK);
-	if(pDM_Odm->RFCalibrateInfo.bIQKInProgress == _TRUE)
+	if(pDM_Odm->RFCalibrateInfo.bIQKInProgress == true)
 		DBG_871X_LEVEL(_drv_err_, "%s, %d, IQK may race condition\n", __func__,__LINE__);
 	ODM_ReleaseSpinLock( pDM_Odm, RT_IQK_SPINLOCK);
 	padapter->HalFunc.set_channel_handler(padapter, channel);	
@@ -516,7 +516,7 @@ void	rtw_hal_set_chnl_bw(_adapter *padapter, u8 channel, CHANNEL_WIDTH Bandwidth
 	PDM_ODM_T		pDM_Odm = &(pHalData->odmpriv);
 	
 	ODM_AcquireSpinLock( pDM_Odm, RT_IQK_SPINLOCK);
-	if(pDM_Odm->RFCalibrateInfo.bIQKInProgress == _TRUE)
+	if(pDM_Odm->RFCalibrateInfo.bIQKInProgress == true)
 		DBG_871X_LEVEL(_drv_err_, "%s, %d, IQK may race condition\n", __func__,__LINE__);
 	ODM_ReleaseSpinLock( pDM_Odm, RT_IQK_SPINLOCK);
 	padapter->HalFunc.set_chnl_bw_handler(padapter, channel, Bandwidth, Offset40, Offset80);	
@@ -551,7 +551,7 @@ void	rtw_hal_dm_watchdog_in_lps(_adapter *padapter)
 		return;
 #endif	
 
-	if (adapter_to_pwrctl(padapter)->bFwCurrentInPSMode ==_TRUE ) {
+	if (adapter_to_pwrctl(padapter)->bFwCurrentInPSMode ==true ) {
 		padapter->HalFunc.hal_dm_watchdog_in_lps(padapter);//this fuction caller is in interrupt context				 	
 	}
 }
@@ -570,11 +570,11 @@ u8	rtw_hal_antdiv_before_linked(_adapter *padapter)
 	int i;
 
 	if (!padapter->HalFunc.AntDivBeforeLinkHandler)
-		return _FALSE;
+		return false;
 
 	for (i = 0; i < dvobj->iface_nums; i++) {
 		if (rtw_linked_check(dvobj->padapters[i]))
-			return _FALSE;
+			return false;
 	}
 
 	return padapter->HalFunc.AntDivBeforeLinkHandler(padapter);
@@ -716,9 +716,9 @@ s32 rtw_hal_macid_sleep(PADAPTER padapter, u8 macid)
 	struct macid_ctl_t *macid_ctl = dvobj_to_macidctl(dvobj);
 	u8 support;
 
-	support = _FALSE;
+	support = false;
 	rtw_hal_get_def_var(padapter, HAL_DEF_MACID_SLEEP, &support);
-	if (_FALSE == support)
+	if (false == support)
 		return _FAIL;
 
 	if (macid >= macid_ctl->num) {
@@ -738,9 +738,9 @@ s32 rtw_hal_macid_wakeup(PADAPTER padapter, u8 macid)
 	struct macid_ctl_t *macid_ctl = dvobj_to_macidctl(dvobj);
 	u8 support;
 
-	support = _FALSE;
+	support = false;
 	rtw_hal_get_def_var(padapter, HAL_DEF_MACID_SLEEP, &support);
-	if (_FALSE == support)
+	if (false == support)
 		return _FAIL;
 
 	if (macid >= macid_ctl->num) {
@@ -758,7 +758,7 @@ s32 rtw_hal_fill_h2c_cmd(PADAPTER padapter, u8 ElementID, u32 CmdLen, u8 *pCmdBu
 {
 	_adapter *pri_adapter = GET_PRIMARY_ADAPTER(padapter);
 
-	if (pri_adapter->bFWReady == _TRUE)
+	if (pri_adapter->bFWReady == true)
 		return padapter->HalFunc.fill_h2c_cmd(padapter, ElementID, CmdLen, pCmdBuffer);
 	else if (padapter->registrypriv.mp_mode == 0)
 		DBG_871X_LEVEL(_drv_always_, FUNC_ADPT_FMT" FW doesn't exit when no MP mode, by pass H2C id:0x%02x\n"

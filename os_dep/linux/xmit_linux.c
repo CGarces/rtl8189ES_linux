@@ -67,12 +67,12 @@ _func_enter_;
 
 	if (pfile->pkt_len == 0) {
 _func_exit_;
-		return _TRUE;
+		return true;
 	}
 
 _func_exit_;
 
-	return _FALSE;
+	return false;
 }
 
 void rtw_set_tx_chksum_offload(_pkt *pkt, struct pkt_attrib *pattrib)
@@ -214,13 +214,13 @@ inline static bool rtw_os_need_wake_queue(_adapter *padapter, u16 qidx)
 
 	if (padapter->registrypriv.wifi_spec) {
 		if (pxmitpriv->hwxmits[qidx].accnt < WMM_XMIT_THRESHOLD)
-			return _TRUE;
+			return true;
 	} else {
-		return _TRUE;
+		return true;
 	}
-	return _FALSE;
+	return false;
 #else
-	return _TRUE;
+	return true;
 #endif
 }
 
@@ -231,16 +231,16 @@ inline static bool rtw_os_need_stop_queue(_adapter *padapter, u16 qidx)
 	if (padapter->registrypriv.wifi_spec) {
 		/* No free space for Tx, tx_worker is too slow */
 		if (pxmitpriv->hwxmits[qidx].accnt > WMM_XMIT_THRESHOLD)
-			return _TRUE;
+			return true;
 	} else {
 		if(pxmitpriv->free_xmitframe_cnt<=4)
-			return _TRUE;
+			return true;
 	}
 #else
 	if(pxmitpriv->free_xmitframe_cnt<=4)
-		return _TRUE;
+		return true;
 #endif
-	return _FALSE;
+	return false;
 }
 
 void rtw_os_pkt_complete(_adapter *padapter, _pkt *pkt)
@@ -286,7 +286,7 @@ void rtw_os_xmit_schedule(_adapter *padapter)
 		pri_adapter = padapter->pbuddy_adapter;
 #endif
 
-	if (_rtw_queue_empty(&padapter->xmitpriv.pending_xmitbuf_queue) == _FALSE)
+	if (_rtw_queue_empty(&padapter->xmitpriv.pending_xmitbuf_queue) == false)
 		_rtw_up_sema(&pri_adapter->xmitpriv.xmit_sema);
 
 
@@ -312,7 +312,7 @@ void rtw_os_xmit_schedule(_adapter *padapter)
 
 static bool rtw_check_xmit_resource(_adapter *padapter, _pkt *pkt)
 {
-	bool busy = _FALSE;
+	bool busy = false;
 	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
 #if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,35))
 	u16	qidx;
@@ -322,14 +322,14 @@ static bool rtw_check_xmit_resource(_adapter *padapter, _pkt *pkt)
 		if (DBG_DUMP_OS_QUEUE_CTL)
 			DBG_871X(FUNC_ADPT_FMT": netif_stop_subqueue[%d]\n", FUNC_ADPT_ARG(padapter), qidx);
 		netif_stop_subqueue(padapter->pnetdev, qidx);
-		busy = _TRUE;
+		busy = true;
 	}
 #else
 	if (rtw_os_need_stop_queue(padapter, 0)) {
 		if (DBG_DUMP_OS_QUEUE_CTL)
 			DBG_871X(FUNC_ADPT_FMT": netif_stop_queue\n", FUNC_ADPT_ARG(padapter));
 		rtw_netif_stop_queue(padapter->pnetdev);
-		busy = _TRUE;
+		busy = true;
 	}
 #endif
 	return busy;
@@ -385,7 +385,7 @@ int rtw_mlcst2unicst(_adapter *padapter, struct sk_buff *skb)
 	plist = get_next(phead);
 	
 	//free sta asoc_queue
-	while ((rtw_end_of_queue_search(phead, plist)) == _FALSE) {
+	while ((rtw_end_of_queue_search(phead, plist)) == false) {
 		int stainfo_offset;
 		psta = LIST_CONTAINOR(plist, struct sta_info, asoc_list);
 		plist = get_next(plist);
@@ -406,9 +406,9 @@ int rtw_mlcst2unicst(_adapter *padapter, struct sk_buff *skb)
 		}
 		
 		/* avoid come from STA1 and send back STA1 */ 
-		if (_rtw_memcmp(psta->hwaddr, &skb->data[6], 6) == _TRUE
-			|| _rtw_memcmp(psta->hwaddr, null_addr, 6) == _TRUE
-			|| _rtw_memcmp(psta->hwaddr, bc_addr, 6) == _TRUE
+		if (_rtw_memcmp(psta->hwaddr, &skb->data[6], 6) == true
+			|| _rtw_memcmp(psta->hwaddr, null_addr, 6) == true
+			|| _rtw_memcmp(psta->hwaddr, bc_addr, 6) == true
 		)
 		{
 			DBG_COUNTER(padapter->tx_logs.os_tx_m2u_ignore_self);
@@ -433,12 +433,12 @@ int rtw_mlcst2unicst(_adapter *padapter, struct sk_buff *skb)
 			DBG_871X("%s-%d: rtw_skb_copy() failed!\n", __FUNCTION__, __LINE__);
 			pxmitpriv->tx_drop++;
 			//rtw_skb_free(skb);
-			return _FALSE;	// Caller shall tx this multicast frame via normal way.
+			return false;	// Caller shall tx this multicast frame via normal way.
 		}
 	}
 
 	rtw_skb_free(skb);
-	return _TRUE;
+	return true;
 }
 #endif	// CONFIG_TX_MCAST2UNI
 
@@ -466,7 +466,7 @@ _func_enter_;
 	DBG_COUNTER(padapter->tx_logs.os_tx);
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("+xmit_enry\n"));
 
-	if (rtw_if_up(padapter) == _FALSE) {
+	if (rtw_if_up(padapter) == false) {
 		DBG_COUNTER(padapter->tx_logs.os_tx_err_up);
 		RT_TRACE(_module_xmit_osdep_c_, _drv_err_, ("rtw_xmit_entry: rtw_if_up fail\n"));
 		#ifdef DBG_TX_DROP_FRAME
@@ -479,7 +479,7 @@ _func_enter_;
 
 #ifdef CONFIG_TX_MCAST2UNI
 	if ( !rtw_mc2u_disable
-		&& check_fwstate(pmlmepriv, WIFI_AP_STATE) == _TRUE
+		&& check_fwstate(pmlmepriv, WIFI_AP_STATE) == true
 		&& ( IP_MCAST_MAC(pkt->data)
 			|| ICMPV6_MCAST_MAC(pkt->data)
 			#ifdef CONFIG_TX_BCAST2UNI
@@ -491,7 +491,7 @@ _func_enter_;
 	{
 		if ( pxmitpriv->free_xmitframe_cnt > (NR_XMITFRAME/4) ) {
 			res = rtw_mlcst2unicst(padapter, pkt);
-			if (res == _TRUE) {
+			if (res == true) {
 				goto exit;
 			}
 		} else {

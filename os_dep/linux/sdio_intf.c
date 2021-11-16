@@ -219,7 +219,7 @@ static u8 gpio_hostwakeup_alloc_irq(PADAPTER padapter)
 
 	if (err < 0) {
 		DBG_871X("Oops: can't allocate gpio irq %d err:%d\n", oob_irq, err);
-		return _FALSE;
+		return false;
 	} else {
 		DBG_871X("allocate gpio irq %d ok\n", oob_irq);
 	}
@@ -513,7 +513,7 @@ _adapter *rtw_sdio_if1_init(struct dvobj_priv *dvobj)
 
 #if defined(CONFIG_CONCURRENT_MODE)
 	//set adapter_type/iface type for primary padapter
-	padapter->isprimary = _TRUE;
+	padapter->isprimary = true;
 	padapter->adapter_type = PRIMARY_ADAPTER;	
 	#ifndef CONFIG_HWPORT_SWAP
 	padapter->iface_type = IFACE_PORT0;
@@ -569,7 +569,7 @@ _adapter *rtw_sdio_if1_init(struct dvobj_priv *dvobj)
 
 	rtw_hal_disable_interrupt(padapter);
 
-	if (padapter->net_closed == _TRUE)
+	if (padapter->net_closed == true)
 		rtw_hal_deinit(padapter);
 
 	DBG_871X("bDriverStopped:%s, bSurpriseRemoved:%s, bup:%d, hw_init_completed:%d\n"
@@ -599,7 +599,7 @@ static void rtw_sdio_if1_deinit(_adapter *if1)
 	struct mlme_priv *pmlmepriv= &if1->mlmepriv;
 
 	if(check_fwstate(pmlmepriv, _FW_LINKED))
-		rtw_disassoc_cmd(if1, 0, _FALSE);
+		rtw_disassoc_cmd(if1, 0, false);
 
 #ifdef CONFIG_AP_MODE
 	free_mlme_ap_info(if1);
@@ -620,7 +620,7 @@ static void rtw_sdio_if1_deinit(_adapter *if1)
 	rtw_cancel_all_timer(if1);
 
 #ifdef CONFIG_WOWLAN
-	adapter_to_pwrctl(if1)->wowlan_mode=_FALSE;
+	adapter_to_pwrctl(if1)->wowlan_mode=false;
 	DBG_871X_LEVEL(_drv_always_, "%s wowlan_mode:%d\n", __func__, adapter_to_pwrctl(if1)->wowlan_mode);
 #endif //CONFIG_WOWLAN
 
@@ -786,7 +786,7 @@ _func_enter_;
 
 	RT_TRACE(_module_hci_intfs_c_, _drv_notice_, ("+rtw_dev_remove\n"));
 
-	dvobj->processing_dev_remove = _TRUE;
+	dvobj->processing_dev_remove = true;
 
 	/* TODO: use rtw_os_ndevs_deinit instead at the first stage of driver's dev deinit function */
 	rtw_os_ndevs_unregister(dvobj);
@@ -808,7 +808,7 @@ _func_enter_;
 	rtw_unregister_early_suspend(pwrctl);
 #endif
 
-	if (padapter->bFWReady == _TRUE) {
+	if (padapter->bFWReady == true) {
 		rtw_ps_deny(padapter, PS_DENY_DRV_REMOVE);
 		rtw_pm_set_ips(padapter, IPS_NONE);
 		rtw_pm_set_lps(padapter, PS_MODE_ACTIVE);
@@ -856,11 +856,11 @@ static int rtw_sdio_suspend(struct device *dev)
 	padapter = psdpriv->padapters[IFACE_ID0];
 	pdbgpriv = &psdpriv->drv_dbg;
 	if (rtw_is_drv_stopped(padapter)) {
-		DBG_871X("%s bDriverStopped == _TRUE\n", __func__);
+		DBG_871X("%s bDriverStopped == true\n", __func__);
 		goto exit;
 	}
 
-	if (pwrpriv->bInSuspend == _TRUE)
+	if (pwrpriv->bInSuspend == true)
 	{
 		DBG_871X("%s bInSuspend = %d\n", __func__, pwrpriv->bInSuspend);
 		pdbgpriv->dbg_suspend_error_cnt++;
@@ -901,7 +901,7 @@ int rtw_resume_process(_adapter *padapter)
 	struct dvobj_priv *psdpriv = padapter->dvobj;
 	struct debug_priv *pdbgpriv = &psdpriv->drv_dbg;
 		
-	if (pwrpriv->bInSuspend == _FALSE)
+	if (pwrpriv->bInSuspend == false)
 	{
 		pdbgpriv->dbg_resume_error_cnt++;
 		DBG_871X("%s bInSuspend = %d\n", __FUNCTION__, pwrpriv->bInSuspend);
@@ -949,7 +949,7 @@ static int rtw_sdio_resume(struct device *dev)
 			if (rtw_is_earlysuspend_registered(pwrpriv))
 			{
 				/* jeff: bypass resume here, do in late_resume */
-				rtw_set_do_late_resume(pwrpriv, _TRUE);
+				rtw_set_do_late_resume(pwrpriv, true);
 			}	
 			else
 			{
@@ -976,7 +976,7 @@ static int __init rtw_drv_entry(void)
 	DBG_871X_LEVEL(_drv_always_, DRV_NAME" BT-Coex version = %s\n", BTCOEXVERSION);
 #endif // BTCOEXVERSION
 
-	sdio_drvpriv.drv_registered = _TRUE;
+	sdio_drvpriv.drv_registered = true;
 	rtw_suspend_lock_init();
 	rtw_drv_proc_init();
 	rtw_ndev_notifier_register();
@@ -984,7 +984,7 @@ static int __init rtw_drv_entry(void)
 	ret = sdio_register_driver(&sdio_drvpriv.r871xs_drv);
 	if (ret != 0)
 	{
-		sdio_drvpriv.drv_registered = _FALSE;
+		sdio_drvpriv.drv_registered = false;
 		rtw_suspend_lock_uninit();
 		rtw_drv_proc_deinit();
 		rtw_ndev_notifier_unregister();
@@ -1005,7 +1005,7 @@ static void __exit rtw_drv_halt(void)
 {
 	DBG_871X_LEVEL(_drv_always_, "module exit start\n");
 
-	sdio_drvpriv.drv_registered = _FALSE;
+	sdio_drvpriv.drv_registered = false;
 
 	sdio_unregister_driver(&sdio_drvpriv.r871xs_drv);
 

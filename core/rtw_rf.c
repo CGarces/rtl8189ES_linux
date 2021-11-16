@@ -67,7 +67,7 @@ bool rtw_chbw_to_freq_range(u8 ch, u8 bw, u8 offset, u32 *hi, u32 *lo)
 	u32 freq;
 	u32 hi_ret = 0, lo_ret = 0;
 	int i;
-	bool valid = _FALSE;
+	bool valid = false;
 
 	if (hi)
 		*hi = 0;
@@ -100,7 +100,7 @@ bool rtw_chbw_to_freq_range(u8 ch, u8 bw, u8 offset, u32 *hi, u32 *lo)
 	if (lo)
 		*lo = lo_ret;
 
-	valid = _TRUE;
+	valid = true;
 
 exit:
 	return valid;
@@ -194,31 +194,31 @@ void rtw_rf_apply_tx_gain_offset(_adapter *adapter, u8 ch)
 
 bool rtw_is_dfs_range(u32 hi, u32 lo)
 {
-	return rtw_is_range_overlap(hi, lo, 5720 + 10, 5260 - 10)?_TRUE:_FALSE;
+	return rtw_is_range_overlap(hi, lo, 5720 + 10, 5260 - 10)?true:false;
 }
 
 bool rtw_is_dfs_ch(u8 ch, u8 bw, u8 offset)
 {
 	u32 hi, lo;
 
-	if (rtw_chbw_to_freq_range(ch, bw, offset, &hi, &lo) == _FALSE)
-		return _FALSE;
+	if (rtw_chbw_to_freq_range(ch, bw, offset, &hi, &lo) == false)
+		return false;
 
-	return rtw_is_dfs_range(hi, lo)?_TRUE:_FALSE;
+	return rtw_is_dfs_range(hi, lo)?true:false;
 }
 
 bool rtw_is_long_cac_range(u32 hi, u32 lo)
 {
-	return rtw_is_range_overlap(hi, lo, 5660 + 10, 5600 - 10)?_TRUE:_FALSE;
+	return rtw_is_range_overlap(hi, lo, 5660 + 10, 5600 - 10)?true:false;
 }
 
 bool rtw_is_long_cac_ch(u8 ch, u8 bw, u8 offset)
 {
 	u32 hi, lo;
 
-	if (rtw_chbw_to_freq_range(ch, bw, offset, &hi, &lo) == _FALSE)
-		return _FALSE;
+	if (rtw_chbw_to_freq_range(ch, bw, offset, &hi, &lo) == false)
+		return false;
 
-	return rtw_is_long_cac_range(hi, lo)?_TRUE:_FALSE;
+	return rtw_is_long_cac_range(hi, lo)?true:false;
 }
 

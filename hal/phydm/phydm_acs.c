@@ -140,7 +140,7 @@ odm_AutoChannelSelectReset(
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_ACS, ODM_DBG_LOUD, ("odm_AutoChannelSelectReset()=========> \n"));
 
-	odm_AutoChannelSelectSetting(pDM_Odm,TRUE);// for 20ms measurement
+	odm_AutoChannelSelectSetting(pDM_Odm,true);// for 20ms measurement
 	Phydm_NHMCounterStatisticsReset(pDM_Odm);
 #endif
 }
@@ -173,7 +173,7 @@ odm_AutoChannelSelect(
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_ACS, ODM_DBG_LOUD, ("odm_AutoChannelSelect(): Channel = %d=========> \n", Channel));
 
 	Phydm_GetNHMCounterStatistics(pDM_Odm);
-	odm_AutoChannelSelectSetting(pDM_Odm,FALSE);
+	odm_AutoChannelSelectSetting(pDM_Odm,false);
 
 	if(Channel >=1 && Channel <=14)
 	{

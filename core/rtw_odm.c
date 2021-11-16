@@ -121,7 +121,7 @@ void rtw_odm_dbg_comp_msg(void *sel, _adapter *adapter)
 
 inline void rtw_odm_dbg_comp_set(_adapter *adapter, u64 comps)
 {
-	rtw_hal_set_odm_var(adapter, HAL_ODM_DBG_FLAG, &comps, _FALSE);
+	rtw_hal_set_odm_var(adapter, HAL_ODM_DBG_FLAG, &comps, false);
 }
 
 void rtw_odm_dbg_level_msg(void *sel, _adapter *adapter)
@@ -142,7 +142,7 @@ void rtw_odm_dbg_level_msg(void *sel, _adapter *adapter)
 
 inline void rtw_odm_dbg_level_set(_adapter *adapter, u32 level)
 {
-	rtw_hal_set_odm_var(adapter, HAL_ODM_DBG_LEVEL, &level, _FALSE);
+	rtw_hal_set_odm_var(adapter, HAL_ODM_DBG_LEVEL, &level, false);
 }
 
 void rtw_odm_ability_msg(void *sel, _adapter *adapter)
@@ -240,12 +240,12 @@ bool rtw_odm_adaptivity_needed(_adapter *adapter)
 {
 	struct registry_priv *regsty = &adapter->registrypriv;
 	struct mlme_priv *mlme = &adapter->mlmepriv;
-	bool ret = _FALSE;
+	bool ret = false;
 
 	if (regsty->adaptivity_en == RTW_ADAPTIVITY_EN_ENABLE)
-		ret = _TRUE;
+		ret = true;
 
-	if (ret == _TRUE) {
+	if (ret == true) {
 		rtw_odm_adaptivity_ver_msg(RTW_DBGDUMP, adapter);
 		rtw_odm_adaptivity_en_msg(RTW_DBGDUMP, adapter);
 		rtw_odm_adaptivity_mode_msg(RTW_DBGDUMP, adapter);
@@ -396,9 +396,9 @@ BOOLEAN rtw_odm_radar_detect(_adapter *adapter)
 {
 	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(adapter);
 	PDM_ODM_T pDM_Odm = &(hal_data->odmpriv);
-	BOOLEAN enable_DFS = FALSE;
-	BOOLEAN bypass = FALSE;
-	BOOLEAN radar_detected = FALSE;
+	BOOLEAN enable_DFS = false;
+	BOOLEAN bypass = false;
+	BOOLEAN radar_detected = false;
 
 	static u8Byte last_tx_unicast = 0;
 	static u8Byte last_rx_unicast = 0;
@@ -412,7 +412,7 @@ BOOLEAN rtw_odm_radar_detect(_adapter *adapter)
 	if (throughput>>18 > tp_th) {
 		if (pDM_Odm->SupportICType & ODM_RTL8192D)
 			ODM_SetBBReg(pDM_Odm, 0xcdc, BIT8|BIT9, 0);
-		bypass = TRUE;
+		bypass = true;
 	} else {
 		if (pDM_Odm->SupportICType & ODM_RTL8192D)
 			ODM_SetBBReg(pDM_Odm, 0xcdc, BIT8|BIT9, 1);
@@ -420,18 +420,18 @@ BOOLEAN rtw_odm_radar_detect(_adapter *adapter)
 
 	if (pDM_Odm->SupportICType & ODM_RTL8192D) {
 		if (ODM_GetBBReg(pDM_Odm , 0xc84, BIT25))
-			enable_DFS = TRUE;
+			enable_DFS = true;
 	} else if (pDM_Odm->SupportICType & ODM_RTL8821) {
 		if (ODM_GetBBReg(pDM_Odm , 0x924, BIT15))
-			enable_DFS = TRUE;
+			enable_DFS = true;
 	}
 
 	if (pDM_Odm->SupportICType & ODM_RTL8192D) {
 		if (ODM_GetBBReg(pDM_Odm , 0xcf8, BIT23))
-			radar_detected = TRUE;
+			radar_detected = true;
 	} else if (pDM_Odm->SupportICType & ODM_RTL8821) {
 		if (ODM_GetBBReg(pDM_Odm , 0xf98, BIT17))
-			radar_detected = TRUE;
+			radar_detected = true;
 	}
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD

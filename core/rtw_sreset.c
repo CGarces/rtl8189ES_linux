@@ -29,7 +29,7 @@ void sreset_init_value(_adapter *padapter)
 	struct sreset_priv *psrtpriv = &pHalData->srestpriv;
 
 	_rtw_mutex_init(&psrtpriv->silentreset_mutex);
-	psrtpriv->silent_reset_inprogress = _FALSE;
+	psrtpriv->silent_reset_inprogress = false;
 	psrtpriv->Wifi_Error_Status = WIFI_STATUS_SUCCESS;
 	psrtpriv->last_tx_time =0;
 	psrtpriv->last_tx_complete_time =0;
@@ -56,7 +56,7 @@ u8 sreset_get_wifi_status(_adapter *padapter)
 	u8 status = WIFI_STATUS_SUCCESS;
 	u32 val32 = 0;
 	_irqL irqL;
-	if(psrtpriv->silent_reset_inprogress == _TRUE)
+	if(psrtpriv->silent_reset_inprogress == true)
         {
 		return status;
 	}
@@ -107,7 +107,7 @@ bool sreset_inprogress(_adapter *padapter)
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	return pHalData->srestpriv.silent_reset_inprogress;
 #else
-	return _FALSE;
+	return false;
 #endif
 }
 
@@ -144,9 +144,9 @@ void sreset_restore_security_station(_adapter *padapter)
 		for(EntryId=0; EntryId<4; EntryId++)
 		{
 			if(EntryId == psecuritypriv->dot11PrivacyKeyIndex)
-				rtw_set_key(padapter,&padapter->securitypriv, EntryId, 1,_FALSE);
+				rtw_set_key(padapter,&padapter->securitypriv, EntryId, 1,false);
 			else
-				rtw_set_key(padapter,&padapter->securitypriv, EntryId, 0,_FALSE);
+				rtw_set_key(padapter,&padapter->securitypriv, EntryId, 0,false);
 		}
 
 	}
@@ -162,9 +162,9 @@ void sreset_restore_security_station(_adapter *padapter)
 		else
 		{
 			//pairwise key
-			rtw_setstakey_cmd(padapter, psta, UNICAST_KEY,_FALSE);
+			rtw_setstakey_cmd(padapter, psta, UNICAST_KEY,false);
 			//group key
-			rtw_set_key(padapter,&padapter->securitypriv,padapter->securitypriv.dot118021XGrpKeyid, 0,_FALSE);
+			rtw_set_key(padapter,&padapter->securitypriv,padapter->securitypriv.dot118021XGrpKeyid, 0,false);
 		}
 	}
 }
@@ -194,7 +194,7 @@ void sreset_restore_network_station(_adapter *padapter)
 	}
 	#endif
 	
-	rtw_setopmode_cmd(padapter, Ndis802_11Infrastructure,_FALSE);
+	rtw_setopmode_cmd(padapter, Ndis802_11Infrastructure,false);
 
 	{
 		u8 threshold;
@@ -336,7 +336,7 @@ void sreset_reset(_adapter *padapter)
 	
 	_enter_pwrlock(&pwrpriv->lock);
 
-	psrtpriv->silent_reset_inprogress = _TRUE;
+	psrtpriv->silent_reset_inprogress = true;
 	pwrpriv->change_rfpwrstate = rf_off;
 
 	sreset_stop_adapter(padapter);
@@ -354,7 +354,7 @@ void sreset_reset(_adapter *padapter)
 	sreset_start_adapter(padapter->pbuddy_adapter);
 	#endif
 
-	psrtpriv->silent_reset_inprogress = _FALSE;
+	psrtpriv->silent_reset_inprogress = false;
 
 	_exit_pwrlock(&pwrpriv->lock);
 

@@ -122,9 +122,9 @@ ODM_InitMpDriverStatus(
 
 	// Decide when compile time
 	#if(MP_DRIVER == 1)
-	pDM_Odm->mp_mode = TRUE;
+	pDM_Odm->mp_mode = true;
 	#else
-	pDM_Odm->mp_mode = FALSE;
+	pDM_Odm->mp_mode = false;
 	#endif
 
 #elif(DM_ODM_SUPPORT_TYPE & ODM_CE)
@@ -137,7 +137,7 @@ ODM_InitMpDriverStatus(
 #else
 
 	// MP mode is always false at AP side
-	pDM_Odm->mp_mode = FALSE;
+	pDM_Odm->mp_mode = false;
 
 #endif
 }
@@ -261,22 +261,22 @@ odm_CommonInfoSelfUpdate(
 	pEntry = pDM_Odm->pODM_StaInfo[0];
 	if(pMgntInfo->mAssoc)
 	{
-		pEntry->bUsed=TRUE;
+		pEntry->bUsed=true;
 		for (i=0; i<6; i++)
 			pEntry->MacAddr[i] = pMgntInfo->Bssid[i];
 	}
 	else
 	{
-		pEntry->bUsed=FALSE;
+		pEntry->bUsed=false;
 		for (i=0; i<6; i++)
 			pEntry->MacAddr[i] = 0;
 	}
 
 	//STA mode is linked to AP
 	if(IS_STA_VALID(pDM_Odm->pODM_StaInfo[0]) && !ACTING_AS_AP(Adapter))
-		pDM_Odm->bsta_state = TRUE;
+		pDM_Odm->bsta_state = true;
 	else
-		pDM_Odm->bsta_state = FALSE;
+		pDM_Odm->bsta_state = false;
 #endif
 
 /* THis variable cannot be used because it is wrong*/
@@ -328,11 +328,11 @@ odm_CommonInfoSelfUpdate(
 	
 	if(EntryCnt == 1)
 	{
-		pDM_Odm->bOneEntryOnly = TRUE;
+		pDM_Odm->bOneEntryOnly = true;
 		pDM_Odm->OneEntry_MACID=OneEntry_MACID;
 	}
 	else
-		pDM_Odm->bOneEntryOnly = FALSE;
+		pDM_Odm->bOneEntryOnly = false;
 
 	pDM_Odm->pre_number_linked_client = pDM_Odm->number_linked_client;
 	pDM_Odm->pre_number_active_client = pDM_Odm->number_active_client;
@@ -575,7 +575,7 @@ ODM_DMWatchdog_LPS(
 	odm_CCKPacketDetectionThresh(pDM_Odm);
 	odm_CommonInfoSelfReset(pDM_Odm);
 
-	if(*(pDM_Odm->pbPowerSaving)==TRUE)
+	if(*(pDM_Odm->pbPowerSaving)==true)
 		return;
 }
 #endif
@@ -606,7 +606,7 @@ ODM_DMWatchdog(
 	
 	odm_RSSIMonitorCheck(pDM_Odm);
 
-	if(*(pDM_Odm->pbPowerSaving) == TRUE)
+	if(*(pDM_Odm->pbPowerSaving) == true)
 	{
 		odm_DIGbyRSSI_LPS(pDM_Odm);
 		{
@@ -1325,13 +1325,13 @@ odm_IsLinked(
 	)
 {
 	u4Byte i;
-	BOOLEAN Linked = FALSE;
+	BOOLEAN Linked = false;
 	
 	for(i=0; i<ODM_ASSOCIATE_ENTRY_NUM; i++)
 	{
 			if(IS_STA_VALID(pDM_Odm->pODM_StaInfo[i]) )
 			{			
-				Linked = TRUE;
+				Linked = true;
 				break;
 			}
 		
@@ -1514,10 +1514,10 @@ ODM_CheckPowerStatus(
 	PMGNT_INFO			pMgntInfo	= &(Adapter->MgntInfo);
 
 	// 2011/07/27 MH We are not testing ready~~!! We may fail to get correct value when init sequence.
-	if (pMgntInfo->init_adpt_in_progress == TRUE)
+	if (pMgntInfo->init_adpt_in_progress == true)
 	{
-		ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("ODM_CheckPowerStatus Return TRUE, due to initadapter\n"));
-		return	TRUE;
+		ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("ODM_CheckPowerStatus Return true, due to initadapter\n"));
+		return	true;
 	}
 	
 	//
@@ -1526,11 +1526,11 @@ ODM_CheckPowerStatus(
 	Adapter->HalFunc.GetHwRegHandler(Adapter, HW_VAR_RF_STATE, (pu1Byte)(&rtState));	
 	if(Adapter->bDriverStopped || Adapter->bDriverIsGoingToPnpSetPowerSleep || rtState == eRfOff)
 	{
-		ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("ODM_CheckPowerStatus Return FALSE, due to %d/%d/%d\n", 
+		ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("ODM_CheckPowerStatus Return false, due to %d/%d/%d\n", 
 		Adapter->bDriverStopped, Adapter->bDriverIsGoingToPnpSetPowerSleep, rtState));
-		return	FALSE;
+		return	false;
 	}
-	return	TRUE;
+	return	true;
 }
 #elif( DM_ODM_SUPPORT_TYPE == ODM_AP)
 BOOLEAN
@@ -1544,10 +1544,10 @@ ODM_CheckPowerStatus(
 	   PMGNT_INFO			pMgntInfo	= &(Adapter->MgntInfo);
 
 	// 2011/07/27 MH We are not testing ready~~!! We may fail to get correct value when init sequence.
-	if (pMgntInfo->init_adpt_in_progress == TRUE)
+	if (pMgntInfo->init_adpt_in_progress == true)
 	{
-	ODM_RT_TRACE(pDM_Odm,COMP_INIT, DBG_LOUD, ("ODM_CheckPowerStatus Return TRUE, due to initadapter"));
-	return	TRUE;
+	ODM_RT_TRACE(pDM_Odm,COMP_INIT, DBG_LOUD, ("ODM_CheckPowerStatus Return true, due to initadapter"));
+	return	true;
 	}
 
 	//
@@ -1556,12 +1556,12 @@ ODM_CheckPowerStatus(
 	Adapter->HalFunc.GetHwRegHandler(Adapter, HW_VAR_RF_STATE, (pu1Byte)(&rtState));	
 	if(Adapter->bDriverStopped || Adapter->bDriverIsGoingToPnpSetPowerSleep || rtState == eRfOff)
 	{
-	ODM_RT_TRACE(pDM_Odm,COMP_INIT, DBG_LOUD, ("ODM_CheckPowerStatus Return FALSE, due to %d/%d/%d\n", 
+	ODM_RT_TRACE(pDM_Odm,COMP_INIT, DBG_LOUD, ("ODM_CheckPowerStatus Return false, due to %d/%d/%d\n", 
 	Adapter->bDriverStopped, Adapter->bDriverIsGoingToPnpSetPowerSleep, rtState));
-	return	FALSE;
+	return	false;
 	}
 	 */
-	return	TRUE;
+	return	true;
 }
 #endif
 
@@ -1738,7 +1738,7 @@ ODM_AsocEntry_Init(
 		
 		TotalAssocEntryNum+= index;
 		if(IS_HARDWARE_TYPE_8188E((pDM_Odm->Adapter)))
-			pLoopAdapter->RASupport = TRUE;
+			pLoopAdapter->RASupport = true;
 		pLoopAdapter = GetNextExtAdapter(pLoopAdapter);
 	}
 #endif
@@ -1845,20 +1845,20 @@ odm_UpdatePowerTrainingState(
 		return;
 
 	ODM_RT_TRACE(pDM_Odm,ODM_COMP_RA_MASK, ODM_DBG_LOUD,("odm_UpdatePowerTrainingState()============>\n"));
-	pDM_Odm->bChangeState = FALSE;
+	pDM_Odm->bChangeState = false;
 
 	// Debug command
 	if(pDM_Odm->ForcePowerTrainingState)
 	{
 		if(pDM_Odm->ForcePowerTrainingState == 1 && !pDM_Odm->bDisablePowerTraining)
 		{
-			pDM_Odm->bChangeState = TRUE;
-			pDM_Odm->bDisablePowerTraining = TRUE;
+			pDM_Odm->bChangeState = true;
+			pDM_Odm->bDisablePowerTraining = true;
 		}
 		else if(pDM_Odm->ForcePowerTrainingState == 2 && pDM_Odm->bDisablePowerTraining)
 		{
-			pDM_Odm->bChangeState = TRUE;
-			pDM_Odm->bDisablePowerTraining = FALSE;
+			pDM_Odm->bChangeState = true;
+			pDM_Odm->bDisablePowerTraining = false;
 		}
 
 		pDM_Odm->PT_score = 0;
@@ -1873,10 +1873,10 @@ odm_UpdatePowerTrainingState(
 		return;
 	
 	// First connect
-	if((pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == FALSE))
+	if((pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == false))
 	{
 		pDM_Odm->PT_score = 0;
-		pDM_Odm->bChangeState = TRUE;
+		pDM_Odm->bChangeState = true;
 		pDM_Odm->PhyDbgInfo.NumQryPhyStatusOFDM = 0;
 		pDM_Odm->PhyDbgInfo.NumQryPhyStatusCCK = 0;
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_RA_MASK, ODM_DBG_LOUD,("odm_UpdatePowerTrainingState(): First Connect\n"));
@@ -1922,8 +1922,8 @@ odm_UpdatePowerTrainingState(
 	{
 		if(pDM_Odm->bDisablePowerTraining)
 		{
-			pDM_Odm->bChangeState = TRUE;
-			pDM_Odm->bDisablePowerTraining = FALSE;
+			pDM_Odm->bChangeState = true;
+			pDM_Odm->bDisablePowerTraining = false;
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_RA_MASK, ODM_DBG_LOUD,("odm_UpdatePowerTrainingState(): Change state\n"));
 		}
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_RA_MASK, ODM_DBG_LOUD,("odm_UpdatePowerTrainingState(): Enable Power Training\n"));
@@ -1932,8 +1932,8 @@ odm_UpdatePowerTrainingState(
 	{
 		if(!pDM_Odm->bDisablePowerTraining)
 		{
-			pDM_Odm->bChangeState = TRUE;
-			pDM_Odm->bDisablePowerTraining = TRUE;
+			pDM_Odm->bChangeState = true;
+			pDM_Odm->bDisablePowerTraining = true;
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_RA_MASK, ODM_DBG_LOUD,("odm_UpdatePowerTrainingState(): Change state\n"));
 		}
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_RA_MASK, ODM_DBG_LOUD,("odm_UpdatePowerTrainingState(): Disable Power Training\n"));
