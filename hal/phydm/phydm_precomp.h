@@ -53,11 +53,6 @@
 
 	#include "../8192cd.h"
 	#include "../8192cd_util.h"
-	#ifdef _BIG_ENDIAN_
-	#define	ODM_ENDIAN_TYPE				ODM_ENDIAN_BIG
-	#else
-	#define	ODM_ENDIAN_TYPE				ODM_ENDIAN_LITTLE
-	#endif
 
 	#ifdef AP_BUILD_WORKAROUND
 	#include "../8192cd_headers.h"
@@ -70,7 +65,6 @@
 	#define __WLAN_ATTRIB_PACK__
 #elif (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	#include "mp_precomp.h"
-	#define	ODM_ENDIAN_TYPE				ODM_ENDIAN_LITTLE
 	#define __PACK
 	#define __WLAN_ATTRIB_PACK__
 #endif

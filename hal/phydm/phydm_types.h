@@ -28,10 +28,6 @@
 #define	ODM_CE		 	0x04	//BIT2
 #define	ODM_WIN		 	0x08	//BIT3
 
-// Deifne HW endian support
-#define	ODM_ENDIAN_BIG	0
-#define	ODM_ENDIAN_LITTLE	1
-
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 #define GET_PDM_ODM(__pAdapter)	((PDM_ODM_T)(&((GET_HAL_DATA(__pAdapter))->DM_OutSrc)))
 #elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
@@ -267,14 +263,7 @@ typedef enum _RT_SPINLOCK_TYPE{
 	#elif defined(CONFIG_GSPI_HCI)
 		#define DEV_BUS_TYPE  	RT_SDIO_INTERFACE
 	#endif
-	
 
-	#if defined(CONFIG_LITTLE_ENDIAN)	
-		#define	ODM_ENDIAN_TYPE			ODM_ENDIAN_LITTLE
-	#elif defined (CONFIG_BIG_ENDIAN)
-		#define	ODM_ENDIAN_TYPE			ODM_ENDIAN_BIG
-	#endif
-	
 #if defined (LINUX_VERSION_CODE) && (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
 	typedef struct legacy_timer_emu		RT_TIMER, *PRT_TIMER;
 #else
