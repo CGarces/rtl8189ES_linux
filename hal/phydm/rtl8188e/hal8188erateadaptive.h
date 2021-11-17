@@ -1,8 +1,7 @@
-#ifndef __INC_RA_H
-#define __INC_RA_H
-/*++
-Copyright (c) Realtek Semiconductor Corp. All rights reserved.
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2007 - 2014 Realtek Corporation. */
 
+/*++
 Module Name:
 	RateAdaptive.h
 	
@@ -14,6 +13,9 @@ Major Change History:
 	---------- ---------------   -------------------------------
 	2011-08-12 Page            Create.	
 --*/
+
+#ifndef __INC_RA_H
+#define __INC_RA_H
 
 // Rate adaptive define
 #define	PERENTRY	23

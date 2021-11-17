@@ -1,6 +1,7 @@
-/*++
-Copyright (c) Realtek Semiconductor Corp. All rights reserved.
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2007 - 2014 Realtek Corporation. */
 
+/*++
 Module Name:
 	RateAdaptive.c
 	
