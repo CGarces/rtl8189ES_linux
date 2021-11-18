@@ -43,24 +43,9 @@
 #include "rtl8814a/phydm_iqk_8814a.h"
 #endif
 
-
-#if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
-#include "halphyrf_ap.h"
-#include "phydm_powertracking_ap.h"
-#endif
-
-#if (DM_ODM_SUPPORT_TYPE & (ODM_CE))
 #include "phydm_noisemonitor.h"
 #include "halphyrf_ce.h"
 #include "phydm_powertracking_ce.h"
-#endif
-
-#if(DM_ODM_SUPPORT_TYPE & (ODM_WIN))
-#include "phydm_beamforming.h"
-#include "phydm_rxhp.h"
-#include "halphyrf_win.h"
-#include "phydm_powertracking_win.h"
-#endif
 
 //============================================================
 // Definition 
@@ -615,7 +600,7 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
     u4Byte          NoisyDecision_Smooth;
 	// ODM Platform info AP/ADSL/CE/MP = 1/2/3/4
 	u1Byte			SupportPlatform;		
-	// ODM Support Ability DIG/RATR/TX_PWR_TRACK/ ¡K¡K = 1/2/3/¡K
+	// ODM Support Ability DIG/RATR/TX_PWR_TRACK/ ï¿½Kï¿½K = 1/2/3/ï¿½K
 	u4Byte			SupportAbility;
 	// ODM PCIE/USB/SDIO = 1/2/3
 	u1Byte			SupportInterface;			
