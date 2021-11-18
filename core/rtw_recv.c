@@ -4892,14 +4892,9 @@ void rx_query_phy_status(
 		psta->rssi = pattrib->phy_info.RecvSignalPower;
 	//_exit_critical_bh(&pHalData->odm_stainfo_lock, &irqL);
 
-#ifdef CONFIG_SW_ANTENNA_DIVERSITY
-	if (GET_HAL_DATA(padapter)->odmpriv.RSSI_test == false)
-#endif
 	{
 		precvframe->u.hdr.psta = NULL;
-		if (pkt_info.bPacketMatchBSSID
-			&& (check_fwstate(&padapter->mlmepriv, WIFI_AP_STATE) == true)
-		) {
+		if (pkt_info.bPacketMatchBSSID && check_fwstate(&padapter->mlmepriv, WIFI_AP_STATE)) {
 			if (psta) {
 				precvframe->u.hdr.psta = psta;
 				rx_process_phy_info(padapter, precvframe);

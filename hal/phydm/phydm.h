@@ -11,12 +11,9 @@
 #include "phydm_pre_define.h"
 #include "phydm_dig.h"
 #include "phydm_edcaturbocheck.h"
-#include "phydm_pathdiv.h"
 #include "phydm_antdiv.h"
-#include "phydm_antdect.h"
 #include "phydm_dynamicbbpowersaving.h"
 #include "phydm_rainfo.h"
-#include "phydm_dynamictxpower.h"
 #include "phydm_cfotracking.h"
 #include "phydm_acs.h"
 #include "phydm_adaptivity.h"
@@ -819,11 +816,6 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 	//
 	//ODM Structure
 	//
-        #if (defined(CONFIG_HW_ANTENNA_DIVERSITY))
-	#if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
-	BDC_T					DM_BdcTable;
-	#endif
-        #endif
 	FAT_T						DM_FatTable;
 	DIG_T						DM_DigTable;
 	PS_T						DM_PSTable;
@@ -849,9 +841,6 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 	//Path Div Struct
 	PATHDIV_PARA	pathIQK;
 #endif
-#if(defined(CONFIG_PATH_DIVERSITY))
-	PATHDIV_T	DM_PathDiv;
-#endif	
 
 	EDCA_T		DM_EDCA_Table;
 	u4Byte		WMMEDCA_BE;
@@ -892,9 +881,6 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 
 	ODM_RATE_ADAPTIVE	RateAdaptive;
 //#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
-#if(defined(CONFIG_ANT_DETECTION))
-	ANT_DETECTED_INFO	AntDetectedInfo; // Antenna detected information for RSSI tool
-#endif
 	ODM_RF_CAL_T	RFCalibrateInfo;
 
 	

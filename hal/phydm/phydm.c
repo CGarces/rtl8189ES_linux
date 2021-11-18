@@ -416,17 +416,13 @@ ODM_DMInit(
 	ODM_EdcaTurboInit(pDM_Odm);
 	odm_RSSIMonitorInit(pDM_Odm);
 	phydm_rf_init(pDM_Odm);
-	odm_AntennaDiversityInit(pDM_Odm);
 	odm_AutoChannelSelectInit(pDM_Odm);
-	odm_PathDiversityInit(pDM_Odm);
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN))
 	phydm_Beamforming_Init(pDM_Odm);
 #endif	
 
-	if(pDM_Odm->SupportICType & ODM_IC_11N_SERIES)
-	{
+	if (pDM_Odm->SupportICType & ODM_IC_11N_SERIES) {
 		odm_DynamicBBPowerSavingInit(pDM_Odm);
-		odm_DynamicTxPowerInit(pDM_Odm);
 
 #if (RTL8188E_SUPPORT == 1)
 		if(pDM_Odm->SupportICType==ODM_RTL8188E)
@@ -438,11 +434,6 @@ ODM_DMInit(
 
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))
 	
-	#if (RTL8723B_SUPPORT == 1)
-		if(pDM_Odm->SupportICType == ODM_RTL8723B)
-			odm_SwAntDetectInit(pDM_Odm);
-	#endif
-
 	#if (RTL8192E_SUPPORT == 1)
 		if(pDM_Odm->SupportICType==ODM_RTL8192E)
 			odm_PrimaryCCA_Check_Init(pDM_Odm);
@@ -459,7 +450,6 @@ ODM_DMReset(
 	IN		PDM_ODM_T		pDM_Odm
 	)
 {
-	ODM_AntDivReset(pDM_Odm);
 	ODM_DMWatchdog(pDM_Odm);
 }
 
@@ -519,20 +509,11 @@ phydm_support_ablity_debug(
 	else
 	{
 
-		if(dm_value[1] == 1) //enable
-		{
+		if(dm_value[1] == 1) { //enable
 			pDM_Odm->SupportAbility |= BIT(dm_value[0]) ;
-			if(BIT(dm_value[0]) & ODM_BB_PATH_DIV)
-			{
-				odm_PathDiversityInit(pDM_Odm);
-			}
-		}
-		else if(dm_value[1] == 2) //disable
-		{
+		} else if(dm_value[1] == 2) { //disable
 			pDM_Odm->SupportAbility &= ~(BIT(dm_value[0])) ;
-		}
-		else
-		{
+		} else {
 			//DbgPrint("\n[Warning!!!]  1:enable,  2:disable \n\n");
 			PHYDM_SNPRINTF((output+used, out_len-used,"%s\n", "[Warning!!!]  1:enable,  2:disable"));
 		}
@@ -613,10 +594,7 @@ ODM_DMWatchdog(
 	odm_RefreshBasicRateMask(pDM_Odm);
 	odm_DynamicBBPowerSaving(pDM_Odm);
 	odm_EdcaTurboCheck(pDM_Odm);
-	odm_PathDiversity(pDM_Odm);
 	ODM_CfoTracking(pDM_Odm);
-	odm_DynamicTxPower(pDM_Odm);
-	odm_AntennaDiversity(pDM_Odm);
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN))
 	phydm_Beamforming_Watchdog(pDM_Odm);
 #endif
@@ -1129,13 +1107,6 @@ ODM_InitAllWorkItems(IN PDM_ODM_T	pDM_Odm )
 							(PVOID)pAdapter,
 							"AntennaSwitchWorkitem");
 #endif
-	#if ((RTL8192C_SUPPORT == 1) && (defined(CONFIG_SW_ANTENNA_DIVERSITY)))	
-	ODM_InitializeWorkItem(	pDM_Odm, 
-							&pDM_Odm->DM_SWAT_Table.SwAntennaSwitchWorkitem, 
-							(RT_WORKITEM_CALL_BACK)odm_SwAntDivChkAntSwitchWorkitemCallback,
-							(PVOID)pAdapter,
-							"AntennaSwitchWorkitem");
-	#endif	
 
 	ODM_InitializeWorkItem(
 		pDM_Odm,
@@ -1248,9 +1219,6 @@ ODM_FreeAllWorkItems(IN PDM_ODM_T	pDM_Odm )
 #if (RTL8723B_SUPPORT == 1)||(RTL8821A_SUPPORT == 1)
 	ODM_FreeWorkItem(&(pDM_Odm->DM_SWAT_Table.SwAntennaSwitchWorkitem_8723B));
 #endif
-#if ((RTL8192C_SUPPORT == 1) && (defined(CONFIG_SW_ANTENNA_DIVERSITY)))
-	ODM_FreeWorkItem(&(pDM_Odm->DM_SWAT_Table.SwAntennaSwitchWorkitem));
-#endif
 	ODM_FreeWorkItem(&(pDM_Odm->PathDivSwitchWorkitem));      
 	ODM_FreeWorkItem(&(pDM_Odm->CCKPathDiversityWorkitem));
 #if (defined(CONFIG_5G_CG_SMART_ANT_DIVERSITY)) || (defined(CONFIG_2G_CG_SMART_ANT_DIVERSITY))
@@ -1329,12 +1297,6 @@ ODM_InitAllTimers(
 	IN PDM_ODM_T	pDM_Odm 
 	)
 {
-#if(defined(CONFIG_HW_ANTENNA_DIVERSITY))
-	ODM_AntDivTimers(pDM_Odm,INIT_ANTDIV_TIMMER);
-#elif(defined(CONFIG_SW_ANTENNA_DIVERSITY))
-	ODM_InitializeTimer(pDM_Odm,&pDM_Odm->DM_SWAT_Table.SwAntennaSwitchTimer,
-		(RT_TIMER_CALL_BACK)odm_SwAntDivChkAntSwitchCallback, NULL, "SwAntennaSwitchTimer");
-#endif
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_AP)
 #ifdef MP_TEST
@@ -1384,12 +1346,6 @@ ODM_CancelAllTimers(
 	HAL_ADAPTER_STS_CHK(pDM_Odm)
 #endif	
 
-#if(defined(CONFIG_HW_ANTENNA_DIVERSITY))
-	ODM_AntDivTimers(pDM_Odm,CANCEL_ANTDIV_TIMMER);
-#elif(defined(CONFIG_SW_ANTENNA_DIVERSITY))
-	ODM_CancelTimer(pDM_Odm,&pDM_Odm->DM_SWAT_Table.SwAntennaSwitchTimer);
-#endif
-
 #if (DM_ODM_SUPPORT_TYPE == ODM_AP)
 #ifdef MP_TEST
 	if (pDM_Odm->priv->pshare->rf_ft_var.mp_specific)
@@ -1421,11 +1377,6 @@ ODM_ReleaseAllTimers(
 	IN PDM_ODM_T	pDM_Odm 
 	)
 {
-#if(defined(CONFIG_HW_ANTENNA_DIVERSITY))
-	ODM_AntDivTimers(pDM_Odm,RELEASE_ANTDIV_TIMMER);
-#elif(defined(CONFIG_SW_ANTENNA_DIVERSITY))
-	ODM_ReleaseTimer(pDM_Odm,&pDM_Odm->DM_SWAT_Table.SwAntennaSwitchTimer);
-#endif
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_AP)
     #ifdef MP_TEST

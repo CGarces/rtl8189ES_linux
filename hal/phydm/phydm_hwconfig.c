@@ -1124,13 +1124,6 @@ odm_RxPhyStatus92CSeries_Parsing(
 		//isCCKrate, pPhyInfo->RxPWDBAll, pPhyStaRpt->cck_agc_rpt_ofdm_cfosho_a);
 
 	//For 92C/92D HW (Hybrid) Antenna Diversity
-#if(defined(CONFIG_HW_ANTENNA_DIVERSITY))	
-	pDM_SWAT_Table->antsel = pPhyStaRpt->ant_sel;
-	//For 88E HW Antenna Diversity
-	pDM_Odm->DM_FatTable.antsel_rx_keep_0 = pPhyStaRpt->ant_sel;
-	pDM_Odm->DM_FatTable.antsel_rx_keep_1 = pPhyStaRpt->ant_sel_b;
-	pDM_Odm->DM_FatTable.antsel_rx_keep_2 = pPhyStaRpt->antsel_rx_keep_2;
-#endif
 }
 #endif
 
@@ -1664,19 +1657,6 @@ odm_Process_RSSIForDM(
 	isCCKrate = (pPktinfo->DataRate <= ODM_RATE11M )?true :false;
 	pDM_Odm->RxRate = pPktinfo->DataRate;
 
-	//--------------Statistic for antenna/path diversity------------------
-	if(pDM_Odm->SupportAbility & ODM_BB_ANT_DIV)
-	{
-		#if(defined(CONFIG_HW_ANTENNA_DIVERSITY))
-			ODM_Process_RSSIForAntDiv(pDM_Odm,pPhyInfo,pPktinfo);
-		#endif
-	}
-	#if(defined(CONFIG_PATH_DIVERSITY))
-	else if(pDM_Odm->SupportAbility & ODM_BB_PATH_DIV)
-	{
-		phydm_process_rssi_for_path_div(pDM_Odm,pPhyInfo,pPktinfo);
-	}
-	#endif
 	//-----------------Smart Antenna Debug Message------------------//
 	
 	UndecoratedSmoothedCCK =  pEntry->rssi_stat.UndecoratedSmoothedCCK;

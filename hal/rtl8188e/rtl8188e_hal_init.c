@@ -2870,11 +2870,6 @@ void rtl8188e_set_hal_ops(struct hal_ops *pHalFunc)
 	pHalFunc->run_thread= &rtl8188e_start_thread;
 	pHalFunc->cancel_thread= &rtl8188e_stop_thread;
 
-#ifdef CONFIG_ANTENNA_DIVERSITY
-	pHalFunc->AntDivBeforeLinkHandler = &AntDivBeforeLink8188E;
-	pHalFunc->AntDivCompareHandler = &AntDivCompare8188E;
-#endif
-
 	pHalFunc->read_bbreg = &PHY_QueryBBReg8188E;
 	pHalFunc->write_bbreg = &PHY_SetBBReg8188E;
 	pHalFunc->read_rfreg = &PHY_QueryRFReg8188E;
@@ -5004,30 +4999,6 @@ _func_enter_;
 			break;
 #endif
 
-#ifdef CONFIG_SW_ANTENNA_DIVERSITY
-		case HW_VAR_ANTENNA_DIVERSITY_LINK:
-			//odm_SwAntDivRestAfterLink8192C(Adapter);
-			ODM_SwAntDivRestAfterLink(podmpriv);
-			break;
-#endif			
-#ifdef CONFIG_ANTENNA_DIVERSITY
-		case HW_VAR_ANTENNA_DIVERSITY_SELECT:
-			{
-				u8	Optimum_antenna = (*(u8 *)val);
-				u8 	Ant ; 
-				//switch antenna to Optimum_antenna
-				//DBG_8192C("==> HW_VAR_ANTENNA_DIVERSITY_SELECT , Ant_(%s)\n",(Optimum_antenna==2)?"A":"B");
-				if(pHalData->CurAntenna !=  Optimum_antenna)		
-				{					
-					Ant = (Optimum_antenna==2)?MAIN_ANT:AUX_ANT;
-					ODM_UpdateRxIdleAnt(&pHalData->odmpriv, Ant);
-					
-					pHalData->CurAntenna = Optimum_antenna ;
-					//DBG_8192C("==> HW_VAR_ANTENNA_DIVERSITY_SELECT , Ant_(%s)\n",(Optimum_antenna==2)?"A":"B");
-				}
-			}
-			break;
-#endif
 		case HW_VAR_EFUSE_BYTES: // To set EFUE total used bytes, added by Roger, 2008.12.22.
 			pHalData->EfuseUsedBytes = *((u16 *)val);			
 			break;
@@ -5354,11 +5325,7 @@ _func_enter_;
 				}
 			}
 			break;
-#ifdef CONFIG_ANTENNA_DIVERSITY
-		case HW_VAR_CURRENT_ANTENNA:
-			val[0] = pHalData->CurAntenna;
-			break;
-#endif
+
 		case HW_VAR_EFUSE_BYTES: // To get EFUE total used bytes, added by Roger, 2008.12.22.
 			*((u16 *)(val)) = pHalData->EfuseUsedBytes;	
 			break;
@@ -5392,14 +5359,7 @@ GetHalDefVar8188E(
 	switch(eVariable)
 	{
 		case HAL_DEF_IS_SUPPORT_ANT_DIV:
-#ifdef CONFIG_ANTENNA_DIVERSITY
-			*((u8 *)pValue) = (pHalData->AntDivCfg==0)?false:true;
-			#endif
-break;
 		case HAL_DEF_CURRENT_ANTENNA:
-#ifdef CONFIG_ANTENNA_DIVERSITY
-			*(( u8*)pValue) = pHalData->CurAntenna;
-#endif
 			break;
 		case HAL_DEF_DRVINFO_SZ:
 			*(( u32*)pValue) = DRVINFO_SZ;
