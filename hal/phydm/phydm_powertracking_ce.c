@@ -509,24 +509,14 @@ odm_TXPowerTrackingCheckCE(
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PADAPTER	Adapter = pDM_Odm->Adapter;
-	#if( (RTL8192C_SUPPORT==1) ||  (RTL8723A_SUPPORT==1) )
+	#if (RTL8723A_SUPPORT==1) 
 	if(IS_HARDWARE_TYPE_8192C(Adapter)){
 		rtl8192c_odm_CheckTXPowerTracking(Adapter);
 		return;
 	}
 	#endif
 
-	#if (RTL8192D_SUPPORT==1) 
-	if(IS_HARDWARE_TYPE_8192D(Adapter)){	
-		#if (RTL8192D_EASY_SMART_CONCURRENT == 1)
-		if(!Adapter->bSlaveOfDMSP)
-		#endif
-			rtl8192d_odm_CheckTXPowerTracking(Adapter);
-		return;	
-	}
-	#endif
-
-	#if (((RTL8188E_SUPPORT == 1) ||  (RTL8812A_SUPPORT == 1) ||  (RTL8821A_SUPPORT == 1) ||  (RTL8192E_SUPPORT == 1)  ||  (RTL8723B_SUPPORT == 1)  ||  (RTL8814A_SUPPORT == 1) || (RTL8188F_SUPPORT == 1)))
+	#if (((RTL8188E_SUPPORT == 1) ||  (RTL8812A_SUPPORT == 1) ||  (RTL8821A_SUPPORT == 1) ||  (RTL8723B_SUPPORT == 1)  ||  (RTL8814A_SUPPORT == 1) || (RTL8188F_SUPPORT == 1)))
 	if (!(pDM_Odm->SupportAbility & ODM_RF_TX_PWR_TRACK))
 		return;
 

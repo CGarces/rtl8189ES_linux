@@ -20,7 +20,7 @@
 							_offset = _size-1;\
 					} while(0)
 
-#if (RTL8192C_SUPPORT||RTL8192D_SUPPORT||RTL8723A_SUPPORT)
+#if (RTL8723A_SUPPORT)
 void phydm_txpwrtrack_setpwr_dummy(
 	PDM_ODM_T			pDM_Odm,
 	PWRTRACK_METHOD 	Method,
@@ -69,25 +69,11 @@ void ConfigureTxpowerTrack(
 	)
 {
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
-#if RTL8192C_SUPPORT
-	if(pDM_Odm->SupportICType==ODM_RTL8192C)
-		configure_txpower_track_dummy(pConfig);
-#endif
-
-#if RTL8192D_SUPPORT
-	if(pDM_Odm->SupportICType==ODM_RTL8192D)
-		configure_txpower_track_dummy(pConfig);
-#endif
-
 #if RTL8723A_SUPPORT
 	if(pDM_Odm->SupportICType==ODM_RTL8723A)
 		configure_txpower_track_dummy(pConfig);
 #endif
 
-#if RTL8192E_SUPPORT
-	if(pDM_Odm->SupportICType==ODM_RTL8192E)
-		ConfigureTxpowerTrack_8192E(pConfig);
-#endif	
 #if RTL8821A_SUPPORT
 	if(pDM_Odm->SupportICType==ODM_RTL8821)
 		ConfigureTxpowerTrack_8821A(pConfig);

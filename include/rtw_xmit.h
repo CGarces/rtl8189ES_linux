@@ -138,14 +138,12 @@ do{\
 
 // For Buffer Descriptor ring architecture
 #ifdef BUF_DESC_ARCH	
-#if defined(CONFIG_RTL8192E)
-#define TX_BUFFER_SEG_NUM	1 /* 0:2 seg, 1: 4 seg, 2: 8 seg. */
-#elif defined(CONFIG_RTL8814A)
+#if defined(CONFIG_RTL8814A)
 #define TX_BUFFER_SEG_NUM	1 /* 0:2 seg, 1: 4 seg, 2: 8 seg. */
 #endif
 #endif
 
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8188F)
+#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8188F)
 #define TXDESC_SIZE 40
 #else
 #define TXDESC_SIZE 32 /* old IC (ex: 8188E) */
@@ -169,20 +167,6 @@ do{\
 #define TXDESC_OFFSET (TXDESC_SIZE + PACKET_OFFSET_SZ)
 #endif
 
-#ifdef CONFIG_PCI_HCI
-#if defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8814A)
-/* this section is defined for buffer descriptor ring architecture */
-#define TX_WIFI_INFO_SIZE (TXDESC_SIZE) /* it may add 802.11 hdr or others... */
-/* tx desc and payload are in the same buf */
-#define TXDESC_OFFSET (TX_WIFI_INFO_SIZE)
-#else
-/* tx desc and payload are NOT in the same buf */
-#define TXDESC_OFFSET (0)
-/* 8188ee/8723be/8812ae/8821ae has extra PCI DMA info in tx desc */
-#define TX_DESC_NEXT_DESC_OFFSET	(TXDESC_SIZE + 8)
-#endif
-#endif /* CONFIG_PCI_HCI */
-
 enum TXDESC_SC{
 	SC_DONT_CARE = 0x00,
 	SC_UPPER= 0x01,	
@@ -196,7 +180,7 @@ enum TXDESC_SC{
 #define TXDESC_40_BYTES
 #endif
 
-#if (defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8814A)) && defined(CONFIG_PCI_HCI) /* 8192ee or 8814ae */
+#if (defined(CONFIG_RTL8814A)) && defined(CONFIG_PCI_HCI) /* 8192ee or 8814ae */
 //8192EE_TODO
 struct tx_desc
 {
@@ -760,13 +744,7 @@ struct	xmit_priv	{
 extern struct xmit_frame *__rtw_alloc_cmdxmitframe(struct xmit_priv *pxmitpriv,
 		enum cmdbuf_type buf_type);
 #define rtw_alloc_cmdxmitframe(p) __rtw_alloc_cmdxmitframe(p, CMDBUF_RSVD)
-#if defined(CONFIG_RTL8192E) && defined(CONFIG_PCI_HCI) 
-extern struct xmit_frame *__rtw_alloc_cmdxmitframe_8192ee(struct xmit_priv *pxmitpriv,
-		enum cmdbuf_type buf_type);
-#define rtw_alloc_bcnxmitframe(p) __rtw_alloc_cmdxmitframe_8192ee(p, CMDBUF_BEACON)
-#else
 #define rtw_alloc_bcnxmitframe(p) __rtw_alloc_cmdxmitframe(p, CMDBUF_BEACON)
-#endif
 
 extern struct xmit_buf *rtw_alloc_xmitbuf_ext(struct xmit_priv *pxmitpriv);
 extern s32 rtw_free_xmitbuf_ext(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf);

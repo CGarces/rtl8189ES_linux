@@ -739,42 +739,6 @@ odm_DIG(
 	
 
 	//1 Update status
-#if (RTL8192D_SUPPORT==1) 
-	if(pDM_Odm->SupportICType == ODM_RTL8192D)
-	{
-		if(*(pDM_Odm->pMacPhyMode) == ODM_DMSP)
-		{
-			if(*(pDM_Odm->pbMasterOfDMSP))
-			{
-				DIG_Dynamic_MIN = pDM_DigTable->DIG_Dynamic_MIN_0;
-				FirstConnect = (pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == false);
-				FirstDisConnect = (!pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == true);
-			}
-			else
-			{
-				DIG_Dynamic_MIN = pDM_DigTable->DIG_Dynamic_MIN_1;
-				FirstConnect = (pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_1 == false);
-				FirstDisConnect = (!pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_1 == true);
-			}
-		}
-		else
-		{
-			if(*(pDM_Odm->pBandType) == ODM_BAND_5G)
-			{
-				DIG_Dynamic_MIN = pDM_DigTable->DIG_Dynamic_MIN_0;
-				FirstConnect = (pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == false);
-				FirstDisConnect = (!pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == true);
-			}
-			else
-			{
-				DIG_Dynamic_MIN = pDM_DigTable->DIG_Dynamic_MIN_1;
-				FirstConnect = (pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_1 == false);
-				FirstDisConnect = (!pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_1 == true);
-			}
-		}
-	}
-	else
-#endif
 	{	
 		DIG_Dynamic_MIN = pDM_DigTable->DIG_Dynamic_MIN_0;
 		FirstConnect = (pDM_Odm->bLinked) && (pDM_DigTable->bMediaConnect_0 == false);
@@ -889,24 +853,6 @@ odm_DIG(
 #endif
 
 	//1 Boundary Decision
-#if (RTL8192C_SUPPORT==1) 
-	if((pDM_Odm->SupportICType & ODM_RTL8192C) && (pDM_Odm->BoardType & (ODM_BOARD_EXT_LNA | ODM_BOARD_EXT_PA)))
-	{
-		//2 High power case
-		if(pDM_Odm->SupportPlatform & (ODM_AP|ODM_ADSL))
-		{
-			dm_dig_max = DM_DIG_MAX_AP_HP;
-			dm_dig_min = DM_DIG_MIN_AP_HP;
-		}
-		else
-		{
-			dm_dig_max = DM_DIG_MAX_NIC_HP;
-			dm_dig_min = DM_DIG_MIN_NIC_HP;
-		}
-		DIG_MaxOfMin = DM_DIG_MAX_AP_HP;
-	}
-	else
-#endif
 	{
 #if (DM_ODM_SUPPORT_TYPE & (ODM_AP|ODM_ADSL))
 		//2 For AP\ADSL
@@ -940,13 +886,6 @@ odm_DIG(
 		//4 TX2path
 		if (priv->pmib->dot11RFEntry.tx2path && !bDFSBand && (*(pDM_Odm->pWirelessMode) == ODM_WM_B))
 				dm_dig_max = 0x2A;
-
-#if RTL8192E_SUPPORT
-#ifdef HIGH_POWER_EXT_LNA
-		if ((pDM_Odm->SupportICType & (ODM_RTL8192E)) && (pDM_Odm->ExtLNA))
-			dm_dig_max = 0x42;						
-#endif
-#endif
 
 #else
 		//2 For WIN\CE
@@ -1239,41 +1178,6 @@ odm_DIG(
 #endif
 
 	//1 Update status
-#if (RTL8192D_SUPPORT==1) 
-	if(pDM_Odm->SupportICType == ODM_RTL8192D)
-	{
-		//sherry  delete DualMacSmartConncurrent 20110517
-		if(*(pDM_Odm->pMacPhyMode) == ODM_DMSP)
-		{
-			ODM_Write_DIG_DMSP(pDM_Odm, CurrentIGI);//ODM_Write_DIG_DMSP(pDM_Odm, pDM_DigTable->CurIGValue);
-			if(*(pDM_Odm->pbMasterOfDMSP))
-			{
-				pDM_DigTable->bMediaConnect_0 = pDM_Odm->bLinked;
-				pDM_DigTable->DIG_Dynamic_MIN_0 = DIG_Dynamic_MIN;
-			}
-			else
-			{
-				pDM_DigTable->bMediaConnect_1 = pDM_Odm->bLinked;
-				pDM_DigTable->DIG_Dynamic_MIN_1 = DIG_Dynamic_MIN;
-			}
-		}
-		else
-		{
-			ODM_Write_DIG(pDM_Odm, CurrentIGI);//ODM_Write_DIG(pDM_Odm, pDM_DigTable->CurIGValue);
-			if(*(pDM_Odm->pBandType) == ODM_BAND_5G)
-			{
-				pDM_DigTable->bMediaConnect_0 = pDM_Odm->bLinked;
-				pDM_DigTable->DIG_Dynamic_MIN_0 = DIG_Dynamic_MIN;
-			}
-			else
-			{
-				pDM_DigTable->bMediaConnect_1 = pDM_Odm->bLinked;
-				pDM_DigTable->DIG_Dynamic_MIN_1 = DIG_Dynamic_MIN;
-			}
-		}
-	}
-	else
-#endif
 	{
 #if ((DM_ODM_SUPPORT_TYPE & ODM_WIN) || ((DM_ODM_SUPPORT_TYPE & ODM_CE) && (ODM_CONFIG_BT_COEXIST == 1)))
 		if(pDM_Odm->bBtHsOperation)
@@ -1422,13 +1326,6 @@ odm_FalseAlarmCounterStatistics(
 		}
 #endif
 
-#if (RTL8192D_SUPPORT==1) 
-		if(pDM_Odm->SupportICType == ODM_RTL8192D)
-		{
-			odm_GetCCKFalseAlarm_92D(pDM_Odm);
-		}
-		else
-#endif
 		{
 			//hold cck counter
 			ODM_SetBBReg(pDM_Odm, ODM_REG_CCK_FA_RST_11N, BIT12, 1); 
@@ -1453,16 +1350,6 @@ odm_FalseAlarmCounterStatistics(
 							FalseAlmCnt->Cnt_Cck_fail);	
 
 		FalseAlmCnt->Cnt_CCA_all = FalseAlmCnt->Cnt_OFDM_CCA + FalseAlmCnt->Cnt_CCK_CCA;
-
-#if (RTL8192C_SUPPORT==1)
-		if(pDM_Odm->SupportICType == ODM_RTL8192C)
-			odm_ResetFACounter_92C(pDM_Odm);
-#endif
-
-#if (RTL8192D_SUPPORT==1)
-		if(pDM_Odm->SupportICType == ODM_RTL8192D)
-			odm_ResetFACounter_92D(pDM_Odm);
-#endif
 
 		if(pDM_Odm->SupportICType >=ODM_RTL8723A)
 		{
@@ -1710,12 +1597,7 @@ odm_CCKPacketDetectionThresh(
 		else
 			CurCCK_CCAThres = 0x40;
 	}
-	
-#if (RTL8192D_SUPPORT==1) 
-	if((pDM_Odm->SupportICType == ODM_RTL8192D) && (*pDM_Odm->pBandType == ODM_BAND_2_4G))
-		ODM_Write_CCK_CCA_Thres_92D(pDM_Odm, CurCCK_CCAThres);
-	else
-#endif
+
 		ODM_Write_CCK_CCA_Thres(pDM_Odm, CurCCK_CCAThres);
 
 	ODM_RT_TRACE(pDM_Odm,ODM_COMP_CCK_PD, ODM_DBG_LOUD, ("odm_CCKPacketDetectionThresh()  CurCCK_CCAThres = 0x%x\n",CurCCK_CCAThres));

@@ -20,12 +20,7 @@
 #define IQK_MAC_REG_NUM		4
 #define IQK_ADDA_REG_NUM		16
 #define IQK_BB_REG_NUM_MAX	10
-#if (RTL8192D_SUPPORT==1) 
-#define IQK_BB_REG_NUM		10
-#else
 #define IQK_BB_REG_NUM		9
-#endif
-
 
 #define IQK_Matrix_REG_NUM	8
 #define IQK_Matrix_Settings_NUM	14+24+21 // Channels_2_4G_NUM + Channels_5G_20M_NUM + Channels_5G

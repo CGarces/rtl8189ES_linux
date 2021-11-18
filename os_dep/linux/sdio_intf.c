@@ -39,10 +39,6 @@ static const struct sdio_device_id sdio_ids[] =
 	{ SDIO_DEVICE(0x024c, 0x8821),.driver_data = RTL8821},
 #endif //CONFIG_RTL8821A
 
-#ifdef CONFIG_RTL8192E
-	{ SDIO_DEVICE(0x024c, 0x818B),.driver_data = RTL8192E},
-#endif //CONFIG_RTL8192E
-
 #ifdef CONFIG_RTL8703B
 	{ SDIO_DEVICE(0x024c, 0xB703), .driver_data = RTL8703B},
 #endif
@@ -325,13 +321,6 @@ static void rtw_decide_chip_type_by_device_id(struct dvobj_priv *dvobj, const st
 	}
 #endif
 
-#if defined(CONFIG_RTL8192E)
-	if (dvobj->chip_type == RTL8192E) {
-		dvobj->HardwareType = HARDWARE_TYPE_RTL8192ES;
-		DBG_871X("CHIP TYPE: RTL8192E\n");
-	}
-#endif
-
 #if defined(CONFIG_RTL8703B)
 	if (dvobj->chip_type == RTL8703B) {
 		dvobj->HardwareType = HARDWARE_TYPE_RTL8703BS;
@@ -421,11 +410,6 @@ u8 rtw_set_hal_ops(PADAPTER padapter)
 #if defined(CONFIG_RTL8821A)
 	if (rtw_get_chip_type(padapter) == RTL8821)
 		rtl8821as_set_hal_ops(padapter);
-#endif
-
-#if defined(CONFIG_RTL8192E)
-	if (rtw_get_chip_type(padapter) == RTL8192E)
-		rtl8192es_set_hal_ops(padapter);
 #endif
 
 #if defined(CONFIG_RTL8703B)

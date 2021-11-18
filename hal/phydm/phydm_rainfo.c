@@ -391,7 +391,7 @@ phydm_reset_retry_limit_table(
 	#if (DM_ODM_SUPPORT_TYPE == ODM_WIN) /*support all IC platform*/
 
 	#else
-		#if ((RTL8192E_SUPPORT == 1) || (RTL8723B_SUPPORT == 1) || (RTL8188E_SUPPORT == 1)) 
+		#if ((RTL8723B_SUPPORT == 1) || (RTL8188E_SUPPORT == 1)) 
 			u1Byte per_rate_retrylimit_table_20M[ODM_RATEMCS15+1] = {
 				1, 1, 2, 4,					/*CCK*/
 				2, 2, 4, 6, 8, 12, 16, 18,		/*OFDM*/
@@ -1119,10 +1119,6 @@ odm_RSSIMonitorCheckCE(
 						rtl8812_set_rssi_cmd(Adapter, (u8 *)(&PWDB_rssi[i]));
 					}
 #endif
-#if(RTL8192E_SUPPORT==1)
-					if (pDM_Odm->SupportICType == ODM_RTL8192E)
-						rtl8192e_set_rssi_cmd(Adapter, (u8 *)(&PWDB_rssi[i]));
-#endif
 #if(RTL8723B_SUPPORT==1)
 					if (pDM_Odm->SupportICType == ODM_RTL8723B)
 						rtl8723b_set_rssi_cmd(Adapter, (u8 *)(&PWDB_rssi[i]));
@@ -1179,104 +1175,6 @@ odm_RSSIMonitorCheckAP(
 	IN		PVOID		pDM_VOID
 )
 {
-#if (DM_ODM_SUPPORT_TYPE == ODM_AP)
-#if (RTL8812A_SUPPORT||RTL8881A_SUPPORT||RTL8192E_SUPPORT||RTL8814A_SUPPORT)
-
-	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
-	u1Byte 			H2C_Parameter[4] = {0};
-	u4Byte			 i;
-	BOOLEAN			bExtRAInfo = false;
-	u1Byte			cmdlen = 3 ;
-	u1Byte			TxBF_EN = 0, stbc_en = 0;
-
-	prtl8192cd_priv	priv		= pDM_Odm->priv;
-	PSTA_INFO_T 		pstat;
-	BOOLEAN			act_bfer = false;
-
-	if (pDM_Odm->H2C_RARpt_connect) {
-		ODM_RT_TRACE(pDM_Odm, ODM_COMP_RATE_ADAPTIVE, ODM_DBG_LOUD, ("[RA Init] First Connected\n"));
-		/**/
-	} else if (priv->up_time % 2)
-		return;
-
-	if (pDM_Odm->SupportICType & EXT_RA_INFO_SUPPORT_IC) {
-		bExtRAInfo = true;
-		cmdlen = 4;
-	}
-
-	for (i = 0; i < ODM_ASSOCIATE_ENTRY_NUM; i++) {
-		pstat = pDM_Odm->pODM_StaInfo[i];
-
-		if (IS_STA_VALID(pstat)) {
-			if (pstat->sta_in_firmware != 1)
-				continue;
-
-			//2 BF_en
-#ifdef BEAMFORMING_SUPPORT
-			BEAMFORMING_CAP Beamform_cap = Beamforming_GetEntryBeamCapByMacId(priv, pstat->aid);
-
-			if (Beamform_cap == BEAMFORMER_CAP_HT_EXPLICIT || Beamform_cap == BEAMFORMER_CAP_VHT_SU ||
-				Beamform_cap == (BEAMFORMER_CAP_HT_EXPLICIT | BEAMFORMEE_CAP_HT_EXPLICIT) ||
-				Beamform_cap == (BEAMFORMER_CAP_VHT_SU | BEAMFORMEE_CAP_VHT_SU)) {
-				TxBF_EN = 1;
-				act_bfer = true;
-			}
-
-#endif
-
-			//2 STBC_en
-			if ((priv->pmib->dot11nConfigEntry.dot11nSTBC) &&
-				((pstat->ht_cap_buf.ht_cap_info & cpu_to_le16(_HTCAP_RX_STBC_CAP_))
-#ifdef RTK_AC_SUPPORT
-				 || (pstat->vht_cap_buf.vht_cap_info & cpu_to_le32(_VHTCAP_RX_STBC_CAP_))
-#endif
-				))
-				stbc_en = 1;
-
-			//2 RAINFO
-
-			if (bExtRAInfo) {
-				if ((pstat->rx_avarage)  > ((pstat->tx_avarage) * 6))
-					H2C_Parameter[3] |= RAINFO_BE_RX_STATE;
-
-				if (TxBF_EN)
-					H2C_Parameter[3] |= RAINFO_BF_STATE;
-				else {
-					if (stbc_en)
-						H2C_Parameter[3] |= RAINFO_STBC_STATE;
-				}
-
-                if ( pDM_Odm->NoisyDecision )
-                {
-                    H2C_Parameter[3] |= RAINFO_NOISY_STATE;             // BIT2
-                }
-				else
-					H2C_Parameter[3] &= (~RAINFO_NOISY_STATE);
-				
-				if (pDM_Odm->H2C_RARpt_connect) {
-					H2C_Parameter[3] |= RAINFO_INIT_RSSI_RATE_STATE;
-					ODM_RT_TRACE(pDM_Odm, ODM_COMP_RATE_ADAPTIVE, ODM_DBG_LOUD, ("[RA Init] set Init rate by RSSI\n"));
-				}
-
-				/*ODM_RT_TRACE(pDM_Odm,PHYDM_COMP_RA_DBG, ODM_DBG_LOUD, ("[RAINFO] H2C_Para[3] = %x\n",H2C_Parameter[3]));*/
-			}
-
-			H2C_Parameter[2] = (u1Byte)(pstat->rssi & 0xFF);
-			H2C_Parameter[0] = REMAP_AID(pstat);
-
-            ODM_RT_TRACE(pDM_Odm,ODM_COMP_COMMON, ODM_DBG_LOUD,
-            ("H2C_Parameter[3]=%d\n", H2C_Parameter[3]));
-
-			//ODM_RT_TRACE(pDM_Odm,PHYDM_COMP_RA_DBG, ODM_DBG_LOUD, ("[RSSI] H2C_Para[2] = %x,  \n",H2C_Parameter[2]));
-			//ODM_RT_TRACE(pDM_Odm,PHYDM_COMP_RA_DBG, ODM_DBG_LOUD, ("[MACID] H2C_Para[0] = %x,  \n",H2C_Parameter[0]));
-
-			ODM_FillH2CCmd(pDM_Odm, ODM_H2C_RSSI_REPORT, cmdlen, H2C_Parameter);
-
-		}
-	}
-
-#endif
-#endif
 
 }
 
@@ -1954,12 +1852,6 @@ ODM_UpdateInitRate(
 #if (RTL8723B_SUPPORT == 1)
 			ODM_TxPwrTrackSetPwr_8723B(pDM_Odm, MIX_MODE, ODM_RF_PATH_A, 0);
 #endif
-		} else if (pDM_Odm->SupportICType == ODM_RTL8192E) {
-			for (p = ODM_RF_PATH_A; p < MAX_PATH_NUM_8192E; p++) {
-#if (RTL8192E_SUPPORT == 1)
-				ODM_TxPwrTrackSetPwr92E(pDM_Odm, MIX_MODE, p, 0);
-#endif
-			}
 		} else if (pDM_Odm->SupportICType == ODM_RTL8188E) {
 #if (RTL8188E_SUPPORT == 1)
 			ODM_TxPwrTrackSetPwr88E(pDM_Odm, MIX_MODE, ODM_RF_PATH_A, 0);

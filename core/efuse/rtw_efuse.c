@@ -851,10 +851,6 @@ efuse_IsMasked(
 	if (IS_HARDWARE_TYPE_8821(pAdapter))  
 		return (IS_MASKED(8821A,_MUSB,Offset)) ? true : false;		
 #endif		
-#if defined(CONFIG_RTL8192E)
-	if (IS_HARDWARE_TYPE_8192E(pAdapter))  
-		return (IS_MASKED(8192E,_MUSB,Offset)) ? true : false;
-#endif
 #if defined(CONFIG_RTL8723B)
 	if (IS_HARDWARE_TYPE_8723B(pAdapter))  
 		return (IS_MASKED(8723B,_MUSB,Offset)) ? true : false;
@@ -872,10 +868,6 @@ efuse_IsMasked(
 	if (IS_HARDWARE_TYPE_8188E(pAdapter))  
 		return (IS_MASKED(8188E,_MPCIE,Offset)) ? true : false;
 #endif
-#if defined(CONFIG_RTL8192E)
-   	if (IS_HARDWARE_TYPE_8192E(pAdapter))	
-		return (IS_MASKED(8192E,_MPCIE,Offset)) ? true : false;
-#endif	
 #if defined(CONFIG_RTL8812A)
 	if (IS_HARDWARE_TYPE_8812(pAdapter))  
 		return (IS_MASKED(8812A,_MPCIE,Offset)) ? true : false;

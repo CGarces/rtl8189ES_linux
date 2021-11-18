@@ -6,27 +6,13 @@
 
 #include "phydm_types.h"
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-#include "Precomp.h"		// We need to include mp_precomp.h due to batch file setting.
-#else
 #define		TEST_FALG___		1
-#endif
-
-#if (DM_ODM_SUPPORT_TYPE ==ODM_CE) 
-#define 	RTL8192CE_SUPPORT 				0
-#define 	RTL8192CU_SUPPORT 				0
-#define 	RTL8192C_SUPPORT 				0	
-
-#define 	RTL8192DE_SUPPORT 				0
-#define 	RTL8192DU_SUPPORT 				0
-#define 	RTL8192D_SUPPORT 				0	
 
 #define 	RTL8723AU_SUPPORT				0
 #define 	RTL8723AS_SUPPORT				0
 #define 	RTL8723AE_SUPPORT				0
 #define 	RTL8723A_SUPPORT				0
 #define 	RTL8723_FPGA_VERIFICATION		0
-#endif
 
 //2 Config Flags and Structs - defined by each ODM Type
 
@@ -118,30 +104,6 @@ PHY_SetTxPowerLimit(
 	#include "rtl8188e/halphyrf_8188e_ap.h"
 #endif
 #endif  //88E END
-
-#if (RTL8192E_SUPPORT==1) 
-
-	#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-		#include "rtl8192e/halphyrf_8192e_win.h" /*FOR_8192E_IQK*/
-	#elif (DM_ODM_SUPPORT_TYPE == ODM_AP)
-		#include "rtl8192e/halphyrf_8192e_ap.h" /*FOR_8192E_IQK*/
-	#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
-		#include "rtl8192e/halphyrf_8192e_ce.h" /*FOR_8192E_IQK*/
-	#endif
-	
-#include "rtl8192e/phydm_rtl8192e.h" //FOR_8192E_IQK
-#if (DM_ODM_SUPPORT_TYPE != ODM_AP)
-	#include "rtl8192e/halhwimg8192e_bb.h"
-	#include "rtl8192e/halhwimg8192e_mac.h"
-	#include "rtl8192e/halhwimg8192e_rf.h"
-	#include "rtl8192e/phydm_regconfig8192e.h"
-	#include "rtl8192e/halhwimg8192e_fw.h"
-	#include "rtl8192e/hal8192ereg.h"
-#endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
-	#include "rtl8192e_hal.h"
-#endif
-#endif  //92E END
 
 #if (RTL8812A_SUPPORT==1)
 
