@@ -174,19 +174,10 @@ typedef struct _ODM_RATE_ADAPTIVE {
 	u1Byte				LowRSSIThresh;		// if RSSI <= LowRSSIThresh	=> RATRState is DM_RATR_STA_LOW
 	u1Byte				RATRState;			// Current RSSI level, DM_RATR_STA_HIGH/DM_RATR_STA_MIDDLE/DM_RATR_STA_LOW
 
-#if(DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))
 	u1Byte				LdpcThres;			// if RSSI > LdpcThres => switch from LPDC to BCC
 	BOOLEAN				bLowerRtsRate;
-#endif
 
-#if(DM_ODM_SUPPORT_TYPE & ODM_WIN)
-	u1Byte				RtsThres;
-#elif(DM_ODM_SUPPORT_TYPE & ODM_CE)
 	BOOLEAN				bUseLdpc;
-#else
-	u1Byte				UltraLowRSSIThresh;
-	u4Byte				LastRATR;			// RATR Register Content
-#endif
 
 } ODM_RATE_ADAPTIVE, *PODM_RATE_ADAPTIVE;
 
@@ -209,16 +200,6 @@ odm_RA_debug(
 );
 
 VOID
-odm_RA_ParaAdjust_init(
-	IN		PVOID		pDM_VOID
-);
-
-VOID
-odm_RA_ParaAdjust(
-	IN		PVOID		pDM_VOID
-);
-
-VOID
 phydm_ra_dynamic_retry_limit(
 	IN	PVOID	pDM_VOID
 );
@@ -230,12 +211,6 @@ phydm_ra_dynamic_rate_id_on_assoc(
 	IN	u1Byte	init_rate_id
 );
 
-VOID
-phydm_c2h_ra_report_handler(
-	IN PVOID	pDM_VOID,
-	IN pu1Byte   CmdBuf,
-	IN u1Byte   CmdLen
-);
 
 VOID
 phydm_ra_info_init(
@@ -252,31 +227,10 @@ odm_RSSIMonitorCheck(
 	IN	PVOID	pDM_VOID
 );
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-s4Byte
-phydm_FindMinimumRSSI(
-IN		PDM_ODM_T		pDM_Odm,
-IN		PADAPTER		pAdapter,
-IN OUT	BOOLEAN	*pbLink_temp
-
-	);
-#endif
-
-VOID
-odm_RSSIMonitorCheckMP(
-	IN	PVOID	pDM_VOID
-);
-
 VOID
 odm_RSSIMonitorCheckCE(
 	IN	PVOID	pDM_VOID
 );
-
-VOID
-odm_RSSIMonitorCheckAP(
-	IN	PVOID	pDM_VOID
-);
-
 
 VOID
 odm_RateAdaptiveMaskInit(
@@ -289,17 +243,7 @@ odm_RefreshRateAdaptiveMask(
 );
 
 VOID
-odm_RefreshRateAdaptiveMaskMP(
-	IN		PVOID		pDM_VOID
-);
-
-VOID
 odm_RefreshRateAdaptiveMaskCE(
-	IN		PVOID		pDM_VOID
-);
-
-VOID
-odm_RefreshRateAdaptiveMaskAPADSL(
 	IN		PVOID		pDM_VOID
 );
 
@@ -312,15 +256,9 @@ ODM_RAStateCheck(
 );
 
 VOID
-odm_RefreshBasicRateMask(
-	IN		PVOID		pDM_VOID
-);
-VOID
 ODM_RAPostActionOnAssoc(
 	IN		PVOID	pDM_Odm
 );
-
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
 
 u1Byte
 odm_Find_RTS_Rate(
@@ -349,36 +287,6 @@ ODM_UpdateInitRate(
 	IN	u1Byte		Rate
 );
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-
-VOID
-odm_RSSIDumpToRegister(
-	IN	PVOID	pDM_VOID
-);
-
-VOID
-odm_RefreshLdpcRtsMP(
-	IN	PADAPTER			pAdapter,
-	IN	PDM_ODM_T			pDM_Odm,
-	IN	u1Byte				mMacId,
-	IN	u1Byte				IOTPeer,
-	IN	s4Byte				UndecoratedSmoothedPWDB
-);
-
-VOID
-ODM_DynamicARFBSelect(
-	IN		PVOID		pDM_VOID,
-	IN 		u1Byte		rate,
-	IN  	BOOLEAN		Collision_State
-);
-
-VOID
-ODM_RateAdaptiveStateApInit(
-	IN	PVOID			PADAPTER_VOID,
-	IN	PRT_WLAN_STA  	pEntry
-);
-#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
-
 static void
 FindMinimumRSSI(
 	IN	PADAPTER	pAdapter
@@ -400,9 +308,6 @@ ODM_Get_Rate_Bitmap(
 	IN	u4Byte 		ra_mask,
 	IN	u1Byte 		rssi_level
 );
-#endif/*#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)*/
-
-#endif/*#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN| ODM_CE))*/
 
 #endif /*#ifndef	__ODMRAINFO_H__*/
 

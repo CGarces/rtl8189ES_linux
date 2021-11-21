@@ -395,7 +395,6 @@ ODM_DMInit(
 	Phydm_AdaptivityInit(pDM_Odm);
 	phydm_ra_info_init(pDM_Odm);
 	odm_RateAdaptiveMaskInit(pDM_Odm);
-	odm_RA_ParaAdjust_init(pDM_Odm);
 	ODM_CfoTrackingInit(pDM_Odm);
 	ODM_EdcaTurboInit(pDM_Odm);
 	odm_RSSIMonitorInit(pDM_Odm);
@@ -564,9 +563,7 @@ ODM_DMWatchdog(
 		Phydm_Adaptivity(pDM_Odm, pDM_DigTable->CurIGValue);
 	}
 	odm_CCKPacketDetectionThresh(pDM_Odm);
-	phydm_ra_dynamic_retry_limit(pDM_Odm);
 	odm_RefreshRateAdaptiveMask(pDM_Odm);
-	odm_RefreshBasicRateMask(pDM_Odm);
 	odm_DynamicBBPowerSaving(pDM_Odm);
 	odm_EdcaTurboCheck(pDM_Odm);
 	ODM_CfoTracking(pDM_Odm);
