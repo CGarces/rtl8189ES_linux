@@ -23,6 +23,12 @@ jobs:
         version: ${{fromJson(needs.fetchKernelData.outputs.matrix)}}
         #version: [4.9.248, 4.4.248]
     steps:
+    - name: Install GCC11
+      shell: bash
+      run:  |
+          sudo apt update
+          sudo apt install gcc-11 g++-11
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 110 --slave /usr/bin/g++ g++ /usr/bin/g++-11 --slave /usr/bin/gcov gcov /usr/bin/gcov-11
     - uses: actions/checkout@v2
     - name: download-Kernel
       env: 
