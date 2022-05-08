@@ -23,6 +23,10 @@ jobs:
         version: ${{fromJson(needs.fetchKernelData.outputs.matrix)}}
         #version: [4.9.248, 4.4.248]
     steps:
+    - name: Set up GCC
+      uses: egor-tensin/setup-gcc@v1
+      with:
+        version: 11
     - uses: actions/checkout@v2
     - name: download-Kernel
       env: 
@@ -35,9 +39,7 @@ jobs:
         wget -nv ${KERNEL_URL}v${VERSION}/$(echo "$KERNEL_URL_DETAILS" | grep -m1 "amd64.deb" | cut -d '"' -f 2)
         wget -nv ${KERNEL_URL}v${VERSION}/$ALL_DEB
         wget -nv http://mirrors.edge.kernel.org/ubuntu/pool/main/g/glibc/libc6_2.34-0ubuntu3_amd64.deb
-        wget -nv http://mirrors.kernel.org/ubuntu/pool/main/g/gcc-11/gcc-11_11.2.0-7ubuntu2_amd64.deb        
         sudo dpkg --force-all -i *.deb
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 110 --slave /usr/bin/g++ g++ /usr/bin/g++-11 --slave /usr/bin/gcov gcov /usr/bin/gcov-11
         echo "KVER=$KVER" >> $GITHUB_ENV
     - name: build
       run: make KVER=$KVER CONFIG_PLATFORM_I386_PC=y
